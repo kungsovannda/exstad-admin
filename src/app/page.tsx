@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div>
       Welcome
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleLogout}></button>
     </div>
   );
 }
