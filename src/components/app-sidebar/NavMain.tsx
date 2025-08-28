@@ -18,6 +18,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function NavMain({
   items,
@@ -33,6 +34,7 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const pathname = usePathname();
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
@@ -57,7 +59,10 @@ export function NavMain({
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
+                        <SidebarMenuSubButton
+                          isActive={pathname == subItem.url}
+                          asChild
+                        >
                           <Link href={subItem.url}>
                             <span>{subItem.title}</span>
                           </Link>
@@ -71,7 +76,10 @@ export function NavMain({
           ) : (
             <SidebarMenuItem key={item.title}>
               <Link href={item.url}>
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton
+                  isActive={pathname == item.url}
+                  tooltip={item.title}
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>
