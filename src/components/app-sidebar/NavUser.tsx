@@ -20,7 +20,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import Link from "next/link";
 
 export function NavUser() {
@@ -45,7 +44,7 @@ export function NavUser() {
 
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
+      <SidebarMenuItem className="z-60">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton

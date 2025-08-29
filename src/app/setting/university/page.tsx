@@ -1,7 +1,8 @@
 "use client";
 import { useUniversities } from "@/hooks/university/useUniversities";
-import { DataTable } from "./data-table";
+import DataTable from "./data-table";
 import { columns } from "./column";
+import Loader from "@/app/loading";
 
 type University = {
   uuid: string;
@@ -19,7 +20,8 @@ type University = {
 export default function University() {
   const { data, isLoading, error } = useUniversities();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loader />;
+
   if (error) return <div>Error: {error.message}</div>;
 
   return (

@@ -1,4 +1,3 @@
-// @/hooks/university/useUniversities.js - Updated hook
 import { useQuery } from "@tanstack/react-query";
 import { useAxios } from "@/hooks/useAxios";
 
@@ -12,6 +11,5 @@ export const useUniversities = () => {
       console.log("Fetched:", data);
       return data;
     },
-    enabled: true,
   });
 };

@@ -9,14 +9,13 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
   SidebarProvider,
-  SidebarHeader,
 } from "@/components/ui/sidebar";
 import { Map, MapPinHouse, SettingsIcon, University } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
+import Loader from "../loading";
 
 const groups = [
   {
@@ -98,8 +97,10 @@ export default function SettingLayout({
         >
           <SettingSidebar />
         </div>
-        <ScrollArea className="p-5 h-screen w-full overflow-x-hidden">
-          {children}
+        <ScrollArea className="h-screen w-full overflow-x-hidden">
+          <main className="p-5">
+            <Suspense fallback={<Loader />}>{children}</Suspense>
+          </main>
         </ScrollArea>
       </SidebarProvider>
     </main>

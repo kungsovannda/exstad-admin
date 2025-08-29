@@ -4,6 +4,8 @@ import "./globals.css";
 import AuthProvider from "./AuthProvider";
 import LayoutWrapper from "./LayoutWrapper";
 import ReactQueryProvider from "./ReactQueryProvider";
+import { Suspense } from "react";
+import Loader from "./loading";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,7 +34,9 @@ export default function RootLayout({
       <body className={`${inter.variable} ${koh.variable}`}>
         <AuthProvider>
           <ReactQueryProvider>
-            <LayoutWrapper>{children}</LayoutWrapper>
+            <Suspense fallback={<Loader />}>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </Suspense>
           </ReactQueryProvider>
         </AuthProvider>
       </body>
