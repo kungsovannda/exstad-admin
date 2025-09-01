@@ -1,72 +1,23 @@
-import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
+import { programType } from "@/types/programs";
 import { ArrowUpDown } from "lucide-react";
-type University = {
-  uuid: string;
-  englishName: string;
-  khmerName: string;
-  shortName: string;
-  audit: {
-    createdBy: string;
-    createdAt: string;
-    updatedBy: string;
-    updatedAt: string;
-  };
-};
 
-export const columns: ColumnDef<University>[] = [
+export const columns: ColumnDef<programType>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
+    id: "title",
+    accessorKey: "title",
+    header: ({ column }) => (
+      <span
+        className="flex items-center cursor-pointer"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Title <ArrowUpDown className="ml-2 h-3 w-3" />
+      </span>
     ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    enableResizing: false,
-    size: 40,
   },
-  {
-    header: ({ column }) => {
-      return (
-        <span
-          className="flex items-center cursor-pointer"
-          onClick={() => {
-            column.toggleSorting(column.getIsSorted() === "asc");
-          }}
-        >
-          English Name <ArrowUpDown className="ml-2 h-3 w-3" />
-        </span>
-      );
-    },
-    accessorKey: "englishName",
-    size: 650,
-  },
-  {
-    accessorKey: "shortName",
-    header: "Short Name",
-    size: 350,
-  },
-  {
-    accessorKey: "khmerName",
-    header: "Khmer Name",
-    size: 600,
-  },
-  {
-    accessorKey: "audit.createdBy",
-    header: "Created By",
-  },
+  { accessorKey: "program_type", header: "Type" },
+  { accessorKey: "level", header: "Level" },
+  { accessorKey: "price", header: "Price" },
+  { accessorKey: "duration", header: "Duration" },
+  { accessorKey: "scholarship", header: "Scholarship (%)" },
 ];

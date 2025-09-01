@@ -16,7 +16,7 @@ type Option = {
 
 type FormFieldProps = {
   id: string;
-  label: string;
+  label?: string;
   type?: "text" | "email" | "select" | "textarea"|"number" | "date"|"file";
   placeholder?: string; 
   options?: Option[]; // for select type

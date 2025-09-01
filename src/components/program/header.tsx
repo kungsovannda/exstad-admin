@@ -25,7 +25,7 @@ export default function Header({
         return (
           <React.Fragment key={index}>
             <div className="flex flex-col gap-2 items-center justify-center">
-              <p className={`rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold ${isActive? "bg-primary-hover text-white border border-primary-hover": "border border-primary-hover text-primary-hover" }`} > {index + 1} </p>
+              <p className={`rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold ${isActive? "bg-primary text-white border border-primary-hover": "border border-primary-hover text-primary-hover" }`} > {index + 1} </p>
               <p className={`text-sm font-normal text-center ${ isActive ? "text-primary-hover" : "text-foreground"  }`}>  {s.title} </p>
             </div>
             {index !== steps.length - 1 && (
