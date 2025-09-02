@@ -8,6 +8,7 @@ export type openingProgramType = {
     qrimage: string;
     activities: ActivityDataType[];
     timeline: timeline[];
+    classes:Classes[];
 
 }
 
@@ -24,11 +25,19 @@ export type ActivityDataType = {
 }
 
 export type timeline = {
-  id: number
+  id: number;
   date: string;
   title: string;
 };
 
+
+export type Classes = {
+    id:number;
+    title:string;
+    shift:string;
+    isWeekend:boolean;
+    totalSlots:number;
+}
 
 // export type RoadmapType = {
 
