@@ -2,7 +2,6 @@
 import { useDeleteUniversity, useUniversities } from "@/hooks/university";
 import DataTable from "./data-table";
 import { columns } from "./column";
-import Loader from "@/app/loading";
 import { useState } from "react";
 import { University } from "@/types/university";
 import { ViewAndUpdateUniversity } from "@/components/university/ViewAndUpdateUniversity";

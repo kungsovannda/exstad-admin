@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Trash } from "lucide-react";
 
 export default function ModalDelete({
   open,

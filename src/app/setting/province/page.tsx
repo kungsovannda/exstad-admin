@@ -1,7 +1,6 @@
 "use client";
 import DataTable from "./data-table";
 import { columns } from "./column";
-import Loader from "@/app/loading";
 import { useState } from "react";
 import { Heading } from "@/components/Heading";
 import { Separator } from "@/components/ui/separator";
