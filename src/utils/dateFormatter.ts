@@ -1,4 +1,4 @@
-export const dateFormatter = (date: string | Date) => {
+export const dateFormatter = (date?: string | Date) => {
   if (!date) return "N/A";
   const d = new Date(date);
   return d.toLocaleString(navigator.language, {

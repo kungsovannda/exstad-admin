@@ -9,6 +9,7 @@ import "./theme.css";
 import { cn } from "@/lib/utils";
 import ThemeProvider from "@/components/layout/theme-toggle/ThemeProvider";
 import { ActiveThemeProvider } from "@/components/active-theme";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -80,7 +81,10 @@ export default async function RootLayout({
             <ActiveThemeProvider>
               <ReactQueryProvider>
                 {/* <Suspense fallback={<Loader />}> */}
-                <LayoutWrapper>{children}</LayoutWrapper>
+                <LayoutWrapper>
+                  {children}
+                  <Toaster />
+                </LayoutWrapper>
                 {/* </Suspense> */}
               </ReactQueryProvider>
             </ActiveThemeProvider>
