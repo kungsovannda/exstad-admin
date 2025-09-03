@@ -12,6 +12,7 @@ export type programType = {
   program_type:string;
   bg: string;
   title: string;
+  slug:string;
   subtitle: string;
   description: string;
   level:Level;

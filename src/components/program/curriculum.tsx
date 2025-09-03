@@ -104,6 +104,14 @@ export default function CurriculumAdmin() {
     );
   };
 
+   // 👇 handle save
+  const handleSave = () => {
+    console.log("Saved Curriculum:", curriculum);
+    // TODO: call API to save curriculum
+    // Example:
+    // await fetch('/api/curriculum', { method: 'POST', body: JSON.stringify(curriculum) });
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-center">
@@ -180,6 +188,11 @@ export default function CurriculumAdmin() {
           </div>
         );
       })}
+       <div className="flex justify-end mt-6">
+        <Button onClick={handleSave} className="bg-primary text-white">
+          Save Curriculum
+        </Button>
+      </div>
     </div>
   );
 }

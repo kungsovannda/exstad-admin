@@ -9,6 +9,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { format } from "date-fns";
+import GradientColorInput from "@/app/color-picker/page";
+
 type Option = {
   value: string;
   label: string;
@@ -17,7 +19,7 @@ type Option = {
 type FormFieldProps = {
   id: string;
   label?: string;
-  type?: "text" | "email" | "select" | "textarea"|"number" | "date"|"file";
+  type?: "text" | "email" | "select" | "textarea"|"number" | "date"|"file"| "color";
   placeholder?: string; 
   options?: Option[]; // for select type
   rows?: number; // for textarea height
@@ -52,15 +54,21 @@ export function FormField({
             </SelectGroup>
           </SelectContent>
         </Select>
-      ) : type === "textarea" ? (
+      ) : type === "color" ? (   // 👈 added branch
+  <Input type="color" id={id} placeholder={placeholder} />
+):
+      type === "textarea" ? (
         <textarea
           id={id}
           placeholder={placeholder}
           rows={rows}
           className="w-full border border-border rounded-md px-3 py-2 text-sm"
         />
-      ) : type === "date" ? (
+      ) 
+      
+      : type === "date" ? (
       <div className="grid w-full gap-2">
+
     <Popover>
       <PopoverTrigger asChild>
         <Button
@@ -85,7 +93,9 @@ export function FormField({
   </div>
       ) :  (
         <Input type={type} id={id} placeholder={placeholder} />
-      )}
+      ) 
+      }
+
     </div>
   );
 }

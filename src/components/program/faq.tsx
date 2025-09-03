@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import LearningOutcomesAdmin from "./opening-program/learning-outcome";
+import CourseRequirementsAdmin from "./opening-program/course-requirement";
 
 export default function Faq() {
   type Section = {
@@ -135,6 +137,14 @@ export default function Faq() {
     );
   };
 
+  // 👇 handle save
+  const handleSave = () => {
+    console.log("Saved Curriculum:", curriculum);
+    // TODO: call API to save curriculum
+    // Example:
+    // await fetch('/api/curriculum', { method: 'POST', body: JSON.stringify(curriculum) });
+  };
+
   return (
     <div className="flex flex-col gap-5">
       {/* Header */}
@@ -238,6 +248,15 @@ export default function Faq() {
           </div>
         );
       })}
+       <div className="flex justify-end mt-6">
+              <Button onClick={handleSave} className="bg-primary text-white">
+                Save FAQ
+              </Button>
+            </div>
+            <div className="mt-6 flex items-center gap-6 w-full ">
+            <LearningOutcomesAdmin/>
+            <CourseRequirementsAdmin/>
+            </div>
     </div>
   );
 }

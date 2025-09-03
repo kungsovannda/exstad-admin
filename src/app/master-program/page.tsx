@@ -30,7 +30,7 @@ const filterLevel = "all";
         <Link href="/master-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
             <FiPlus className="text-[18px]" />
-            <span className="text-[14px] font-bold">Open Program</span>
+            <span className="text-[14px] font-bold">Create New Program</span>
           </Button>
         </Link>
       </div>

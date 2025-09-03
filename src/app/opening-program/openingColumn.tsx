@@ -3,12 +3,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { openingProgramType } from "@/types/openingProgramType";
+import { OpeningActionsCell } from "@/components/program/opening-program/action-cell";
 
 export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
+  {accessorKey: "id", header: "ID",  },
   {
     accessorKey: "title",
     header: "Program Name",
@@ -23,6 +21,7 @@ export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
     cell: ({ row }) =>
       row.original.classes.reduce((sum, cls) => sum + cls.totalSlots, 0),
   },
+  
   {
     id: "status",
     header: "Status",
@@ -39,12 +38,8 @@ export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
     },
   },
   {
-    id: "actions",
-    header: "Actions",
-    cell: ({ }) => (
-      <Button size="sm" variant="outline">
-        View
-      </Button>
-    ),
-  },
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => <OpeningActionsCell openingprogram={row.original} />,
+    },
 ];

@@ -9,6 +9,7 @@ export type openingProgramType = {
     activities: ActivityDataType[];
     timeline: timeline[];
     classes:Classes[];
+    slug:string;
 
 }
 

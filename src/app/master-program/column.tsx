@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { programType } from "@/types/programs";
 import { ArrowUpDown } from "lucide-react";
+import { MasterActionsCell } from "@/components/program/master-program/action-cell";
 
 export const columns: ColumnDef<programType>[] = [
   {
@@ -20,4 +21,10 @@ export const columns: ColumnDef<programType>[] = [
   { accessorKey: "price", header: "Price" },
   { accessorKey: "duration", header: "Duration" },
   { accessorKey: "scholarship", header: "Scholarship (%)" },
+
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => <MasterActionsCell program={row.original} />,
+  },
 ];
