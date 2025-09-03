@@ -41,7 +41,7 @@ export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
+    cell: ({ }) => (
       <Button size="sm" variant="outline">
         View
       </Button>

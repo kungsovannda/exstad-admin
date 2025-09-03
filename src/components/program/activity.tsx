@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState } from "react";
-import Header from "@/components/program/header";
+import React from "react";
 import { FormField } from "@/components/program/program-information";
-import { Button } from "@/components/ui/button";
-import Class from "@/components/program/class";
 
 type Field = {
   id: string;

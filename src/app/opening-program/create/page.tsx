@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Header from "@/components/program/header";
-import { FormField } from "@/components/program/program-information";
 import Curriculum from "@/components/program/curriculum";
 import { Button } from "@/components/ui/button";
 import Class from "@/components/program/class";
