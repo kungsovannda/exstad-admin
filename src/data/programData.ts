@@ -396,7 +396,6 @@ export const programData: programType[] = [
     scholarship: 20,
     totalslot:200,
     program_type:"Scholarship Course",
-
     highlights: [
       {
         label: "Project-based",

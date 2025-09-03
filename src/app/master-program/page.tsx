@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionCards } from "@/components/program/section-card";
@@ -10,9 +10,9 @@ import { programType } from "@/types/programs";
 import { Plus } from "lucide-react";
 
 export default function Page() {
-  const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [filterLevel, setFilterLevel] = useState("all");
+  const search = "";
+  const filterType = "all";
+  const filterLevel = "all";
 
   const filteredPrograms = useMemo(() => {
     return programData.filter((p: programType) => {

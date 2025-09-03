@@ -1,33 +1,53 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 import Header from "@/components/program/header";
 import { FormField } from "@/components/program/program-information";
 import Curriculum from "@/components/program/curriculum";
 import { Button } from "@/components/ui/button";
+import Faq from "@/components/program/faq";
 
 type Field = {
   id: string;
   label: string;
-  type?: "text" | "email" | "select" | "textarea"|"number"|"date"|"file";
+  type?: "text" | "email" | "select" | "textarea" | "number" | "date" | "file";
   placeholder?: string;
   options?: { value: string; label: string }[];
   rows?: number;
 };
 
 export default function Page() {
+  // steps definition
+  const steps = [
+    { title: "Program Information" },
+    { title: "Curriculum" },
+    { title: "Additional Information" },
+    { title: "Roadmap" },
+  ];
+
   const [step, setStep] = useState(1);
+  const totalSteps = steps.length;
+
+  // navigation functions
+  const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const fieldsStep1: Field[] = [
     { id: "Title", label: "Title", type: "text", placeholder: "Enter your program title" },
-    { id: "Program Type", label: "Program Type", type: "select",
+    {
+      id: "Program Type",
+      label: "Program Type",
+      type: "select",
       options: [
         { value: "Short Course", label: "Short Course" },
         { value: "Scholarship", label: "Scholarship" },
       ],
       placeholder: "Select a program type",
     },
-    { id: "Program Level", label: "Program Level", type: "select",
+    {
+      id: "Program Level",
+      label: "Program Level",
+      type: "select",
       options: [
         { value: "Beginner", label: "Beginner" },
         { value: "Intermediate", label: "Intermediate" },
@@ -35,7 +55,10 @@ export default function Page() {
       ],
       placeholder: "Select a program level",
     },
-    { id: "Visibility", label: "Visibility", type: "select",
+    {
+      id: "Visibility",
+      label: "Visibility",
+      type: "select",
       options: [
         { value: "Public", label: "Public" },
         { value: "Private", label: "Private" },
@@ -46,23 +69,22 @@ export default function Page() {
     { id: "percentage", label: "Scholarship (%)", type: "number", placeholder: "0" },
     { id: "deadline", label: "Deadline", type: "date", placeholder: "Select deadline" },
     { id: "duration", label: "Duration", type: "text", placeholder: "Enter program duration" },
-    { id: "image", label: "Upload image", type: "file", placeholder: "Upload program image  " },
-    { id: "thumbnail", label: "Upload thumbnail", type: "file", placeholder: "Upload program thumbnail  " },
-    { id: "subtitle", label:"Sub title", type: "textarea", placeholder: "Enter subtitle"},
-    { id: "Description", label:"Description", type: "textarea", placeholder: "Enter description"}
+    { id: "image", label: "Upload image", type: "file", placeholder: "Upload program image" },
+    { id: "thumbnail", label: "Upload thumbnail", type: "file", placeholder: "Upload program thumbnail" },
+    { id: "subtitle", label: "Sub title", type: "textarea", placeholder: "Enter subtitle" },
+    { id: "Description", label: "Description", type: "textarea", placeholder: "Enter description" },
   ];
-  
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, 2));
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   return (
     <div className="p-5 flex flex-col gap-10">
-      <h1 className="text-3xl  font-semibold">Program Management</h1>
+      <h1 className="text-3xl font-semibold">Program Management</h1>
 
+      {/* Stepper Header */}
       <div className="flex flex-col items-center justify-center">
-        <Header step={step} />
+        <Header step={step} steps={steps} />
       </div>
 
+      {/* Step Content */}
       <div className="mt-6">
         {step === 1 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -81,15 +103,11 @@ export default function Page() {
         )}
 
         {step === 2 && <Curriculum />}
+        {step === 3 && <Faq />}
+        {step === 4 && <div>🚀 Roadmap component goes here</div>}
       </div>
 
-
-      {/* <div className={`flex mt-6 gap-4 ${step === 1 ? "justify-end" : "justify-between"}`}>
-          {step > 1 && (<button  type="button"  className="px-4 py-2 border rounded hover:bg-gray-100"  onClick={prevStep}>  Previous</button>)}
-          {step < 2 ? ( <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={nextStep} > Next</button>) 
-                    : (<button  type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">  Submit</button>)}
-      </div> */}
-      {/* Buttons */}
+      {/* Navigation Buttons */}
       <div className={`flex mt-6 gap-4 ${step === 1 ? "justify-end" : "justify-between"}`}>
         {step > 1 && (
           <Button variant="outline" onClick={prevStep}>
@@ -97,7 +115,7 @@ export default function Page() {
           </Button>
         )}
 
-        {step < 2 ? (
+        {step < totalSteps ? (
           <Button variant="default" onClick={nextStep}>
             Next
           </Button>
@@ -107,7 +125,6 @@ export default function Page() {
           </Button>
         )}
       </div>
-
     </div>
   );
 }
