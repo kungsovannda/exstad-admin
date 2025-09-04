@@ -5,6 +5,7 @@ export const openingProgramData: openingProgramType[] = [
         id: 1,
         title: "Pre University Scholarship",
         generation:1,
+        slug:"pre-university",
         image:"",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",

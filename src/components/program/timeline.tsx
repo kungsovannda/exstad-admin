@@ -13,7 +13,7 @@ type Field = {
   rows?: number;
 };
 
-export default function Timline() {
+export default function Timeline() {
 const fieldsStep1: Field[] = [
   { id: "applicationPeriod", label: "Application Period", type: "date", placeholder: "Select date" },
   { id: "preliminaryLearning", label: "Preliminary Learning", type: "date", placeholder: "Select date" },

@@ -8,6 +8,7 @@ import { columns } from "./column";
 import { programData } from "@/data/programData";
 import { programType } from "@/types/programs";
 import { Plus } from "lucide-react";
+import { FiPlus } from "react-icons/fi";
 
 export default function Page() {
   const search = "";
@@ -31,8 +32,8 @@ export default function Page() {
         <h1 className="text-3xl font-semibold">Program Management</h1>
         <Link href="/master-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
-            <Plus className="text-[18px]" />
-            <span className="text-[14px] font-bold">Open Program</span>
+            <FiPlus className="text-[18px]" />
+            <span className="text-[14px] font-bold">Create New Program</span>
           </Button>
         </Link>
       </div>

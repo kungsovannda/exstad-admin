@@ -3,29 +3,33 @@
 import React from "react";
 import { FormField } from "@/components/program/program-information";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { programType } from "@/types/programs";
 
 type Field = {
   id: string;
   label: string;
-  type?: "text" | "email" | "select" | "textarea" | "number" | "date" | "file"|"color";
+  type?: "text" | "email" | "select" | "textarea" | "number" | "date" | "file" | "color";
   placeholder?: string;
   options?: { value: string; label: string }[];
   rows?: number;
 };
 
-export default function Page() {
-   const router = useRouter();
+interface EditProgramModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  program:programType; // or programType
+}
 
-  const handleSubmit = () => {
-    // TODO: Save program via API
-    router.push("/master-program"); // go back to table after creating
-  }; 
-
-
+export function EditProgramModal({ open, setOpen, program }: EditProgramModalProps) {
   const fieldsStep1: Field[] = [
     { id: "Title", label: "Title", type: "text", placeholder: "Enter your program title" },
-    // { id:"programColor", label:"Program Color", type:"color" },
     {
       id: "Program Type",
       label: "Program Type",
@@ -47,40 +51,37 @@ export default function Page() {
       ],
       placeholder: "Select a program level",
     },
-    {
-      id: "Visibility",
-      label: "Visibility",
-      type: "select",
-      options: [
-        { value: "Public", label: "Public" },
-        { value: "Private", label: "Private" },
-      ],
-      placeholder: "Select a visibility",
-    },
     { id: "price", label: "Price ($)", type: "number", placeholder: "0" },
     { id: "percentage", label: "Scholarship (%)", type: "number", placeholder: "0" },
     { id: "duration", label: "Duration", type: "text", placeholder: "Enter program duration" },
-    { id: "image", label: "Upload Logo", type: "file", placeholder: "Upload program image" },
     { id: "subtitle", label: "Sub title", type: "textarea", placeholder: "Enter subtitle" },
     { id: "Description", label: "Description", type: "textarea", placeholder: "Enter description" },
   ];
 
-  
+  const handleSubmit = () => {
+    console.log("Save program", program);
+    setOpen(false);
+  };
+
   return (
-    <div className="p-5 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Create Program</h1>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Edit Program</DialogTitle>
+        </DialogHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {fieldsStep1.map((field) => (
-          <FormField key={field.id} {...field} />
-        ))}
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          {fieldsStep1.map((field) => (
+            <FormField key={field.id} {...field} />
+          ))}
+        </div>
 
-      <div className="flex justify-end mt-6">
-         <Button type="button" onClick={handleSubmit}>
-          Save
-        </Button>
-      </div>
-    </div>
+        <DialogFooter className="mt-4">
+          <Button type="button" onClick={handleSubmit}>
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

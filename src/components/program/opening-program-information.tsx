@@ -32,7 +32,6 @@ export default function OpeningProgramInformation() {
   
   return (
     <div className=" flex flex-col gap-10">
-            <h2 className="text-[18px] font-bold text-foreground">Opening Program Information</h2>
       <div >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {fieldsStep1.map((field) => (
