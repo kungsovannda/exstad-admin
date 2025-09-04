@@ -10,12 +10,13 @@ export type openingProgramType = {
     timeline: timeline[];
     classes:Classes[];
     slug:string;
+    programType: string; 
 
 }
 
 export type ActivityType = {
     id:number;
-    title:string;
+    subtitle:string;
     description:string;
     image:string;
 }
@@ -36,6 +37,9 @@ export type Classes = {
     id:number;
     title:string;
     shift:string;
+    instructor:string;
+    startTime:Date;
+    endTime:Date;
     isWeekend:boolean;
     totalSlots:number;
     room:string;

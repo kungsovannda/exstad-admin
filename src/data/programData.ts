@@ -119,6 +119,7 @@ export const programData: programType[] = [
         id: 1,
         title: "Foundation Scholarship",
         slug:"pre-university",
+        programType: "Short Course",
         generation:1,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -132,6 +133,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                 room:"Blockchain",
+                instructor: "Chan Chhaya",
+                startTime: new Date(2025, 8, 4, 9, 0), 
+                endTime: new Date(2025, 8, 5, 17, 0),
+
                  classCode:"FullStack-1"
             },
             {
@@ -141,7 +146,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                 room:"DevOps",
-                 classCode:"FullStack-1"
+                classCode:"FullStack-1",
+                instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -151,13 +159,13 @@ export const programData: programType[] = [
                 title:"Activity of Scholar",
                 activityType:[{
                     id:1,
-                    title:"Applicant List",
+                    subtitle:"Applicant List",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },]
@@ -312,11 +320,13 @@ export const programData: programType[] = [
                 "Grade 12 students who have the interest and aspiration to learn digital technology (IT) skills",
             ]
         }],
-        openingprogram:[ {
+        openingprogram:[
+             {
         id: 4,
-        title: "Pre University Scholarship",
-        slug:"pre-university",
+        title: "Java Programming",
+        slug:"java-programming",
         generation:2,
+         programType: "Short Course",
         shortcourseimage:"/image/logo/java.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -329,7 +339,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Eung Lyzhia",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -338,7 +351,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Sreng Chipor",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ], 
@@ -348,13 +364,13 @@ export const programData: programType[] = [
                 title:"Orientation Session",
                 activityType:[{
                     id:1,
-                    title:"Applicant List",
+                    subtitle:"Applicant List",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },]
@@ -392,14 +408,15 @@ export const programData: programType[] = [
                 date:"September 17, 2024"
             }
         ]
-    }]
+    }
+]
   },
   {
     id: 2,
     bg: "#f47373",
     deadline:"12 AGU",
     title: "Foundation Scholarship",
-    slug: "full-stack-development",
+    slug: "foundation-scholarship",
      visibility: "public",
     subtitle: "Master the essentials of Linux system",
     discount:'$120',
@@ -534,8 +551,9 @@ export const programData: programType[] = [
     openingprogram: [  
         {
         id: 1,
-        title: "Full Stack Scholarship",
-        slug:"pre-university",
+        title: "Foundation Scholarship",
+        slug:"foundation-scholarship",
+        programType: "Scholarship Course",
         generation:3,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -549,7 +567,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -558,7 +579,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ], 
@@ -568,25 +592,25 @@ export const programData: programType[] = [
                 title:"Activity of Scholar  ",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -632,6 +656,7 @@ export const programData: programType[] = [
         slug:"pre-university",
         generation:4,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
+        programType: "Scholarship Course",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
         description: "Get ready for university with our Pre University Scholarship program. This comprehensive course is designed to equip you with the essential skills and knowledge needed to excel in your higher education journey. From academic writing and research skills to time management and critical thinking, our expert instructors will guide you through a curriculum tailored to prepare you for the challenges of university life. Join us and take the first step towards a successful academic future.",
@@ -643,7 +668,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -652,7 +680,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ], 
@@ -662,25 +693,25 @@ export const programData: programType[] = [
                 title:"Orientation Session",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -725,6 +756,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:5,
+        programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -737,7 +769,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -746,7 +781,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -756,25 +794,25 @@ export const programData: programType[] = [
                 title:"Orientation ",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -819,6 +857,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:5,
+        programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -831,7 +870,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                  room:"Blockchain",
                 totalSlots:200,
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -840,7 +882,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ], 
@@ -850,25 +895,25 @@ export const programData: programType[] = [
                 title:"Orientation ",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -913,6 +958,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:6,
+        programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -925,7 +971,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -934,7 +983,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -944,25 +996,25 @@ export const programData: programType[] = [
                 title:"Orientation ",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -1007,6 +1059,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:7,
+        programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -1019,7 +1072,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -1028,7 +1084,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -1038,25 +1097,25 @@ export const programData: programType[] = [
                 title:"Orientation ",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -1101,6 +1160,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:8,
+        programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -1113,7 +1173,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -1122,7 +1185,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -1132,25 +1198,25 @@ export const programData: programType[] = [
                 title:"Orientation ",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -1195,6 +1261,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:9,
+        programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -1207,7 +1274,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -1216,7 +1286,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -1226,25 +1299,25 @@ export const programData: programType[] = [
                 title:"Orientation ",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:3,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
                 {
                     id:4,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },
@@ -1290,7 +1363,7 @@ export const programData: programType[] = [
     id: 3,
     bg: "#f47373",
     deadline:"12 AGU",
-    title: "Pre-University",
+    title: "Full Stack Development",
     slug: "full-stack-development",
      visibility: "public",
     subtitle: "Master the essentials of Linux system",
@@ -1429,8 +1502,9 @@ export const programData: programType[] = [
         openingprogram:[ 
          {
         id: 1,
-        title: "Pre University Scholarship",
-        slug:"pre-university",
+        title: "Full Stack Scholarship",
+        slug:"full-stack-scholarship",
+        programType: "Scholarship Course",
         generation:4,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -1444,7 +1518,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -1453,7 +1530,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -1463,13 +1543,13 @@ export const programData: programType[] = [
                 title:"Orientation Session",
                 activityType:[{
                     id:1,
-                    title:"Applicant List",
+                    subtitle:"Applicant List",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },]
@@ -1512,6 +1592,7 @@ export const programData: programType[] = [
         id: 2,
         title: "Pre University Scholarship",
         slug:"pre-university",
+        programType: "Scholarship Course",
         generation:4,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -1525,7 +1606,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
             {
                 id:2,
@@ -1534,7 +1618,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -1544,13 +1631,13 @@ export const programData: programType[] = [
                 title:"Orientation Session",
                 activityType:[{
                     id:1,
-                    title:"Applicant List",
+                    subtitle:"Applicant List",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },]
@@ -1595,9 +1682,9 @@ export const programData: programType[] = [
     id: 5,
     bg: "#f47373",
     deadline:"12 AGU",
-    slug: "full-stack-development",
-     visibility: "public",
-    title: "Full Stack Scholarship",
+    slug: "pre-university-scholarship",
+    visibility: "public",
+    title: "Pre University Scholarship",
     subtitle: "Master the essentials of Linux system",
     discount:'$120',
     level:"Beginner",
@@ -1733,6 +1820,7 @@ export const programData: programType[] = [
         id: 2,
         title: "Pre University Scholarship",
         slug:"pre-university",
+        programType: "Scholarship Course",
         generation:5,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -1746,7 +1834,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date(2025, 8, 4, 9, 0), 
+                endTime: new Date(2025, 8, 5, 17, 0),
 
             },
             {
@@ -1756,7 +1847,10 @@ export const programData: programType[] = [
                 isWeekend:false,
                 totalSlots:200,
                  room:"Blockchain",
-                 classCode:"FullStack-1"
+                 classCode:"FullStack-1",
+                 instructor: "Kim Chansokpheng",
+                startTime: new Date("2025-09-04"),
+                endTime: new Date("2025-09-05"),
             },
 
         ],
@@ -1766,13 +1860,13 @@ export const programData: programType[] = [
                 title:"Orientation Session",
                 activityType:[{
                     id:1,
-                    title:"Writing Test ",
+                    subtitle:"Writing Test ",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/writingtest.png",
                 },
                 {
                     id:2,
-                    title:"Interview",
+                    subtitle:"Interview",
                     description:"List of Candidates for the Entrance Examination for the Digital Technology Scholarship (Pre-University), 5th Generation, Academic Year 2025 of the Institute of Science and Technology Advanced Development (ISTAD).",
                     image:"/image/logo/interview.png",
                 },]
@@ -1813,6 +1907,8 @@ export const programData: programType[] = [
     }]
   },
   
+
+
   //  {
   //   id: 3,
   //   bg:"radial-gradient(circle,  rgba(207,180,38,1) 0%, RGBA(231,203,25,1) 20%, rgba(168,85,247,1) 100%)",

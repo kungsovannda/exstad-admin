@@ -37,26 +37,30 @@ import {
   TableHead,
 } from '@/components/ui/table';
 import { ArrowUpDown } from 'lucide-react';
-import { openingProgramType } from '@/types/openingProgramType';
+import { Classes } from '@/types/openingProgramType';
+import { classColumns } from './classColumn';
 
 type Props = {
-  data: openingProgramType[];
-  columns: ColumnDef<openingProgramType>[];
+  data: Classes[];
+  columns: ColumnDef<Classes>[];
 };
 
-export default function OpeningProgramDataTable({ data, columns }: Props) {
+
+export default function ClassDataTable({ data }: Props) {
   const [search, setSearch] = useState('');
-  const [filterGeneration, setFilterGeneration] = useState('all');
-  const [filterProgramType, setFilterProgramType] = useState('all');
+  const [filterShift, setFilterShift] = useState('all');
+  const [filterInstructor, setFilterInstructor] = useState('all');
+  const [filterRoom, setFilterRoom] = useState('all');
 
   const filteredData = useMemo(() => {
-    return data.filter((p) => {
-      const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase());
-      const matchesGen = filterGeneration === 'all' || p.generation === Number(filterGeneration);
-      const matchesProgramType = filterProgramType === 'all' || p.programType === String(filterProgramType);
-      return matchesSearch && matchesGen && matchesProgramType;
+    return data.filter((cls) => {
+      const matchesSearch = cls.title.toLowerCase().includes(search.toLowerCase());
+      const matchesShift = filterShift === 'all' || cls.shift === filterShift;
+      const matchesInstructor = filterInstructor === 'all' || cls.instructor === filterInstructor;
+      const matchesRoom = filterRoom === 'all' || cls.room === filterRoom;
+      return matchesSearch && matchesShift && matchesInstructor && matchesRoom;
     });
-  }, [data, search, filterGeneration, filterProgramType]);
+  }, [data, search, filterShift, filterInstructor,filterRoom]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
@@ -65,7 +69,7 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
 
   const table = useReactTable({
     data: filteredData,
-    columns,
+    columns: classColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -84,32 +88,52 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Search & Filters */}
+      {/* Search & Filter */}
       <div className="flex flex-col md:flex-row gap-4 items-center">
-        <Input placeholder="Search program..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-52" />
-        <Select onValueChange={setFilterGeneration}>
-          <SelectTrigger className="w-fit">
-            <SelectValue placeholder="Select generation" />
+        <Input
+          placeholder="Search course..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-52"
+        />
+
+        <Select onValueChange={setFilterShift}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Select shift" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
-            {[...new Set(data.map((p) => p.generation))].map((gen) => (
-              <SelectItem key={gen} value={String(gen)}>
-                {gen}
+            {[...new Set(data.map((cls) => cls.shift))].map((shift) => (
+              <SelectItem key={shift} value={shift}>
+                {shift}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        <Select onValueChange={setFilterProgramType}>
-          <SelectTrigger className="w-fit">
-            <SelectValue placeholder="Select program type" />
-          </SelectTrigger>
-          <SelectContent>
+        <Select onValueChange={setFilterInstructor}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Select instructor" />
+            </SelectTrigger>
+            <SelectContent>
             <SelectItem value="all">All</SelectItem>
-            {[...new Set(data.map((p) => p.programType))].map((type) => (
-              <SelectItem key={type} value={String(type)}>
-                {type}
+            {[...new Set(data.map((cls) => cls.instructor))].map((instructor) => (
+              <SelectItem key={instructor} value={instructor}>
+                {instructor}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select onValueChange={setFilterRoom}>
+            <SelectTrigger className="w-40">
+                <SelectValue placeholder="Select room" />
+            </SelectTrigger>
+            <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {[...new Set(data.map((cls) => cls.room))].map((room) => (
+              <SelectItem key={room} value={room}>
+                {room}
               </SelectItem>
             ))}
           </SelectContent>
@@ -175,8 +199,8 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
             ))}
             {table.getRowModel().rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No programs found.
+                <TableCell colSpan={classColumns.length} className="text-center">
+                  No classes found.
                 </TableCell>
               </TableRow>
             )}

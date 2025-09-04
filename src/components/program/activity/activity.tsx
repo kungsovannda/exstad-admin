@@ -2,7 +2,7 @@
 
 import React from "react";
 import { FormField } from "@/components/program/form-field";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 type Field = {
   id: string;

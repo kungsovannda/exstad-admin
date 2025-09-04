@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
 import Class from "@/components/program/class/class-modal";
 import Timeline from "@/components/program/timeline";
-import Activity from "@/components/program/activity";
+import Activity from "@/components/program/activity/activity";
 import ClassPage from "@/components/program/class/class";
+import Activities from "@/components/program/activity/activities";
 
 
 export default function ProgramSetup() {
-  const [tab, setTab] = useState<"class"|"timeline"|"curriculum" | "roadmap" |"activity">("curriculum");
+  const [tab, setTab] = useState<"class"|"timeline"|"curriculum" | "roadmap" |"activities">("class");
   const params = useParams(); // app router
   const slug = params.slug;
 
@@ -25,7 +26,7 @@ export default function ProgramSetup() {
         <Button variant={tab === "curriculum" ? "default" : "outline"} onClick={() => setTab("curriculum")}> Curriculum</Button>
         <Button variant={tab === "timeline" ? "default" : "outline"} onClick={() => setTab("timeline")}>Timeline</Button>
         <Button variant={tab === "roadmap" ? "default" : "outline"} onClick={() => setTab("roadmap")}>  Roadmap</Button>
-        <Button variant={tab === "activity" ? "default" : "outline"} onClick={() => setTab("activity")}>activity</Button>
+        <Button variant={tab === "activities" ? "default" : "outline"} onClick={() => setTab("activities")}>activity</Button>
       </div>
 
       {/* Tab Content */}
@@ -33,7 +34,7 @@ export default function ProgramSetup() {
       {tab === "curriculum" && <Curriculum />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "timeline" && <Timeline />}
-      {tab === "activity" && <Activity />}
+      {tab === "activities" && <Activities />}
     </div>
   );
 }

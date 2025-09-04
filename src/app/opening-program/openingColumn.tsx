@@ -7,18 +7,39 @@ import { OpeningActionsCell } from "@/components/program/opening-program/action-
 
 export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
   {accessorKey: "id", header: "ID",  },
-  {accessorKey: "title",header: "Program Name",},
+  {accessorKey: "title",header: "Program Name"},
+  {accessorKey: "programType",header: "Program Type", },
   {accessorKey: "generation",header: "Generation", },
   {id: "totalSlots",header: "Total Slots",cell: ({ row }) =>  row.original.classes.reduce((sum, cls) => sum + cls.totalSlots, 0),},
-  {id: "status", header: "Status", cell: ({ row }) => { const today = new Date();
-      const firstDate = new Date(row.original.timeline[0].date);
-      const lastDate = new Date(
-      row.original.timeline[row.original.timeline.length - 1].date
-      );
-      if (today < firstDate) return "Upcoming";
-      if (today > lastDate) return "Active";
-      return "Ongoing";
-    },
+  {
+  id: "status",
+  header: "Status",
+  cell: ({ row }) => {
+    const today = new Date();
+    const firstDate = new Date(row.original.timeline[0].date);
+    const lastDate = new Date(row.original.timeline[row.original.timeline.length - 1].date);
+
+    let status = "";
+    if (today < firstDate) status = "Upcoming";
+    else if (today > lastDate) status = "Active";
+    else status = "Ongoing";
+
+    // Set background color based on status
+    const bgClass =
+      status === "Upcoming"
+        ? "bg-blue-500 text-white"
+        : status === "Ongoing"
+        ? "bg-yellow-400 text-white"
+        : "bg-[#1E7D34] text-white"; // Active
+
+    return (
+      <div
+        className={`${bgClass} rounded-[8px] flex items-center justify-center w-[80px] h-[30px]`}
+      >
+        <span className="text-sm px-2 py-1">{status}</span>
+      </div>
+    );
   },
+},
   {id: "actions",header: "Actions",cell: ({ row }) => <OpeningActionsCell openingprogram={row.original} />,},
 ];
