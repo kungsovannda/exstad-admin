@@ -1,50 +1,50 @@
 'use client';
 
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from '@tanstack/react-table';
-import { useState, useMemo } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-} from '@/components/ui/dropdown-menu';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead,
-} from '@/components/ui/table';
-import { ArrowUpDown } from 'lucide-react';
-import { programType } from '@/types/programs';
+  import {
+    ColumnDef,
+    ColumnFiltersState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    SortingState,
+    useReactTable,
+    VisibilityState,
+  } from '@tanstack/react-table';
+  import { useState, useMemo } from 'react';
+  import { Input } from '@/components/ui/input';
+  import { Button } from '@/components/ui/button';
+  import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+  } from '@/components/ui/select';
+  import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+    DropdownMenuCheckboxItem,
+  } from '@/components/ui/dropdown-menu';
+  import {
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableCell,
+    TableHead,
+  } from '@/components/ui/table';
+  import { ArrowUpDown } from 'lucide-react';
+  import { programType } from '@/types/programs';
 
-type Props = {
-  data: programType[];
-  columns: ColumnDef<programType>[];
-};
+  type Props = {
+    data: programType[];
+    columns: ColumnDef<programType>[];
+  };
 
-export default function DataTable({ data, columns }: Props) {
+  export default function DataTable({ data, columns }: Props) {
   // === table states ===
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');

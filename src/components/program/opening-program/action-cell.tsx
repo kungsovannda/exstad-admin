@@ -38,18 +38,11 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
         <DropdownMenuItem onClick={() => router.push(`/opening-program/setup-openingprogram/${openingprogram.slug}`)}>
           Set Up
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`/opening-program/create`)}>Edit</DropdownMenuItem>
         <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", openingprogram)}>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>    
-        {/* Edit modal */}
-      <EditOpeningProgramModal
-  open={open}
-  setOpen={setOpen}
-  openingprogram={openingprogram} // 👈 must match modal
-/>
-
     </DropdownMenu>
   );
 }

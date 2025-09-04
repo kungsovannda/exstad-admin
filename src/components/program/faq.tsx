@@ -253,10 +253,6 @@ export default function Faq() {
                 Save FAQ
               </Button>
             </div>
-            <div className="mt-6 flex items-center gap-6 w-full ">
-            <LearningOutcomesAdmin/>
-            <CourseRequirementsAdmin/>
-            </div>
     </div>
   );
 }

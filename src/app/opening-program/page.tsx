@@ -7,6 +7,7 @@ import { SectionCards } from '@/components/program/section-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
+import { OpeningSectionCards } from '@/components/program/opening-program/opening-section-card';
 
 // Flatten all openingprograms from all programs
 const allOpeningPrograms = programData.flatMap(program => program.openingprogram || []);
@@ -19,13 +20,11 @@ export default function OpeningProgramPage() {
         <Link href="/opening-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
             <FiPlus className="text-[18px]" />
-            <span className="text-[14px] font-bold">Open Program</span>
+            <span className="text-[14px] font-bold">Crete New Opening Program</span>
           </Button>
         </Link>
       </div>
-
-      <SectionCards />
-
+      <OpeningSectionCards />
       <OpeningProgramDataTable
         columns={openingProgramColumns}
         data={allOpeningPrograms} // <- feed flattened data here

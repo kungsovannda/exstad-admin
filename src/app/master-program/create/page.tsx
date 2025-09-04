@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { FormField } from "@/components/program/program-information";
+import { FormField } from "@/components/program/form-field";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import MyForm from "./form-field";
 
 type Field = {
   id: string;
@@ -21,8 +22,6 @@ export default function Page() {
     // TODO: Save program via API
     router.push("/master-program"); // go back to table after creating
   }; 
-
-
   const fieldsStep1: Field[] = [
     { id: "Title", label: "Title", type: "text", placeholder: "Enter your program title" },
     // { id:"programColor", label:"Program Color", type:"color" },
@@ -69,18 +68,16 @@ export default function Page() {
   return (
     <div className="p-5 flex flex-col gap-4">
       <h1 className="text-2xl font-semibold">Create Program</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <MyForm />
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {fieldsStep1.map((field) => (
           <FormField key={field.id} {...field} />
         ))}
-      </div>
-
+      </div> */}
+{/* 
       <div className="flex justify-end mt-6">
-         <Button type="button" onClick={handleSubmit}>
-          Save
-        </Button>
-      </div>
+         <Button type="button" onClick={handleSubmit}> Save </Button>
+      </div> */}
     </div>
   );
 }

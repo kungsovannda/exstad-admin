@@ -35,16 +35,11 @@ export function MasterActionsCell({ program }: ActionsCellProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push(`/master-program/setup-masterprogram/${program.slug}`)}>
-          Set Up
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", program)}>
-          Delete
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`/master-program/setup-masterprogram/${program.slug}`)}> Set Up</DropdownMenuItem>
+        <DropdownMenuItem onClick={() =>  router.push(`/master-program/create`)}> Edit</DropdownMenuItem>
+        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", program)}> Delete</DropdownMenuItem>
       </DropdownMenuContent>    
-        {/* Edit modal */}
-      <EditProgramModal open={open} setOpen={setOpen} program={program} />
+
     </DropdownMenu>
   );
 }

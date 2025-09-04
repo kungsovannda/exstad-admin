@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FormField } from "@/components/program/program-information";
+import { FormField } from "@/components/program/form-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -77,9 +77,7 @@ export function EditProgramModal({ open, setOpen, program }: EditProgramModalPro
         </div>
 
         <DialogFooter className="mt-4">
-          <Button type="button" onClick={handleSubmit}>
-            Save
-          </Button>
+          <Button type="button" onClick={handleSubmit}> Save </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

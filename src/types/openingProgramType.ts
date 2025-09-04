@@ -38,6 +38,8 @@ export type Classes = {
     shift:string;
     isWeekend:boolean;
     totalSlots:number;
+    room:string;
+    classCode:string;
 }
 
 // export type RoadmapType = {

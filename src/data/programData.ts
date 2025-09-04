@@ -10,6 +10,7 @@ export const programData: programType[] = [
     thumbnail:"https://scontent.fpnh5-1.fna.fbcdn.net/v/t39.30808-6/368678344_283065197807321_642903727610062012_n.png?stp=dst-jpg_tt6&_nc_cat=105&ccb=1-7&_nc_sid=86c6b0&_nc_eui2=AeGWHZc_u6Xtv0b793whQL6WTs_tn6Sn1aJOz-2fpKfVon4YcpuLiLXoSpWS_vFMuMoLGe4Rjbra_8LeM2HpOZ8t&_nc_ohc=cyBYd_eK8XwQ7kNvwFCbjDf&_nc_oc=AdkUWUWrWmMHVPQuSDOZ6-8VeAQ_cLTQpWDOgM_YDo01g9FHtu-EOMvSpzzLhbs-XkI&_nc_zt=23&_nc_ht=scontent.fpnh5-1.fna&_nc_gid=hwjo0WKCW5-iGrGjLd3RgA&oh=00_AfVLFvPuUrYIEzLCkwCzVPw8xFML7Kw0FE9GiOp5DbW0rA&oe=68B8969D",
     price: "$499",
     slug: "full-stack-development",
+    visibility: "public",
     duration: "12 weeks",
     scholarship: 20,
     level:"Intermediate",
@@ -130,6 +131,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -137,6 +140,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                room:"DevOps",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -197,6 +202,7 @@ export const programData: programType[] = [
     bg: "linear-gradient(to left, #64B5F6 0%, #2196F3 50%, #1976D2 100%)",
     title: "JAVA PROGRAMMING",
     slug: "full-stack-development",
+    visibility: "draft",
     subtitle: "Master the essentials of Linux system",
     description:"Learn to install, configure, and manage Linux servers effectively with hands-on labs and real-world scenarios to boost your career in IT. This course covers system administration, networking, security, and troubleshooting.",
     image:"https://api.istad.co/media/image/24c392c2-152b-49c0-bddb-dc12b9403b3e.png",
@@ -322,6 +328,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -329,6 +337,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ], 
@@ -390,6 +400,7 @@ export const programData: programType[] = [
     deadline:"12 AGU",
     title: "Foundation Scholarship",
     slug: "full-stack-development",
+     visibility: "public",
     subtitle: "Master the essentials of Linux system",
     discount:'$120',
     level:"Beginner",
@@ -537,6 +548,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -544,6 +557,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ], 
@@ -627,6 +642,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -634,6 +651,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ], 
@@ -717,6 +736,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -724,6 +745,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -806,7 +829,9 @@ export const programData: programType[] = [
                 title:"Pre Morning",
                 shift:"Morning",
                 isWeekend:false,
+                 room:"Blockchain",
                 totalSlots:200,
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -814,6 +839,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ], 
@@ -897,6 +924,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -904,6 +933,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -987,6 +1018,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -994,6 +1027,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -1077,6 +1112,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -1084,6 +1121,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -1167,6 +1206,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -1174,6 +1215,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -1249,6 +1292,7 @@ export const programData: programType[] = [
     deadline:"12 AGU",
     title: "Pre-University",
     slug: "full-stack-development",
+     visibility: "public",
     subtitle: "Master the essentials of Linux system",
     discount:'$120',
     level:"Beginner",
@@ -1399,6 +1443,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -1406,6 +1452,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -1476,6 +1524,8 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
             {
                 id:2,
@@ -1483,6 +1533,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],
@@ -1544,6 +1596,7 @@ export const programData: programType[] = [
     bg: "#f47373",
     deadline:"12 AGU",
     slug: "full-stack-development",
+     visibility: "public",
     title: "Full Stack Scholarship",
     subtitle: "Master the essentials of Linux system",
     discount:'$120',
@@ -1692,6 +1745,9 @@ export const programData: programType[] = [
                 shift:"Morning",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
+
             },
             {
                 id:2,
@@ -1699,6 +1755,8 @@ export const programData: programType[] = [
                 shift:"Afternoon",
                 isWeekend:false,
                 totalSlots:200,
+                 room:"Blockchain",
+                 classCode:"FullStack-1"
             },
 
         ],

@@ -32,6 +32,7 @@ export type programType = {
   openingprogram: openingProgramType[]; // 👈 new
   faq:FaqDataType[];
   curriculum:curriculumDataType[];
+  visibility: "public" | "draft";
 };
 
 export type programOverviewType = {

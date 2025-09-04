@@ -1,7 +1,7 @@
 'use client';
 
 import React from "react";
-import { FormField } from "@/components/program/program-information";
+import { FormField } from "@/components/program/form-field";
 
 type Field = {
   id: string;

@@ -1,7 +1,8 @@
 'use client';
 
 import React from "react";
-import { FormField } from "@/components/program/program-information";
+import { FormField } from "@/components/program/form-field";
+import { Button } from "../ui/button";
 
 
 type Field = {
@@ -27,6 +28,13 @@ const fieldsStep1: Field[] = [
   { id: "closingDay", label: "Closing Day", type: "date", placeholder: "Select date" },
 ];
 
+  // 👇 handle save
+  const handleSave = () => {
+    // TODO: call API to save curriculum
+    // Example:
+    // await fetch('/api/curriculum', { method: 'POST', body: JSON.stringify(curriculum) });
+  };
+
   return (
     <div className=" flex flex-col gap-10">
     <h2 className="text-[18px] font-bold text-foreground">Timeline</h2>
@@ -45,7 +53,11 @@ const fieldsStep1: Field[] = [
             ))}
           </div>
       </div>
-
+      <div className="flex justify-end mt-6">
+        <Button onClick={handleSave} className="bg-primary text-white">
+          Save 
+        </Button>
+      </div> 
     </div>
   );
 }

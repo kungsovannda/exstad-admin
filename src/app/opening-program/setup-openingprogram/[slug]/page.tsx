@@ -5,9 +5,10 @@ import Faq from "@/components/program/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
-import Class from "@/components/program/class";
+import Class from "@/components/program/class/class-modal";
 import Timeline from "@/components/program/timeline";
 import Activity from "@/components/program/activity";
+import ClassPage from "@/components/program/class/class";
 
 
 export default function ProgramSetup() {
@@ -28,7 +29,7 @@ export default function ProgramSetup() {
       </div>
 
       {/* Tab Content */}
-      {tab === "class" && <Class/>}
+      {tab === "class" && <ClassPage/>}
       {tab === "curriculum" && <Curriculum />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "timeline" && <Timeline />}
