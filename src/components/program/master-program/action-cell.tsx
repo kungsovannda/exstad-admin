@@ -1,17 +1,16 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
 import { programType } from "@/types/programs";
-import { EditProgramModal } from "./edit-program-modal";
+import { MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 
@@ -35,16 +34,11 @@ export function MasterActionsCell({ program }: ActionsCellProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push(`/master-program/setup-masterprogram/${program.slug}`)}>
-          Set Up
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", program)}>
-          Delete
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`/master-program/setup-masterprogram/${program.slug}`)}> Set Up</DropdownMenuItem>
+        <DropdownMenuItem onClick={() =>  router.push(`/master-program/create`)}> Edit</DropdownMenuItem>
+        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", program)}> Delete</DropdownMenuItem>
       </DropdownMenuContent>    
-        {/* Edit modal */}
-      <EditProgramModal open={open} setOpen={setOpen} program={program} />
+
     </DropdownMenu>
   );
 }

@@ -2,8 +2,7 @@
 
 import React from "react";
 import { FormField } from "@/components/program/form-field";
-import { Button } from "../ui/button";
-
+import { Button } from "@/components/ui/button";
 
 type Field = {
   id: string;
@@ -14,18 +13,12 @@ type Field = {
   rows?: number;
 };
 
-export default function Timeline() {
+export default function Activity() {
 const fieldsStep1: Field[] = [
-  { id: "applicationPeriod", label: "Application Period", type: "date", placeholder: "Select date" },
-  { id: "preliminaryLearning", label: "Preliminary Learning", type: "date", placeholder: "Select date" },
-  { id: "applicationList", label: "Application List", type: "date", placeholder: "Select date" },
-  { id: "orientation", label: "Orientation", type: "date", placeholder: "Select date" },
-  { id: "writingTest", label: "Writing Test", type: "date", placeholder: "Select date" },
-  { id: "courseTraining", label: "Course Training", type: "date", placeholder: "Select date" },
-  { id: "interviewTest", label: "Interview Test", type: "date", placeholder: "Select date" },
-  { id: "finalProject", label: "Final Project", type: "date", placeholder: "Select date" },
-  { id: "finalResult", label: "Final Result", type: "date", placeholder: "Select date" },
-  { id: "closingDay", label: "Closing Day", type: "date", placeholder: "Select date" },
+  { id: "activityTitle", label: "Activity Title", type: "text", placeholder: "Enter Activity Title" },
+  { id: "image", label: "Image", type: "file", placeholder: "Choose file" },
+  { id: "subTitle", label: "Sub Title", type: "textarea", placeholder: "Enter Sub Title" },
+  { id: "fullDescription", label: "Full Description", type: "textarea", placeholder: "Enter Full Description" },
 ];
 
   // 👇 handle save
@@ -34,10 +27,10 @@ const fieldsStep1: Field[] = [
     // Example:
     // await fetch('/api/curriculum', { method: 'POST', body: JSON.stringify(curriculum) });
   };
-
+  
   return (
     <div className=" flex flex-col gap-10">
-    <h2 className="text-[18px] font-bold text-foreground">Timeline</h2>
+            <h2 className="text-[18px] font-bold text-foreground">Activity</h2>
       <div >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {fieldsStep1.map((field) => (
@@ -58,6 +51,7 @@ const fieldsStep1: Field[] = [
           Save 
         </Button>
       </div> 
+
     </div>
   );
 }

@@ -19,7 +19,12 @@ type Requirement = {
 
 export default function CourseRequirementsAdmin() {
   const [requirements, setRequirements] = useState<Requirement[]>([
-    { id: "1", order: 1, title: "Basic Programming Knowledge", subtitle: "", sections: [] },
+    { id: "1", order: 1, title: "Basic Programming Knowledge", subtitle: "For foundation-year or first-year students in the Digital Technology (IT) field",
+      sections: [
+        { id: "1", title: "For foundation-year or first-year students in the Digital Technology (IT) field" },
+        { id: "2", title: "Grade 12 students who have the interest and aspiration to learn digital technology (IT) skills" },
+      ],
+    },
   ]);
 
   const [expandedItems, setExpandedItems] = useState<string[]>([]);

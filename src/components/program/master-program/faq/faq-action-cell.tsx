@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,18 +9,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { openingProgramType } from "@/types/openingProgramType";
+import { Classes } from "@/types/openingProgramType";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-
-interface ActionsCellProps {
-  openingprogram: openingProgramType;
-  
+interface ClassActionsCellProps {
+  classData: Classes;
 }
 
-export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
+export function FaqActionsCell({ classData }: ClassActionsCellProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -34,14 +33,13 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push(`/opening-program/setup-openingprogram/${openingprogram.slug}`)}>
-          Set Up
+        <DropdownMenuItem onClick={() => console.log("Edit class", classData.id)}>
+          Edit
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push(`/opening-program/create`)}>Edit</DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", openingprogram)}>
+        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete class", classData.id)}>
           Delete
         </DropdownMenuItem>
-      </DropdownMenuContent>    
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }
