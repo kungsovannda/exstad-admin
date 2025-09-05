@@ -1,6 +1,4 @@
 "use client";
-
-import OpeningProgramDataTable from "@/app/opening-program/data-table";
 import { programData } from "@/data/programData";
 import { activityColumns } from "./activityColumn";
 

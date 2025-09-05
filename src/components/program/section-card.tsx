@@ -1,23 +1,20 @@
   "use client"
 
-  import * as React from "react"
-  import { PieChart, Pie, Label,LabelList  } from "recharts"
-  import { TrendingUp } from "lucide-react"
+  import { Label, LabelList, Pie, PieChart } from "recharts"
 
   import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-  } from "@/components/ui/card"
-  import {
-    ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-  } from "@/components/ui/chart"
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader
+} from "@/components/ui/card"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 
   // Donut-style StatCard
   interface StatCardProps {

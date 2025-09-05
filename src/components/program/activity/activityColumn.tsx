@@ -2,6 +2,7 @@
 
 import { ActivityType } from "@/types/openingProgramType";
 import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 
 export const activityColumns: ColumnDef<ActivityType>[] = [
   {
@@ -26,7 +27,7 @@ export const activityColumns: ColumnDef<ActivityType>[] = [
     cell: ({ getValue }) => {
       const url = getValue<string>();
       return url ? (
-        <img 
+        <Image
           src={url} 
           alt="Activity" 
           className="h-12 w-12 object-cover rounded-md" 

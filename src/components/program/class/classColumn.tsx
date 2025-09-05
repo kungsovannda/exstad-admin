@@ -1,9 +1,7 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
 import { Classes } from "@/types/openingProgramType";
-import { Button } from "@/components/ui/button";
-import { OpeningActionsCell } from "@/components/program/opening-program/action-cell";
+import { ColumnDef } from "@tanstack/react-table";
 import { ClassActionsCell } from "./class-action-cell";
 export const classColumns: ColumnDef<Classes>[] = [
   {

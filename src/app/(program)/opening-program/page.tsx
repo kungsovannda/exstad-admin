@@ -1,13 +1,12 @@
 'use client';
 
-import OpeningProgramDataTable from './data-table';
-import { openingProgramColumns } from './openingColumn';
-import { programData } from '@/data/programData';
-import { SectionCards } from '@/components/program/section-card';
+import { OpeningSectionCards } from '@/components/program/opening-program/opening-section-card';
 import { Button } from '@/components/ui/button';
+import { programData } from '@/data/programData';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
-import { OpeningSectionCards } from '@/components/program/opening-program/opening-section-card';
+import OpeningProgramDataTable from './data-table';
+import { openingProgramColumns } from './openingColumn';
 
 // Flatten all openingprograms from all programs
 const allOpeningPrograms = programData.flatMap(program => program.openingprogram || []);

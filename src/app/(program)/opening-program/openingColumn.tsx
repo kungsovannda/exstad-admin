@@ -1,7 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 import { openingProgramType } from "@/types/openingProgramType";
 import { OpeningActionsCell } from "@/components/program/opening-program/action-cell";
 

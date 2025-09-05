@@ -1,11 +1,10 @@
 "use client";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
 const formSchema = z.object({
   name_7739092615: z.string().min(1),
   name_8873194306: z.string(),
@@ -48,6 +46,8 @@ export default function MyForm() {
       toast.error("Failed to submit the form. Please try again.");
     }
   }
+
+  const [previews, setPreviews] = useState<string[]>([]);
 
   return (
     <Form {...form}>
@@ -211,6 +211,9 @@ export default function MyForm() {
               )}
             />
           </div>
+
+              
+
         </div>
 
         <Button type="submit" className="w-fit">

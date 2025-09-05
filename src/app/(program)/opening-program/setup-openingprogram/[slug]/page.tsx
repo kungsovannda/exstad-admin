@@ -1,13 +1,10 @@
 "use client";
 
 import Curriculum from "@/components/program/curriculum";
-import Faq from "@/components/program/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
-import Class from "@/components/program/class/class-modal";
 import Timeline from "@/components/program/timeline";
-import Activity from "@/components/program/activity/activity";
 import ClassPage from "@/components/program/class/class";
 import Activities from "@/components/program/activity/activities";
 

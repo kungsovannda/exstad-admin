@@ -1,25 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
-import { FiPlus } from "react-icons/fi";
-import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { AddTopicDialog } from "./curriculum-popup";
-import { SquarePen, Trash } from "lucide-react";
-import { AddQuestionDialog } from "./faqdialog";
-import { Button } from "../ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import LearningOutcomesAdmin from "./opening-program/learning-outcome";
-import CourseRequirementsAdmin from "./opening-program/course-requirement";
+import { SquarePen, Trash } from "lucide-react";
+import { useState } from "react";
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { FiPlus } from "react-icons/fi";
+import { Button } from "../../../ui/button";
+import { AddTopicFaq } from "./faq-dialog";
+import { AddQuestionDialog } from "./faqdialog";
 
 export default function Faq() {
   type Section = {
@@ -150,7 +148,7 @@ export default function Faq() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-[18px] font-bold text-foreground">FAQ</h2>
-        <AddTopicDialog onSubmit={handleAddTopic} trigger={
+        <AddTopicFaq onSubmit={handleAddTopic} trigger={
             <Button className="flex items-center gap-2.5">
               <FiPlus />
               <span className="text-[14px] font-bold">Add Topic</span>

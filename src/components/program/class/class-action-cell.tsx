@@ -1,18 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Classes } from "@/types/openingProgramType";
+import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Classes } from "@/types/openingProgramType";
 
 interface ClassActionsCellProps {
   classData: Classes;

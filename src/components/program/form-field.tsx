@@ -9,7 +9,7 @@
   import { Button } from "@/components/ui/button"
   import { Calendar as CalendarIcon } from "lucide-react"
   import { format } from "date-fns";
-  import GradientColorInput from "@/app/color-picker/page";
+  // import GradientColorInput from "@/app/color-picker/page";
 
   type Option = {
     value: string;
@@ -86,7 +86,7 @@
             selected={date}
             onSelect={setDate}
             captionLayout="dropdown"
-            className="rounded-md border"
+            className="rounded-m  d border"
           />
         </PopoverContent>
       </Popover>

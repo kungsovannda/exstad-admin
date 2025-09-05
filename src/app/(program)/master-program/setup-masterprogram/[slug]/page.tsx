@@ -1,7 +1,7 @@
 "use client";
 
 import Curriculum from "@/components/program/curriculum";
-import Faq from "@/components/program/faq";
+import Faq from "@/components/program/master-program/faq/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
