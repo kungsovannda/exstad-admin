@@ -6,6 +6,9 @@ import ActivityDataTable from "./data-table";
 import ActivityFormModal from "./form-field";
 import { ActivityDataType,openingProgramType,ActivityType } from "@/types/opening-program";
 import { programType } from "@/types/program";
+import { Button } from "@/components/ui/button";
+import ActivityModal from "./form-field";
+import { useState } from "react";
 
 // Flatten all activities
 
@@ -54,11 +57,14 @@ const allActivities: FlattenedActivity[] = Array.from(
 
 
 export default function ActivityPage() {
+  const [open, setOpen] = useState(false);
   return (
     <div className=" space-y-6">
       <div className="flex justify-between items-center gap-10">
       <h1 className="text-3xl font-semibold">Activities</h1>
-            <ActivityFormModal/>
+             <Button onClick={() => setOpen(true)}>Add Activity</Button>
+<ActivityModal open={open} onOpenChange={setOpen} />
+
           </div>
      <ActivityDataTable data={allActivities} columns={activityColumns} />
     </div>

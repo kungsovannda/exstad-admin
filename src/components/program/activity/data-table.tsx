@@ -38,10 +38,11 @@ import {
 } from "@/components/ui/table";
 import { ArrowUpDown } from "lucide-react";
 import { ActivityType } from "@/types/opening-program";
+import { FlattenedActivity } from "./activities";
 
 type Props = {
-  data: ActivityType[];
-  columns: ColumnDef<ActivityType>[];
+  data: FlattenedActivity[];
+  columns: ColumnDef<FlattenedActivity>[];
 };
 
 export default function ActivityDataTable({ data, columns }: Props) {

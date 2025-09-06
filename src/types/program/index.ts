@@ -31,7 +31,8 @@ export type programType = {
   openingprogram: openingProgramType[]; // 👈 new
   faq:FaqDataType[];
   curriculum:curriculumDataType[];
-  visibility: "public" | "draft";
+  visibility: "public" | "private";
+  status: "draft" | "active" | "archived"
 };
 
 export type programOverviewType = {

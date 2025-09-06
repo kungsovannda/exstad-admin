@@ -13,13 +13,17 @@ import { Classes } from "@/types/opening-program";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import ClassModal1 from "./form-field";
+import { toast } from "sonner";
+import DeleteModal from "../activity/delete-modal-component";
 
 interface ClassActionsCellProps {
   classData: Classes;
+  onDelete?: (id: number) => void; // callback to remove class from parent state
 }
 
-export function ClassActionsCell({ classData }: ClassActionsCellProps) {
+export function ClassActionsCell({ classData,onDelete  }: ClassActionsCellProps) {
   const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <>
@@ -34,12 +38,7 @@ export function ClassActionsCell({ classData }: ClassActionsCellProps) {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-red-600"
-            onClick={() => console.log("Delete class", classData.id)}
-          >
-            Delete
-          </DropdownMenuItem>
+          <DropdownMenuItem className="text-red-600"  onClick={() => setDeleteOpen(true)} > Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -55,6 +54,16 @@ export function ClassActionsCell({ classData }: ClassActionsCellProps) {
         }}
         open={open}
         onOpenChange={setOpen}
+      />
+      {/* Delete Modal */}
+      <DeleteModal
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        itemName={classData.title}
+        onConfirm={() => {
+          onDelete?.(classData.id); // remove from parent state or call API
+          toast.success(`Class "${classData.title}" deleted successfully!`);
+        }}
       />
     </>
   );

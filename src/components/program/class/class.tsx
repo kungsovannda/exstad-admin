@@ -14,7 +14,6 @@ const allClasses: Classes[] = programData.flatMap(
 );
 
 
-
 export default function ClassPage() {
   const [open, setOpen] = useState(false);
   return (
@@ -24,7 +23,6 @@ export default function ClassPage() {
         <Button onClick={() => setOpen(true)}>Add Class</Button>
         <ClassModal1 open={open} onOpenChange={setOpen} />
       </div>
-
       <ClassDataTable data={allClasses} columns={classColumns} />
     </div>
   );

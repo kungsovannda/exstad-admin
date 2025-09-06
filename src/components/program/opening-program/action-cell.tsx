@@ -12,18 +12,26 @@ import { openingProgramType } from "@/types/opening-program";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+import DeleteModal from "../activity/delete-modal-component";
+
+
+
 
 
 interface ActionsCellProps {
   openingprogram: openingProgramType;
+    onDelete?: (id: number) => void; 
   
 }
 
-export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
+export function OpeningActionsCell({ openingprogram ,onDelete}: ActionsCellProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -38,10 +46,19 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
           Set Up
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push(`/opening-program/create`)}>Edit</DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", openingprogram)}>
-          Delete
-        </DropdownMenuItem>
+        <DropdownMenuItem className="text-red-600" onClick={() => setDeleteOpen(true)}>Delete  </DropdownMenuItem>
       </DropdownMenuContent>    
     </DropdownMenu>
+
+    <DeleteModal
+      open={deleteOpen}
+      onOpenChange={setDeleteOpen}
+      itemName={openingprogram.title}
+      onConfirm={() =>{
+        onDelete?.(openingprogram.id);
+        toast.success(`Program "${openingprogram.title}" deleted successfully!`);
+      }}
+    />
+    </>
   );
 }

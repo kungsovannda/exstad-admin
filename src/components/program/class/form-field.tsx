@@ -75,10 +75,10 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
     try {
       if (initialData) {
         console.log("Updating class:", values);
-        toast.success("Class updated successfully!");
+        toast.success(`Class "${values.className}" updated successfully!`);
       } else {
         console.log("Creating class:", values);
-        toast.success("Class created successfully!");
+        toast.success(`Class "${values.className}" created successfully!`);
       }
       onOpenChange(false); // Close modal after submit
     } catch (error) {
@@ -93,7 +93,6 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Class" : "Add New Class"}</DialogTitle>
         </DialogHeader>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
             {/* Row 1: Class Name & Telegram */}
