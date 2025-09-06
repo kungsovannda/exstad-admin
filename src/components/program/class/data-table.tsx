@@ -37,7 +37,7 @@ import {
   TableHead,
 } from '@/components/ui/table';
 import { ArrowUpDown } from 'lucide-react';
-import { Classes } from '@/types/openingProgramType';
+import { Classes } from '@/types/opening-program';
 import { classColumns } from './classColumn';
 
 type Props = {

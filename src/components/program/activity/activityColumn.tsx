@@ -1,8 +1,9 @@
 "use client";
 
-import { ActivityType } from "@/types/openingProgramType";
+import { ActivityType } from "@/types/opening-program";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
+import { ActivityActionsCell } from "./activity-action-cell";
 
 export const activityColumns: ColumnDef<ActivityType>[] = [
   {
@@ -28,6 +29,9 @@ export const activityColumns: ColumnDef<ActivityType>[] = [
       const url = getValue<string>();
       return url ? (
         <Image
+          unoptimized 
+          width={48}
+          height={48}
           src={url} 
           alt="Activity" 
           className="h-12 w-12 object-cover rounded-md" 
@@ -37,4 +41,10 @@ export const activityColumns: ColumnDef<ActivityType>[] = [
       );
     }
   },
+  
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => <ActivityActionsCell ActivityData={row.original} />,
+    },
 ];

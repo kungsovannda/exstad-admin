@@ -12,13 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ActivityDataType } from "@/types/openingProgramType";
-
+import { ActivityType } from "@/types/opening-program";
 interface ActivityActionsCellProps {
-  classData: ActivityDataType   ;
+  ActivityData: ActivityType   ;
 }
 
-export function ClassActionsCell({ classData }: ActivityActionsCellProps) {
+export function ActivityActionsCell({ ActivityData }: ActivityActionsCellProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -33,10 +32,10 @@ export function ClassActionsCell({ classData }: ActivityActionsCellProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => console.log("Edit class", classData.id)}>
+        <DropdownMenuItem onClick={() => console.log("Edit class", ActivityData.id)}>
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete class", classData.id)}>
+        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete class", ActivityData.id)}>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>

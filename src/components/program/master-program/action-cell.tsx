@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { programType } from "@/types/programs";
+import { programType } from "@/types/program";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -16,7 +16,6 @@ import { useState } from "react";
 
 interface ActionsCellProps {
   program: programType;
-  
 }
 
 export function MasterActionsCell({ program }: ActionsCellProps) {

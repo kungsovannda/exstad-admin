@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { openingProgramType } from "@/types/openingProgramType";
+import { openingProgramType } from "@/types/opening-program";
 import { FormField } from "./opening-form-field";
 
 interface OpeningProgramModalProps {

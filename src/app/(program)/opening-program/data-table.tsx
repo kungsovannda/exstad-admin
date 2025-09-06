@@ -37,7 +37,7 @@ import {
   TableHead,
 } from '@/components/ui/table';
 import { ArrowUpDown } from 'lucide-react';
-import { openingProgramType } from '@/types/openingProgramType';
+import { openingProgramType } from '@/types/opening-program';
 
 type Props = {
   data: openingProgramType[];
@@ -184,44 +184,44 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
         </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 py-2">
-        <div className="text-muted-foreground text-sm">
-          {table.getFilteredRowModel().rows.length} row(s) found.
+        {/* Pagination */}
+        <div className="flex flex-col  md:flex-row items-start md:items-center justify-between gap-2 py-2">
+          <div className="text-muted-foreground text-sm">
+            {table.getFilteredRowModel().rows.length} row(s) found.
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">Rows per page</p>
+            <Select
+              value={String(table.getState().pagination.pageSize)}
+              onValueChange={(value) => table.setPageSize(Number(value))}
+            >
+              <SelectTrigger className="w-20 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 30, 50].map((size) => (
+                  <SelectItem key={size} value={String(size)}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">Rows per page</p>
-          <Select
-            value={String(table.getState().pagination.pageSize)}
-            onValueChange={(value) => table.setPageSize(Number(value))}
-          >
-            <SelectTrigger className="w-20 text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 20, 30, 50].map((size) => (
-                <SelectItem key={size} value={String(size)}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="outline"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }

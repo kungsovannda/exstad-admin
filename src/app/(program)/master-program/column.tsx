@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { programType } from "@/types/programs";
+import { programType } from "@/types/program";
 import { ArrowUpDown } from "lucide-react";
 import { MasterActionsCell } from "@/components/program/master-program/action-cell";
 

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -32,6 +32,7 @@ const formSchema = z.object({
   name_5632581777: z.string(),
   name_6061101953: z.string(),
   name_8345114127: z.string(),
+  images: z.array(z.file()),
 });
 
 export default function ActivityFormModal() {
@@ -57,6 +58,8 @@ export default function ActivityFormModal() {
     }
   };
 
+  const [previewsImage, setPreviewsImage] = useState<string[]>([]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -69,13 +72,9 @@ export default function ActivityFormModal() {
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 grid w-full items-center mt-4"
-          >
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
-                <FormField
+          <form  onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 grid gap-4 w-full items-center mt-4" >
+
+                 <FormField
                   control={form.control}
                   name="name_1672220896"
                   render={({ field }) => (
@@ -88,28 +87,7 @@ export default function ActivityFormModal() {
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className="col-span-6">
-                <FormField
-                  control={form.control}
-                  name="name_5632581777"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Select File</FormLabel>
-                      <FormControl>
-                        <Input type="file" {...field} />
-                      </FormControl>    
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
-                <FormField
+                 <FormField
                   control={form.control}
                   name="name_6061101953"
                   render={({ field }) => (
@@ -126,9 +104,6 @@ export default function ActivityFormModal() {
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className="col-span-6">
                 <FormField
                   control={form.control}
                   name="name_8345114127"
@@ -146,9 +121,48 @@ export default function ActivityFormModal() {
                     </FormItem>
                   )}
                 />
-              </div>
-            </div>
+                  <FormField
+                      control={form.control}
+                      name="images"
+                      render={({ field }) => (
+                        <FormItem >
+                          <FormLabel>Upload Image</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="file"
+                              multiple
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files ?? []);
+                                field.onChange(files);
 
+                                const filePreviews = files.map((file) =>
+                                  URL.createObjectURL(file)
+                                );
+                                setPreviewsImage(filePreviews);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+               {previewsImage.length > 0 && (
+                                <div className="flex gap-2 mt-2 flex-wrap">
+                                  {previewsImage.map((src, idx) => (
+                                    <Image
+                                      width={100}
+                                      height={100}
+                                      key={idx}
+                                      src={src}
+                                      alt={`Preview ${idx + 1}`}
+                                      className="w-24 h-24 object-cover rounded border"
+                                    />
+                                  ))}
+                                </div>
+                              )}
+           
+
+                  
             <Button type="submit" className="w-fit">
               Submit
             </Button>

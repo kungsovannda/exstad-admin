@@ -18,6 +18,9 @@ import { FiPlus } from "react-icons/fi";
 import { Button } from "../../../ui/button";
 import { AddTopicFaq } from "./faq-dialog";
 import { AddQuestionDialog } from "./faqdialog";
+import { FaTrash } from "react-icons/fa";
+import { PiNotePencilFill } from "react-icons/pi";
+
 
 export default function Faq() {
   type Section = {
@@ -173,11 +176,11 @@ export default function Faq() {
 
               <div className="flex gap-2 items-center">
                 {/* Delete Topic */}
-                <Trash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteTopic(topic.id)} />
+                <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteTopic(topic.id)} />
                 {/* Edit Topic */}
                 <Dialog>
                   <DialogTrigger asChild>
-                    <SquarePen  size={18}  className="text-primary-hover cursor-pointer"/>
+                    <PiNotePencilFill  size={20}  className="text-primary-hover cursor-pointer"/>
                   </DialogTrigger>
 
                   <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
@@ -223,7 +226,7 @@ export default function Faq() {
                     </div>
                     <div className="flex gap-2 mt-1 items-center ml-7">
                       {/* Delete Section */}
-                      <Trash size={18} className="text-destructive cursor-pointer" onClick={() =>   handleDeleteSection(topic.id, section.id) }  />
+                      <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() =>   handleDeleteSection(topic.id, section.id) }  />
 
                       {/* Edit Section */}
                       <AddQuestionDialog

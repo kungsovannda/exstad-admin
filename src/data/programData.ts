@@ -1,4 +1,4 @@
-import { programType } from "@/types/programs";
+import { programType } from "@/types/program";
 export const programData: programType[] = [
   {
     id: 1,

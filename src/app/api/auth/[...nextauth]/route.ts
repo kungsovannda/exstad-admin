@@ -9,8 +9,7 @@ export const authOptions: AuthOptions = {
       issuer: process.env.KEYCLOAK_ISSUER!,
       authorization: {
         params: {
-          prompt: "login", // Force login prompt
-          // or use "select_account" to show account selection
+          prompt: "login",
         },
       },
     }),
@@ -19,8 +18,7 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, account, user }) {
-      console.log("👤 User exists:", !!user);
+    async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token!;
         token.refreshToken = account.refresh_token!;
@@ -28,8 +26,6 @@ export const authOptions: AuthOptions = {
         const payload = JSON.parse(
           Buffer.from(account.access_token!.split(".")[1], "base64").toString()
         );
-
-        console.table(payload.realm_access.roles);
 
         token.user = {
           id: payload.sub || null,
@@ -53,7 +49,7 @@ export const authOptions: AuthOptions = {
       };
       session.accessToken = token.accessToken as string;
       session.refreshToken = token.refreshToken as string;
-      console.log(session);
+      session.accessTokenExpires = token.exp as number;
       return session;
     },
   },

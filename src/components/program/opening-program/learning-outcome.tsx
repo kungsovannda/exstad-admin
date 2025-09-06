@@ -7,6 +7,8 @@ import { SquarePen, Trash } from "lucide-react";
 import { AddTopicDialog } from "../curriculum-popup"; // reuse popup for adding outcome
 import { AddSectionDialog } from "../description";    // reuse section dialog
 import { Button } from "@/components/ui/button";
+import { FaTrash } from "react-icons/fa";
+import { PiNotePencilFill } from "react-icons/pi";
 
 type Section = { id: string; title: string };
 type Outcome = {
@@ -124,11 +126,11 @@ export default function LearningOutcomesAdmin() {
               </div>
 
               <div className="flex gap-2 items-center">
-                <Trash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteOutcome(outcome.id)} />
+                <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteOutcome(outcome.id)} />
                 <AddSectionDialog
                   initialTitle={outcome.title}
                   onSubmit={(newTitle) => handleEditOutcome(outcome.id, newTitle, outcome.subtitle)}
-                  trigger={<SquarePen size={18} className="text-primary-hover cursor-pointer" />}
+                  trigger={<PiNotePencilFill size={20} className="text-primary-hover cursor-pointer" />}
                 />
                 <FaChevronDown
                   onClick={() => toggleExpand(outcome.id)}
@@ -146,11 +148,11 @@ export default function LearningOutcomesAdmin() {
                       <span className="text-[14px] font-semibold text-foreground">{section.title}</span>
                     </div>
                     <div className="flex gap-2 items-center">
-                      <Trash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteSection(outcome.id, section.id)} />
+                      <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteSection(outcome.id, section.id)} />
                       <AddSectionDialog
                         initialTitle={section.title}
                         onSubmit={(newTitle) => handleEditSection(outcome.id, section.id, newTitle)}
-                        trigger={<SquarePen size={18} className="text-primary-hover cursor-pointer" />}
+                        trigger={<PiNotePencilFill size={20} className="text-primary-hover cursor-pointer" />}
                       />
                     </div>
                   </div>

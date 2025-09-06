@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { programType } from "@/types/programs";
+import { programType } from "@/types/program";
 
 type Field = {
   id: string;

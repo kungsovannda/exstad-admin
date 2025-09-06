@@ -7,6 +7,8 @@ import { SquarePen, Trash } from "lucide-react";
 import { AddTopicDialog } from "../curriculum-popup"; // reuse dialog
 import { AddSectionDialog } from "../description";
 import { Button } from "@/components/ui/button";
+import { FaTrash } from "react-icons/fa";
+import { PiNotePencilFill } from "react-icons/pi";
 
 type Section = { id: string; title: string };
 type Requirement = {
@@ -114,11 +116,11 @@ export default function CourseRequirementsAdmin() {
               </div>
 
               <div className="flex gap-2 items-center">
-                <Trash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteRequirement(req.id)} />
+                <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteRequirement(req.id)} />
                 <AddSectionDialog
                   initialTitle={req.title}
                   onSubmit={(newTitle) => handleEditRequirement(req.id, newTitle, req.subtitle)}
-                  trigger={<SquarePen size={18} className="text-primary-hover cursor-pointer" />}
+                  trigger={<PiNotePencilFill size={20} className="text-primary-hover cursor-pointer" />}
                 />
                 <FaChevronDown
                   onClick={() => toggleExpand(req.id)}
@@ -136,11 +138,11 @@ export default function CourseRequirementsAdmin() {
                       <span className="text-[14px] font-semibold text-foreground">{section.title}</span>
                     </div>
                     <div className="flex gap-2 items-center">
-                      <Trash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteSection(req.id, section.id)} />
+                      <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteSection(req.id, section.id)} />
                       <AddSectionDialog
                         initialTitle={section.title}
                         onSubmit={(newTitle) => handleEditSection(req.id, section.id, newTitle)}
-                        trigger={<SquarePen size={18} className="text-primary-hover cursor-pointer" />}
+                        trigger={<PiNotePencilFill size={20} className="text-primary-hover cursor-pointer" />}
                       />
                     </div>
                   </div>

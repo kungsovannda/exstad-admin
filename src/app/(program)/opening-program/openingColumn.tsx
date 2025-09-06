@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { openingProgramType } from "@/types/openingProgramType";
+import { openingProgramType } from "@/types/opening-program";
 import { OpeningActionsCell } from "@/components/program/opening-program/action-cell";
 
 export const openingProgramColumns: ColumnDef<openingProgramType>[] = [

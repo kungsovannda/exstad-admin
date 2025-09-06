@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FiPlus } from "react-icons/fi";
 import { SquarePen } from "lucide-react";
+import { PiNotePencilFill } from "react-icons/pi";
 
 type AddQuestionDialogProps = {
   onAddQuestion?: (question: string, answer: string) => void;
@@ -63,9 +64,9 @@ export function AddQuestionDialog({
             <span className="text-[14px] font-bold">{submitText}</span>
           </Button>
         ) : (
-          <SquarePen
+          <PiNotePencilFill
             className="cursor-pointer text-primary-hover"
-            size={18}
+            size={20}
           />
         )}
       </DialogTrigger>

@@ -1,58 +1,299 @@
-// "use client"
-// import {
-//   useState
-// } from "react"
-// import {
-//   toast
-// } from "sonner"
-// import {
-//   useForm
-// } from "react-hook-form"
-// import {
-//   zodResolver
-// } from "@hookform/resolvers/zod"
-// import {
-//   z
-// } from "zod"
-// import {
-//   cn
-// } from "@/lib/utils"
-// import {
-//   Button
-// } from "@/components/ui/button"
-// import {
-//   Form,
-//   FormControl,
-//   FormDescription,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
-// } from "@/components/ui/form"
-// import {
-//   Input
-// } from "@/components/ui/input"
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue
-// } from "@/components/ui/select"
-// import {
-//   format
-// } from "date-fns"
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger
-// } from "@/components/ui/popover"
-// import {
-//   Calendar
-// } from "@/components/ui/calendar"
-// import {
-//   Calendar as CalendarIcon
-// } from "lucide-react"
+"use client";
+
+import React from "react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// Form validation schema
+const formSchema = z.object({
+  className: z.string().min(1, "Class name is required"),
+  telegram: z.string().url("Must be a valid URL"),
+  classCode: z.string().min(1, "Class code is required"),
+  room: z.string().min(1, "Room is required"),
+  shift: z.string().min(1, "Shift is required"),
+  instructor: z.string().min(1, "Instructor is required"),
+  start: z.date().refine((d) => !!d, { message: "Start time required" }),
+  end: z.date().refine((d) => !!d, { message: "End time required" }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+interface ClassModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initialData?: Partial<FormValues>;
+}
+
+export default function ClassModal1({ open, onOpenChange, initialData }: ClassModalProps) {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          start: initialData.start ? new Date(initialData.start) : new Date(),
+          end: initialData.end ? new Date(initialData.end) : new Date(),
+        }
+      : {
+          className: "",
+          telegram: "",
+          classCode: "",
+          room: "",
+          shift: "",
+          instructor: "",
+          start: new Date(),
+          end: new Date(),
+        },
+  });
+
+  async function onSubmit(values: FormValues) {
+    try {
+      if (initialData) {
+        console.log("Updating class:", values);
+        toast.success("Class updated successfully!");
+      } else {
+        console.log("Creating class:", values);
+        toast.success("Class created successfully!");
+      }
+      onOpenChange(false); // Close modal after submit
+    } catch (error) {
+      console.error("Form submission error", error);
+      toast.error("Failed to submit the form. Please try again.");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{initialData ? "Edit Class" : "Add New Class"}</DialogTitle>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
+            {/* Row 1: Class Name & Telegram */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="className"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Class Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Class Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="telegram"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telegram Group Link</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Telegram Group Link" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 2: Class Code & Room */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="classCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Class Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Class Code" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="room"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Room</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a room" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Blockchain">Blockchain</SelectItem>
+                        <SelectItem value="DevOps">DevOps</SelectItem>
+                        <SelectItem value="Fullstack">Fullstack</SelectItem>
+                        <SelectItem value="Mobile">Mobile</SelectItem>
+                        <SelectItem value="Data Analytics">Data Analytics</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 3: Shift & Instructor */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="shift"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Shift</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a shift" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Morning">Morning</SelectItem>
+                        <SelectItem value="Afternoon">Afternoon</SelectItem>
+                        <SelectItem value="Evening">Evening</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="instructor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Instructor Name</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an instructor" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Kim Chansokpheng">Kim Chansokpheng</SelectItem>
+                        <SelectItem value="Chan Chhaya">Chan Chhaya</SelectItem>
+                        <SelectItem value="Eung Lyzhia">Eung Lyzhia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 4: Start & End Time */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="start"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Time</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="time"
+                        step="1"
+                        value={field.value.toTimeString().slice(0, 8)}
+                        onChange={(e) => {
+                          const [h, m, s] = e.target.value.split(":").map(Number);
+                          const date = new Date(field.value);
+                          date.setHours(h, m, s);
+                          field.onChange(date);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="end"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Time</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="time"
+                        step="1"
+                        value={field.value.toTimeString().slice(0, 8)}
+                        onChange={(e) => {
+                          const [h, m, s] = e.target.value.split(":").map(Number);
+                          const date = new Date(field.value);
+                          date.setHours(h, m, s);
+                          field.onChange(date);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <Button type="submit" className="bg-primary text-white">
+                {initialData ? "Update" : "Save"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+// 'use client';
+
+// import React from "react";
+// import { toast } from "sonner";
+// import { useForm } from "react-hook-form";
+// import { zodResolver } from "@hookform/resolvers/zod";
+// import * as z from "zod";
+// import { ChevronDownIcon } from "lucide-react"
+// import { Calendar } from "@/components/ui/calendar"
+// import { Label } from "@/components/ui/label"
+// import {Popover,PopoverContent,PopoverTrigger,} from "@/components/ui/popover"
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // const formSchema = z.object({
 //   name_3717067953: z.string().min(1),
@@ -60,22 +301,15 @@
 //   name_2547433202: z.string().min(1),
 //   name_7031132415: z.string(),
 //   name_3250412614: z.string(),
-//   name_9138373335: z.string(),
-//   name_8528783584: z.coerce.date(),
-//   name_3917342201: z.coerce.date()
+//   name_9138373335: z.string()
 // });
 
-// export default function MyForm() {
-
-//   const form = useForm < z.infer < typeof formSchema >> ({
+// export default function ClassModal1() {
+//   const form = useForm<z.infer<typeof formSchema>>({
 //     resolver: zodResolver(formSchema),
-//     defaultValues: {
-//       "name_8528783584": new Date(),
-//       "name_3917342201": new Date()
-//     },
-//   })
+//   });
 
-//   function onSubmit(values: z.infer < typeof formSchema > ) {
+//   function onSubmit(values: z.infer<typeof formSchema>) {
 //     try {
 //       console.log(values);
 //       toast(
@@ -90,259 +324,171 @@
 //   }
 
 //   return (
-//     <Form {...form}>
-//       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
-        
-//         <div className="grid grid-cols-12 gap-4">
-          
-//           <div className="col-span-6">
-            
-//         <FormField
-//           control={form.control}
-//           name="name_3717067953"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Username</FormLabel>
-//               <FormControl>
-//                 <Input 
-//                 placeholder="shadcn"
-                
-//                 type=""
-//                 {...field} />
-//               </FormControl>
-//               <FormDescription>This is your public display name.</FormDescription>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-//           </div>
-          
-//           <div className="col-span-6">
-            
-//         <FormField
-//           control={form.control}
-//           name="name_7973345501"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Username</FormLabel>
-//               <FormControl>
-//                 <Input 
-//                 placeholder="shadcn"
-                
-//                 type=""
-//                 {...field} />
-//               </FormControl>
-//               <FormDescription>This is your public display name.</FormDescription>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-//           </div>
-          
-//         </div>
-        
-//         <div className="grid grid-cols-12 gap-4">
-          
-//           <div className="col-span-6">
-            
-//         <FormField
-//           control={form.control}
-//           name="name_2547433202"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Username</FormLabel>
-//               <FormControl>
-//                 <Input 
-//                 placeholder="shadcn"
-                
-//                 type=""
-//                 {...field} />
-//               </FormControl>
-//               <FormDescription>This is your public display name.</FormDescription>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-//           </div>
-          
-//           <div className="col-span-6">
-            
-//         <FormField
-//           control={form.control}
-//           name="name_7031132415"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Email</FormLabel>
-//               <Select onValueChange={field.onChange} defaultValue={field.value}>
-//                 <FormControl>
-//                   <SelectTrigger>
-//                     <SelectValue placeholder="Select a verified email to display" />
-//                   </SelectTrigger>
-//                 </FormControl>
-//                 <SelectContent>
-//                   <SelectItem value="m@example.com">m@example.com</SelectItem>
-//                   <SelectItem value="m@google.com">m@google.com</SelectItem>
-//                   <SelectItem value="m@support.com">m@support.com</SelectItem>
-//                 </SelectContent>
-//               </Select>
-//                 <FormDescription>You can manage email addresses in your email settings.</FormDescription>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-//           </div>
-          
-//         </div>
-        
-//         <div className="grid grid-cols-12 gap-4">
-          
-//           <div className="col-span-6">
-            
-//         <FormField
-//           control={form.control}
-//           name="name_3250412614"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Email</FormLabel>
-//               <Select onValueChange={field.onChange} defaultValue={field.value}>
-//                 <FormControl>
-//                   <SelectTrigger>
-//                     <SelectValue placeholder="Select a verified email to display" />
-//                   </SelectTrigger>
-//                 </FormControl>
-//                 <SelectContent>
-//                   <SelectItem value="m@example.com">m@example.com</SelectItem>
-//                   <SelectItem value="m@google.com">m@google.com</SelectItem>
-//                   <SelectItem value="m@support.com">m@support.com</SelectItem>
-//                 </SelectContent>
-//               </Select>
-//                 <FormDescription>You can manage email addresses in your email settings.</FormDescription>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-//           </div>
-          
-//           <div className="col-span-6">
-            
-//         <FormField
-//           control={form.control}
-//           name="name_9138373335"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Email</FormLabel>
-//               <Select onValueChange={field.onChange} defaultValue={field.value}>
-//                 <FormControl>
-//                   <SelectTrigger>
-//                     <SelectValue placeholder="Select a verified email to display" />
-//                   </SelectTrigger>
-//                 </FormControl>
-//                 <SelectContent>
-//                   <SelectItem value="m@example.com">m@example.com</SelectItem>
-//                   <SelectItem value="m@google.com">m@google.com</SelectItem>
-//                   <SelectItem value="m@support.com">m@support.com</SelectItem>
-//                 </SelectContent>
-//               </Select>
-//                 <FormDescription>You can manage email addresses in your email settings.</FormDescription>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-//           </div>
-          
-//         </div>
-        
-//         <div className="grid grid-cols-12 gap-4">
-          
-//           <div className="col-span-6">
-            
-//       <FormField
-//       control={form.control}
-//       name="name_8528783584"
-//       render={({ field }) => (
-//         <FormItem className="flex flex-col">
-//           <FormLabel>Date of birth</FormLabel>
-//           <Popover>
-//             <PopoverTrigger asChild>
-//               <FormControl>
-//                 <Button
-//                   variant={"outline"}
-//                   className={cn(
-//                     "w-[240px] pl-3 text-left font-normal",
-//                     !field.value && "text-muted-foreground"
-//                   )}
-//                 >
-//                   {field.value ? (
-//                     format(field.value, "PPP")
-//                   ) : (
-//                     <span>Pick a date</span>
-//                   )}
-//                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-//                 </Button>
-//               </FormControl>
-//             </PopoverTrigger>
-//             <PopoverContent className="w-auto p-0" align="start">
-//               <Calendar
-//                 mode="single"
-//                 selected={field.value}
-//                 onSelect={field.onChange}
-//                 initialFocus
+//     <Dialog>
+//       <DialogTrigger asChild>
+//         <Button variant="default">Add Class</Button>
+//       </DialogTrigger>
+
+//       <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
+//         <DialogHeader>
+//           <DialogTitle>Add New Class</DialogTitle>
+//         </DialogHeader>
+
+//         <Form {...form}>
+//           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               {/* Class Name */}
+//               <FormField
+//                 control={form.control}
+//                 name="name_3717067953"
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Class Name</FormLabel>
+//                     <FormControl>
+//                       <Input placeholder="Enter Class Name" {...field} />
+//                     </FormControl>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}
 //               />
-//             </PopoverContent>
-//           </Popover>
-//        <FormDescription>Your date of birth is used to calculate your age.</FormDescription>
-//           <FormMessage />
-//         </FormItem>
-//       )}
-//     />
-//           </div>
-          
-//           <div className="col-span-6">
-            
-//       <FormField
-//       control={form.control}
-//       name="name_3917342201"
-//       render={({ field }) => (
-//         <FormItem className="flex flex-col">
-//           <FormLabel>Date of birth</FormLabel>
-//           <Popover>
-//             <PopoverTrigger asChild>
-//               <FormControl>
-//                 <Button
-//                   variant={"outline"}
-//                   className={cn(
-//                     "w-[240px] pl-3 text-left font-normal",
-//                     !field.value && "text-muted-foreground"
-//                   )}
-//                 >
-//                   {field.value ? (
-//                     format(field.value, "PPP")
-//                   ) : (
-//                     <span>Pick a date</span>
-//                   )}
-//                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-//                 </Button>
-//               </FormControl>
-//             </PopoverTrigger>
-//             <PopoverContent className="w-auto p-0" align="start">
-//               <Calendar
-//                 mode="single"
-//                 selected={field.value}
-//                 onSelect={field.onChange}
-//                 initialFocus
+
+//               {/* Telegram Group Link */}
+//               <FormField
+//                 control={form.control}
+//                 name="name_7973345501"
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Telegram Group Link</FormLabel>
+//                     <FormControl>
+//                       <Input placeholder="Enter Telegram Group Link" {...field} />
+//                     </FormControl>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}
 //               />
-//             </PopoverContent>
-//           </Popover>
-//        <FormDescription>Your date of birth is used to calculate your age.</FormDescription>
-//           <FormMessage />
-//         </FormItem>
-//       )}
-//     />
-//           </div>
-          
-//         </div>
-//         <Button type="submit">Submit</Button>
-//       </form>
-//     </Form>
-//   )
+//             </div>
+
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               {/* Class Code */}
+//               <FormField
+//                 control={form.control}
+//                 name="name_2547433202"
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Class Code</FormLabel>
+//                     <FormControl>
+//                       <Input placeholder="Enter Class Code" {...field} />
+//                     </FormControl>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}
+//               />
+
+//               {/* Room */}
+//               <FormField
+//                 control={form.control}
+//                 name="name_7031132415"
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Room</FormLabel>
+//                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+//                       <FormControl>
+//                         <SelectTrigger>
+//                           <SelectValue placeholder="Select a room" />
+//                         </SelectTrigger>
+//                       </FormControl>
+//                       <SelectContent>
+//                         <SelectItem value="Blockchain">Blockchain</SelectItem>
+//                         <SelectItem value="DevOps">DevOps</SelectItem>
+//                         <SelectItem value="Fullstack">Fullstack</SelectItem>
+//                         <SelectItem value="Mobile">Mobile</SelectItem>
+//                         <SelectItem value="Data Analytics">Data Analytics</SelectItem>
+//                       </SelectContent>
+//                     </Select>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}
+//               />
+//             </div>
+
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               {/* Shift */}
+//               <FormField
+//                 control={form.control}
+//                 name="name_3250412614"
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Shift</FormLabel>
+//                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+//                       <FormControl>
+//                         <SelectTrigger>
+//                           <SelectValue placeholder="Select a shift" />
+//                         </SelectTrigger>
+//                       </FormControl>
+//                       <SelectContent>
+//                         <SelectItem value="Morning">Morning</SelectItem>
+//                         <SelectItem value="Afternoon">Afternoon</SelectItem>
+//                         <SelectItem value="Evening">Evening</SelectItem>
+//                       </SelectContent>
+//                     </Select>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )} />
+//               {/* Instructor Name */}
+//               <FormField
+//                 control={form.control}
+//                 name="name_9138373335"
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Instructor Name</FormLabel>
+//                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+//                       <FormControl>
+//                         <SelectTrigger>
+//                           <SelectValue placeholder="Select an instructor" />
+//                         </SelectTrigger>
+//                       </FormControl>
+//                       <SelectContent>
+//                         <SelectItem value="Kim Chansokpheng">Kim Chansokpheng</SelectItem>
+//                         <SelectItem value="Chan Chhaya">Chan Chhaya</SelectItem>
+//                         <SelectItem value="Eung Lyzhia">Eung Lyzhia</SelectItem>
+//                       </SelectContent>
+//                     </Select>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}  />
+//            </div>
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                     <div className="flex flex-col gap-3">
+//                       <Label htmlFor="time-picker" className="px-1">Started Time </Label>
+//                       <Input
+//                         type="time"
+//                         id="time-picker"
+//                         step="1"
+//                         defaultValue="10:30:00"
+//                         className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+//                       />
+//                     </div>
+//                     <div className="flex flex-col gap-3">
+//                       <Label htmlFor="time-picker" className="px-1">Ended Time </Label>
+//                       <Input
+//                         type="time"
+//                         id="time-picker"
+//                         step="1"
+//                         defaultValue="10:30:00"
+//                         className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+//                       />
+//                     </div>
+                          
+//                 </div>
+
+//             <div className="flex justify-end mt-4">
+//               <Button type="submit" className="bg-primary text-white">
+//                 Save
+//               </Button>
+//             </div>
+//           </form>
+//         </Form>
+//       </DialogContent>
+//     </Dialog>
+//   );
 // }
