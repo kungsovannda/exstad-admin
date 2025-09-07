@@ -85,7 +85,8 @@ body {
   .rounded-sm,
   .rounded-md,
   .rounded-lg,
-  .rounded-xl {
+  .rounded-xl,
+  [class*="rounded-[4px]"] {
     @apply !rounded-none;
     border-radius: 0;
   }
