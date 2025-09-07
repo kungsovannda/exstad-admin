@@ -30,18 +30,15 @@ import {
     ]
 
 
-    const footerTextMap: Record<string, string> = {
-  "Total Program": "All programs in the system",
-  "Draft Program": "Programs in draft",
+const footerTextMap: Record<string, string> = {
+  "Total Opening Program": "All opening programs in the system",
+  "Closed Opening Program": "Programs that are closed",
   "Short Courses": "All short courses ",
   "Scholarship Courses": "Eligible for scholarships",
 };
-
-
     const chartConfig = {
       [description.toLowerCase().replace(/\s/g, "_")]: { label: description, color },
     } satisfies ChartConfig
-
     return (
       <Card className="flex flex-col rounded-2xl shadow-sm">
         <CardHeader className="pb-0">
@@ -77,81 +74,19 @@ import {
       </Card>
     )
   }
-
-
-  
-// Pie chart data (levels)
-const chartData = [
-  { level: "Beginner", count: 10, fill: "var(--color-beginner)" },
-  { level: "Intermediate", count: 6, fill: "var(--color-intermediate)" },
-  { level: "Advanced", count: 3, fill: "var(--color-advanced)" },
-]
-
-const chartConfig = {
-  beginner: {
-    label: "Beginner",
-    color: "var(--chart-1)",
-  },
-  intermediate: {
-    label: "Intermediate",
-    color: "var(--chart-2)",
-  },
-  advanced: {
-    label: "Advanced",
-    color: "var(--chart-3)",
-  },
-} satisfies ChartConfig
-
-function LevelPieCard() {
-  return (
-    <Card className="flex flex-col rounded-2xl h shadow-sm">
-      <CardHeader className="items-center pb-0">
-         <CardDescription className="text-[20px] font-semibold tabular-nums @[250px]/card:text-3xl">Program Levels
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="[&_.recharts-text]:fill-background mx-auto aspect-square max-h-[150px]"
-        >
-          <PieChart>
-            <ChartTooltip
-              content={<ChartTooltipContent nameKey="count" hideLabel />}
-            />
-            <Pie data={chartData} dataKey="count" nameKey="level">
-              <LabelList
-                dataKey="level"
-                className="fill-background"
-                stroke="none"
-                fontSize={10}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
-      <CardFooter className="text-sm text-muted-foreground">All program level</CardFooter>
-    </Card>
-  )
-}
-
-
   // Section with 4 donut stat cards + existing LevelPieCard
-  export function SectionCards() {
+  export function SectionCardsOpening() {
     const stats = [
-      { description: "Total Program", value: 19, color: "var(--chart-1)" },
-      { description: "Draft Program", value: 1, color: "var(--chart-2)" },
+      { description: "Total Opening Program", value: 19, color: "var(--chart-1)" },
+      { description: "Closed Opening Program", value: 7, color: "var(--chart-2)" },
       { description: "Short Courses", value: 17, color: "var(--chart-3)" },
       { description: "Scholarship Courses", value: 1, color: "var(--chart-4)" },
     ]
-
     return (
-      <div className="grid grid-cols-5 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-5">
+      <div className="grid grid-cols-4 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-5">
         {stats.map((stat, i) => (
           <DonutStatCard key={i} {...stat} />
         ))}
-        {/* Keep LevelPieCard exactly the same */}
-        <LevelPieCard />
-
       </div>
     )
   }

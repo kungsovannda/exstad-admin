@@ -11,66 +11,77 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FiPlus } from "react-icons/fi";
 
-// ✅ Add props type
-type AddDescriptionDialogProps = {
-  onAddDescription: (title: string) => void;
+type AddSectionDialogProps = {
+  initialTitle?: string; // for editing
+  onSubmit: (title: string) => void;
+  trigger?: React.ReactNode; // trigger element
 };
 
-export function AddDescriptionDialog({ onAddDescription }: AddDescriptionDialogProps) {
-  const [description, setDescription] = useState("");
+export function AddSectionDialog({
+  initialTitle = "",
+  onSubmit,
+  trigger,
+}: AddSectionDialogProps) {
+  const [title, setTitle] = useState(initialTitle);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!description.trim()) return;
+    if (!title.trim()) return;
 
-    onAddDescription(description); // Call the callback
-    setDescription(""); // Reset input
+    onSubmit(title);
+    setTitle("");
   };
 
   return (
- <Dialog>
-  <DialogTrigger asChild>
-    <Button variant="default" className="flex items-center w-fit mt-2 gap-2.5">
-      <FiPlus className="text-[18px]" />
-      <span className="text-[14px] font-bold">Add new description</span>
-    </Button>
-  </DialogTrigger>
+    <Dialog>
+      <DialogTrigger asChild>
+        {trigger ?? (
+          <Button variant="default" className="flex items-center gap-2.5">
+            <FiPlus className="text-[18px]" />
+            <span className="text-[14px] font-bold">
+              {initialTitle ? "Edit Section" : "Add Section"}
+            </span>
+          </Button>
+        )}
+      </DialogTrigger>
 
-  <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
-    <form onSubmit={handleSubmit}>
-      <DialogHeader className="mb-6">
-        <DialogTitle>Add new description</DialogTitle>
-        <DialogDescription>
-          Make changes to your profile here. Click save when you&apos;re done.
-        </DialogDescription>
-      </DialogHeader>
+      <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader className="mb-6">
+            <DialogTitle>{initialTitle ? "Edit Section" : "Add Section"}</DialogTitle>
+            <DialogDescription>
+              {initialTitle
+                ? "Update the section title and click save."
+                : "Enter a new section title and click add."}
+            </DialogDescription>
+          </DialogHeader>
 
-      <div className="grid gap-4">
-        <div className="grid gap-3">
-          <Label htmlFor="description-text">Description</Label>
-          <Input
-            id="description-text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter description..."
-          />
-        </div>
-      </div>
+          <div className="grid gap-4">
+            <div className="grid gap-3">
+              <Label htmlFor="section-title">Section Title</Label>
+              <Input
+                id="section-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter section title..."
+                required
+              />
+            </div>
+          </div>
 
-      <DialogFooter className="mt-6">
-        <DialogClose asChild>
-          <Button variant="outline">Cancel</Button>
-        </DialogClose>
-        <Button type="submit">Add description</Button>
-      </DialogFooter>
-    </form>
-  </DialogContent>
-</Dialog>
-
+          <DialogFooter className="mt-6">
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">{initialTitle ? "Save" : "Add Section"}</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

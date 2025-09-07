@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   ColumnDef,
@@ -11,23 +11,23 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from '@tanstack/react-table';
-import { useState, useMemo } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from "@tanstack/react-table";
+import { useState, useMemo } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableHeader,
@@ -35,26 +35,26 @@ import {
   TableRow,
   TableCell,
   TableHead,
-} from '@/components/ui/table';
-import { ArrowUpDown } from 'lucide-react';
-import { openingProgramType } from '@/types/openingProgramType';
+} from "@/components/ui/table";
+import { ArrowUpDown } from "lucide-react";
+import { ActivityType } from "@/types/opening-program";
+import { FlattenedActivity } from "./activities";
 
 type Props = {
-  data: openingProgramType[];
-  columns: ColumnDef<openingProgramType>[];
+  data: FlattenedActivity[];
+  columns: ColumnDef<FlattenedActivity>[];
 };
 
-export default function OpeningProgramDataTable({ data, columns }: Props) {
-  const [search, setSearch] = useState('');
-  const [filterGeneration, setFilterGeneration] = useState('all');
+export default function ActivityDataTable({ data, columns }: Props) {
+  const [search, setSearch] = useState("");
 
   const filteredData = useMemo(() => {
-    return data.filter((p) => {
-      const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase());
-      const matchesGen = filterGeneration === 'all' || p.generation === Number(filterGeneration);
-      return matchesSearch && matchesGen;
-    });
-  }, [data, search, filterGeneration]);
+    return data.filter(
+      (act) =>
+        act.subtitle.toLowerCase().includes(search.toLowerCase()) ||
+        act.description.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [data, search]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
@@ -82,29 +82,14 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Search & Filters */}
+      {/* Search */}
       <div className="flex flex-col md:flex-row gap-4 items-center">
         <Input
-          placeholder="Search program..."
+          placeholder="Search activity..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-52"
         />
-
-        <Select onValueChange={setFilterGeneration}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Select generation" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            {[...new Set(data.map((p) => p.generation))].map((gen) => (
-              <SelectItem key={gen} value={String(gen)}>
-                {gen}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -140,11 +125,14 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
                         className="flex items-center cursor-pointer"
                         onClick={() =>
                           header.column.toggleSorting(
-                            header.column.getIsSorted() === 'asc'
+                            header.column.getIsSorted() === "asc"
                           )
                         }
                       >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                         <ArrowUpDown className="ml-2 h-3 w-3" />
                       </span>
                     )}
@@ -166,7 +154,7 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
             {table.getRowModel().rows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center">
-                  No programs found.
+                  No activities found.
                 </TableCell>
               </TableRow>
             )}
@@ -175,7 +163,7 @@ export default function OpeningProgramDataTable({ data, columns }: Props) {
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 py-2">
+      <div className="flex flex-col  md:flex-row items-start md:items-center justify-between gap-2 py-2">
         <div className="text-muted-foreground text-sm">
           {table.getFilteredRowModel().rows.length} row(s) found.
         </div>

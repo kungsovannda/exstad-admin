@@ -17,26 +17,23 @@ import { Label } from "@/components/ui/label";
 type AddTopicDialogProps = {
   initialTitle?: string;
   initialSubtitle?: string;
-  onSubmit: (title: string, subtitle: string) => void;
+  onSubmit: (title: string) => void;
   trigger: React.ReactNode;
 };
 
-export function AddTopicDialog({ initialTitle = "", initialSubtitle = "", onSubmit, trigger }: AddTopicDialogProps) {
+export function AddTopicFaq({ initialTitle = "", onSubmit, trigger }: AddTopicDialogProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(initialTitle);
-  const [subtitle, setSubtitle] = useState(initialSubtitle);
 
   useEffect(() => {
     setTitle(initialTitle);
-    setSubtitle(initialSubtitle);
-  }, [initialTitle, initialSubtitle, open]);
+  }, [initialTitle, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onSubmit(title, subtitle);
+    onSubmit(title);
     setTitle("");
-    setSubtitle("");
     setOpen(false);
   };
 
@@ -56,15 +53,6 @@ export function AddTopicDialog({ initialTitle = "", initialSubtitle = "", onSubm
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter topic title..."
-              />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="subtitle">Subtitle</Label>
-              <Input
-                id="subtitle"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                placeholder="Enter topic subtitle..."
               />
             </div>
           </div>

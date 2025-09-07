@@ -1,18 +1,20 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionCards } from "@/components/program/section-card";
 import DataTable from "./data-table";
 import { columns } from "./column";
 import { programData } from "@/data/programData";
-import { programType } from "@/types/programs";
+import { programType } from "@/types/program";
 import { Plus } from "lucide-react";
+import { FiPlus } from "react-icons/fi";
+import { Heading } from "@/components/Heading";
 
 export default function Page() {
-  const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [filterLevel, setFilterLevel] = useState("all");
+  const search = "";
+  const filterType = "all";
+  const filterLevel = "all";
 
   const filteredPrograms = useMemo(() => {
     return programData.filter((p: programType) => {
@@ -28,11 +30,11 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center  gap-10">
-        <h1 className="text-3xl font-semibold">Program Management</h1>
+        <Heading title="Master Program" description="Program Management"/>
         <Link href="/master-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
-            <Plus className="text-[18px]" />
-            <span className="text-[14px] font-bold">Open Program</span>
+            <FiPlus className="text-[18px]" />
+            <span className="text-[14px] font-bold">Create New Program</span>
           </Button>
         </Link>
       </div>
