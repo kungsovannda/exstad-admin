@@ -9,6 +9,7 @@ import "./theme.css";
 import { cn } from "@/lib/utils";
 import ThemeProvider from "@/components/layout/theme-toggle/ThemeProvider";
 import { ActiveThemeProvider } from "@/components/active-theme";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -63,7 +64,7 @@ export default async function RootLayout({
       </head>
       <body
         className={cn(
-          "bg-background overflow-hidden overscroll-none font-sans antialiased",
+          "bg-background font-sans antialiased",
           activeThemeValue ? `theme-${activeThemeValue}` : "",
           isScaled ? "theme-scaled" : "",
           `${inter.variable} ${koh.variable}`
@@ -80,7 +81,10 @@ export default async function RootLayout({
             <ActiveThemeProvider>
               <ReactQueryProvider>
                 {/* <Suspense fallback={<Loader />}> */}
-                <LayoutWrapper>{children}</LayoutWrapper>
+                <LayoutWrapper>
+                  {children}
+                  <Toaster />
+                </LayoutWrapper>
                 {/* </Suspense> */}
               </ReactQueryProvider>
             </ActiveThemeProvider>

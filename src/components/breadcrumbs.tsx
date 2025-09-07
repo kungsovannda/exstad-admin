@@ -17,7 +17,7 @@ export function Breadcrumbs() {
 
   return (
     <Breadcrumb>
-      <BreadcrumbList className="text-md">
+      <BreadcrumbList>
         {items.map((item, index) => (
           <Fragment key={item.title}>
             {index !== items.length - 1 && (
@@ -31,7 +31,7 @@ export function Breadcrumbs() {
               </BreadcrumbSeparator>
             )}
             {index === items.length - 1 && (
-              <BreadcrumbPage>{item.title}</BreadcrumbPage>
+              <BreadcrumbPage>{item.title.replace("-", " ")}</BreadcrumbPage>
             )}
           </Fragment>
         ))}

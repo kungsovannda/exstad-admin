@@ -6,17 +6,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { University } from "@/types/university";
+import { Province } from "@/types/province";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 export const columns = ({
   onView,
-  onDelete,
 }: {
-  onView: (u: University) => void;
-  onDelete: (u: University) => void;
-}): ColumnDef<University>[] => [
+  onView: (u: Province) => void;
+}): ColumnDef<Province>[] => [
   {
     header: ({ column }) => {
       return (
@@ -32,11 +30,6 @@ export const columns = ({
     },
     accessorKey: "englishName",
     size: 650,
-  },
-  {
-    accessorKey: "shortName",
-    header: "Short Name",
-    size: 350,
   },
   {
     accessorKey: "khmerName",
@@ -61,13 +54,7 @@ export const columns = ({
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => onView(university)}>
-              View & Update
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete(university)}
-              className="text-red-600"
-            >
-              Delete university
+              View Details
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
