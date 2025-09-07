@@ -15,6 +15,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
+import { scholars } from "@/data/scholars";
 
 interface StatisticTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -43,6 +46,8 @@ export function StatisticTable<TData, TValue>({
     enableSorting: true,
   });
 
+  const [isAssignBadgeOpen, setIsAssignBadgeOpen] = useState(false);
+
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
@@ -59,10 +64,20 @@ export function StatisticTable<TData, TValue>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Assign Badge</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsAssignBadgeOpen(true)}>
+              Assign Badge
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </DataTableToolbar>
+
+      {isAssignBadgeOpen && (
+        <AssignBadgeScholar
+          onOpenChange={setIsAssignBadgeOpen}
+          open={isAssignBadgeOpen}
+          scholar={scholars[0]}
+        />
+      )}
     </DataTable>
   );
 }
