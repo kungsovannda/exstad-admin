@@ -11,6 +11,7 @@ export type openingProgramType = {
     classes:Classes[];
     slug:string;
     programType: string; 
+    visibility: "public" | "private";
 
 }
 

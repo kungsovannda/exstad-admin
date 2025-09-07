@@ -121,6 +121,7 @@ export const programData: programType[] = [
         title: "Foundation Scholarship",
         slug:"pre-university",
         programType: "Short Course",
+        visibility: "public",
         generation:1,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -328,6 +329,7 @@ export const programData: programType[] = [
         title: "Java Programming",
         slug:"java-programming",
         generation:2,
+        visibility: "public",
          programType: "Short Course",
         shortcourseimage:"/image/logo/java.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -558,6 +560,7 @@ export const programData: programType[] = [
         slug:"foundation-scholarship",
         programType: "Scholarship Course",
         generation:3,
+        visibility: "public",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
         qrimage:"https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
@@ -658,6 +661,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:4,
+        visibility: "public",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         programType: "Scholarship Course",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -759,6 +763,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:5,
+        visibility: "public",
         programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -860,6 +865,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:5,
+        visibility: "public",
         programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -961,6 +967,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:6,
+        visibility: "public",
         programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -1062,6 +1069,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:7,
+        visibility: "public",
         programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -1163,6 +1171,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:8,
+        visibility: "public",
         programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -1264,6 +1273,7 @@ export const programData: programType[] = [
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:9,
+        visibility: "public",
         programType: "Scholarship Course",
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
         image:"https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
@@ -1508,6 +1518,7 @@ export const programData: programType[] = [
         id: 1,
         title: "Full Stack Scholarship",
         slug:"full-stack-scholarship",
+        visibility: "public",
         programType: "Scholarship Course",
         generation:4,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
@@ -1596,6 +1607,7 @@ export const programData: programType[] = [
         id: 2,
         title: "Pre University Scholarship",
         slug:"pre-university",
+        visibility: "public",
         programType: "Scholarship Course",
         generation:4,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",
@@ -1731,7 +1743,7 @@ export const programData: programType[] = [
                 description:"Are you ready to kickstart your journey in web development? In this ISTAD Pre-University course, you will build a complete Realtime Messaging System project from scratch using Laravel 10 and Pusher. This beginner-friendly, project-based program is designed to give you practical coding experience and a solid foundation for future university studies or tech careers."
             }
         ],
-    learningOutcome:[
+        learningOutcome:[
             {
                 id:1,
                 title:"Learning Outcomes",
@@ -1746,7 +1758,6 @@ export const programData: programType[] = [
             }
         ],
          curriculum:[{
-            
             id:1,
             title:"Curriculum",
            curriculumType:[
@@ -1799,6 +1810,16 @@ export const programData: programType[] = [
            
 
         }],
+        
+        courseRequirement:[{
+            id:1,
+            title:"Course Requirements",
+            subtitle:"Pre-university is the stage of education that bridges high school and university.",
+            description:[
+                "For foundation-year or first-year students in the Digital Technology (IT) field",
+                "Grade 12 students who have the interest and aspiration to learn digital technology (IT) skills",
+            ]
+        }],
          faq: [
           {
             id:1,
@@ -1812,19 +1833,11 @@ export const programData: programType[] = [
             ]
          }
         ],
-        courseRequirement:[{
-            id:1,
-            title:"Course Requirements",
-            subtitle:"Pre-university is the stage of education that bridges high school and university.",
-            description:[
-                "For foundation-year or first-year students in the Digital Technology (IT) field",
-                "Grade 12 students who have the interest and aspiration to learn digital technology (IT) skills",
-            ]
-        }],
         openingprogram: [  {
         id: 2,
         title: "Pre University Scholarship",
         slug:"pre-university",
+        visibility: "public",
         programType: "Scholarship Course",
         generation:5,
         shortcourseimage:"/image/logo/shortcourseposter.jpg",

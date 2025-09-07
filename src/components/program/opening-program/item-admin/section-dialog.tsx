@@ -26,28 +26,27 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-const topicSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  subtitle: z.string().min(1, "Title is required"),
+const sectionSchema = z.object({
+  title: z.string().min(1, "Section title is required"),
 });
-type TopicFormValues = z.infer<typeof topicSchema>;
 
-interface AddTopicDialogProps {
+type SectionFormValues = z.infer<typeof sectionSchema>;
+
+interface AddSectionDialogProps {
   trigger?: React.ReactNode;
-  onSubmit: (data: { title: string; subtitle?: string }) => void;
-  initialData?: Partial<TopicFormValues>;
-  // optional controlled props
+  onSubmit: (data: SectionFormValues) => void;
+  initialData?: Partial<SectionFormValues>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-export default function AddTopicDialog({
+export default function AddSectionDialog({
   trigger,
   onSubmit,
   initialData,
   open,
   onOpenChange,
-}: AddTopicDialogProps) {
+}: AddSectionDialogProps) {
   const isControlled = typeof open !== "undefined" && typeof onOpenChange === "function";
   const [localOpen, setLocalOpen] = useState(false);
 
@@ -57,41 +56,39 @@ export default function AddTopicDialog({
     else setLocalOpen(val);
   };
 
-  const form = useForm<TopicFormValues>({
-    resolver: zodResolver(topicSchema),
+  const form = useForm<SectionFormValues>({
+    resolver: zodResolver(sectionSchema),
     defaultValues: {
       title: "",
-      subtitle: "",
       ...initialData,
     },
   });
 
   useEffect(() => {
-    // reset form when opening or when initialData changes
     form.reset({
       title: initialData?.title || "",
-      subtitle: initialData?.subtitle || "",
     });
-  }, [initialData, dialogOpen]); // eslint-disable-line
+  }, [initialData, dialogOpen]); // reset when dialog opens or initialData changes
 
-  const handleSubmit = (values: TopicFormValues) => {
+  const handleSubmit = (values: SectionFormValues) => {
     try {
       onSubmit(values);
-      toast.success(initialData ? "Topic updated!" : "Topic added!");
+      toast.success(initialData ? "Section updated!" : "Section added!");
       setDialogOpen(false);
       form.reset();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to submit topic");
+      toast.error("Failed to submit section");
     }
   };
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+
       <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Topic" : "Add Topic"}</DialogTitle>
+          <DialogTitle>{initialData ? "Edit Section" : "Add Section"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -101,23 +98,9 @@ export default function AddTopicDialog({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Section Title</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter topic title..." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="subtitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subtitle</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter topic subtitle..." />
+                    <Input {...field} placeholder="Enter section title..." />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,7 +111,7 @@ export default function AddTopicDialog({
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit">{initialData ? "Save Changes" : "Add Topic"}</Button>
+              <Button type="submit">{initialData ? "Save Changes" : "Add Section"}</Button>
             </DialogFooter>
           </form>
         </Form>

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
 import LearningOutcomesAdmin from "@/components/program/opening-program/learning-outcome";
 import CourseRequirementsAdmin from "@/components/program/opening-program/course-requirement";
-
+import Highlight from "@/components/program/master-program/highlight/highlight";
 
 export default function ProgramSetup() {
   const [tab, setTab] = useState<"curriculum" | "roadmap"|"learning-outcomes" | "course-requirements"|"hightlight"|  "faq">("curriculum");
@@ -33,7 +33,7 @@ export default function ProgramSetup() {
       {tab === "faq" && <Faq />}
       {tab === "learning-outcomes" && <LearningOutcomesAdmin />}
       {tab === "course-requirements" && <CourseRequirementsAdmin/>}
-      {tab === "hightlight" && <div>🌟 Hightlight Component</div>}
+      {tab === "hightlight" && <Highlight/>}
     </div>
   );
 }

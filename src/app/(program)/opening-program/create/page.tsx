@@ -4,6 +4,7 @@ import React from "react";
 import OpeningProgramInformation from "@/components/program/opening-program-information";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import OpeningProgramForm from "./form-field";
 
 
 export default function Page() {
@@ -16,7 +17,7 @@ export default function Page() {
     <div className="p-5 flex flex-col gap-10">
       <h1 className="text-2xl font-semibold">Opening Program Management</h1>
       <div>
-        <OpeningProgramInformation />
+        <OpeningProgramForm />
       </div>  
       <div className="flex justify-end mt-6">
          <Button type="button" onClick={handleSubmit}>  Save</Button>

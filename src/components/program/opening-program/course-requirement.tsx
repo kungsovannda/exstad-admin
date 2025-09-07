@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { SquarePen, Trash } from "lucide-react";
-import { AddTopicDialog } from "../curriculum-popup"; // reuse dialog
-import { AddSectionDialog } from "../description";
-import { Button } from "@/components/ui/button";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { PiNotePencilFill } from "react-icons/pi";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import AddTopicDialog from "../curriculum-popup";
+import AddSectionDialog from "./item-admin/section-dialog";
+import DeleteModal from "../activity/delete-modal-component";
 
 type Section = { id: string; title: string };
 type Requirement = {
@@ -19,67 +19,105 @@ type Requirement = {
   sections: Section[];
 };
 
+// ===== MOCK DATA =====
+
+const initialRequirements: Requirement[] = [
+  {
+    id: "1",
+    order: 1,
+    title: "Course Requirements",
+    subtitle:
+      "Pre-university is the stage of education that bridges high school and university.",
+    sections: [
+      {
+        id: "1-1",
+        title:
+          "For foundation-year or first-year students in the Digital Technology (IT) field",
+      },
+      {
+        id: "1-2",
+        title:
+          "Grade 12 students who have the interest and aspiration to learn digital technology (IT) skills",
+      },
+    ],
+  },
+];
+
 export default function CourseRequirementsAdmin() {
-  const [requirements, setRequirements] = useState<Requirement[]>([
-    { id: "1", order: 1, title: "Basic Programming Knowledge", subtitle: "For foundation-year or first-year students in the Digital Technology (IT) field",
-      sections: [
-        { id: "1", title: "For foundation-year or first-year students in the Digital Technology (IT) field" },
-        { id: "2", title: "Grade 12 students who have the interest and aspiration to learn digital technology (IT) skills" },
-      ],
-    },
-  ]);
+  const [requirements, setRequirements] =
+    useState<Requirement[]>(initialRequirements);
 
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-
   const toggleExpand = (id: string) =>
-    setExpandedItems(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setExpandedItems((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
 
-  const handleAddRequirement = (title: string, subtitle: string) => {
-    const newReq: Requirement = {
+  // ===== Handlers (Add/Edit/Delete) =====
+  const handleAddRequirement = (data: { title: string; subtitle?: string }) => {
+    const newRequirement: Requirement = {
       id: Date.now().toString(),
       order: requirements.length + 1,
-      title,
-      subtitle,
+      title: data.title,
+      subtitle: data.subtitle || "",
       sections: [],
     };
-    setRequirements(prev => [...prev, newReq]);
+    setRequirements((prev) => [...prev, newRequirement]);
   };
 
-  const handleEditRequirement = (id: string, title: string, subtitle: string) => {
-    setRequirements(prev =>
-      prev.map(r => r.id === id ? { ...r, title, subtitle } : r)
+  const handleEditRequirement = (
+    id: string,
+    data: { title: string; subtitle?: string }
+  ) => {
+    setRequirements((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...data } : r))
     );
   };
 
   const handleDeleteRequirement = (id: string) => {
-    setRequirements(prev => prev.filter(r => r.id !== id));
+    setRequirements((prev) => prev.filter((r) => r.id !== id));
   };
 
-  const handleAddSection = (reqId: string, title: string) => {
-    setRequirements(prev =>
-      prev.map(r =>
-        r.id === reqId ? { ...r, sections: [...r.sections, { id: Date.now().toString(), title }] } : r
+  const handleAddSection = (reqId: string, data: { title: string }) => {
+    setRequirements((prev) =>
+      prev.map((r) =>
+        r.id === reqId
+          ? {
+              ...r,
+              sections: [
+                ...r.sections,
+                { id: Date.now().toString(), title: data.title },
+              ],
+            }
+          : r
       )
     );
   };
 
-  const handleEditSection = (reqId: string, sectionId: string, newTitle: string) => {
-    setRequirements(prev =>
-      prev.map(r =>
+  const handleEditSection = (
+    reqId: string,
+    sectionId: string,
+    data: { title: string }
+  ) => {
+    setRequirements((prev) =>
+      prev.map((r) =>
         r.id === reqId
-          ? { ...r, sections: r.sections.map(s => s.id === sectionId ? { ...s, title: newTitle } : s) }
+          ? {
+              ...r,
+              sections: r.sections.map((s) =>
+                s.id === sectionId ? { ...s, ...data } : s
+              ),
+            }
           : r
       )
     );
   };
 
   const handleDeleteSection = (reqId: string, sectionId: string) => {
-    setRequirements(prev =>
-      prev.map(r =>
+    setRequirements((prev) =>
+      prev.map((r) =>
         r.id === reqId
-          ? { ...r, sections: r.sections.filter(s => s.id !== sectionId) }
+          ? { ...r, sections: r.sections.filter((s) => s.id !== sectionId) }
           : r
       )
     );
@@ -87,15 +125,24 @@ export default function CourseRequirementsAdmin() {
 
   const handleSave = () => {
     console.log("Saved Course Requirements:", requirements);
-    // TODO: API call
+    toast.success("Course requirements saved!");
   };
 
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: "topic" | "section";
+    id: string;
+    parentId?: string;
+  } | null>(null);
+
   return (
-    <div className="flex flex-col gap-5 w-full  ">
+    <div className="flex flex-col gap-5 w-full">
+      {/* Header + Add Requirement */}
       <div className="flex justify-between items-center">
-        <h2 className="text-[18px] font-bold text-foreground">Course Requirements</h2>
+        <h2 className="text-[18px] font-bold text-foreground">
+          Course Requirements
+        </h2>
         <AddTopicDialog
-          onSubmit={(title, subtitle) => handleAddRequirement(title, subtitle)}
+          onSubmit={handleAddRequirement}
           trigger={
             <Button>
               <FiPlus />
@@ -105,60 +152,134 @@ export default function CourseRequirementsAdmin() {
         />
       </div>
 
-      {requirements.map(req => {
+      {/* Requirement List */}
+      {requirements.map((req) => {
         const isExpanded = expandedItems.includes(req.id);
         return (
-          <div key={req.id} className="flex flex-col gap-2.5 bg-accent rounded-sm p-4">
+          <div
+            key={req.id}
+            className="flex flex-col gap-2.5 bg-accent rounded-sm p-4"
+          >
             <div className="flex justify-between items-center">
-              <div className="flex flex-col cursor-pointer" onClick={() => toggleExpand(req.id)}>
-                <span className="text-[16px] font-semibold text-foreground">{req.title}</span>
-                {req.subtitle && <span className="text-[12px] text-muted-foreground">{req.subtitle}</span>}
+              <div
+                className="flex items-center gap-2.5 cursor-pointer"
+                onClick={() => toggleExpand(req.id)}
+              >
+                <FiPlus className="bg-black rounded-full text-white text-lg" />
+                <div className="flex flex-col cursor-pointer">
+                  <span className="text-[16px] font-semibold text-foreground">
+                    {" "}
+                    {req.title}{" "}
+                  </span>
+                  {req.subtitle && (
+                    <span className="text-[12px] text-muted-foreground">
+                      {" "}
+                      {req.subtitle}{" "}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-2 items-center">
-                <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteRequirement(req.id)} />
-                <AddSectionDialog
-                  initialTitle={req.title}
-                  onSubmit={(newTitle) => handleEditRequirement(req.id, newTitle, req.subtitle)}
-                  trigger={<PiNotePencilFill size={20} className="text-primary-hover cursor-pointer" />}
+                <FaTrash
+                  size={18}
+                  className="text-destructive cursor-pointer"
+                  onClick={() => setDeleteTarget({ type: "topic", id: req.id })}
+                />
+                <AddTopicDialog
+                  initialData={{ title: req.title, subtitle: req.subtitle }}
+                  onSubmit={(data) => handleEditRequirement(req.id, data)}
+                  trigger={
+                    <PiNotePencilFill
+                      size={20}
+                      className="text-primary-hover cursor-pointer"
+                    />
+                  }
                 />
                 <FaChevronDown
                   onClick={() => toggleExpand(req.id)}
-                  className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`}
+                  className={`transition-transform duration-200 ${
+                    isExpanded ? "rotate-180" : "rotate-0"
+                  }`}
                 />
               </div>
             </div>
 
+            {/* Sections */}
             {isExpanded && (
               <div className="flex flex-col gap-2.5 mt-2">
-                {req.sections.map(section => (
-                  <div key={section.id} className="flex justify-between items-center p-2.5 bg-background rounded-[4px]">
+                {req.sections.map((section) => (
+                  <div
+                    key={section.id}
+                    className="flex justify-between items-center p-2.5 bg-background rounded-[4px]"
+                  >
                     <div className="flex items-center gap-2.5">
                       <FaChevronRight className="bg-[#0FC65E] rounded-full p-1 text-white text-[18px]" />
-                      <span className="text-[14px] font-semibold text-foreground">{section.title}</span>
+                      <span className="text-[14px] font-semibold text-foreground">
+                        {section.title}
+                      </span>
                     </div>
+
                     <div className="flex gap-2 items-center">
-                      <FaTrash size={18} className="text-destructive cursor-pointer" onClick={() => handleDeleteSection(req.id, section.id)} />
+                      <FaTrash
+                        size={18}
+                        className="text-destructive cursor-pointer"
+                        onClick={() =>
+                          setDeleteTarget({
+                            type: "section",
+                            id: section.id,
+                            parentId: req.id,
+                          })
+                        }
+                      />
                       <AddSectionDialog
-                        initialTitle={section.title}
-                        onSubmit={(newTitle) => handleEditSection(req.id, section.id, newTitle)}
-                        trigger={<PiNotePencilFill size={20} className="text-primary-hover cursor-pointer" />}
+                        initialData={{ title: section.title }}
+                        onSubmit={(data) =>
+                          handleEditSection(req.id, section.id, data)
+                        }
+                        trigger={
+                          <PiNotePencilFill
+                            size={20}
+                            className="text-primary-hover cursor-pointer"
+                          />
+                        }
                       />
                     </div>
                   </div>
                 ))}
 
                 <AddSectionDialog
-                  onSubmit={(title) => handleAddSection(req.id, title)}
+                  onSubmit={(data) => handleAddSection(req.id, data)}
                   trigger={
                     <Button className="flex w-fit items-center">
                       <FiPlus />
-                      <span className="text-[14px] font-semibold">Add Section</span>
+                      <span className="text-[14px] font-semibold">
+                        Add Section
+                      </span>
                     </Button>
                   }
                 />
               </div>
             )}
+
+            <DeleteModal
+              open={!!deleteTarget}
+              onOpenChange={(open) => !open && setDeleteTarget(null)}
+              itemName={
+                deleteTarget?.type === "topic" ? "requirement" : "section"
+              }
+              onConfirm={() => {
+                if (deleteTarget?.type === "topic")
+                  handleDeleteRequirement(deleteTarget.id);
+                else if (
+                  deleteTarget?.type === "section" &&
+                  deleteTarget.parentId
+                )
+                  handleDeleteSection(deleteTarget.parentId, deleteTarget.id);
+                setDeleteTarget(null);
+                toast.success("Deleted successfully!");
+              }}
+            />
           </div>
         );
       })}
