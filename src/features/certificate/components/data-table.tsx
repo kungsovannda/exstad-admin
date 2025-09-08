@@ -1,9 +1,6 @@
 "use client";
-
 import { type ColumnDef } from "@tanstack/react-table";
-
 import { DataTable } from "@/components/table/data-table";
-import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
 import { useSearchParams } from "next/navigation";
 

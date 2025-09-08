@@ -1,7 +1,7 @@
 'use client'
 
 import React from "react";
-import OpeningProgramInformation from "@/components/program/opening-program-information";
+// import OpeningProgramInformation from "@/components/program/opening-program-information";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import OpeningProgramForm from "./form-field";

@@ -1,6 +1,6 @@
 'use client';
 
-import { OpeningSectionCards } from '@/components/program/opening-program/opening-section-card';
+// import { OpeningSectionCards } from '@/components/program/opening-program/opening-section-card';
 import { Button } from '@/components/ui/button';
 import { programData } from '@/data/programData';
 import Link from 'next/link';

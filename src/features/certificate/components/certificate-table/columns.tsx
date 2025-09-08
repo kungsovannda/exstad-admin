@@ -1,55 +1,42 @@
-// import { CertificateType } from "@/types/certificate";
-import { Scholar } from "@/types/scholar";
 import { ColumnDef } from "@tanstack/react-table";
-import CertificateCellAction from "./cell-action";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CertificateData } from "@/types/certificate";
+import Image from "next/image";
 
-
-
-export  const certificateColumn: ColumnDef<Scholar>[] = [
-    {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    enableResizing: false,
-    size: 30,
+export const certificateColumn: ColumnDef<CertificateData>[] = [
+  {
+    accessorKey: "certificateUrl",
+    header: "IMAGE",
+    cell: ({ row }) => {
+      return (
+        <div className="relative h-16 aspect-square">
+          <Image
+            src={row.getValue("certificateUrl")}
+            alt={"Certificate Image"}
+            fill
+            unoptimized
+            className="rounded-lg"
+          />
+        </div>
+      );
+    },
   },
-  // {
-  //   accessorKey: "id",
-  //   header: "ID",  
-  // },
   {
     accessorKey: "englishName",
-    header: "Scholar Name"
+    header: "Scholar Name",
+    cell: ({ row }) => {
+      return (
+        <div className="h-8 flex justify-start items-center">
+          {row.getValue("englishName")}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "khmerName",
-    header: "Khmer Name", 
+    header: "Khmer Name",
   },
   {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <CertificateCellAction data={row.original} />,
+    accessorKey: "title",
+    header: "Opening Program",
   },
 ];

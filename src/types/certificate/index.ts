@@ -1,5 +1,6 @@
 import { Audit } from "..";
 
+
 export type CertificateType = {
   scholarUuid: string;
   openingProgramUuid: string;
@@ -7,4 +8,17 @@ export type CertificateType = {
   certificateUrl: string;
   isVerified: boolean;
   audit: Audit;
+};
+
+export type CertificateData = {
+  englishName: string;
+  khmerName: string;
+  title: string;
+  certificateUrl: string;
+};
+
+export type ScholarWithProgram = {
+  englishName: string;
+  khmerName: string;
+  title: string;
 };

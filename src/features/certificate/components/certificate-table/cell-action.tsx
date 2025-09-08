@@ -6,15 +6,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Scholar } from "@/types/scholar";
-
+import { CertificateData } from "@/types/certificate";
 import { MoreHorizontal } from "lucide-react";
 import React from "react";
 
 export default function CertificateCellAction({
-  data,
+  // data,
 }: {
-  data: Scholar;
+  data: CertificateData;
 }) {
   return (
     <DropdownMenu>

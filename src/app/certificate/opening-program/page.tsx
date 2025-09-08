@@ -12,63 +12,9 @@ import {
 } from "@/components/ui/select";
 import { openingProgramType } from "@/types/opening-program";
 import { Button } from "@/components/ui/button";
+import { openingProgramData } from "@/data/openingProgramData";
 
-const openingPrograms: openingProgramType[] = [
-  {
-    uuid: "1",
-    title: "Full Stack Developments",
-    generation: 1,
-    description: "Description for Opening Program 1",
-    image: "image1.jpg",
-    shortcourseimage: "shortcourse1.jpg",
-    qrimage: "qrimage1.jpg",
-    template: [
-      "https://d2vyhi5ouo1we3.cloudfront.net/force_jpg/aHR0cHM6Ly9pbWFnZXMuYmFubmVyYmVhci5jb20vcmVxdWVzdHMvaW1hZ2VzLzAwOC85MjQvNTc5L29yaWdpbmFsL2VhYzQyY2FiZjM5YzIxY2Y4NThlNWY4NDRlZmM0YTA1MjJmOGUxNzkucG5nPzE2MzI4MDgzMDI=/image.jpg",
-      "https://thumbs.dreamstime.com/b/certificate-template-vintage-vector-design-certificate-template-vintage-vector-design-background-162810127.jpg",
-    ],
-    activities: [],
-    timeline: [],
-    classes: [],
-    slug: "full-stack-developments-generation-1",
-    programType: "type1",
-  },
-  {
-    uuid: "2",
-    title: "Foundation",
-    generation: 5,
-    description: "Description for Opening Program 2",
-    image: "image2.jpg",
-    shortcourseimage: "shortcourse2.jpg",
-    qrimage: "qrimage2.jpg",
-    template: [
-      "https://d2vyhi5ouo1we3.cloudfront.net/force_jpg/aHR0cHM6Ly9pbWFnZXMuYmFubmVyYmVhci5jb20vcmVxdWVzdHMvaW1hZ2VzLzAwOC85MjQvNTc5L29yaWdpbmFsL2VhYzQyY2FiZjM5YzIxY2Y4NThlNWY4NDRlZmM0YTA1MjJmOGUxNzkucG5nPzE2MzI4MDgzMDI=/image.jpg",
-      "https://thumbs.dreamstime.com/b/certificate-template-vintage-vector-design-certificate-template-vintage-vector-design-background-162810127.jpg",
-    ],
-    activities: [],
-    timeline: [],
-    classes: [],
-    slug: "foundation-generation-5",
-    programType: "type1",
-  },
-  {
-    uuid: "3",
-    title: "Pre-University",
-    generation: 6,
-    description: "Description for Opening Program 3",
-    image: "image3.jpg",
-    shortcourseimage: "shortcourse3.jpg",
-    qrimage: "qrimage3.jpg",
-    template: [
-      "https://d2vyhi5ouo1we3.cloudfront.net/force_jpg/aHR0cHM6Ly9pbWFnZXMuYmFubmVyYmVhci5jb20vcmVxdWVzdHMvaW1hZ2VzLzAwOC85MjQvNTc5L29yaWdpbmFsL2VhYzQyY2FiZjM5YzIxY2Y4NThlNWY4NDRlZmM0YTA1MjJmOGUxNzkucG5nPzE2MzI4MDgzMDI=/image.jpg",
-      "https://thumbs.dreamstime.com/b/certificate-template-vintage-vector-design-certificate-template-vintage-vector-design-background-162810127.jpg",
-    ],
-    activities: [],
-    timeline: [],
-    classes: [],
-    slug: "pre-university-generation-6",
-    programType: "type1",
-  },
-];
+const openingPrograms: openingProgramType[] = openingProgramData; 
 
 export default function Page() {
   const router = useRouter();

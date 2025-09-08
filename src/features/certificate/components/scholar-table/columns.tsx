@@ -1,13 +1,11 @@
 // import { CertificateType } from "@/types/certificate";
-import { Scholar } from "@/types/scholar";
-import { ColumnDef } from "@tanstack/react-table";
+
 import { Checkbox } from "@/components/ui/checkbox";
-import ScholarCellAction from "./cell-action";
+import { ScholarWithProgram } from "@/types/certificate";
+import { ColumnDef } from "@tanstack/react-table";
 
-
-
-export  const scholarColumn: ColumnDef<Scholar>[] = [
-    {
+export const scholarColumn: ColumnDef<ScholarWithProgram>[] = [
+  {
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -33,23 +31,21 @@ export  const scholarColumn: ColumnDef<Scholar>[] = [
   },
   // {
   //   accessorKey: "id",
-  //   header: "ID",  
+  //   header: "ID",
   // },
   {
     accessorKey: "englishName",
-    header: "English Name"
+    header: "English Name",
+    cell: ({ row }) => {
+      return <div className="h-8 flex justify-start items-center">{row.getValue("englishName")}</div>;
+    }
   },
   {
     accessorKey: "khmerName",
-    header: "Khmer Name", 
+    header: "Khmer Name",
   },
   {
-    accessorKey: "status",
+    accessorKey: "title",
     header: "Program Name",
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <ScholarCellAction data={row.original} />,
   },
 ];

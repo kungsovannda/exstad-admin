@@ -4,15 +4,11 @@ import * as React from "react";
 import {
   AudioWaveform,
   BookOpen,
-  Bot,
   User,
   ShieldCheck,
   Command,
   Newspaper,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
   SquareTerminal,
 } from "lucide-react";
@@ -23,7 +19,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
