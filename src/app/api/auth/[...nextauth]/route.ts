@@ -47,6 +47,7 @@ export const authOptions: AuthOptions = {
         email: string | null;
         roles: string[];
       };
+      console.log(session);
       session.accessToken = token.accessToken as string;
       session.refreshToken = token.refreshToken as string;
       session.accessTokenExpires = token.exp as number;

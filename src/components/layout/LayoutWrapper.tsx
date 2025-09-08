@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/app-sidebar/SiteHeader";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { ScrollArea } from "../ui/scroll-area";
 
 export default function LayoutWrapper({
   children,
@@ -20,7 +21,9 @@ export default function LayoutWrapper({
         <SidebarProvider>
           <AppSidebar />
           <main className="w-full">
-            <SiteHeader /> {children}
+            <ScrollArea className="h-screen">
+              <SiteHeader /> <div className="h-fit">{children}</div>
+            </ScrollArea>
           </main>
         </SidebarProvider>
       )}

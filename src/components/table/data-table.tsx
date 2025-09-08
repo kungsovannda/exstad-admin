@@ -16,15 +16,19 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
+  className?: string;
 }
 
 export function DataTable<TData>({
   table,
   actionBar,
   children,
+  className,
 }: DataTableProps<TData>) {
   return (
-    <div className="flex flex-1 flex-col min-h-[560px] space-y-2">
+    <div
+      className={`flex flex-1 flex-col min-h-[560px] space-y-2 ${className}}`}
+    >
       {children}
       <div className="relative flex flex-1">
         <div className="absolute inset-0 flex overflow-hidden rounded-lg border">

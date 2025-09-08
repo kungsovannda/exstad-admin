@@ -19,17 +19,17 @@ import { useState } from "react";
 import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
 import { scholars } from "@/data/scholars";
 
-interface StatisticTableProps<TData, TValue> {
+interface ScholarTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   totalItems: number;
 }
 
-export function StatisticTable<TData, TValue>({
+export function ScholarTable<TData, TValue>({
   columns,
   data,
   totalItems,
-}: StatisticTableProps<TData, TValue>) {
+}: ScholarTableProps<TData, TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
     ? Number(searchParams.get("perPage"))
