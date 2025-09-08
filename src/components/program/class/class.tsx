@@ -15,11 +15,11 @@ const allClasses: Classes[] = programData.flatMap(
 
 
 export default function ClassPage() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false); 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center gap-10">
-        <h1 className="text-3xl font-semibold">Classes</h1>
+        <h1 className="text-lg font-semibold">Classes</h1>
         <Button onClick={() => setOpen(true)}>Add Class</Button>
         <ClassModal1 open={open} onOpenChange={setOpen} />
       </div>

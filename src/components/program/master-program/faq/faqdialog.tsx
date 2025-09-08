@@ -1,110 +1,130 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { FiPlus } from "react-icons/fi";
-import { SquarePen } from "lucide-react";
-import { PiNotePencilFill } from "react-icons/pi";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { toast } from "sonner";
+
+// Zod schema
+const questionSchema = z.object({
+  question: z.string().min(1, "Question is required"),
+  answer: z.string().min(1, "Answer is required"),
+});
+
+type QuestionFormValues = z.infer<typeof questionSchema>;
 
 type AddQuestionDialogProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onAddQuestion?: (question: string, answer: string) => void;
   onUpdateQuestion?: (question: string, answer: string) => void;
   initialQuestion?: string;
   initialAnswer?: string;
   submitText?: string;
-  triggerAsButton?: boolean; // If true, show button trigger; else icon trigger
+  trigger?: React.ReactNode;
 };
 
 export function AddQuestionDialog({
+  open: controlledOpen,
+  onOpenChange,
   onAddQuestion,
   onUpdateQuestion,
   initialQuestion = "",
   initialAnswer = "",
   submitText = "Add Question",
-  triggerAsButton = true,
+  trigger,
 }: AddQuestionDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [question, setQuestion] = useState(initialQuestion);
-  const [answer, setAnswer] = useState(initialAnswer);
+  const [localOpen, setLocalOpen] = useState(false);
+  const isControlled = typeof controlledOpen === "boolean" && typeof onOpenChange === "function";
+  const open = isControlled ? controlledOpen : localOpen;
+  const setOpen = isControlled ? onOpenChange! : setLocalOpen;
 
+  const form = useForm<QuestionFormValues>({
+    resolver: zodResolver(questionSchema),
+    defaultValues: {
+      question: initialQuestion,
+      answer: initialAnswer,
+    },
+  });
+
+  // Reset form when dialog opens or initial values change
   useEffect(() => {
-    setQuestion(initialQuestion);
-    setAnswer(initialAnswer);
-  }, [initialQuestion, initialAnswer, open]);
+    form.reset({
+      question: initialQuestion,
+      answer: initialAnswer,
+    });
+  }, [initialQuestion, initialAnswer, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim() || !answer.trim()) return;
+  const handleSubmit = (values: QuestionFormValues) => {
+    try {
+      if (onUpdateQuestion) {
+        onUpdateQuestion(values.question, values.answer);
+        toast.success("Question updated successfully!");
+      } else if (onAddQuestion) {
+        onAddQuestion(values.question, values.answer);
+        toast.success("Question added successfully!");
+      }
 
-    if (onAddQuestion) onAddQuestion(question, answer);
-    if (onUpdateQuestion) onUpdateQuestion(question, answer);
-
-    setQuestion("");
-    setAnswer("");
-    setOpen(false);
+      setOpen(false);
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit question. Please try again.");
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {triggerAsButton ? (
-          <Button variant="default" className="flex items-center w-fit mt-2 gap-2.5">
-            <FiPlus className="text-[18px]" />
-            <span className="text-[14px] font-bold">{submitText}</span>
-          </Button>
-        ) : (
-          <PiNotePencilFill
-            className="cursor-pointer text-primary-hover"
-            size={20}
-          />
-        )}
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-      <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6">
-            <DialogTitle>{submitText}</DialogTitle>
-          </DialogHeader>
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xlg">
+        <DialogHeader className="mb-6">
+          <DialogTitle>{submitText}</DialogTitle>
+        </DialogHeader>
 
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="question-text">Question</Label>
-              <Input
-                id="question-text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Enter question..."
-              />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="answer-text">Answer</Label>
-              <Input
-                id="answer-text"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Enter answer..."
-              />
-            </div>
-          </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="question"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Question</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter question..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <DialogFooter className="mt-6">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">{submitText}</Button>
-          </DialogFooter>
-        </form>
+            <FormField
+              control={form.control}
+              name="answer"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Answer</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter answer..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">{submitText}</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

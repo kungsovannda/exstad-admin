@@ -4,7 +4,7 @@ import Curriculum from "@/components/program/curriculum";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
-import Timeline from "@/components/program/timeline";
+import Timeline from "@/components/program/master-program/timeline/timeline";
 import ClassPage from "@/components/program/class/class";
 import Activities from "@/components/program/activity/activities";
 

@@ -1,86 +1,120 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Dialog,
-  DialogClose,
+  DialogTrigger,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { FiPlus } from "react-icons/fi";
 
-type AddSectionDialogProps = {
-  initialTitle?: string; // for editing
-  onSubmit: (title: string) => void;
-  trigger?: React.ReactNode; // trigger element
-};
+const sectionSchema = z.object({
+  title: z.string().min(1, "Section title is required"),
+});
+type SectionFormValues = z.infer<typeof sectionSchema>;
 
-export function AddSectionDialog({
-  initialTitle = "",
-  onSubmit,
+interface SectionModalProps {
+  trigger?: React.ReactNode;
+  onSubmit: (data: { title: string }) => void;
+  initialData?: Partial<SectionFormValues>;
+  // optional controlled
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function SectionModal({
   trigger,
-}: AddSectionDialogProps) {
-  const [title, setTitle] = useState(initialTitle);
+  onSubmit,
+  initialData,
+  open,
+  onOpenChange,
+}: SectionModalProps) {
+  const isControlled = typeof open !== "undefined" && typeof onOpenChange === "function";
+  const [localOpen, setLocalOpen] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!title.trim()) return;
+  const dialogOpen = isControlled ? open! : localOpen;
+  const setDialogOpen = (val: boolean) => {
+    if (isControlled) onOpenChange!(val);
+    else setLocalOpen(val);
+  };
 
-    onSubmit(title);
-    setTitle("");
+  const form = useForm<SectionFormValues>({
+    resolver: zodResolver(sectionSchema),
+    defaultValues: {
+      title: "",
+      ...initialData,
+    },
+  });
+
+  useEffect(() => {
+    form.reset({
+      title: initialData?.title || "",
+    });
+  }, [initialData, dialogOpen]); // eslint-disable-line
+
+  const handleSubmit = (values: SectionFormValues) => {
+    try {
+      onSubmit(values);
+      toast.success(initialData ? "Section updated!" : "Section added!");
+      setDialogOpen(false);
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit section");
+    }
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <Button variant="default" className="flex items-center gap-2.5">
-            <FiPlus className="text-[18px]" />
-            <span className="text-[14px] font-bold">
-              {initialTitle ? "Edit Section" : "Add Section"}
-            </span>
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
 
-      <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader className="mb-6">
-            <DialogTitle>{initialTitle ? "Edit Section" : "Add Section"}</DialogTitle>
-            <DialogDescription>
-              {initialTitle
-                ? "Update the section title and click save."
-                : "Enter a new section title and click add."}
-            </DialogDescription>
-          </DialogHeader>
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl p-6 rounded-lg shadow-lg">
+        <DialogHeader>
+          <DialogTitle>{initialData ? "Edit Section" : "Add Section"}</DialogTitle>
+        </DialogHeader>
 
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="section-title">Section Title</Label>
-              <Input
-                id="section-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter section title..."
-                required
-              />
-            </div>
-          </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Section Title</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter section title..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <DialogFooter className="mt-6">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">{initialTitle ? "Save" : "Add Section"}</Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">{initialData ? "Save Changes" : "Add Section"}</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
