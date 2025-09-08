@@ -8,22 +8,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { programType } from "@/types/programs";
+import { programType } from "@/types/program";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import DeleteModal from "../activity/delete-modal-component";
+import { set } from "zod";
+import { toast } from "sonner";
 
 
 interface ActionsCellProps {
   program: programType;
-  
+  onDelete?: (id: number) => void; // callback to remove class from parent state
 }
 
-export function MasterActionsCell({ program }: ActionsCellProps) {
+export function MasterActionsCell({ program,onDelete  }: ActionsCellProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -36,9 +41,19 @@ export function MasterActionsCell({ program }: ActionsCellProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push(`/master-program/setup-masterprogram/${program.slug}`)}> Set Up</DropdownMenuItem>
         <DropdownMenuItem onClick={() =>  router.push(`/master-program/create`)}> Edit</DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete", program)}> Delete</DropdownMenuItem>
+        <DropdownMenuItem className="text-red-600" onClick={() => setDeleteOpen(true)}> Delete</DropdownMenuItem>
       </DropdownMenuContent>    
-
     </DropdownMenu>
+    {/* Delete Modal */}
+      <DeleteModal
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        itemName={program.title}
+        onConfirm={() =>{
+          onDelete?.(program.id); // call parent callback
+          toast.success(`Program "${program.title}" deleted successfully!`);
+        }}
+      />
+        </>
   );
 }

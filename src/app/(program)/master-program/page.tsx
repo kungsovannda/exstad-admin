@@ -6,9 +6,10 @@ import { SectionCards } from "@/components/program/section-card";
 import DataTable from "./data-table";
 import { columns } from "./column";
 import { programData } from "@/data/programData";
-import { programType } from "@/types/programs";
+import { programType } from "@/types/program";
 import { Plus } from "lucide-react";
 import { FiPlus } from "react-icons/fi";
+import { Heading } from "@/components/Heading";
 
 export default function Page() {
   const search = "";
@@ -29,7 +30,7 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center  gap-10">
-        <h1 className="text-3xl font-semibold">Program Management</h1>
+        <Heading title="Master Program" description="Program Management"/>
         <Link href="/master-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
             <FiPlus className="text-[18px]" />

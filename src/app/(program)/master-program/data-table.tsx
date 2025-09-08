@@ -37,7 +37,7 @@
     TableHead,
   } from '@/components/ui/table';
   import { ArrowUpDown } from 'lucide-react';
-  import { programType } from '@/types/programs';
+  import { programType } from '@/types/program';
 
   type Props = {
     data: programType[];

@@ -1,5 +1,10 @@
+import { Button } from "@/components/ui/button";
 import React from "react";
 
-export default function ApplicationPage() {
-  return <div>ApplicationPage</div>;
+export default function Page() {
+  return (
+    <div>
+      <Button>Hello</Button>
+    </div>
+  );
 }

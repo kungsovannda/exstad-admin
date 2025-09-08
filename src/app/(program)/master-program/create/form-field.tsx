@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 const formSchema = z.object({
   name_7739092615: z.string().min(1),
   name_8873194306: z.string(),
@@ -25,7 +26,8 @@ const formSchema = z.object({
   name_1700059112: z.string().min(1),
   name_4353016075: z.string().min(1),
   name_8292263289: z.string(),
-  name_1653586343: z.string()
+  name_1653586343: z.string(),
+  images: z.array(z.file()),
 });
 
 export default function MyForm() {
@@ -47,13 +49,14 @@ export default function MyForm() {
     }
   }
 
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previewsPoster, setPreviewsPoster] = useState<string[]>([]);
+  const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 grid w-full items-center">
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div >
             <FormField
               control={form.control}
               name="name_7739092615"
@@ -69,7 +72,7 @@ export default function MyForm() {
             />
           </div>
 
-          <div className="col-span-6">
+          <div >
             <FormField
               control={form.control}
               name="name_8873194306"
@@ -94,8 +97,8 @@ export default function MyForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div >
             <FormField
               control={form.control}
               name="name_1244948578"
@@ -120,7 +123,7 @@ export default function MyForm() {
             />
           </div>
 
-          <div className="col-span-6">
+          <div >
             <FormField
               control={form.control}
               name="name_2421160691"
@@ -145,8 +148,8 @@ export default function MyForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div >
             <FormField
               control={form.control}
               name="name_1700059112"
@@ -162,7 +165,7 @@ export default function MyForm() {
             />
           </div>
 
-          <div className="col-span-6">
+          <div >
             <FormField
               control={form.control}
               name="name_4353016075"
@@ -179,8 +182,8 @@ export default function MyForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div >
             <FormField
               control={form.control}
               name="name_8292263289"
@@ -196,7 +199,7 @@ export default function MyForm() {
             />
           </div>
 
-          <div className="col-span-6">
+          <div >
             <FormField
               control={form.control}
               name="name_1653586343"
@@ -211,10 +214,93 @@ export default function MyForm() {
               )}
             />
           </div>
+           </div>
+           <div className="grid grid-cols-2 gap-4">
+          <div >
+           <FormField
+                      control={form.control}
+                      name="images"
+                      render={({ field }) => (
+                        <FormItem >
+                          <FormLabel>Poster</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="file"
+                              multiple
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files ?? []);
+                                field.onChange(files);
 
-              
+                                const filePreviews = files.map((file) =>
+                                  URL.createObjectURL(file)
+                                );
+                                setPreviewsPoster(filePreviews);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+            </div>
+            <div >
+           <FormField
+                      control={form.control}
+                      name="images"
+                      render={({ field }) => (
+                        <FormItem >
+                          <FormLabel>Thumbmail</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="file"
+                              multiple
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files ?? []);
+                                field.onChange(files);
 
-        </div>
+                                const filePreviews = files.map((file) =>
+                                  URL.createObjectURL(file)
+                                );
+                                setPreviewsThumbnail(filePreviews);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+            </div>
+            </div>
+                    <div className="grid grid-cols-2 gap-4">
+                    {previewsPoster.length > 0 && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {previewsPoster.map((src, idx) => (
+                      <Image
+                        width={100}
+                        height={100}
+                        key={idx}
+                        src={src}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-24 h-24 object-cover rounded border"
+                      />
+                    ))}
+                  </div>
+                )}
+                    {previewsThumbnail.length > 0 && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {previewsThumbnail.map((src, idx) => (
+                      <Image
+                        width={100}
+                        height={100}
+                        key={idx}
+                        src={src}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-24 h-24 object-cover rounded border"
+                      />
+                    ))}
+                  </div>
+                )}
+       </div>
 
         <Button type="submit" className="w-fit">
           Submit

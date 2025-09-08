@@ -37,11 +37,12 @@ import {
   TableHead,
 } from "@/components/ui/table";
 import { ArrowUpDown } from "lucide-react";
-import { ActivityType } from "@/types/openingProgramType";
+import { ActivityType } from "@/types/opening-program";
+import { FlattenedActivity } from "./activities";
 
 type Props = {
-  data: ActivityType[];
-  columns: ColumnDef<ActivityType>[];
+  data: FlattenedActivity[];
+  columns: ColumnDef<FlattenedActivity>[];
 };
 
 export default function ActivityDataTable({ data, columns }: Props) {
@@ -162,7 +163,7 @@ export default function ActivityDataTable({ data, columns }: Props) {
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 py-2">
+      <div className="flex flex-col  md:flex-row items-start md:items-center justify-between gap-2 py-2">
         <div className="text-muted-foreground text-sm">
           {table.getFilteredRowModel().rows.length} row(s) found.
         </div>
