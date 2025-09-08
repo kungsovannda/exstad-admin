@@ -76,7 +76,7 @@ export default function TimelinePage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-semibold">Timelines</h1>
+        <h1 className="text-lg font-bold">Timelines</h1>
         <div>
           <Button onClick={() => setOpen(true)}>Create Timelines</Button>
           <SimpleTimelineForm open={open} onOpenChange={setOpen} />

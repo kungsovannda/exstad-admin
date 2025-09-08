@@ -26,9 +26,11 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 // Form validation schema
 const formSchema = z.object({
@@ -265,9 +267,14 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
             </div>
 
             <div className="flex justify-end mt-4">
+              <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
+              </DialogClose>
               <Button type="submit" className="bg-primary text-white">
                 {initialData ? "Update" : "Save"}
               </Button>
+           </DialogFooter>
             </div>
           </form>
         </Form>

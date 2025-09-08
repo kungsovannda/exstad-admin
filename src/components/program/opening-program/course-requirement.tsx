@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import AddTopicDialog from "../curriculum-popup";
 import AddSectionDialog from "./item-admin/section-dialog";
 import DeleteModal from "../activity/delete-modal-component";
+import { SquarePen, Trash } from "lucide-react";
 
 type Section = { id: string; title: string };
 type Requirement = {
@@ -181,8 +182,8 @@ export default function CourseRequirementsAdmin() {
               </div>
 
               <div className="flex gap-2 items-center">
-                <FaTrash
-                  size={18}
+                <Trash  
+                  size={16}
                   className="text-destructive cursor-pointer"
                   onClick={() => setDeleteTarget({ type: "topic", id: req.id })}
                 />
@@ -190,8 +191,8 @@ export default function CourseRequirementsAdmin() {
                   initialData={{ title: req.title, subtitle: req.subtitle }}
                   onSubmit={(data) => handleEditRequirement(req.id, data)}
                   trigger={
-                    <PiNotePencilFill
-                      size={20}
+                    <SquarePen
+                      size={16}
                       className="text-primary-hover cursor-pointer"
                     />
                   }
@@ -221,8 +222,8 @@ export default function CourseRequirementsAdmin() {
                     </div>
 
                     <div className="flex gap-2 items-center">
-                      <FaTrash
-                        size={18}
+                      <Trash
+                        size={16}
                         className="text-destructive cursor-pointer"
                         onClick={() =>
                           setDeleteTarget({
@@ -238,8 +239,8 @@ export default function CourseRequirementsAdmin() {
                           handleEditSection(req.id, section.id, data)
                         }
                         trigger={
-                          <PiNotePencilFill
-                            size={20}
+                          <SquarePen
+                            size={16}
                             className="text-primary-hover cursor-pointer"
                           />
                         }

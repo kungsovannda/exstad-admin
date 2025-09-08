@@ -8,6 +8,7 @@ import HighlightsFormModal from "./form-field";
 import DeleteModal from "../../activity/delete-modal-component";
 import { toast } from "sonner";
 import { FaTrash } from "react-icons/fa";
+import { SquarePen, Trash } from "lucide-react";
 
 type Highlight = {
   id: string;
@@ -27,6 +28,7 @@ export default function HighlightsAdmin() {
   const [highlights, setHighlights] = useState<Highlight[]>(initialHighlights);
   const [editTarget, setEditTarget] = useState<Highlight | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  
 
   // Track which highlight is being deleted
   const [deleteTarget, setDeleteTarget] = useState<Highlight | null>(null);
@@ -83,8 +85,8 @@ export default function HighlightsAdmin() {
 
           <div className="flex gap-2 items-center">
             {/* Delete */}
-            <FaTrash
-              size={18}
+            <Trash
+              size={16}
               className="text-destructive cursor-pointer"
               onClick={() => setDeleteTarget(h)}
             />
@@ -96,8 +98,8 @@ export default function HighlightsAdmin() {
               initialData={h}
               onSubmitHighlight={handleEditHighlight}
               trigger={
-                <PiNotePencilFill
-                  size={20}
+                <SquarePen
+                  size={16}
                   className="text-primary-hover cursor-pointer"
                   onClick={() => {
                     setEditTarget(h);

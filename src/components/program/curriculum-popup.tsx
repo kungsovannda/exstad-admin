@@ -89,7 +89,7 @@ export default function AddTopicDialog({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-      <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Topic" : "Add Topic"}</DialogTitle>
         </DialogHeader>
@@ -126,7 +126,7 @@ export default function AddTopicDialog({
 
             <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
               </DialogClose>
               <Button type="submit">{initialData ? "Save Changes" : "Add Topic"}</Button>
             </DialogFooter>

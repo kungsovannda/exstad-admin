@@ -61,7 +61,7 @@ export default function ActivityPage() {
   return (
     <div className=" space-y-6">
       <div className="flex justify-between items-center gap-10">
-      <h1 className="text-3xl font-semibold">Activities</h1>
+      <h1 className="text-lg font-bold">Activities</h1>
              <Button onClick={() => setOpen(true)}>Add Activity</Button>
 <ActivityModal open={open} onOpenChange={setOpen} />
 

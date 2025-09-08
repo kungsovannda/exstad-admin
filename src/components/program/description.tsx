@@ -86,7 +86,7 @@ export function SectionModal({
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
 
-      <DialogContent className="sm:max-w-[425px] p-6 rounded-lg shadow-lg">
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl p-6 rounded-lg shadow-lg">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Section" : "Add Section"}</DialogTitle>
         </DialogHeader>

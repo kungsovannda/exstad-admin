@@ -11,6 +11,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { DialogClose } from "@radix-ui/react-dialog";
 // 1️⃣ Validation
 const timelineSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -47,7 +48,7 @@ export default function SimpleTimelineForm({ open, onOpenChange, initialData }: 
         {/* Optional: a hidden trigger if you want to control externally */}
         <span />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Edit Timeline</DialogTitle>
         </DialogHeader>
@@ -94,7 +95,10 @@ export default function SimpleTimelineForm({ open, onOpenChange, initialData }: 
           </div>
 
           <DialogFooter>
-            <Button type="submit" className="bg-primary text-white w-full">
+              <DialogClose asChild>
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
+              </DialogClose>
+            <Button type="submit" className="bg-primary text-white w-fit">
               Save
             </Button>
           </DialogFooter>

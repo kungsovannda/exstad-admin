@@ -17,26 +17,17 @@ import {
   TableHead,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  useSortable,
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from '@dnd-kit/sortable';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { useSortable, SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { TimelineActionsCell } from './timeline-action-cell';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
+import DeleteModal from '../../activity/delete-modal-component';
+import SimpleTimelineForm from './timeline-modal1';
 
 // -----------------
 // TimelineRow type
@@ -49,6 +40,47 @@ export type TimelineRow = {
 };
 
 // -----------------
+// DateCell component
+// -----------------
+interface DateCellProps {
+  value?: Date;
+  onChange: (date: Date) => void;
+  placeholder?: string;
+}
+
+function DateCell({ value, onChange, placeholder = 'Select' }: DateCellProps) {
+  const [selected, setSelected] = useState<Date | undefined>(value);
+
+  const handleSelect = (date: Date | undefined) => {
+    if (!date) return; // ignore undefined
+    setSelected(date);
+    onChange(date);
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="w-fit justify-between text-left">
+          {selected ? format(selected, 'PPP') : placeholder}
+          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={handleSelect}   // ✅ matches Calendar type
+          required={false}
+          captionLayout="dropdown"
+          className="rounded-md border"
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
+// -----------------
 // Columns
 // -----------------
 export const timelineColumns: ColumnDef<TimelineRow>[] = [
@@ -57,65 +89,35 @@ export const timelineColumns: ColumnDef<TimelineRow>[] = [
   {
     accessorKey: 'startDate',
     header: 'Start Date',
-    cell: ({ row }) => {
-      const date = row.original.startDate;
-      return (
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="w-fit justify-between text-left">
-              {date ? format(date, 'PPP') : 'Start'}
-              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(d) => (row.original.startDate = d)}
-              captionLayout="dropdown"
-              className="rounded-md border"
-            />
-          </PopoverContent>
-        </Popover>
-      );
-    },
+    cell: ({ row }) => (
+      <DateCell
+        value={row.original.startDate}
+        onChange={(date) => (row.original.startDate = date)}
+        placeholder="Start"
+      />
+    ),
   },
   {
     accessorKey: 'endDate',
     header: 'End Date',
-    cell: ({ row }) => {
-      const date = row.original.endDate;
-      return (
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="w-fit justify-between text-left">
-              {date ? format(date, 'PPP') : 'End'}
-              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(d) => (row.original.endDate = d)}
-              captionLayout="dropdown"
-              className="rounded-md border"
-            />
-          </PopoverContent>
-        </Popover>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
     cell: ({ row }) => (
-      <TimelineActionsCell
-        timeline={row.original} // row.original must be of type Timeline
-        onDelete={(id) => console.log("Delete timeline with id:", id)}
+      <DateCell
+        value={row.original.endDate}
+        onChange={(date) => (row.original.endDate = date)}
+        placeholder="End"
       />
     ),
-  }
+  },
+  {
+    id: 'actions',
+    header: 'Actions',
+    cell: ({ row }) => (
+      <TimelineActionsCell
+        timeline={row.original}
+        onDelete={(id) => toast.success(`Timeline with id ${id} deleted`)}
+      />
+    ),
+  },
 ];
 
 // -----------------
@@ -123,18 +125,12 @@ export const timelineColumns: ColumnDef<TimelineRow>[] = [
 // -----------------
 function SortableRow({ row }: { row: Row<TimelineRow> }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: row.original.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    cursor: 'grab',
-  };
+  const style = { transform: CSS.Transform.toString(transform), transition, cursor: 'grab' };
 
   return (
     <TableRow ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {row.getVisibleCells().map((cell: Cell<TimelineRow, unknown>) => (
-        <TableCell key={cell.id}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
+        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
       ))}
     </TableRow>
   );
@@ -160,12 +156,10 @@ export default function TimelineDataTable({ data }: Props) {
     }
   };
 
-  // Filtered data based on search
+  // Filter rows by search
   const filteredData = useMemo(() => {
     if (!search) return tableData;
-    return tableData.filter((row) =>
-      row.title.toLowerCase().includes(search.toLowerCase())
-    );
+    return tableData.filter((row) => row.title.toLowerCase().includes(search.toLowerCase()));
   }, [search, tableData]);
 
   const table = useReactTable({
@@ -176,7 +170,7 @@ export default function TimelineDataTable({ data }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
+      {/* Search */}
       <input
         type="text"
         placeholder="Search timelines..."
@@ -185,6 +179,7 @@ export default function TimelineDataTable({ data }: Props) {
         className="border rounded-md p-2 w-full md:w-1/2"
       />
 
+      {/* Drag & Drop Table */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={filteredData.map((row) => row.id)} strategy={verticalListSortingStrategy}>
           <div className="rounded-md border overflow-x-auto">
@@ -193,9 +188,7 @@ export default function TimelineDataTable({ data }: Props) {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
+                      <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
                     ))}
                   </TableRow>
                 ))}

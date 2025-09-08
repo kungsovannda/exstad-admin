@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { AddTopicFaq } from "./faq-dialog";
 import { AddQuestionDialog } from "./faqdialog";
 import DeleteModal from "../../activity/delete-modal-component";
+import { SquarePen, Trash } from "lucide-react";
 
 type Section = { id: string; question: string; answer: string };
 type Topic = { id: string; title: string; sections: Section[] };
@@ -127,11 +128,11 @@ export default function Faq() {
     // TODO: send faq to API
   };
 
-  return (
+  return (  
     <div className="flex flex-col gap-5">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-[18px] font-bold text-foreground">FAQ</h2>
+        <h2 className="text-lg font-bold text-foreground">FAQ</h2>
         <AddTopicFaq
           onSubmit={handleAddTopic}
           trigger={
@@ -157,16 +158,16 @@ export default function Faq() {
               </div>
               <div className="flex gap-2 items-center">
                 {/* Delete Topic */}
-                <FaTrash
-                  size={18}
+                <Trash
+                  size={16}
                   className="text-destructive cursor-pointer"
                   onClick={() =>
                     setDeleteTarget({ type: "topic", id: topic.id ,itemName: topic.title,   })
                   }
                 />
                 {/* Edit Topic (controlled) */}
-                <PiNotePencilFill
-                  size={20}
+                <SquarePen
+                  size={16}
                   className="text-primary-hover cursor-pointer"
                   onClick={() => setEditingTopicId(topic.id)}
                 />
@@ -210,7 +211,7 @@ export default function Faq() {
 
                     {/* Edit / Delete Buttons */}
                     <div className="flex gap-2 mt-1 items-center ml-7">
-                      <FaTrash
+                      <Trash
                         size={16}
                         className="text-destructive cursor-pointer"
                         onClick={() =>
@@ -222,8 +223,8 @@ export default function Faq() {
                           })
                         }
                       />
-                      <PiNotePencilFill
-                        size={20}
+                      <SquarePen
+                        size={16}
                         className="text-primary-hover cursor-pointer"
                         onClick={() =>
                           setEditingSection({

@@ -9,6 +9,7 @@ import AddTopicDialog from "./curriculum-popup"; // default export
 import { SectionModal } from "./description"; // named export
 import DeleteModal from "./activity/delete-modal-component";
 import { toast } from "sonner";
+import { SquarePen, Trash } from "lucide-react";
 type Section = { id: string; title: string };
 type Topic = {
   id: string;
@@ -147,7 +148,7 @@ export default function CurriculumAdmin() {
     <div className="flex flex-col gap-5">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-[18px] font-bold text-foreground">Curriculum</h2>
+        <h2 className="text-lg font-bold text-foreground">Curriculum</h2>
 
         {/* Add Topic (uncontrolled modal with trigger) */}
         <AddTopicDialog
@@ -178,8 +179,8 @@ export default function CurriculumAdmin() {
               </div>
               </div>
               <div className="flex gap-2 items-center">
-                <FaTrash
-                  size={18}
+                <Trash
+                  size={16}
                   className="text-destructive cursor-pointer"
                   onClick={() =>
                     setDeleteTarget({ type: "topic", id: topic.id ,itemName:topic.title})
@@ -187,8 +188,8 @@ export default function CurriculumAdmin() {
                 />
 
                 {/* Edit topic: controlled modal */}
-                <PiNotePencilFill
-                  size={22}
+                <SquarePen
+                  size={16}
                   className="text-primary-hover cursor-pointer"
                   onClick={() => setEditingTopicId(topic.id)}
                 />
@@ -228,8 +229,8 @@ export default function CurriculumAdmin() {
                     </div>
 
                     <div className="flex gap-2 items-center">
-                      <FaTrash
-                        size={18}
+                      <Trash
+                        size={16}
                         className="text-destructive cursor-pointer"
                         onClick={() =>
                           setDeleteTarget({
@@ -242,8 +243,8 @@ export default function CurriculumAdmin() {
                       />
 
                       {/* edit section controlled */}
-                      <PiNotePencilFill
-                        size={20}
+                      <SquarePen
+                        size={16}
                         className="text-primary-hover cursor-pointer"
                         onClick={() =>
                           setEditingSection({

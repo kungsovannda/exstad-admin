@@ -7,6 +7,7 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 const highlightSchema = z.object({
   label: z.string().min(1, "Label is required"),
@@ -57,7 +58,7 @@ export default function HighlightsFormModal({
         {trigger || <Button>{initialData ? "Edit Highlight" : "Add Highlight"}</Button>}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Highlight" : "Add Highlight"}</DialogTitle>
         </DialogHeader>
@@ -84,8 +85,11 @@ export default function HighlightsFormModal({
             {errors.desc && <span className="text-red-500 text-sm mt-1">{errors.desc.message}</span>}
           </div>
 
-          <DialogFooter>
-            <Button type="submit" className="bg-primary text-white w-full">
+         <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
+              </DialogClose>
+            <Button type="submit" className="bg-primary text-white w-fit">
               Save Highlight
             </Button>
           </DialogFooter>
