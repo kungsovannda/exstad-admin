@@ -1,15 +1,12 @@
+import { Audit } from "..";
+
 export type University = {
   uuid: string;
   englishName: string;
   khmerName: string;
   shortName: string;
   scholars: number;
-  audit: {
-    createdBy: string;
-    createdAt: string;
-    updatedBy: string;
-    updatedAt: string;
-  };
+  audit: Audit;
 };
 
 export type UniversityUpdate = {

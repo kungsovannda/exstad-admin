@@ -1,48 +1,19 @@
 "use client";
-import { useDeleteUniversity, useUniversities } from "@/hooks/university";
-import DataTable from "./data-table";
-import { columns } from "./column";
-import { useState } from "react";
-import { University } from "@/types/university";
-import { ViewAndUpdateUniversity } from "@/components/university/ViewAndUpdateUniversity";
-import ModalDelete from "@/components/modal/ModalDelete";
 import { Heading } from "@/components/Heading";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { Button } from "@/components/ui/button";
-import { IconPlus } from "@tabler/icons-react";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { CreateUniversity } from "@/components/university/CreateUniversity";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { CreateUniversity } from "@/features/university/components/CreateUniversity";
+import { universityColumns } from "@/features/university/components/table/column";
+import { UniversityTable } from "@/features/university/components/table/data-table";
+import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
+import { IconPlus } from "@tabler/icons-react";
+import { useState } from "react";
 
 export default function UniversityPage() {
-  const { data, isLoading, error } = useUniversities();
-  const [selectedUniversity, setSelectedUniversity] =
-    useState<University | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const { data, isLoading } = useGetAllUniversitiesQuery();
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
 
-  const mutation = useDeleteUniversity();
-
-  const handleOnDelete = () => {
-    const uuid = selectedUniversity?.uuid;
-    if (!uuid) return;
-    mutation.mutate(uuid);
-    if (mutation.isError) {
-      console.log(mutation.error);
-    }
-    toast.promise(mutation.mutateAsync(uuid), {
-      loading: "Deleting...",
-      success: () => {
-        return `${selectedUniversity.englishName} has been deleted`;
-      },
-      error: () => {
-        return `Cannot delete ${selectedUniversity.englishName}`;
-      },
-    });
-    setIsModalDeleteOpen(false);
-  };
-  if (error) return <div>Error: {error.message}</div>;
   return (
     <>
       <div className="flex flex-1 flex-col space-y-4">
@@ -62,35 +33,13 @@ export default function UniversityPage() {
         {isLoading ? (
           <DataTableSkeleton columnCount={5} />
         ) : (
-          <DataTable
-            columns={columns({
-              onView: (u) => {
-                setSelectedUniversity(u);
-                setIsDialogOpen(true);
-              },
-              onDelete: (u) => {
-                setSelectedUniversity(u);
-                setIsModalDeleteOpen(true);
-              },
-            })}
+          <UniversityTable
+            totalItems={data!.length}
             data={data!}
+            columns={universityColumns}
           />
         )}
       </div>
-
-      <ViewAndUpdateUniversity
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        university={selectedUniversity}
-      />
-
-      <ModalDelete
-        open={isModalDeleteOpen}
-        onOpenChange={setIsModalDeleteOpen}
-        title="Delete University"
-        description={`Are you sure you want to delete ${selectedUniversity?.englishName}?`}
-        onDelete={handleOnDelete}
-      />
 
       <CreateUniversity
         open={isModalCreateOpen}

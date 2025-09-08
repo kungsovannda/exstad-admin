@@ -1,11 +1,12 @@
 export type openingProgramType = {
-    id: number;
+    uuid: string;
     title: string;
     generation:number;
     description: string;
     image: string;
     shortcourseimage:string;
     qrimage: string;
+    template?: string[];
     activities: ActivityDataType[];
     timeline: timeline[];
     classes:Classes[];

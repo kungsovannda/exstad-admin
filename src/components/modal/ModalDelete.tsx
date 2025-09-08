@@ -37,12 +37,7 @@ export default function ModalDelete({
           <DialogClose asChild>
             <Button variant="outline">No, Cancel</Button>
           </DialogClose>
-          <Button
-            form="update-university-form"
-            type="submit"
-            variant="destructive"
-            onClick={onDelete}
-          >
+          <Button variant="destructive" onClick={onDelete}>
             Yes, Delete
           </Button>
         </DialogFooter>

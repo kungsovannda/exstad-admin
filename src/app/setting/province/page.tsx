@@ -1,22 +1,13 @@
 "use client";
-import DataTable from "./data-table";
-import { columns } from "./column";
-import { useState } from "react";
 import { Heading } from "@/components/Heading";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { Separator } from "@/components/ui/separator";
-import { useProvinces } from "@/hooks/province";
-import { Province } from "@/types/province";
-import { ViewProvince } from "@/components/province/ViewProvince";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { provinceColumns } from "@/features/province/components/table/column";
+import { ProvinceTable } from "@/features/province/components/table/data-table";
+import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 
 export default function ProvincePage() {
-  const { data, isLoading, error } = useProvinces();
-  const [selectedProvince, setSelectedProvince] = useState<Province | null>(
-    null
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  if (error) return <div>Error: {error.message}</div>;
+  const { data, isLoading } = useGetAllProvincesQuery();
 
   return (
     <>
@@ -31,23 +22,13 @@ export default function ProvincePage() {
         {isLoading ? (
           <DataTableSkeleton columnCount={3} />
         ) : (
-          <DataTable
-            columns={columns({
-              onView: (p) => {
-                setSelectedProvince(p);
-                setIsDialogOpen(true);
-              },
-            })}
+          <ProvinceTable
+            totalItems={data!.length}
             data={data!}
+            columns={provinceColumns}
           />
         )}
       </div>
-
-      <ViewProvince
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        province={selectedProvince}
-      />
     </>
   );
 }
