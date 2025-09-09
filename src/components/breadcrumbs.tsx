@@ -8,6 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs";
+import { formatTitle } from "@/utils/formatTitle";
 import { IconSlash } from "@tabler/icons-react";
 import { Fragment } from "react";
 
@@ -22,7 +23,9 @@ export function Breadcrumbs() {
           <Fragment key={item.title}>
             {index !== items.length - 1 && (
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href={item.link}>{item.title}</BreadcrumbLink>
+                <BreadcrumbLink href={item.link}>
+                  {formatTitle(item.title)}
+                </BreadcrumbLink>
               </BreadcrumbItem>
             )}
             {index < items.length - 1 && (
@@ -31,7 +34,7 @@ export function Breadcrumbs() {
               </BreadcrumbSeparator>
             )}
             {index === items.length - 1 && (
-              <BreadcrumbPage>{item.title.replace("-", " ")}</BreadcrumbPage>
+              <BreadcrumbPage>{formatTitle(item.title)}</BreadcrumbPage>
             )}
           </Fragment>
         ))}

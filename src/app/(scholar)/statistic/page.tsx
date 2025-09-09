@@ -15,12 +15,10 @@ export default function StatisticPage() {
           title="Scholar Management"
           description="View statistic and manage scholars"
         />
-        <Link href="/master-program/create">
-          <Button variant="outline" className="flex items-center gap-2.5">
-            <FiPlus className="text-[18px]" />
-            <span className="text-[14px] font-bold">Create New Program</span>
-          </Button>
-        </Link>
+        <Button variant="outline" className="flex items-center gap-2.5">
+          <FiPlus />
+          <span>Add Scholar</span>
+        </Button>
       </div>
       <StatisticCard />
       <StatisticTable

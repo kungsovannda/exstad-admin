@@ -2,11 +2,35 @@ import { ColumnDef } from "@tanstack/react-table";
 import { programType } from "@/types/program";
 import { ArrowUpDown } from "lucide-react";
 import { MasterActionsCell } from "@/components/program/master-program/action-cell";
+import { programData } from "@/data/programData";
 
-export const columns: ColumnDef<programType>[] = [
+type Option = { label: string; value: string };
+
+// Build unique level options
+const getProgramLevel = (): Option[] => {
+  const levels = programData.map((p) => ({
+    value: p.level,
+    label: p.level,
+  }));
+
+  // Remove duplicates by value
+  const uniqueLevels = Array.from(
+    new Map(levels.map((item) => [item.value, item])).values()
+  );
+
+  return uniqueLevels;
+};
+
+export const masterProgramColumns: ColumnDef<programType>[] = [
   {
     id: "title",
     accessorKey: "title",
+    enableColumnFilter: true,
+    meta: {
+      variant: "text",
+      placeholder: "Enter title...",
+      label: "Program Title"
+    },
     header: ({ column }) => (
       <span
         className="flex items-center cursor-pointer"
@@ -17,7 +41,17 @@ export const columns: ColumnDef<programType>[] = [
     ),
   },
   { accessorKey: "program_type", header: "Type" },
-  { accessorKey: "level", header: "Level" },
+  { 
+    accessorKey: "level", 
+    header: "Level",
+    enableColumnFilter: true,
+    meta: {
+      variant: "select",
+      placeholder: "Filter level",
+      label:"Program Level",
+      options: getProgramLevel()
+   },
+  },
   { accessorKey: "price", header: "Price" },
   
   { accessorKey: "visibility", header: "Visibility",
@@ -38,6 +72,7 @@ export const columns: ColumnDef<programType>[] = [
   {
   accessorKey: "status",
   header: "Status",
+
   cell: ({ row }) => {
     const status = row.original.status
     const bgClass =

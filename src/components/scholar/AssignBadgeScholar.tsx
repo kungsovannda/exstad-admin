@@ -100,7 +100,11 @@ export function AssignBadgeScholar({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button form="assign-badge-form" type="submit">
+          <Button
+            onClick={() => onOpenChange(false)}
+            form="assign-badge-form"
+            type="submit"
+          >
             Assign
           </Button>
         </DialogFooter>

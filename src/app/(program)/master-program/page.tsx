@@ -3,12 +3,13 @@ import React, { useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionCards } from "@/components/program/section-card";
-import DataTable from "./data-table";
-import { columns } from "./column";
+
+
 import { programData } from "@/data/programData";
 import { programType } from "@/types/program";
 import { FiPlus } from "react-icons/fi";
 import { Heading } from "@/components/Heading";
+import MasterProgramTable from "@/features/master-program/components/table/master-program-table";
 
 export default function Page() {
   const search = "";
@@ -38,7 +39,9 @@ export default function Page() {
         </Link>
       </div>
       <SectionCards />
-      <DataTable columns={columns} data={filteredPrograms} />
+      {/* <DataTable columns={masterProgramColumns} data={filteredPrograms} />
+       */}
+       <MasterProgramTable/>
     </div>
   );
 }

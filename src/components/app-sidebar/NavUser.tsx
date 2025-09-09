@@ -91,16 +91,8 @@ export function NavUser() {
                 Account
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuGroup>
-              <Link href={"/setting"}>
-                <DropdownMenuItem>
-                  <Settings />
-                  Setting
-                </DropdownMenuItem>
-              </Link>
-            </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
+            <DropdownMenuItem variant="destructive" onClick={() => signOut()}>
               <LogOut />
               Log out
             </DropdownMenuItem>
