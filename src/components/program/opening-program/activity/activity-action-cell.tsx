@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import ActivityModal from "./form-field";
-import { FlattenedActivity } from "./activities";
+import { FlattenedActivity } from "@/features/opening-program/components/table/activity-table";
 import DeleteModal from "./delete-modal-component";
 import { toast } from "sonner";
 

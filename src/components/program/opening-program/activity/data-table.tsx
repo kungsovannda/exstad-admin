@@ -37,7 +37,7 @@ import {
   TableHead,
 } from "@/components/ui/table";
 import { ArrowUpDown } from "lucide-react";
-import { FlattenedActivity } from "./activities";
+import { FlattenedActivity } from "@/features/opening-program/components/table/activity-table";
 
 type Props = {
   data: FlattenedActivity[];

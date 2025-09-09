@@ -1,18 +1,13 @@
 "use client";
-
-import { programData } from "@/data/programData";
-import { Classes } from "@/types/opening-program";
-import { classColumns } from "./classColumn";
 import ClassModal1 from "./form-field";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ClassDataTable from "@/features/opening-program/components/table/class-data";
-import ClassDataTable1 from "./data-table";
 
 // Flatten all classes from all opening programs
-const allClasses: Classes[] = programData.flatMap(
-  (program) => program.openingprogram?.flatMap((op) => op.classes || []) || []
-);
+// const allClasses: Classes[] = programData.flatMap(
+//   (program) => program.openingprogram?.flatMap((op) => op.classes || []) || []
+// );
 
 
 export default function ClassPage() {

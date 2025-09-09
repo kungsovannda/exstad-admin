@@ -2,7 +2,6 @@ import { Heading } from "@/components/Heading";
 import { StatisticCard } from "@/components/scholar/statistic-card";
 import { Button } from "@/components/ui/button";
 import { scholars } from "@/data/scholars";
-import Link from "next/link";
 import { FiPlus } from "react-icons/fi";
 import { columns } from "./column";
 import { StatisticTable } from "./data-table";

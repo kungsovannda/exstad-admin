@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Improved schema with meaningful field names
 const programFormSchema = z.object({

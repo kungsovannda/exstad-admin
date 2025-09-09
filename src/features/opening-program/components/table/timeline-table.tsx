@@ -2,8 +2,6 @@
 
 import { TimelineColumns } from "@/components/program/opening-program/timeline/timelineColumn";
 import { DefaultTableDnd } from "@/components/table/default-table-dnd";
-import { DefaultTableModel } from "@/components/table/default-table-model";
-import { programData } from "@/data/programData";
 import { TimelineRow } from "@/components/program/opening-program/timeline/timelineColumn";
 import { useState, useMemo } from "react";
 
