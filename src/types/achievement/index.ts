@@ -12,3 +12,14 @@ export type Achievement = {
   link: string;
   audit: Audit;
 };
+
+export type CreateAchievement = {
+  title: string;
+  description: string;
+  openingProgramUuid: string;
+  icon: string;
+  achievementType: string;
+  tag: string;
+  video: string;
+  link: string;
+};

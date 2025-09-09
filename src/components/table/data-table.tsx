@@ -59,8 +59,11 @@ export function DataTable<TData>({
               </TableHeader>
               <TableBody>
                 {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
+                  table.getRowModel().rows.map((row, index) => (
                     <TableRow
+                      className={`border-none ${
+                        index % 2 == 0 ? "bg-primary/5" : "bg-primary/2"
+                      } `}
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                     >

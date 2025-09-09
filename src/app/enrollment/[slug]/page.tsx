@@ -3,6 +3,7 @@ import { Heading } from "@/components/Heading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EnrollmentChart from "@/features/enrollment/components/statistic/EnrollmentChart";
 import { EnrollmentStatisticCard } from "@/features/enrollment/components/statistic/EnrollmentStatisticCard";
+import EnrollmentListPage from "@/features/enrollment/components/table/enrollment-list-page";
 import { formatTitle } from "@/utils/formatTitle";
 import { useParams } from "next/navigation";
 import React from "react";
@@ -32,6 +33,7 @@ export default function PaidEnrollment() {
           >
             <EnrollmentStatisticCard />
             <EnrollmentChart />
+            <EnrollmentListPage />
           </TabsContent>
         ))}
       </Tabs>

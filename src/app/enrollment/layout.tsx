@@ -109,8 +109,11 @@ export default function EnrollmentLayout({
         >
           <EnrollmentSidebar />
         </div>
-        <ScrollArea className="h-screen w-full overflow-x-hidden">
-          <main className="p-5 mb-10 h-fit">
+        <ScrollArea
+          scrollHideDelay={0}
+          className="h-screen max-h-screen w-full overflow-x-hidden "
+        >
+          <main className="p-5 h-fit">
             <Suspense fallback={<Loader />}>{children}</Suspense>
           </main>
         </ScrollArea>
