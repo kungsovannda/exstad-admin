@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { AddTopicFaq } from "./add-topic-dialog";
 import { AddQuestionDialog } from "./add-question-dialog";
-import DeleteModal from "../../activity/delete-modal-component";
+import DeleteModal from "../../opening-program/activity/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
 
 type Section = { id: string; question: string; answer: string };

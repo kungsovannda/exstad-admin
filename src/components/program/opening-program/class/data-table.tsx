@@ -46,7 +46,7 @@ type Props = {
 };
 
 
-export default function ClassDataTable({ data }: Props) {
+export default function ClassDataTable1({ data }: Props) {
   const [search, setSearch] = useState('');
   const [filterShift, setFilterShift] = useState('all');
   const [filterInstructor, setFilterInstructor] = useState('all');

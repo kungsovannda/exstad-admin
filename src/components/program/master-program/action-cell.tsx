@@ -12,7 +12,7 @@ import { programType } from "@/types/program";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import DeleteModal from "../activity/delete-modal-component";
+import DeleteModal from "../opening-program/activity/delete-modal-component";
 import { toast } from "sonner";
 
 

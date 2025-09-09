@@ -13,7 +13,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import DeleteModal from "../activity/delete-modal-component";
+import DeleteModal from "./activity/delete-modal-component";
 
 
 

@@ -5,9 +5,9 @@ import { FiPlus } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import AddTopicDialog from "./item-admin/add-topic-dialog";
-import AddSectionDialog from "./item-admin/section-dialog";
-import DeleteModal from "../activity/delete-modal-component";
+import AddTopicDialog from "../item-admin/add-topic-dialog";
+import AddSectionDialog from "../item-admin/section-dialog";
+import DeleteModal from "../../opening-program/activity/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
 
 type Section = { id: string; title: string };

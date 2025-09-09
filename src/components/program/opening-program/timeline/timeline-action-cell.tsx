@@ -5,7 +5,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import SimpleTimelineForm from "./timeline-modal1";
 import { toast } from "sonner";
-import DeleteModal from "../../activity/delete-modal-component";
+import DeleteModal from "../../opening-program/activity/delete-modal-component";
 import { TimelineRow } from "./timelineColumn";
 
 interface TimelineActionsCellProps {

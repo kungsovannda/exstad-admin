@@ -2,11 +2,22 @@ import { ColumnDef } from "@tanstack/react-table";
 import { openingProgramType } from "@/types/opening-program";
 import { OpeningActionsCell } from "@/components/program/opening-program/action-cell";
 import { programData } from "@/data/programData";
+import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
+
+const allOpeningPrograms = programData.flatMap(p=>p.openingprogram);
+
+const programTypeOptions = buildUniqueOptions(allOpeningPrograms, op =>op.programType)
+const generationOptions = buildUniqueOptions(allOpeningPrograms, gen => gen.generation)
+const visibilitOptions = buildUniqueOptions(allOpeningPrograms, vs=>vs.visibility)
 
 // Build unique program type options from all openingprogram items
-const programTypeOptions = Array.from(
-  new Set(programData.flatMap((item) => item.openingprogram.map((p) => p.programType)))
-).map((type) => ({ label: type, value: type }));
+// const programTypeOptions = Array.from(
+//   new Set(programData.flatMap((item) => item.openingprogram.map((p) => p.programType)))
+// ).map((type) => ({ label: type, value: type }));
+
+// const generationOptions = Array.from(
+//   new Set(programData.flatMap((item) => item.openingprogram.map((g) => g.generation)))
+// ).map((types) => ({label:types,value:types}));
 
 export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
   { accessorKey: "id", header: "ID" },
@@ -34,10 +45,22 @@ export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
     },
   },
 
-  {
-    accessorKey: "generation",
-    header: "Generation",
+{
+  accessorKey: "generation",
+  header: "Generation",
+  enableColumnFilter: true,
+  filterFn: (row, columnId, filterValue) => {
+    // Compare as numbers
+    return row.getValue<number>(columnId) === Number(filterValue);
   },
+  meta: {
+    variant: "select",
+    placeholder: "Filter Generation",
+    label: "Generation",
+    options: generationOptions,
+  },
+}
+,
 
   {
     id: "totalSlots",
@@ -49,6 +72,13 @@ export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
   {
     accessorKey: "visibility",
     header: "Visibility",
+    enableColumnFilter:true,
+    meta:{
+      variant:"select",
+      placeholder:"Select visibility...",
+      label:"Visibility",
+      options:visibilitOptions,
+    },
     cell: ({ row }) => {
       const visibility = row.original.visibility;
       const bgClass =

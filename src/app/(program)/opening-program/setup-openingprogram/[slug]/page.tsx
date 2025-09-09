@@ -4,11 +4,9 @@ import Curriculum from "@/components/program/master-program/curriculum/curriculu
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import Timeline from "@/components/program/master-program/timeline/timeline";
-import ClassPage from "@/components/program/class/class";
-import Activities from "@/components/program/activity/activities";
-import { openingProgramData } from "@/data/openingProgramData";
-import { openingProgramType } from "@/types/opening-program";
+import TimelinePage from "@/components/program/opening-program/timeline/timeline";
+import ClassPage from "@/components/program/opening-program/class/class";
+import Activities from "@/components/program/opening-program/activity/activities";
 
 export default function ProgramSetup() {
   const [tab, setTab] = useState<
@@ -60,7 +58,7 @@ export default function ProgramSetup() {
       {tab === "class" && <ClassPage />}
       {tab === "curriculum" && <Curriculum />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
-      {tab === "timeline" && <Timeline />}
+      {tab === "timeline" && <TimelinePage />}
       {tab === "activities" && <Activities />}
     </div>
   );

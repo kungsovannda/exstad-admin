@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import HighlightsFormModal from "./form-field";
-import DeleteModal from "../../activity/delete-modal-component";
+import DeleteModal from "../../opening-program/activity/delete-modal-component";
 import { toast } from "sonner";
 import { SquarePen, Trash } from "lucide-react";
 

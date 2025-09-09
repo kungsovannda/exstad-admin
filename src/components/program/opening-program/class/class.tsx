@@ -1,12 +1,13 @@
 "use client";
 
-import ClassDataTable from "./data-table";
 import { programData } from "@/data/programData";
 import { Classes } from "@/types/opening-program";
 import { classColumns } from "./classColumn";
 import ClassModal1 from "./form-field";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import ClassDataTable from "@/features/opening-program/components/table/class-data";
+import ClassDataTable1 from "./data-table";
 
 // Flatten all classes from all opening programs
 const allClasses: Classes[] = programData.flatMap(
@@ -23,7 +24,7 @@ export default function ClassPage() {
         <Button onClick={() => setOpen(true)}>Add Class</Button>
         <ClassModal1 open={open} onOpenChange={setOpen} />
       </div>
-      <ClassDataTable data={allClasses} columns={classColumns} />
+      <ClassDataTable />
     </div>
   );
 }

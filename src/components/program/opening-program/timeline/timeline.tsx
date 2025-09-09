@@ -91,10 +91,7 @@ export default function TimelinePage() {
       </div>
 
       {/* Timeline Table */}
-      <TimelineDataTable 
-  data={filteredData} 
-  handleDateChange={handleDateChange} 
-/>
+      <TimelineDataTable   data={filteredData}  handleDateChange={handleDateChange} />
 
     </div>
   );
