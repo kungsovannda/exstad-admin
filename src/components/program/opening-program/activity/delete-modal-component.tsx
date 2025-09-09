@@ -12,7 +12,9 @@
   export default function DeleteModal({ open, onOpenChange, onConfirm, itemName }: DeleteModalProps) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-fit max-w-sm">
+        <DialogContent className="w-fit max-w-sm"
+          onPointerDown={(e) => e.stopPropagation()} // ✅ Prevent drag when clicking inside modal
+>
           <DialogHeader>
             <DialogTitle>Delete {itemName}?</DialogTitle>
           </DialogHeader>

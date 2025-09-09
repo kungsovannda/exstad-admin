@@ -3,12 +3,17 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { ActivityActionsCell } from "./activity-action-cell";
-import { FlattenedActivity } from "./activities";
+import { FlattenedActivity } from "@/features/opening-program/components/table/activity-table";
 
 export const activityColumns: ColumnDef<FlattenedActivity>[] = [
   {
     accessorKey: "activityGroup",
-    header: "Activity Group",
+    header: "Title ",
+    enableColumnFilter:true,
+    meta:{
+      variant:"text",
+      placeholder:"Enter title... "
+    }
   },
   {
     accessorKey: "subtitle",

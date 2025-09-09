@@ -21,12 +21,15 @@ export function TimelineActionsCell({ timeline, onDelete }: TimelineActionsCellP
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-8 w-8 p-0"
+                onPointerDown={(e) => e.stopPropagation()} // ✅ Prevent drag interference
+                >
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end"
+            onPointerDown={(e) => e.stopPropagation()} >
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
@@ -41,6 +44,10 @@ export function TimelineActionsCell({ timeline, onDelete }: TimelineActionsCellP
         }}
         open={open}
         onOpenChange={setOpen}
+        onSubmit={(data)=>{
+          console.log("Updated timeline:", data); 
+          setOpen(false);
+        }}
       />
 
       <DeleteModal

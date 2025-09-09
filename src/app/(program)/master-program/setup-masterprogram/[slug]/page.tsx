@@ -5,8 +5,8 @@ import Faq from "@/components/program/master-program/faq/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
-import LearningOutcomesAdmin from "@/components/program/opening-program/learning-outcome";
-import CourseRequirementsAdmin from "@/components/program/opening-program/course-requirement";
+import LearningOutcomesAdmin from "@/components/program/master-program/learning-outcome/learning-outcome";
+import CourseRequirementsAdmin from "@/components/program/master-program/course-requirement/course-requirement";
 import Highlight from "@/components/program/master-program/highlight/highlight";
 
 export default function ProgramSetup() {

@@ -32,12 +32,13 @@ export function DateCell({ value, onChange, placeholder = 'Select' }: DateCellPr
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="w-fit justify-between text-left">
+        <Button variant="outline" size="sm" className="w-fit justify-between text-left"
+         onPointerDown={(e) => e.stopPropagation()} >
           {value ? format(value, 'PPP') : placeholder}
           <CalendarIcon className="h-4 w-4 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0" onPointerDown={(e) => e.stopPropagation()} >
         <Calendar
           mode="single"
           selected={value}
