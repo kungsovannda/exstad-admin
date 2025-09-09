@@ -1,15 +1,16 @@
+import { ActiveThemeProvider } from "@/components/active-theme";
+import ThemeProvider from "@/components/layout/theme-toggle/ThemeProvider";
+import StoreProvider from "@/lib/providers";
+import { cn } from "@/lib/utils";
 import type { Metadata, Viewport } from "next";
 import { Inter, Kantumruy_Pro } from "next/font/google";
-import "./globals.css";
+import { cookies } from "next/headers";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Toaster } from "sonner";
 import AuthProvider from "../components/layout/AuthProvider";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
-import ReactQueryProvider from "../components/layout/ReactQueryProvider";
-import { cookies } from "next/headers";
+import "./globals.css";
 import "./theme.css";
-import { cn } from "@/lib/utils";
-import ThemeProvider from "@/components/layout/theme-toggle/ThemeProvider";
-import { ActiveThemeProvider } from "@/components/active-theme";
-import { Toaster } from "sonner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -71,24 +72,26 @@ export default async function RootLayout({
         )}
       >
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-            enableColorScheme
-          >
-            <ActiveThemeProvider>
-              <ReactQueryProvider>
-                {/* <Suspense fallback={<Loader />}> */}
-                <LayoutWrapper>
-                  {children}
-                  <Toaster />
-                </LayoutWrapper>
-                {/* </Suspense> */}
-              </ReactQueryProvider>
-            </ActiveThemeProvider>
-          </ThemeProvider>
+          <NuqsAdapter>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+              enableColorScheme
+            >
+              <ActiveThemeProvider>
+                <StoreProvider>
+                  {/* <Suspense fallback={<Loader />}> */}
+                  <LayoutWrapper>
+                    {children}
+                    <Toaster />
+                  </LayoutWrapper>
+                  {/* </Suspense> */}
+                </StoreProvider>
+              </ActiveThemeProvider>
+            </ThemeProvider>
+          </NuqsAdapter>
         </AuthProvider>
       </body>
     </html>

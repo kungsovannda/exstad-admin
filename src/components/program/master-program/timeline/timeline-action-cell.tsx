@@ -6,7 +6,7 @@ import { useState } from "react";
 import SimpleTimelineForm from "./timeline-modal1";
 import { toast } from "sonner";
 import DeleteModal from "../../activity/delete-modal-component";
-import { TimelineRow } from "./data-table";
+import { TimelineRow } from "./timelineColumn";
 
 interface TimelineActionsCellProps {
   timeline: TimelineRow;

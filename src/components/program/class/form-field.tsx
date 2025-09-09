@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +32,9 @@ import {
 } from "@/components/ui/dialog";
 import { DialogClose } from "@radix-ui/react-dialog";
 
-// Form validation schema
+// -----------------
+// Validation schema
+// -----------------
 const formSchema = z.object({
   className: z.string().min(1, "Class name is required"),
   telegram: z.string().url("Must be a valid URL"),
@@ -40,19 +42,29 @@ const formSchema = z.object({
   room: z.string().min(1, "Room is required"),
   shift: z.string().min(1, "Shift is required"),
   instructor: z.string().min(1, "Instructor is required"),
-  start: z.date().refine((d) => !!d, { message: "Start time required" }),
-  end: z.date().refine((d) => !!d, { message: "End time required" }),
+  start: z.date(),
+  end: z.date(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface ClassModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   initialData?: Partial<FormValues>;
 }
 
-export default function ClassModal1({ open, onOpenChange, initialData }: ClassModalProps) {
+export default function ClassModal({
+  open: controlledOpen,
+  onOpenChange,
+  initialData,
+}: ClassModalProps) {
+  const [localOpen, setLocalOpen] = useState(false);
+  const isControlled =
+    typeof controlledOpen === "boolean" && typeof onOpenChange === "function";
+  const open = isControlled ? controlledOpen! : localOpen;
+  const setOpen = isControlled ? onOpenChange! : setLocalOpen;
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData
@@ -73,7 +85,42 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
         },
   });
 
-  async function onSubmit(values: FormValues) {
+  const {
+    handleSubmit,
+    reset,
+    clearErrors,
+    getValues,
+    trigger: triggerValidation,
+  } = form;
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        ...initialData,
+        start: initialData?.start ? new Date(initialData.start) : new Date(),
+        end: initialData?.end ? new Date(initialData.end) : new Date(),
+      });
+      clearErrors();
+    }
+  }, [open, initialData, reset, clearErrors]);
+
+  const handleFieldChange =
+    <T extends keyof FormValues>(
+      fieldName: T,
+      onChange: (value: FormValues[T]) => void
+    ) =>
+    (e: React.ChangeEvent<HTMLInputElement> | string) => {
+      clearErrors(fieldName);
+      if (typeof e === "string") {
+        // For Radix Select
+        onChange(e as FormValues[T]);
+      } else {
+        // For standard input elements
+        onChange(e.target.value as FormValues[T]);
+      }
+    };
+
+  const onSubmitForm = (values: FormValues) => {
     try {
       if (initialData) {
         console.log("Updating class:", values);
@@ -82,21 +129,46 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
         console.log("Creating class:", values);
         toast.success(`Class "${values.className}" created successfully!`);
       }
-      onOpenChange(false); // Close modal after submit
+      setOpen(false);
+      reset();
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
     }
-  }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent
+        className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+          const values = getValues();
+          const hasEmpty = Object.values(values).some(
+            (v) => v === "" || v === null || v === undefined
+          );
+          if (hasEmpty) triggerValidation();
+        }}
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+          const values = getValues();
+          const hasEmpty = Object.values(values).some(
+            (v) => v === "" || v === null || v === undefined
+          );
+          if (hasEmpty) triggerValidation();
+        }}
+      >
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Class" : "Add New Class"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Class" : "Add New Class"}
+          </DialogTitle>
         </DialogHeader>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
+          <form
+            onSubmit={handleSubmit(onSubmitForm)}
+            className="space-y-6 mt-4"
+          >
             {/* Row 1: Class Name & Telegram */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -106,7 +178,14 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                   <FormItem>
                     <FormLabel>Class Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter Class Name" {...field} />
+                      <Input
+                        {...field}
+                        placeholder="Enter Class Name"
+                        onChange={handleFieldChange(
+                          "className",
+                          field.onChange
+                        )}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,7 +198,11 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                   <FormItem>
                     <FormLabel>Telegram Group Link</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter Telegram Group Link" {...field} />
+                      <Input
+                        {...field}
+                        placeholder="Enter Telegram Link"
+                        onChange={handleFieldChange("telegram", field.onChange)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -136,7 +219,14 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                   <FormItem>
                     <FormLabel>Class Code</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter Class Code" {...field} />
+                      <Input
+                        {...field}
+                        placeholder="Enter Class Code"
+                        onChange={handleFieldChange(
+                          "classCode",
+                          field.onChange
+                        )}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -148,7 +238,12 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Room</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={(val) =>
+                        handleFieldChange("room", field.onChange)(val)
+                      }
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a room" />
@@ -159,7 +254,9 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                         <SelectItem value="DevOps">DevOps</SelectItem>
                         <SelectItem value="Fullstack">Fullstack</SelectItem>
                         <SelectItem value="Mobile">Mobile</SelectItem>
-                        <SelectItem value="Data Analytics">Data Analytics</SelectItem>
+                        <SelectItem value="Data Analytics">
+                          Data Analytics
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -176,7 +273,12 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Shift</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={(val) =>
+                        handleFieldChange("shift", field.onChange)(val)
+                      }
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a shift" />
@@ -197,15 +299,22 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                 name="instructor"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instructor Name</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel>Instructor</FormLabel>
+                    <Select
+                      onValueChange={(val) =>
+                        handleFieldChange("instructor", field.onChange)(val)
+                      }
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select an instructor" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Kim Chansokpheng">Kim Chansokpheng</SelectItem>
+                        <SelectItem value="Kim Chansokpheng">
+                          Kim Chansokpheng
+                        </SelectItem>
                         <SelectItem value="Chan Chhaya">Chan Chhaya</SelectItem>
                         <SelectItem value="Eung Lyzhia">Eung Lyzhia</SelectItem>
                       </SelectContent>
@@ -229,11 +338,13 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                         type="time"
                         step="1"
                         value={field.value.toTimeString().slice(0, 8)}
-                        onChange={(e) => {
-                          const [h, m, s] = e.target.value.split(":").map(Number);
-                          const date = new Date(field.value);
-                          date.setHours(h, m, s);
-                          field.onChange(date);
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const [h, m, s] = e.target.value
+                            .split(":")
+                            .map(Number);
+                          const newDate1 = new Date(field.value);
+                          newDate1.setHours(h, m, s);
+                          field.onChange(newDate1); // Pass Date to RHF
                         }}
                       />
                     </FormControl>
@@ -253,10 +364,12 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
                         step="1"
                         value={field.value.toTimeString().slice(0, 8)}
                         onChange={(e) => {
-                          const [h, m, s] = e.target.value.split(":").map(Number);
-                          const date = new Date(field.value);
-                          date.setHours(h, m, s);
-                          field.onChange(date);
+                          const [h, m, s] = e.target.value
+                            .split(":")
+                            .map(Number);
+                          const newDate = new Date(field.value);
+                          newDate.setHours(h, m, s);
+                          field.onChange(newDate); // Pass Date to RHF
                         }}
                       />
                     </FormControl>
@@ -266,23 +379,25 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
               />
             </div>
 
-            <div className="flex justify-end mt-4">
-              <DialogFooter className="flex justify-end gap-2">
+            <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
+                <Button
+                  variant="outline"
+                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white"
+                >
+                  Cancel
+                </Button>
               </DialogClose>
               <Button type="submit" className="bg-primary text-white">
                 {initialData ? "Update" : "Save"}
               </Button>
-           </DialogFooter>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
   );
 }
-
 
 // 'use client';
 
@@ -484,7 +599,7 @@ export default function ClassModal1({ open, onOpenChange, initialData }: ClassMo
 //                         className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
 //                       />
 //                     </div>
-                          
+
 //                 </div>
 
 //             <div className="flex justify-end mt-4">

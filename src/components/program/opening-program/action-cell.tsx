@@ -27,7 +27,7 @@ interface ActionsCellProps {
 
 export function OpeningActionsCell({ openingprogram ,onDelete}: ActionsCellProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (

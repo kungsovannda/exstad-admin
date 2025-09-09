@@ -7,7 +7,6 @@ import DataTable from "./data-table";
 import { columns } from "./column";
 import { programData } from "@/data/programData";
 import { programType } from "@/types/program";
-import { Plus } from "lucide-react";
 import { FiPlus } from "react-icons/fi";
 import { Heading } from "@/components/Heading";
 

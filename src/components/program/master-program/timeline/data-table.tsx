@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  ColumnDef,
+  Row,
+  Cell,
 } from '@tanstack/react-table';
-import { Row, Cell } from '@tanstack/react-table';
 import {
   Table,
   TableHeader,
@@ -16,109 +16,17 @@ import {
   TableCell,
   TableHead,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { useSortable, SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { TimelineActionsCell } from './timeline-action-cell';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { toast } from 'sonner';
-import DeleteModal from '../../activity/delete-modal-component';
-import SimpleTimelineForm from './timeline-modal1';
+import { TimelineColumns } from './timelineColumn';
+import { TimelineRow } from './timelineColumn';
+import { Input } from '@/components/ui/input';
 
-// -----------------
-// TimelineRow type
-// -----------------
-export type TimelineRow = {
-  id: number;
-  title: string;
-  startDate?: Date;
-  endDate?: Date;
+type Props = {
+  data: TimelineRow[];
+  handleDateChange: (rowId: number, field: 'startDate' | 'endDate', date: Date) => void;
 };
-
-// -----------------
-// DateCell component
-// -----------------
-interface DateCellProps {
-  value?: Date;
-  onChange: (date: Date) => void;
-  placeholder?: string;
-}
-
-function DateCell({ value, onChange, placeholder = 'Select' }: DateCellProps) {
-  const [selected, setSelected] = useState<Date | undefined>(value);
-
-  const handleSelect = (date: Date | undefined) => {
-    if (!date) return; // ignore undefined
-    setSelected(date);
-    onChange(date);
-  };
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="w-fit justify-between text-left">
-          {selected ? format(selected, 'PPP') : placeholder}
-          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={selected}
-          onSelect={handleSelect}   // ✅ matches Calendar type
-          required={false}
-          captionLayout="dropdown"
-          className="rounded-md border"
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-
-// -----------------
-// Columns
-// -----------------
-export const timelineColumns: ColumnDef<TimelineRow>[] = [
-  { id: 'order', header: '#', cell: ({ row, table }) => table.getRowModel().rows.indexOf(row) + 1, size: 50 },
-  { accessorKey: 'title', header: 'Title', size: 200 },
-  {
-    accessorKey: 'startDate',
-    header: 'Start Date',
-    cell: ({ row }) => (
-      <DateCell
-        value={row.original.startDate}
-        onChange={(date) => (row.original.startDate = date)}
-        placeholder="Start"
-      />
-    ),
-  },
-  {
-    accessorKey: 'endDate',
-    header: 'End Date',
-    cell: ({ row }) => (
-      <DateCell
-        value={row.original.endDate}
-        onChange={(date) => (row.original.endDate = date)}
-        placeholder="End"
-      />
-    ),
-  },
-  {
-    id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => (
-      <TimelineActionsCell
-        timeline={row.original}
-        onDelete={(id) => toast.success(`Timeline with id ${id} deleted`)}
-      />
-    ),
-  },
-];
 
 // -----------------
 // Sortable Row
@@ -139,11 +47,9 @@ function SortableRow({ row }: { row: Row<TimelineRow> }) {
 // -----------------
 // Timeline DataTable
 // -----------------
-type Props = { data: TimelineRow[] };
-
-export default function TimelineDataTable({ data }: Props) {
-  const [tableData, setTableData] = useState<TimelineRow[]>(data);
-  const [search, setSearch] = useState('');
+export default function TimelineDataTable({ data, handleDateChange }: Props) {
+  const [tableData, setTableData] = React.useState<TimelineRow[]>(data);
+  const [search, setSearch] = React.useState('');
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -156,30 +62,30 @@ export default function TimelineDataTable({ data }: Props) {
     }
   };
 
-  // Filter rows by search
   const filteredData = useMemo(() => {
     if (!search) return tableData;
     return tableData.filter((row) => row.title.toLowerCase().includes(search.toLowerCase()));
   }, [search, tableData]);
 
+  const handleDelete = (id: number) => {
+    setTableData((prev) => prev.filter((row) => row.id !== id));
+  };
+
   const table = useReactTable({
     data: filteredData,
-    columns: timelineColumns,
+    columns: TimelineColumns(handleDateChange, handleDelete),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <input
-        type="text"
+      <Input
         placeholder="Search timelines..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="border rounded-md p-2 w-full md:w-1/2"
+        className="w-52"
       />
 
-      {/* Drag & Drop Table */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={filteredData.map((row) => row.id)} strategy={verticalListSortingStrategy}>
           <div className="rounded-md border overflow-x-auto">
@@ -188,7 +94,9 @@ export default function TimelineDataTable({ data }: Props) {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                      <TableHead key={header.id}>
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
                     ))}
                   </TableRow>
                 ))}

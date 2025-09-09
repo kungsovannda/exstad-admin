@@ -2,8 +2,8 @@
 
 import {
   FORMAT_TEXT_COMMAND,
-  $getSelection,
-  $isRangeSelection,
+  // $getSelection,
+  // $isRangeSelection,
 } from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { Button } from "@/components/ui/button";

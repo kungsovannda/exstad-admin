@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { FaTrash, FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { PiNotePencilFill } from "react-icons/pi";
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import AddTopicDialog from "../curriculum-popup";
+import AddTopicDialog from "./item-admin/add-topic-dialog";
 import AddSectionDialog from "./item-admin/section-dialog";
 import DeleteModal from "../activity/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
+
 type Section = { id: string; title: string };
 type Outcome = {
   id: string;
@@ -69,10 +69,6 @@ export default function LearningOutcomesAdmin() {
     );
   };
 
-  const handleDeleteOutcome = (id: string) => {
-    setOutcomes((prev) => prev.filter((o) => o.id !== id));
-  };
-
   // ===== Section Handlers =====
   const handleAddSection = (outcomeId: string, data: { title: string }) => {
     setOutcomes((prev) =>
@@ -109,26 +105,27 @@ export default function LearningOutcomesAdmin() {
     );
   };
 
-  const handleDeleteSection = (outcomeId: string, sectionId: string) => {
-    setOutcomes((prev) =>
-      prev.map((o) =>
-        o.id === outcomeId
-          ? { ...o, sections: o.sections.filter((s) => s.id !== sectionId) }
-          : o
-      )
-    );
-  };
-
   const handleSave = () => {
     console.log("Saved Learning Outcomes:", outcomes);
     // TODO: API integration
   };
-  // Track which topic/section is being deleted
+
+  // ===== State for Modals =====
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "topic" | "section";
     id: string;
     parentId?: string;
   } | null>(null);
+
+  const [editingOutcomeId, setEditingOutcomeId] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<{
+    outcomeId: string;
+    sectionId: string;
+  } | null>(null);
+
+  const [addingSectionOutcomeId, setAddingSectionOutcomeId] = useState<
+    string | null
+  >(null);
 
   return (
     <div className="flex flex-col gap-5 w-full">
@@ -152,25 +149,31 @@ export default function LearningOutcomesAdmin() {
       {outcomes.map((outcome) => {
         const isExpanded = expandedItems.includes(outcome.id);
         return (
-          <div  key={outcome.id} className="flex flex-col gap-2.5 bg-accent rounded-sm p-4" >
+          <div
+            key={outcome.id}
+            className="flex flex-col gap-2.5 bg-accent rounded-sm p-4"
+          >
+            {/* Outcome Header */}
             <div className="flex justify-between items-center">
-              <div  className="flex items-center gap-2.5 cursor-pointer"  onClick={() => toggleExpand(outcome.id)} >
+              <div
+                className="flex items-center gap-2.5 cursor-pointer"
+                onClick={() => toggleExpand(outcome.id)}
+              >
                 <FiPlus className="bg-black rounded-full text-white text-lg" />
                 <div className="flex flex-col cursor-pointer">
                   <span className="text-[16px] font-semibold text-foreground">
-                    {" "}
-                    {outcome.title}{" "}
+                    {outcome.title}
                   </span>
                   {outcome.subtitle && (
                     <span className="text-[12px] text-muted-foreground">
-                      {" "}
-                      {outcome.subtitle}{" "}
+                      {outcome.subtitle}
                     </span>
                   )}
                 </div>
               </div>
 
               <div className="flex gap-2 items-center">
+                {/* Delete Outcome */}
                 <Trash
                   size={16}
                   className="text-destructive cursor-pointer"
@@ -179,18 +182,25 @@ export default function LearningOutcomesAdmin() {
                   }
                 />
                 {/* Edit Outcome */}
+                <SquarePen
+                  size={16}
+                  className="text-primary-hover cursor-pointer"
+                  onClick={() => setEditingOutcomeId(outcome.id)}
+                />
+
                 <AddTopicDialog
+                  open={editingOutcomeId === outcome.id}
+                  onOpenChange={(open) =>
+                    setEditingOutcomeId(open ? outcome.id : null)
+                  }
                   initialData={{
                     title: outcome.title,
                     subtitle: outcome.subtitle,
                   }}
-                  onSubmit={(data) => handleEditOutcome(outcome.id, data)}
-                  trigger={
-                    <SquarePen
-                      size={16}
-                      className="text-primary-hover cursor-pointer"
-                    />
-                  }
+                  onSubmit={(data) => {
+                    handleEditOutcome(outcome.id, data);
+                    setEditingOutcomeId(null);
+                  }}
                 />
 
                 <FaChevronDown
@@ -218,6 +228,7 @@ export default function LearningOutcomesAdmin() {
                     </div>
 
                     <div className="flex gap-2 items-center">
+                      {/* Delete Section */}
                       <Trash
                         size={16}
                         className="text-destructive cursor-pointer"
@@ -231,36 +242,58 @@ export default function LearningOutcomesAdmin() {
                       />
 
                       {/* Edit Section */}
+                      <SquarePen
+                        size={16}
+                        className="text-primary-hover cursor-pointer"
+                        onClick={() =>
+                          setEditingSection({
+                            outcomeId: outcome.id,
+                            sectionId: section.id,
+                          })
+                        }
+                      />
+
                       <AddSectionDialog
+                        open={
+                          editingSection?.outcomeId === outcome.id &&
+                          editingSection?.sectionId === section.id
+                        }
+                        onOpenChange={(open) => {
+                          if (!open) setEditingSection(null);
+                        }}
                         initialData={{ title: section.title }}
-                        onSubmit={(data) =>
-                          handleEditSection(outcome.id, section.id, data)
-                        }
-                        trigger={
-                          <SquarePen
-                            size={16}
-                            className="text-primary-hover cursor-pointer"
-                          />
-                        }
+                        onSubmit={(data) => {
+                          handleEditSection(outcome.id, section.id, data);
+                          setEditingSection(null);
+                        }}
                       />
                     </div>
                   </div>
                 ))}
 
-                {/* Add Section */}
+                {/* Add Section (Controlled) */}
+                <Button
+                  className="flex w-fit items-center"
+                  onClick={() => setAddingSectionOutcomeId(outcome.id)}
+                >
+                  <FiPlus />
+                  <span className="text-[14px] font-semibold">Add Section</span>
+                </Button>
+
                 <AddSectionDialog
-                  onSubmit={(data) => handleAddSection(outcome.id, data)}
-                  trigger={
-                    <Button className="flex w-fit items-center">
-                      <FiPlus />
-                      <span className="text-[14px] font-semibold">
-                        Add Section
-                      </span>
-                    </Button>
+                  open={addingSectionOutcomeId === outcome.id}
+                  onOpenChange={(open) =>
+                    !open && setAddingSectionOutcomeId(null)
                   }
+                  onSubmit={(data) => {
+                    handleAddSection(outcome.id, data);
+                    setAddingSectionOutcomeId(null);
+                  }}
                 />
               </div>
             )}
+
+            {/* Delete Modal */}
             <DeleteModal
               open={!!deleteTarget}
               onOpenChange={(open) => !open && setDeleteTarget(null)}

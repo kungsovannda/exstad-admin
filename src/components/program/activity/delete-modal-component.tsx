@@ -1,7 +1,6 @@
   "use client";
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
   import { Button } from "@/components/ui/button";
-  import ModalDelete from "@/components/modal/ModalDelete";
 
   interface DeleteModalProps {
     open: boolean;

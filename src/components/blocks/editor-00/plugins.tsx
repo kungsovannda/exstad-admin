@@ -11,7 +11,8 @@ import { ContentEditable } from "@/components/editor/editor-ui/content-editable"
 import { ToolbarPlugin } from "./toolbar-plugin";
 
 export function Plugins() {
-  const [floatingAnchorElem, setFloatingAnchorElem] =
+  
+  const [_floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {

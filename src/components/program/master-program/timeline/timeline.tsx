@@ -3,8 +3,6 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import TimelineDataTable from "./data-table"; // your data table for timeline
-import TimelineTableForm from "./timeline-modal"; // optional modal for adding/editing
-import { timelineColumns } from "./timelineColumn";
 import SimpleTimelineForm from "./timeline-modal1";
 
 // Sample timeline data
@@ -68,7 +66,16 @@ const initialTimeline = [
 
 export default function TimelinePage() {
   const [timelineData, setTimelineData] = useState(initialTimeline);
-  const [modalOpen, setModalOpen] = useState(false);
+  const handleDateChange = (rowId: number, field: 'startDate' | 'endDate', date: Date) => {
+  setTimelineData((prev) =>
+    prev.map((row) =>
+      row.id === rowId ? { ...row, [field]: date } : row
+    )
+  );
+};
+
+  // const [timelineData, setTimelineData] = useState(initialTimeline);
+  // const [modalOpen, setModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
   // optional: memoized filtered data if needed
   const filteredData = useMemo(() => timelineData, [timelineData]);
@@ -76,15 +83,19 @@ export default function TimelinePage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-bold">Timelines</h1>
+        <h1 className="text-lg font-bold">Timeline</h1>
         <div>
-          <Button onClick={() => setOpen(true)}>Create Timelines</Button>
+          <Button onClick={() => setOpen(true)}>Create Timeline</Button>
           <SimpleTimelineForm open={open} onOpenChange={setOpen} />
         </div>
       </div>
 
       {/* Timeline Table */}
-      <TimelineDataTable data={filteredData} />
+      <TimelineDataTable 
+  data={filteredData} 
+  handleDateChange={handleDateChange} 
+/>
+
     </div>
   );
 }

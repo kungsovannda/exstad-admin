@@ -2,12 +2,10 @@
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { PiNotePencilFill } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import HighlightsFormModal from "./form-field";
 import DeleteModal from "../../activity/delete-modal-component";
 import { toast } from "sonner";
-import { FaTrash } from "react-icons/fa";
 import { SquarePen, Trash } from "lucide-react";
 
 type Highlight = {
@@ -26,17 +24,20 @@ const initialHighlights: Highlight[] = [
 
 export default function HighlightsAdmin() {
   const [highlights, setHighlights] = useState<Highlight[]>(initialHighlights);
-  const [editTarget, setEditTarget] = useState<Highlight | null>(null);
-  const [openModal, setOpenModal] = useState(false);
-  
 
-  // Track which highlight is being deleted
+  // Separate state for create modal
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  // Separate state for edit modal
+  const [editTarget, setEditTarget] = useState<Highlight | null>(null);
+
+  // State for delete modal
   const [deleteTarget, setDeleteTarget] = useState<Highlight | null>(null);
 
   const handleAddHighlight = (data: Omit<Highlight, "id">) => {
     const newHighlight: Highlight = { id: Date.now().toString(), ...data };
     setHighlights(prev => [...prev, newHighlight]);
-    toast.success("Highlight added successfully!");
+    // toast.success("Highlight added successfully!");
   };
 
   const handleEditHighlight = (data: Omit<Highlight, "id">) => {
@@ -44,15 +45,15 @@ export default function HighlightsAdmin() {
     setHighlights(prev =>
       prev.map(h => (h.id === editTarget.id ? { ...h, ...data } : h))
     );
-    toast.success("Highlight updated successfully!");
-    setEditTarget(null);
+    // toast.success("Highlight updated successfully!");
+    setEditTarget(null); // close edit modal
   };
 
   const handleConfirmDelete = () => {
     if (!deleteTarget) return;
     setHighlights(prev => prev.filter(h => h.id !== deleteTarget.id));
     toast.success("Highlight deleted successfully!");
-    setDeleteTarget(null);
+    setDeleteTarget(null); // close delete modal
   };
 
   return (
@@ -60,14 +61,16 @@ export default function HighlightsAdmin() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-[18px] font-bold text-foreground">Highlights</h2>
+
+        {/* Create Modal */}
         <HighlightsFormModal
-          open={openModal}
-          onOpenChange={setOpenModal}
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
           onSubmitHighlight={handleAddHighlight}
           trigger={
             <Button>
               <FiPlus />
-              <span className="ml-2 font-bold">Add Highlight</span>
+              <span className=" font-bold">Add Highlight</span>
             </Button>
           }
         />
@@ -91,20 +94,17 @@ export default function HighlightsAdmin() {
               onClick={() => setDeleteTarget(h)}
             />
 
-            {/* Edit */}
+            {/* Edit Modal */}
             <HighlightsFormModal
               open={!!editTarget && editTarget.id === h.id}
-              onOpenChange={setOpenModal}
-              initialData={h}
+              onOpenChange={(open) => !open && setEditTarget(null)}
+              initialData={editTarget || undefined}
               onSubmitHighlight={handleEditHighlight}
               trigger={
                 <SquarePen
                   size={16}
                   className="text-primary-hover cursor-pointer"
-                  onClick={() => {
-                    setEditTarget(h);
-                    setOpenModal(true);
-                  }}
+                  onClick={() => setEditTarget(h)}
                 />
               }
             />

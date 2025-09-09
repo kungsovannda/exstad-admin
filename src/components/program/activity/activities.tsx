@@ -3,8 +3,7 @@ import { programData } from "@/data/programData";
 import { activityColumns } from "./activityColumn";
 
 import ActivityDataTable from "./data-table";
-import ActivityFormModal from "./form-field";
-import { ActivityDataType,openingProgramType,ActivityType } from "@/types/opening-program";
+import { ActivityDataType,ActivityType } from "@/types/opening-program";
 import { programType } from "@/types/program";
 import { Button } from "@/components/ui/button";
 import ActivityModal from "./form-field";

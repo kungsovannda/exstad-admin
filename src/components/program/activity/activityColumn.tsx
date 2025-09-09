@@ -1,10 +1,8 @@
 "use client";
 
-import { ActivityType } from "@/types/opening-program";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { ActivityActionsCell } from "./activity-action-cell";
-import { ClassActionsCell } from "../class/class-action-cell";
 import { FlattenedActivity } from "./activities";
 
 export const activityColumns: ColumnDef<FlattenedActivity>[] = [

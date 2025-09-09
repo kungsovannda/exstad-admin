@@ -24,7 +24,7 @@ export const columns: ColumnDef<programType>[] = [
     cell: ({ row }) => {
       const visibility = row.original.visibility;
       const bgClass =
-        visibility === "public" ? "bg-[#1E7D34] text-white" : "bg-[#B32121] text-white";
+        visibility === "public" ? "bg-[#E6F4EA] text-[#1E7D34]"  :  "bg-[#FDECEC] text-[#B32121]";
       return (
          <div className={`${bgClass} rounded-[8px] flex items-center justify-center w-[70px] h-[30px] `}>
         <span className={` px-2 py-1   text-sm`}>
@@ -42,9 +42,9 @@ export const columns: ColumnDef<programType>[] = [
     const status = row.original.status
     const bgClass =
       status === "active"
-        ? "bg-[#1E7D34] text-white"
+        ? "bg-[#E6F4EA] text-[#1E7D34]"
         : status === "draft"
-        ? "bg-[#B32121] text-white"
+        ? "bg-[#FDECEC] text-[#B32121]"
         : "bg-gray-500 text-white" // default for archived/others
 
     return (

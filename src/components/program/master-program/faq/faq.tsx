@@ -2,13 +2,12 @@
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { FaChevronDown, FaChevronRight, FaTrash } from "react-icons/fa";
-import { PiNotePencilFill } from "react-icons/pi";
+import { FaChevronDown, FaChevronRight} from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-import { AddTopicFaq } from "./faq-dialog";
-import { AddQuestionDialog } from "./faqdialog";
+import { AddTopicFaq } from "./add-topic-dialog";
+import { AddQuestionDialog } from "./add-question-dialog";
 import DeleteModal from "../../activity/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
 
@@ -62,10 +61,10 @@ export default function Faq() {
     );
   };
 
-  const handleDeleteTopic = (topicId: string) => {
-    setFaq((prev) => prev.filter((t) => t.id !== topicId));
-    toast.success("Topic deleted successfully!");
-  };
+  // const handleDeleteTopic = (topicId: string) => {
+  //   setFaq((prev) => prev.filter((t) => t.id !== topicId));
+  //   toast.success("Topic deleted successfully!");
+  // };
 
   const toggleExpand = (topicId: string) => {
     setExpandedTopics((prev) =>
@@ -112,16 +111,16 @@ export default function Faq() {
     );
   };
 
-  const handleDeleteSection = (topicId: string, sectionId: string) => {
-    setFaq((prev) =>
-      prev.map((t) =>
-        t.id === topicId
-          ? { ...t, sections: t.sections.filter((s) => s.id !== sectionId) }
-          : t
-      )
-    );
-    toast.success("Question deleted successfully!");
-  };
+  // const handleDeleteSection = (topicId: string, sectionId: string) => {
+  //   setFaq((prev) =>
+  //     prev.map((t) =>
+  //       t.id === topicId
+  //         ? { ...t, sections: t.sections.filter((s) => s.id !== sectionId) }
+  //         : t
+  //     )
+  //   );
+  //   toast.success("Question deleted successfully!");
+  // };
 
   const handleSave = () => {
     console.log("Saved FAQ:", faq);

@@ -1,20 +1,20 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import MyForm from "./form-field";
 
-type Field = {
-  id: string;
-  label: string;
-  type?: "text" | "email" | "select" | "textarea" | "number" | "date" | "file"|"color";
-  placeholder?: string;
-  options?: { value: string; label: string }[];
-  rows?: number;
-};
+// type Field = {
+//   id: string;
+//   label: string;
+//   type?: "text" | "email" | "select" | "textarea" | "number" | "date" | "file"|"color";
+//   placeholder?: string;
+//   options?: { value: string; label: string }[];
+//   rows?: number;
+// };
 
 export default function Page() {
-   const router = useRouter();
+  //  const router = useRouter();
 
   // const handleSubmit = () => {
   //   // TODO: Save program via API
@@ -66,7 +66,9 @@ export default function Page() {
   return (
     <div className="p-5 flex flex-col gap-4">
       <h1 className="text-2xl font-semibold">Create Program</h1>
+      <div className="w-[70%]">
       <MyForm />
+      </div>
       {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {fieldsStep1.map((field) => (
           <FormField key={field.id} {...field} />

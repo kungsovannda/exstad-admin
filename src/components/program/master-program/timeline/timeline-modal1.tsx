@@ -1,7 +1,7 @@
 'use client';
 
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm,FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,18 @@ import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { toast } from "sonner";
 import { DialogClose } from "@radix-ui/react-dialog";
-// 1️⃣ Validation
+import { Input } from "@/components/ui/input";
+
+// 1️⃣ Validation schema
 const timelineSchema = z.object({
   title: z.string().min(1, "Title is required"),
   date: z.date(),
@@ -28,13 +37,15 @@ interface SimpleTimelineFormProps {
 }
 
 export default function SimpleTimelineForm({ open, onOpenChange, initialData }: SimpleTimelineFormProps) {
-  const { control, handleSubmit, register, reset } = useForm<TimelineFormValues>({
+  const form = useForm<TimelineFormValues>({
     resolver: zodResolver(timelineSchema),
     defaultValues: {
       title: initialData?.title || "",
-      date: initialData?.date,
+      date: initialData?.date || undefined,
     },
   });
+
+  const { control, handleSubmit } = form;
 
   const onSubmit = (data: TimelineFormValues) => {
     console.log("Form Data:", data);
@@ -42,40 +53,40 @@ export default function SimpleTimelineForm({ open, onOpenChange, initialData }: 
     onOpenChange?.(false);
   };
 
-  return (
+ return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        {/* Optional: a hidden trigger if you want to control externally */}
-        <span />
-      </DialogTrigger>
+      <DialogTrigger asChild><span /></DialogTrigger>
       <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Edit Timeline</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">Title</label>
-            <input
-              {...register("title")}
-              type="text"
-              placeholder="Enter title"
-              className="border rounded-md p-2"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">Date</label>
-            <Controller
-              name="date"
+        {/* ✅ Wrap the form with FormProvider */}
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Title */}
+            <FormField
               control={control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Timeline Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter Timeline Title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Date */}
+            <FormField
+              control={control}
+              name="date"
               render={({ field }) => (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between text-left"
-                    >
+                    <Button variant="outline" className="w-full justify-between text-left">
                       <span>{field.value ? format(field.value, "PPP") : "Select date"}</span>
                       <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                     </Button>
@@ -92,17 +103,19 @@ export default function SimpleTimelineForm({ open, onOpenChange, initialData }: 
                 </Popover>
               )}
             />
-          </div>
 
-          <DialogFooter>
+            <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white">
+                  Cancel
+                </Button>
               </DialogClose>
-            <Button type="submit" className="bg-primary text-white w-fit">
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
+              <Button type="submit" className="bg-primary text-white w-fit">
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );

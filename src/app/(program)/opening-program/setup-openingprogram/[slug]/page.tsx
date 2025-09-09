@@ -1,6 +1,6 @@
 "use client";
 
-import Curriculum from "@/components/program/curriculum";
+import Curriculum from "@/components/program/master-program/curriculum/curriculum";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";

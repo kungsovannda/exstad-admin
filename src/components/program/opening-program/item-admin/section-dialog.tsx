@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -47,14 +46,11 @@ export default function AddSectionDialog({
   open,
   onOpenChange,
 }: AddSectionDialogProps) {
-  const isControlled = typeof open !== "undefined" && typeof onOpenChange === "function";
-  const [localOpen, setLocalOpen] = useState(false);
-
-  const dialogOpen = isControlled ? open! : localOpen;
-  const setDialogOpen = (val: boolean) => {
-    if (isControlled) onOpenChange!(val);
-    else setLocalOpen(val);
-  };
+  if (typeof open === "undefined" || typeof onOpenChange !== "function") {
+    throw new Error(
+      "AddSectionDialog must be used as a controlled component. Pass `open` and `onOpenChange`."
+    );
+  }
 
   const form = useForm<SectionFormValues>({
     resolver: zodResolver(sectionSchema),
@@ -62,37 +58,64 @@ export default function AddSectionDialog({
       title: "",
       ...initialData,
     },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
   });
 
-  useEffect(() => {
-    form.reset({
-      title: initialData?.title || "",
-    });
-  }, [initialData, dialogOpen]); // reset when dialog opens or initialData changes
+  const { handleSubmit, reset, clearErrors, getValues, trigger: triggerValidation } = form;
 
-  const handleSubmit = (values: SectionFormValues) => {
-    try {
-      onSubmit(values);
-      toast.success(initialData ? "Section updated!" : "Section added!");
-      setDialogOpen(false);
-      form.reset();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to submit section");
+  useEffect(() => {
+    if (open) {
+      reset({ title: initialData?.title || "" });
+      clearErrors();
     }
+  }, [open, initialData, reset, clearErrors]);
+
+  const onSubmitForm = (data: SectionFormValues) => {
+    onSubmit(data);
+    toast.success(initialData ? "Section updated!" : "Section added!");
+    onOpenChange(false);
+    reset();
+  };
+
+  const handleFieldChange = (
+    fieldName: keyof SectionFormValues,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearErrors(fieldName);
+    onChange(e);
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* ✅ rename localTrigger to avoid duplicate identifier */}
+      {!open && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
+      <DialogContent
+        className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
+        onInteractOutside={(event) => {
+          event.preventDefault();
+          const values = getValues();
+          if (values.title.trim() === "") {
+            triggerValidation("title");
+            toast.error("Please fill the section title before leaving the modal.");
+          }
+        }}
+        onEscapeKeyDown={(event) => {
+          event.preventDefault();
+          const values = getValues();
+          if (values.title.trim() === "") {
+            triggerValidation("title");
+            toast.error("Please fill the section title before leaving the modal.");
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Section" : "Add Section"}</DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
             <FormField
               control={form.control}
               name="title"
@@ -100,7 +123,11 @@ export default function AddSectionDialog({
                 <FormItem>
                   <FormLabel>Section Title</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter section title..." />
+                    <Input
+                      {...field}
+                      placeholder="Enter section title..."
+                      onChange={handleFieldChange("title", field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,12 +136,17 @@ export default function AddSectionDialog({
 
             <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white ">Cancel</Button>
+                <Button
+                  variant="outline"
+                  className="bg-red-500 hover:bg-red-400 text-white"
+                >
+                  Cancel
+                </Button>
               </DialogClose>
               <Button type="submit">{initialData ? "Save Changes" : "Add Section"}</Button>
             </DialogFooter>
           </form>
-        </Form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );
