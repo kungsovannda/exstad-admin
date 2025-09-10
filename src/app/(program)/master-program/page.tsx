@@ -1,11 +1,11 @@
 "use client";
-import React from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { SectionCards } from "@/components/program/section-card";
-import { FiPlus } from "react-icons/fi";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+// import { Plus } from "lucide-react";
 import { Heading } from "@/components/Heading";
 import MasterProgramTable from "@/features/master-program/components/table/master-program-table";
+import { FiPlus } from "react-icons/fi";
 
 export default function Page() {
   // const search = "";
@@ -26,7 +26,7 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center  gap-10">
-        <Heading title="Master Program" description="Program Management"/>
+        <Heading title="Master Program" description="Program Management" />
         <Link href="/master-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
             <FiPlus className="text-[18px]" />
@@ -37,7 +37,7 @@ export default function Page() {
       <SectionCards />
       {/* <DataTable columns={masterProgramColumns} data={filteredPrograms} />
        */}
-       <MasterProgramTable/>
+      <MasterProgramTable />
     </div>
   );
 }

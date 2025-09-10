@@ -1,3 +1,4 @@
+import { certificateApi } from "@/features/certificate/certificateApi";
 import { currentAddressApi } from "@/features/current-address/currentAddressApi";
 import { provinceApi } from "@/features/province/provinceApi";
 import { universityApi } from "@/features/university/universityApi";
@@ -9,6 +10,7 @@ const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
   [provinceApi.reducerPath]: provinceApi.reducer,
   [universityApi.reducerPath]: universityApi.reducer,
+  [certificateApi.reducerPath]: certificateApi.reducer,
 });
 
 const persistConfig = {
@@ -26,7 +28,8 @@ export const makeStore = () => {
       getDefaultMiddleware({ serializableCheck: false }).concat(
         currentAddressApi.middleware,
         provinceApi.middleware,
-        universityApi.middleware
+        universityApi.middleware,
+        certificateApi.middleware
       ),
   });
 

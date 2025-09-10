@@ -117,7 +117,7 @@ export const programData: programType[] = [
             ]
         }],
         openingprogram:[{
-        id: 1,
+        uuid: "1",
         title: "Foundation Scholarship",
         slug:"pre-university",
         programType: "Short Course",
@@ -325,7 +325,7 @@ export const programData: programType[] = [
         }],
         openingprogram:[
              {
-        id: 4,
+        uuid: "4",
         title: "Java Programming",
         slug:"java-programming",
         generation:2,
@@ -555,7 +555,7 @@ export const programData: programType[] = [
         }],
     openingprogram: [  
         {
-        id: 1,
+        uuid: "1",
         title: "Foundation Scholarship",
         slug:"foundation-scholarship",
         programType: "Scholarship Course",
@@ -657,7 +657,7 @@ export const programData: programType[] = [
         ]
     },
     {
-        id: 2,
+        uuid: "2",
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:4,
@@ -759,7 +759,7 @@ export const programData: programType[] = [
         ]
     },
      {
-        id: 3,
+        uuid: "3",
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:5,
@@ -861,7 +861,7 @@ export const programData: programType[] = [
         ]
     },
      {
-        id: 4,
+        uuid: "4",
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:5,
@@ -963,7 +963,7 @@ export const programData: programType[] = [
         ]
     },
      {
-        id: 5,
+        uuid: "5",
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:6,
@@ -1065,7 +1065,7 @@ export const programData: programType[] = [
         ]
     },
      {
-        id: 6,
+        uuid: "6",
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:7,
@@ -1167,7 +1167,7 @@ export const programData: programType[] = [
         ]
     },
      {
-        id: 7,
+        uuid: "7",
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:8,
@@ -1269,7 +1269,7 @@ export const programData: programType[] = [
         ]
     },
      {
-        id: 8   ,
+        uuid: "8",
         title: "Pre University Scholarship",
         slug:"pre-university",
         generation:9,
@@ -1515,7 +1515,7 @@ export const programData: programType[] = [
         }],
         openingprogram:[ 
          {
-        id: 1,
+        uuid: "1",
         title: "Full Stack Scholarship",
         slug:"full-stack-scholarship",
         visibility: "public",
@@ -1604,7 +1604,7 @@ export const programData: programType[] = [
         ]
          },
      {
-        id: 2,
+        uuid: "2",
         title: "Pre University Scholarship",
         slug:"pre-university",
         visibility: "public",
@@ -1834,7 +1834,7 @@ export const programData: programType[] = [
          }
         ],
         openingprogram: [  {
-        id: 2,
+        uuid: "2",
         title: "Pre University Scholarship",
         slug:"pre-university",
         visibility: "public",
