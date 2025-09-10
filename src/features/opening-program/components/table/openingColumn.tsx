@@ -3,6 +3,7 @@ import { openingProgramType } from "@/types/opening-program";
 import { OpeningActionsCell } from "@/components/program/opening-program/action-cell";
 import { programData } from "@/data/programData";
 import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
+import { formatTitle } from "@/utils/formatTitle";
 
 const allOpeningPrograms = programData.flatMap(p=>p.openingprogram);
 
@@ -86,9 +87,7 @@ export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
           ? "bg-[#E6F4EA] text-[#1E7D34]"
           : "bg-[#FDECEC] text-[#B32121]";
       return (
-        <div className={`${bgClass} rounded-[8px] flex items-center justify-center w-[70px] h-[30px]`}>
-          <span className="px-2 py-1 text-sm">{visibility}</span>
-        </div>
+          <span className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}>{formatTitle(visibility)}</span>
       );
     },
   },
@@ -117,9 +116,7 @@ export const openingProgramColumns: ColumnDef<openingProgramType>[] = [
           : "bg-[#E6F4EA] text-[#1E7D34]"; // Active
 
       return (
-        <div className={`${bgClass} rounded-[8px] flex items-center justify-center w-[80px] h-[30px]`}>
-          <span className="text-sm px-2 py-1">{status}</span>
-        </div>
+          <span className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}>{formatTitle(status)}</span>
       );
     },
   },

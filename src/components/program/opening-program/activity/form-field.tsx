@@ -22,6 +22,7 @@ import { DialogClose } from "@radix-ui/react-dialog";
 
 import { SerializedEditorState } from "lexical";
 import { Editor } from "@/components/blocks/editor-00/editor";
+import Image from "next/image";
 
 // ---------------------------
 // Zod Schema
@@ -294,7 +295,7 @@ export default function ActivityModal({
             {previewsImage.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
                 {previewsImage.map((src, idx) => (
-                  <img
+                  <Image unoptimized width={500} height={500}
                     key={idx}
                     src={src}
                     alt={`Preview ${idx + 1}`}

@@ -3,6 +3,14 @@ import { programType } from "@/types/program";
 import { ArrowUpDown } from "lucide-react";
 import { MasterActionsCell } from "@/components/program/master-program/action-cell";
 import { programData } from "@/data/programData";
+import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
+import { formatTitle } from "@/utils/formatTitle";
+
+
+
+const allMasterPrograms = programData;
+const visibilitOptions = buildUniqueOptions(allMasterPrograms,mp => mp.visibility )
+const programTypeOptions = buildUniqueOptions(allMasterPrograms,mp=> mp.program_type)
 
 type Option = { label: string; value: string };
 
@@ -40,7 +48,18 @@ export const masterProgramColumns: ColumnDef<programType>[] = [
       </span>
     ),
   },
-  { accessorKey: "program_type", header: "Type" },
+  { 
+    accessorKey: "program_type",
+    header: "Type" ,
+        enableColumnFilter: true,
+
+     meta: {
+      variant: "select",
+      placeholder: "Filter program type",
+      label:"Program Type",
+      options:programTypeOptions,
+   },
+  },
   { 
     accessorKey: "level", 
     header: "Level",
@@ -54,17 +73,25 @@ export const masterProgramColumns: ColumnDef<programType>[] = [
   },
   { accessorKey: "price", header: "Price" },
   
-  { accessorKey: "visibility", header: "Visibility",
+  { 
+    accessorKey: "visibility", 
+    header: "Visibility",
+    enableColumnFilter:true,
+    meta:{
+      variant:"select",
+      placeholder:"Filter visibility",
+      label:"Visibility",
+      options:visibilitOptions,
+    },
     cell: ({ row }) => {
       const visibility = row.original.visibility;
       const bgClass =
         visibility === "public" ? "bg-[#E6F4EA] text-[#1E7D34]"  :  "bg-[#FDECEC] text-[#B32121]";
       return (
-         <div className={`${bgClass} rounded-[8px] flex items-center justify-center w-[70px] h-[30px] `}>
-        <span className={` px-2 py-1   text-sm`}>
-          {visibility}
+        <span className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}>
+          {formatTitle(visibility)}
         </span>
-     </div>
+
       ); 
     },
   },
@@ -83,11 +110,8 @@ export const masterProgramColumns: ColumnDef<programType>[] = [
         : "bg-gray-500 text-white" // default for archived/others
 
     return (
-      <div
-        className={`${bgClass} rounded-[8px] flex items-center justify-center w-[80px] h-[30px]`}
-      >
-        <span className="text-sm">{status}</span>
-      </div>
+
+        <span className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}>{formatTitle(status)}</span>
     )
   },
 },
