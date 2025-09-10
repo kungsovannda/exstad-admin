@@ -1,4 +1,4 @@
-import { classColumns } from '@/components/program/opening-program/class/classColumn';
+import { classColumns } from '@/features/opening-program/components/table/class/classColumn';
 import { DefaultTableModel } from '@/components/table/default-table-model'
 import { programData } from '@/data/programData';
 import { Classes } from '@/types/opening-program';

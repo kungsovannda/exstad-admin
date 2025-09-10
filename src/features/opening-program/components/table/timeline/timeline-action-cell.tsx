@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import SimpleTimelineForm from "./timeline-modal1";
+import SimpleTimelineForm from "@/components/program/opening-program/timeline/timeline-modal1";
 import { toast } from "sonner";
-import DeleteModal from "../../opening-program/activity/delete-modal-component";
+import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { TimelineRow } from "./timelineColumn";
 
 interface TimelineActionsCellProps {

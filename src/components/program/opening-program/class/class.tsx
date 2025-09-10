@@ -2,7 +2,7 @@
 import ClassModal1 from "./form-field";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import ClassDataTable from "@/features/opening-program/components/table/class-data";
+import ClassDataTable from "@/features/opening-program/components/table/class/class-data";
 
 // Flatten all classes from all opening programs
 // const allClasses: Classes[] = programData.flatMap(

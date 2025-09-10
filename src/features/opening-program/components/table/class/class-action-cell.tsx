@@ -12,9 +12,9 @@ import {
 import { Classes } from "@/types/opening-program";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import ClassModal1 from "./form-field";
+import ClassModal from "@/components/program/opening-program/class/form-field";
 import { toast } from "sonner";
-import DeleteModal from "../activity/delete-modal-component";
+import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 
 interface ClassActionsCellProps {
   classData: Classes;
@@ -42,7 +42,7 @@ export function ClassActionsCell({ classData,onDelete  }: ClassActionsCellProps)
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ClassModal1
+      <ClassModal
         initialData={{
           className: classData.title,
           classCode: classData.classCode,

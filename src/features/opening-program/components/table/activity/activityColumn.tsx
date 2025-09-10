@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { ActivityActionsCell } from "./activity-action-cell";
-import { FlattenedActivity } from "@/features/opening-program/components/table/activity-table";
+import { FlattenedActivity } from "@/features/opening-program/components/table/activity/activity-table";
 
 export const activityColumns: ColumnDef<FlattenedActivity>[] = [
   {
@@ -13,7 +13,7 @@ export const activityColumns: ColumnDef<FlattenedActivity>[] = [
     meta:{
       variant:"text",
       placeholder:"Enter title... "
-    }
+    } 
   },
   {
     accessorKey: "subtitle",

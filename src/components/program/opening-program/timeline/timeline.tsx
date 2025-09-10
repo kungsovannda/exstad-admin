@@ -3,7 +3,7 @@
 import { useState} from "react";
 import { Button } from "@/components/ui/button";
 import SimpleTimelineForm from "./timeline-modal1";
-import TimelineTable from "@/features/opening-program/components/table/timeline-table";
+import TimelineTable from "@/features/opening-program/components/table/timeline/timeline-table";
 export default function TimelinePage() {
   // const [timelineData, setTimelineData] = useState(initialTimeline);
   // const [modalOpen, setModalOpen] = useState(false);

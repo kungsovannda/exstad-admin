@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { openingProgramType } from "@/types/opening-program";
-import { OpeningActionsCell } from "@/components/program/opening-program/action-cell";
+import { OpeningActionsCell } from "./opening-action-cell";
 import { programData } from "@/data/programData";
 import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
 import { formatTitle } from "@/utils/formatTitle";

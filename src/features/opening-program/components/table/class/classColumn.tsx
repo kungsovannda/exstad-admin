@@ -4,7 +4,7 @@ import { Classes } from "@/types/opening-program";
 import { ColumnDef } from "@tanstack/react-table";
 import { ClassActionsCell } from "./class-action-cell";
 import { programData } from "@/data/programData";
-import { buildUniqueOptions } from "../../utils/buildUniqueOptions";
+import { buildUniqueOptions } from "../../../../../components/program/utils/buildUniqueOptions";
 
 // 1️⃣ Flatten all classes from all opening programs
 const allClasses = programData.flatMap((program) =>

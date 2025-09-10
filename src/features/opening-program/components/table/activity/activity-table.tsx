@@ -1,6 +1,6 @@
 "use client";
 import { programData } from "@/data/programData";
-import { activityColumns } from "@/components/program/opening-program/activity/activityColumn";
+import { activityColumns } from "./activityColumn";
 import { ActivityDataType,ActivityType } from "@/types/opening-program";
 import { programType } from "@/types/program";
 import { DefaultTableModel } from "@/components/table/default-table-model";

@@ -1,8 +1,8 @@
 "use client";
 
-import { TimelineColumns } from "@/components/program/opening-program/timeline/timelineColumn";
+import { TimelineColumns } from "./timelineColumn";
 import { DefaultTableDnd } from "@/components/table/default-table-dnd";
-import { TimelineRow } from "@/components/program/opening-program/timeline/timelineColumn";
+import { TimelineRow } from "./timelineColumn";
 import { useState, useMemo } from "react";
 
 // Sample timeline data
