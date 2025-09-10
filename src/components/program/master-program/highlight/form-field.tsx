@@ -1,13 +1,33 @@
-'use client';
+"use client";
 
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { DialogClose } from "@radix-ui/react-dialog";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
+// -----------------
+// Validation schema
+// -----------------
 const highlightSchema = z.object({
   label: z.string().min(1, "Label is required"),
   value: z.string().min(1, "Value is required"),
@@ -31,17 +51,23 @@ export default function HighlightsFormModal({
   onSubmitHighlight,
   trigger,
 }: HighlightsFormModalProps) {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<HighlightFormValues>({
+  const form = useForm<HighlightFormValues>({
     resolver: zodResolver(highlightSchema),
     defaultValues: initialData || { label: "", value: "", desc: "" },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
   });
+
+  const { handleSubmit, reset, clearErrors } = form;
 
   // Reset form only when dialog opens or initialData changes
   useEffect(() => {
     if (open) {
       reset(initialData || { label: "", value: "", desc: "" });
+      // Clear any existing errors when modal opens
+      clearErrors();
     }
-  }, [open, initialData, reset]);
+  }, [open, initialData, reset, clearErrors]);
 
   const onSubmit = (data: HighlightFormValues) => {
     console.log("Submitted Highlight:", data);
@@ -51,45 +77,141 @@ export default function HighlightsFormModal({
     reset();
   };
 
+  // Function to handle field changes and clear errors
+  const handleFieldChange =
+    (
+      fieldName: keyof HighlightFormValues,
+      onChange: (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      ) => void
+    ) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      // Clear the error for this specific field when user starts typing
+      clearErrors(fieldName);
+      onChange(event);
+    };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        {trigger || <Button>{initialData ? "Edit Highlight" : "Add Highlight"}</Button>}
+        {trigger || (
+          <Button>{initialData ? "Edit Highlight" : "Add Highlight"}</Button>
+        )}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
+        onInteractOutside={(event) => {
+          // Prevent Radix from closing automatically
+          event.preventDefault();
+
+          // Check if there are any empty required fields
+          const values = form.getValues();
+          const hasEmpty = Object.values(values).some(
+            (v) => v === "" || v === undefined || v === null
+          );
+
+          if (hasEmpty) {
+            form.trigger(); // show validation messages
+            toast.error(
+              "Please fill all required fields before leaving the modal."
+            );
+          }
+        }}
+      >
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Highlight" : "Add Highlight"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Highlight" : "Add Highlight"}
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Label */}
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">Label</label>
-            <input {...register("label")} type="text" placeholder="Enter label" className={`border rounded-md p-2 ${errors.label ? "border-red-500" : ""}`} />
-            {errors.label && <span className="text-red-500 text-sm mt-1">{errors.label.message}</span>}
-          </div>
+        <FormProvider {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4"
+            onKeyDown={(e) => {
+              // Press Enter to submit only if focused element is NOT a Textarea
+              if (
+                e.key === "Enter" &&
+                (e.target as HTMLElement).tagName !== "TEXTAREA"
+              ) {
+                e.preventDefault(); // prevent default behavior
+                handleSubmit(onSubmit)(); // manually trigger submit
+              }
+            }}
+          >
+            {/* Label */}
+            <FormField
+              control={form.control}
+              name="label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Label</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter label"
+                      {...field}
+                      onChange={handleFieldChange("label", field.onChange)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Value */}
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">Value</label>
-            <input {...register("value")} type="text" placeholder="Enter value" className={`border rounded-md p-2 ${errors.value ? "border-red-500" : ""}`} />
-            {errors.value && <span className="text-red-500 text-sm mt-1">{errors.value.message}</span>}
-          </div>
+            {/* Value */}
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Value</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter value"
+                      {...field}
+                      onChange={handleFieldChange("value", field.onChange)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Description */}
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">Description</label>
-            <textarea {...register("desc")} placeholder="Enter description" className={`border rounded-md p-2 resize-none ${errors.desc ? "border-red-500" : ""}`} />
-            {errors.desc && <span className="text-red-500 text-sm mt-1">{errors.desc.message}</span>}
-          </div>
+            {/* Description */}
+            <FormField
+              control={form.control}
+              name="desc"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter description"
+                      {...field}
+                      onChange={handleFieldChange("desc", field.onChange)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <DialogFooter>
-            <Button type="submit" className="bg-primary text-white w-full">
-              Save Highlight
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white"
+                >
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" className="bg-primary text-white w-fit">
+                Save Highlight
+              </Button>
+            </DialogFooter>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );

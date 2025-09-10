@@ -1,16 +1,16 @@
 "use client";
 
-import Curriculum from "@/components/program/curriculum";
+import Curriculum from "@/components/program/master-program/curriculum/curriculum";
 import Faq from "@/components/program/master-program/faq/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
-import LearningOutcomesAdmin from "@/components/program/opening-program/learning-outcome";
-import CourseRequirementsAdmin from "@/components/program/opening-program/course-requirement";
+import LearningOutcomesAdmin from "@/components/program/master-program/learning-outcome/learning-outcome";
+import CourseRequirementsAdmin from "@/components/program/master-program/course-requirement/course-requirement";
 import Highlight from "@/components/program/master-program/highlight/highlight";
 
 export default function ProgramSetup() {
-  const [tab, setTab] = useState<"curriculum" | "roadmap"|"learning-outcomes" | "course-requirements"|"hightlight"|  "faq">("curriculum");
+  const [tab, setTab] = useState<"highlight"|"curriculum" | "roadmap"|"learning-outcomes" | "course-requirements"|  "faq">("highlight");
   const params = useParams(); // app router
   const slug = params.slug;
 
@@ -19,7 +19,7 @@ export default function ProgramSetup() {
       <h1 className="text-2xl font-semibold mb-4">Program Setup - {slug}</h1>
       {/* Tab buttons */}
       <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit">
-        <Button variant={tab === "hightlight" ? "default" : "outline"} onClick={() => setTab("hightlight")}> Hightlight </Button>
+        <Button variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}> Hightlight </Button>
         <Button variant={tab === "learning-outcomes" ? "default" : "outline"} onClick={() => setTab("learning-outcomes")}> Learning Outcomes </Button>
         <Button variant={tab === "course-requirements" ? "default" : "outline"} onClick={() => setTab("course-requirements")}> Course Requirements </Button>
         <Button variant={tab === "curriculum" ? "default" : "outline"} onClick={() => setTab("curriculum")}>Curriculum </Button>
@@ -28,12 +28,12 @@ export default function ProgramSetup() {
       </div>
 
       {/* Tab Content */}
+      {tab === "highlight" && <Highlight/>}
       {tab === "curriculum" && <Curriculum />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "faq" && <Faq />}
       {tab === "learning-outcomes" && <LearningOutcomesAdmin />}
       {tab === "course-requirements" && <CourseRequirementsAdmin/>}
-      {tab === "hightlight" && <Highlight/>}
     </div>
   );
 }

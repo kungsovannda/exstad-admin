@@ -44,7 +44,9 @@ export function CreateVerificationBadge({
     },
   });
   const [previews, setPreviews] = useState<string[]>([]);
-  function onSubmit(values: z.infer<typeof schema>) {}
+  function onSubmit(values: z.infer<typeof schema>) {
+    console.log(values);
+  }
 
   return (
     <Dialog

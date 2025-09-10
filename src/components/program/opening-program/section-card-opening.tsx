@@ -1,6 +1,6 @@
   "use client"
 
-  import { Label, LabelList, Pie, PieChart } from "recharts"
+  import { Label, Pie, PieChart } from "recharts"
 
   import {
   Card,
@@ -12,8 +12,6 @@
 import {
   ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart"
 
   // Donut-style StatCard

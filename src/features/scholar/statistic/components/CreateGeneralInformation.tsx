@@ -446,7 +446,7 @@ export default function CreateGeneralInformation({
         <FormField
           control={form.control}
           name="avatar"
-          render={({ field }) => (
+          render={() => (
             <FormItem>
               <FormLabel>Avatar</FormLabel>
               <FormControl>

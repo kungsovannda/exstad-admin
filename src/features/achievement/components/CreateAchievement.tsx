@@ -197,7 +197,7 @@ export default function CreateAchievement({
               <FormField
                 control={form.control}
                 name="icon"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>LOGO</FormLabel>
                     <FormControl>

@@ -49,7 +49,9 @@ export function ViewAndUpdateBadge({
     },
   });
   const [previews, setPreviews] = useState<string[]>([badge.badgeImage]);
-  function onSubmit(values: z.infer<typeof schema>) {}
+  function onSubmit(values: z.infer<typeof schema>) {
+    console.log(values);
+  }
 
   return (
     <Dialog

@@ -12,8 +12,7 @@ import { programType } from "@/types/program";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import DeleteModal from "../activity/delete-modal-component";
-import { set } from "zod";
+import DeleteModal from "../opening-program/activity/delete-modal-component";
 import { toast } from "sonner";
 
 
@@ -24,7 +23,6 @@ interface ActionsCellProps {
 
 export function MasterActionsCell({ program,onDelete  }: ActionsCellProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
