@@ -1,5 +1,5 @@
 "use client";
-import ClassModal1 from "./form-field";
+import ClassModal1 from "./class-modal";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ClassDataTable from "@/features/opening-program/components/table/class/class-data";

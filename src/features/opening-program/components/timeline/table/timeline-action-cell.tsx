@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import SimpleTimelineForm from "@/components/program/opening-program/timeline/timeline-modal1";
+import SimpleTimelineForm from "@/components/program/opening-program/timeline/timeline-modal";
 import { toast } from "sonner";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { TimelineRow } from "./timelineColumn";

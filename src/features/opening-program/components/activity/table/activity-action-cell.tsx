@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import ActivityModal from "@/components/program/opening-program/activity/form-field";
+import ActivityModal from "@/components/program/opening-program/activity/acitivity-modal";
 import { FlattenedActivity } from "@/features/opening-program/components/table/activity/activity-table";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { toast } from "sonner";

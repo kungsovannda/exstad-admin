@@ -1,7 +1,7 @@
 import { programType } from "@/types/program";
 export const programData: programType[] = [
   {
-    id: 1,
+    uuid: "1",
     bg: "radial-gradient(circle, #FFD94D 0%, #F5BD0C 50%, #E0A800 100%)",
     title: "LINUX ADMINISTRATION",
     subtitle: "Master the essentials of Linux system",
@@ -208,7 +208,7 @@ export const programData: programType[] = [
     }]
   },
     {
-    id: 4,
+    uuid: "4",
     bg: "linear-gradient(to left, #64B5F6 0%, #2196F3 50%, #1976D2 100%)",
     title: "JAVA PROGRAMMING",
     slug: "full-stack-development",
@@ -416,7 +416,7 @@ export const programData: programType[] = [
 ]
   },
   {
-    id: 2,
+    uuid: "2",
     bg: "#f47373",
     deadline:"12 AGU",
     title: "Foundation Scholarship",
@@ -1373,8 +1373,8 @@ export const programData: programType[] = [
 ]
   },
   {
-    id: 3,
-    bg: "#f47373",
+    uuid: "3",
+    bgColor: "#f47373",
     deadline:"12 AGU",
     title: "Full Stack Development",
     slug: "full-stack-development",
@@ -1382,17 +1382,17 @@ export const programData: programType[] = [
     status:"active",
     subtitle: "Master the essentials of Linux system",
     discount:'$120',
-    level:"Beginner",
+    programLevel:"Beginner",
     description:
       "Learn to install, configure, and manage Linux servers effectively with hands-on labs and real-world scenarios to boost your career in IT. This course covers system administration, networking, security, and troubleshooting.",
     image:
       "/image/logo/pre1.jpg",
-    thumbnail:"https://scontent.fpnh5-3.fna.fbcdn.net/v/t39.30808-6/540349826_784819700965199_7049553995288016805_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeEY6AHda9dM26wi3ycNE1IAhfQRPeQf5RyF9BE95B_lHJ_8nNHSBiFkD3UgN5rshyn5Ywe8AaF1QNVte7u9XU7L&_nc_ohc=1g_CfFYyUrkQ7kNvwFI_Ddn&_nc_oc=Adn2DmCrE45zStyJeZJmpfYCOt79Qb5Ju1LDGjaFcBd-XbPUOKY1pYqIw-GXtEcIyhI&_nc_zt=23&_nc_ht=scontent.fpnh5-3.fna&_nc_gid=3v-v9gqnj9QqVYvBHHmAVg&oh=00_AfVC7_t7ZJ9SuaTFmIIQSgmvh_3UCvMVUKmCy5SRD1JSgw&oe=68B893F4",
+    thumbnailUrl:"https://scontent.fpnh5-3.fna.fbcdn.net/v/t39.30808-6/540349826_784819700965199_7049553995288016805_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeEY6AHda9dM26wi3ycNE1IAhfQRPeQf5RyF9BE95B_lHJ_8nNHSBiFkD3UgN5rshyn5Ywe8AaF1QNVte7u9XU7L&_nc_ohc=1g_CfFYyUrkQ7kNvwFI_Ddn&_nc_oc=Adn2DmCrE45zStyJeZJmpfYCOt79Qb5Ju1LDGjaFcBd-XbPUOKY1pYqIw-GXtEcIyhI&_nc_zt=23&_nc_ht=scontent.fpnh5-3.fna&_nc_gid=3v-v9gqnj9QqVYvBHHmAVg&oh=00_AfVC7_t7ZJ9SuaTFmIIQSgmvh_3UCvMVUKmCy5SRD1JSgw&oe=68B893F4",
      price: "$499",
     duration: "2 Months",
     scholarship: 20,
     totalslot:200,
-    program_type:"Scholarship Course",
+    programType:"Scholarship Course",
 
     highlights: [
       {
@@ -1695,7 +1695,7 @@ export const programData: programType[] = [
 ]
   },
    {
-    id: 5,
+    uuid: "5",
     bg: "#f47373",
     deadline:"12 AGU",
     slug: "pre-university-scholarship",

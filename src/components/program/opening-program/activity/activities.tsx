@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import ActivityModal from "./form-field";
+import ActivityModal from "./acitivity-modal";
 import { useState } from "react";
 import ActivityTable from "@/features/opening-program/components/table/activity/activity-table";
 

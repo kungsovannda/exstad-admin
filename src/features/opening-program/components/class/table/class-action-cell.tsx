@@ -12,7 +12,7 @@ import {
 import { Classes } from "@/types/opening-program";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import ClassModal from "@/components/program/opening-program/class/form-field";
+import ClassModal from "@/components/program/opening-program/class/class-modal";
 import { toast } from "sonner";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 

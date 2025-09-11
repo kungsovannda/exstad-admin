@@ -1,11 +1,11 @@
 // src/features/university/universityApi.ts
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { useBaseQuery } from "@/services/use-base-query";
 import {
   University,
   UniversityCreate,
   UniversityUpdate,
 } from "@/types/university";
-import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const universityApi = createApi({
   reducerPath: "universityApi",
@@ -14,52 +14,51 @@ export const universityApi = createApi({
   endpoints: (builder) => ({
     // GET all universities
     getAllUniversities: builder.query<University[], void>({
-      query: () => "/universities",
-      transformResponse: (response: { universities: University[] }) =>
-        response.universities,
+      query: () => "/api/v1/universities",
+      transformResponse: (response: { universities?: University[] }) =>
+        response.universities ?? [], // always return an array
       providesTags: (result) =>
-        result
+        result.length
           ? [
-              ...result.map(({ uuid }) => ({
-                type: "University" as const,
-                id: uuid,
-              })),
+              ...result.map(({ uuid }) => ({ type: "University" as const, id: uuid })),
               { type: "University", id: "LIST" },
             ]
           : [{ type: "University", id: "LIST" }],
     }),
 
+    // GET a single university by UUID
     getUniversityByUuid: builder.query<University, string>({
-      query: (uuid) => `/universities/${uuid}`,
+      query: (uuid) => `/api/v1/universities/${uuid}`,
       providesTags: (result, error, uuid) => [{ type: "University", id: uuid }],
     }),
 
+    // CREATE a new university
     createUniversity: builder.mutation<University, UniversityCreate>({
       query: (body) => ({
-        url: "/universities",
+        url: "/api/v1/universities",
         method: "POST",
         body,
       }),
       invalidatesTags: [{ type: "University", id: "LIST" }],
     }),
 
+    // UPDATE an existing university
     updateUniversity: builder.mutation<
       University,
       { uuid: string; body: UniversityUpdate }
     >({
       query: ({ uuid, body }) => ({
-        url: `/universities/${uuid}`,
+        url: `/api/v1/universities/${uuid}`,
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result, error, { uuid }) => [
-        { type: "University", id: uuid },
-      ],
+      invalidatesTags: (result, error, { uuid }) => [{ type: "University", id: uuid }],
     }),
 
+    // DELETE a university
     deleteUniversity: builder.mutation<void, string>({
       query: (uuid) => ({
-        url: `/universities/${uuid}`,
+        url: `/api/v1/universities/${uuid}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, uuid) => [
@@ -69,7 +68,6 @@ export const universityApi = createApi({
     }),
   }),
 });
-
 export const {
   useGetAllUniversitiesQuery,
   useGetUniversityByUuidQuery,

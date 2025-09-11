@@ -5,11 +5,11 @@ import { getSession } from "next-auth/react";
 
 export const useBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
-  prepareHeaders: async (headers) => {
-    const session = await getSession();
-    if (session?.accessToken) {
-      headers.set("Authorization", `Bearer ${session.accessToken}`);
-    }
+  prepareHeaders: (headers) => {
+    const token = localStorage.getItem("accessToken"); // or session token
+    if (token) headers.set("Authorization", `Bearer ${token}`);
     return headers;
   },
+  
 });
+

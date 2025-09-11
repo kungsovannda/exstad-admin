@@ -12,6 +12,7 @@ import { useState } from "react";
 
 export default function UniversityPage() {
   const { data, isLoading } = useGetAllUniversitiesQuery();
+  console.log(data)
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
 
   return (
@@ -34,8 +35,8 @@ export default function UniversityPage() {
           <DataTableSkeleton columnCount={5} />
         ) : (
           <UniversityTable
-            totalItems={data!.length}
-            data={data!}
+            totalItems={data?.length ?? 0}
+            data={data ?? []}
             columns={universityColumns}
           />
         )}

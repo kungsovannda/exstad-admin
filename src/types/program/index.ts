@@ -7,30 +7,30 @@ export type HighlightType = {
 };
 type Level = "Beginner" | "Intermediate" | "Advanced";
 export type programType = {
-  id: number;
-  program_type:string;
-  bg: string;
+  uuid: string;
+  programType:string;
+  bgColor: string;
   title: string;
   slug:string;
-  subtitle: string;
+  // subtitle: string;
   description: string;
-  level:Level;
-  image: string;
-  thumbnail:string;
+  programLevel:Level;
+  // image: string;
+  thumbnailUrl:string;
   price: string;
   duration: string;
   scholarship?: number;
   discount: string;
   deadline:string;
   totalslot:number;
-  programOverview: programOverviewType[];
-  learningOutcome: programLearningOutcomeType[];
-  courseRequirement: courseRequirementType[];
+  programOverviews: programOverviewType[];
+  learningOutcomes: programLearningOutcomeType[];
+  requirements: courseRequirementType[];
   highlights: HighlightType[];   // 👈 new
   // curriculum: curriculumType[]; // 👈 new
-  openingprogram: openingProgramType[]; // 👈 new
+  openingprograms: openingProgramType[]; // 👈 new
   faq:FaqDataType[];
-  curriculum:curriculumDataType[];
+  curricula:curriculumDataType[];
   visibility: "public" | "private";
   status: "draft" | "active" | "archived"
 };
@@ -81,3 +81,16 @@ export  type curriculumDataType = {
   title:string;
   curriculumType:curriculumType[];
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
