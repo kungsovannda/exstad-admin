@@ -46,7 +46,6 @@
 
 
 import { DefaultTableModel } from "@/components/table/default-table-model";
-import { programData } from "@/data/programData";
 import { masterProgramColumns } from "./column";
 import { MasterProgramType } from "@/types/program";
 

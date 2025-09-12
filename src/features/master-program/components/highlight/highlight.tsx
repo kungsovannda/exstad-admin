@@ -1,60 +1,31 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import HighlightsFormModal from "./highlight-modal";
-import DeleteModal from "../../opening-program/activity/delete-modal-component";
+import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { toast } from "sonner";
 import { SquarePen, Trash } from "lucide-react";
+import { useGetAllHighlightQuery } from "./highlightApi";
+import { HighlightType } from "@/types/program";
 
-type Highlight = {
-  id: string;
-  label: string;
-  value: string;
-  desc: string;
+type Props = {
+  programUuid: string;
 };
 
-const initialHighlights: Highlight[] = [
-  { id: "1", label: "Project-based", value: "2 projects", desc: "Build real-world IT projects." },
-  { id: "2", label: "Duration", value: "12 AGU", desc: "Flexible study schedule." },
-  { id: "3", label: "Scholarship", value: "20%", desc: "Early bird discount." },
-  { id: "4", label: "Price", value: "$499", desc: "Full course fee." },
-];
+export default function HighlightsAdmin({ programUuid }: Props) {
+  // RTK Query
+   const { data: highlights = [], isLoading, isError,error } =useGetAllHighlightQuery(programUuid, {
+      refetchOnMountOrArgChange: true,
+  });
 
-export default function HighlightsAdmin() {
-  const [highlights, setHighlights] = useState<Highlight[]>(initialHighlights);
-
-  // Separate state for create modal
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<HighlightType | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<HighlightType | null>(null);
 
-  // Separate state for edit modal
-  const [editTarget, setEditTarget] = useState<Highlight | null>(null);
-
-  // State for delete modal
-  const [deleteTarget, setDeleteTarget] = useState<Highlight | null>(null);
-
-  const handleAddHighlight = (data: Omit<Highlight, "id">) => {
-    const newHighlight: Highlight = { id: Date.now().toString(), ...data };
-    setHighlights(prev => [...prev, newHighlight]);
-    // toast.success("Highlight added successfully!");
-  };
-
-  const handleEditHighlight = (data: Omit<Highlight, "id">) => {
-    if (!editTarget) return;
-    setHighlights(prev =>
-      prev.map(h => (h.id === editTarget.id ? { ...h, ...data } : h))
-    );
-    // toast.success("Highlight updated successfully!");
-    setEditTarget(null); // close edit modal
-  };
-
-  const handleConfirmDelete = () => {
-    if (!deleteTarget) return;
-    setHighlights(prev => prev.filter(h => h.id !== deleteTarget.id));
-    toast.success("Highlight deleted successfully!");
-    setDeleteTarget(null); // close delete modal
-  };
+  if (isLoading) return <div>Loading highlights...</div>;
+  if (isError) return <div className="text-destructive">Failed to load highlights</div>;
 
   return (
     <div className="flex flex-col gap-5 w-full">
@@ -66,19 +37,25 @@ export default function HighlightsAdmin() {
         <HighlightsFormModal
           open={isCreateOpen}
           onOpenChange={setIsCreateOpen}
-          onSubmitHighlight={handleAddHighlight}
+          onSubmitHighlight={(data) => {
+            toast.success("Highlight created!");
+            setIsCreateOpen(false);
+          }}
           trigger={
             <Button>
               <FiPlus />
-              <span className=" font-bold">Add Highlight</span>
+              <span className="font-bold">Add Highlight</span>
             </Button>
           }
         />
       </div>
 
       {/* Highlight List */}
-      {highlights.map(h => (
-        <div key={h.id} className="flex justify-between items-center bg-accent rounded-sm p-4">
+      {highlights.map((h) => (
+        <div
+          key={`${h.label}-${h.value}`} 
+          className="flex justify-between items-center bg-accent rounded-sm p-4"
+        >
           <div className="flex flex-col">
             <span className="text-[16px] font-semibold text-foreground">
               {h.label} - {h.value}
@@ -99,7 +76,10 @@ export default function HighlightsAdmin() {
               open={!!editTarget && editTarget.id === h.id}
               onOpenChange={(open) => !open && setEditTarget(null)}
               initialData={editTarget || undefined}
-              onSubmitHighlight={handleEditHighlight}
+              onSubmitHighlight={(data) => {
+                toast.success("Highlight updated!");
+                setEditTarget(null);
+              }}
               trigger={
                 <SquarePen
                   size={16}
@@ -117,7 +97,10 @@ export default function HighlightsAdmin() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         itemName={deleteTarget?.label || ""}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => {
+          toast.success("Highlight deleted!");
+          setDeleteTarget(null);
+        }}
       />
     </div>
   );

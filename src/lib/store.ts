@@ -1,5 +1,6 @@
 import { certificateApi } from "@/features/certificate/certificateApi";
 import { currentAddressApi } from "@/features/current-address/currentAddressApi";
+import { highlightsApi } from "@/features/master-program/components/highlight/highlightApi";
 import { masterprogramApi } from "@/features/master-program/masterProgramApi";
 import { provinceApi } from "@/features/province/provinceApi";
 import { universityApi } from "@/features/university/universityApi";
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   [universityApi.reducerPath]: universityApi.reducer,
   [certificateApi.reducerPath]: certificateApi.reducer,
   [masterprogramApi.reducerPath]: masterprogramApi.reducer,
+  [highlightsApi.reducerPath]: highlightsApi.reducer,
 });
 
 const persistConfig = {
@@ -33,6 +35,7 @@ export const makeStore = () => {
         universityApi.middleware,
         certificateApi.middleware,
         masterprogramApi.middleware,
+        highlightsApi.middleware, 
       ),
   });
 

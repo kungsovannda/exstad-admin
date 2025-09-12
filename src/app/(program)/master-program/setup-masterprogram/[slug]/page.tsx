@@ -7,16 +7,18 @@ import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
 import LearningOutcomesAdmin from "@/components/program/master-program/learning-outcome/learning-outcome";
 import CourseRequirementsAdmin from "@/components/program/master-program/course-requirement/course-requirement";
-import Highlight from "@/components/program/master-program/highlight/highlight";
+import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
 
 export default function ProgramSetup() {
   const [tab, setTab] = useState<"highlight"|"curriculum" | "roadmap"|"learning-outcomes" | "course-requirements"|  "faq">("highlight");
   const params = useParams(); // app router
-  const slug = params.slug;
+  // const slug = params.slug;
+  const programUuid = params.slug as string;
+
 
   return (
     <div className="p-5">
-      <h1 className="text-2xl font-semibold mb-4">Program Setup - {slug}</h1>
+      <h1 className="text-2xl font-semibold mb-4">Program Setup - {programUuid}</h1>
       {/* Tab buttons */}
       <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit">
         <Button variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}> Hightlight </Button>
@@ -28,7 +30,7 @@ export default function ProgramSetup() {
       </div>
 
       {/* Tab Content */}
-      {tab === "highlight" && <Highlight/>}
+      {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <Curriculum />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "faq" && <Faq />}

@@ -1,6 +1,7 @@
 import { openingProgramType } from "../opening-program";
 // shortCourseType.ts
 export type HighlightType = {
+    id: string;     // ✅ artificial id we generate
   label: string;
   value: string;
   desc: string;
