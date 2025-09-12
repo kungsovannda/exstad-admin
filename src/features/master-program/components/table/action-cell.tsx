@@ -8,23 +8,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { programType } from "@/types/program";
+import { MasterProgramType } from "@/types/program";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { toast } from "sonner";
+import { useDeleteMasterProgramMutation } from "../../masterProgramApi";
 
 
 interface ActionsCellProps {
-  program: programType;
+  program: MasterProgramType;
   onDelete?: (id: number) => void; // callback to remove class from parent state
 }
 
 export function MasterActionsCell({ program,onDelete  }: ActionsCellProps) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteMasterProgram] = useDeleteMasterProgramMutation();
 
+  const handleDelete = async () =>  {
+    try{
+      await deleteMasterProgram(program.uuid).unwrap();
+      toast.success(`Program "${program.title}" delete successfully!`);
+      setDeleteOpen(false);
+    }catch(err:any){
+      toast.error(`Failed to delete: ${err.message || err}`);
+    }
+  }
   return (
     <>
     <DropdownMenu>
@@ -37,8 +48,8 @@ export function MasterActionsCell({ program,onDelete  }: ActionsCellProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push(`/master-program/setup-masterprogram/${program.slug}`)}> Set Up</DropdownMenuItem>
-        <DropdownMenuItem onClick={() =>  router.push(`/master-program/create`)}> Edit</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`/master-program/setup-masterprogram/${program.uuid}`)}> Set Up</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`/master-program/edit/${program.uuid}`)}> Edit</DropdownMenuItem>
         <DropdownMenuItem className="text-red-600" onClick={() => setDeleteOpen(true)}> Delete</DropdownMenuItem>
       </DropdownMenuContent>    
     </DropdownMenu>
@@ -47,10 +58,7 @@ export function MasterActionsCell({ program,onDelete  }: ActionsCellProps) {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         itemName={program.title}
-        onConfirm={() =>{
-          onDelete?.(program.id); // call parent callback
-          toast.success(`Program "${program.title}" deleted successfully!`);
-        }}
+        onConfirm={handleDelete}  
       />
         </>
   );

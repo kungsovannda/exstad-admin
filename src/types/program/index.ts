@@ -5,14 +5,16 @@ export type HighlightType = {
   value: string;
   desc: string;
 };
-type Level = "Beginner" | "Intermediate" | "Advanced";
-export type programType = {
+type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
+type  visibility="public" | "private";
+type programType= "SHORT_COURSE" |"SCHOLARSHIP"
+export type MasterProgramType = {
   uuid: string;
-  programType:string;
+  programType:programType;
   bgColor: string;
   title: string;
   slug:string;
-  // subtitle: string;
+  subtitle: string;
   description: string;
   programLevel:Level;
   // image: string;
@@ -27,13 +29,42 @@ export type programType = {
   learningOutcomes: programLearningOutcomeType[];
   requirements: courseRequirementType[];
   highlights: HighlightType[];   // 👈 new
-  // curriculum: curriculumType[]; // 👈 new
+  curriculum: curriculumType[]; // 👈 new
   openingprograms: openingProgramType[]; // 👈 new
   faq:FaqDataType[];
   curricula:curriculumDataType[];
-  visibility: "public" | "private";
+  visibility: visibility
   status: "draft" | "active" | "archived"
 };
+
+export type MasterProgramCreate = {
+  title: string;
+  programType: string;
+  bgColor?: string;
+  slug?: string;
+  subtitle?: string;
+  description?: string;
+  programLevel?: Level;
+  // image?: string;
+  thumbnailUrl?: string;
+  price?: number;
+  duration?: string;
+  scholarship?: number;
+  discount?: string;
+  deadline?: string;
+  totalslot?: number;
+  programOverviews?: programOverviewType[];
+  learningOutcomes?: programLearningOutcomeType[];
+  requirements?: courseRequirementType[];
+  highlights?: HighlightType[];
+  curriculum?: curriculumType[];
+  openingprograms?: openingProgramType[];
+  faq?: FaqDataType[];
+  curricula?: curriculumDataType[];
+  visibility?: "public" | "private";
+  status?: "draft" | "active" | "archived";
+};
+
 
 export type programOverviewType = {
     id: number;

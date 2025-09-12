@@ -1,5 +1,5 @@
-import { programType } from "@/types/program";
-export const programData: programType[] = [
+import { MasterProgramType } from "@/types/program";
+export const programData: MasterProgramType[] = [
   {
     uuid: "1",
     bg: "radial-gradient(circle, #FFD94D 0%, #F5BD0C 50%, #E0A800 100%)",

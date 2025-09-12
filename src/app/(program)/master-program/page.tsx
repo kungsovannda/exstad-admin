@@ -3,22 +3,22 @@ import { SectionCards } from "@/components/program/section-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Heading } from "@/components/Heading";
-import { MasterProgramTable } from "@/features/master-program/components/table/master-program-table";
+import MasterProgramTable from "@/features/master-program/components/table/master-program-table";
 import { FiPlus } from "react-icons/fi";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { masterProgramColumns } from "@/features/master-program/components/table/column";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
-import { programType } from "@/types/program";
+import { MasterProgramType } from "@/types/program";
 
 export default function Page() {
-  const { data, isLoading, error, refetch } = useGetAllMasterProgramsQuery(undefined, {
+  const { data, isFetching, error, refetch } = useGetAllMasterProgramsQuery(undefined, {
   refetchOnMountOrArgChange: true,
 });
 
   console.log("Raw API data:", data);
 
   // Treat data as array directly
-  const programs: programType[] = data ?? [];
+  const programs: MasterProgramType[] = data ?? [];
 
   console.log("Programs length:", programs.length);
   console.log("Programs:", programs);
@@ -39,7 +39,7 @@ export default function Page() {
 
       <SectionCards />
 
-      {isLoading ? (
+      {isFetching ? (
         <DataTableSkeleton columnCount={5} />
       ) : error ? (
         <p className="text-red-500">Error loading programs</p>

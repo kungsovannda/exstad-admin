@@ -1,15 +1,18 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { useBaseQuery } from "@/services/use-base-query";
-import { programType } from "@/types/program";
+import { MasterProgramType, MasterProgramCreate } from "@/types/program";
+import build from "next/dist/build";
+import { string, uuid } from "zod";
+import { error } from "console";
 
 export const masterprogramApi = createApi({
     reducerPath: "masterprogramApi",
     baseQuery: useBaseQuery,
     tagTypes: ["MasterProgram"],
     endpoints: (builder) => ({
-        getAllMasterPrograms: builder.query<programType[], void>({
+        getAllMasterPrograms: builder.query<MasterProgramType[], void>({
             query: () => "/api/v1/programs",
-            transformResponse: (response: { programs?: programType[] }) =>
+            transformResponse: (response: { programs?: MasterProgramType[] }) =>
                 response.programs ?? [],
             providesTags: (result) =>
                 result?.length
@@ -19,10 +22,59 @@ export const masterprogramApi = createApi({
                               id: uuid,
                           })),
                           { type: "MasterProgram", id: "LIST" },
-                      ]
+                      ]  
                     : [{ type: "MasterProgram", id: "LIST" }],
         }),
+
+        // 
+            // Fetch a single program by UUID
+        getMasterProgramByUuid: builder.query<MasterProgramType, { uuid: string }>({
+        query: ({ uuid }) => `/api/v1/programs/${uuid}`,
+        providesTags: (result) =>
+            result ? [{ type: "MasterProgram", id: result.uuid }] : [],
+        }),
+
+        // CREATE a new master program
+        createMasterProgram: builder.mutation<MasterProgramType,MasterProgramCreate>({
+            query:(body) => ({
+                url:"/api/v1/programs",
+                method:"POST",
+                body,
+            }),
+            invalidatesTags:[{type:"MasterProgram",id:"LIST"}],
+        }),
+
+        // Update an existing master program
+        updateMasterProgram: builder.mutation<
+            MasterProgramType,
+            {uuid:string;body: MasterProgramCreate}
+        >({
+            query:({uuid, body}) =>({
+                url: `/api/v1/programs/${uuid}`,
+                method:"PUT",
+                body,
+            }),
+            invalidatesTags:(result,error,{uuid}) =>[{type:"MasterProgram",id:uuid}],
+        }),
+
+        // DELETE a master program 
+        deleteMasterProgram: builder.mutation<void, string>({
+            query: (uuid) => ({
+                url: `/api/v1/programs/${uuid}`,
+                method:"DELETE",
+            }),
+            invalidatesTags:(result,error,uuid) =>[
+                {type: "MasterProgram", id:uuid},
+                {type: "MasterProgram", id:"LIST"}
+            ]
+        })
     }),
 });
 
-export const { useGetAllMasterProgramsQuery } = masterprogramApi;
+export const {
+    useGetAllMasterProgramsQuery,
+    useGetMasterProgramByUuidQuery,
+    useCreateMasterProgramMutation,
+    useUpdateMasterProgramMutation,
+    useDeleteMasterProgramMutation
+} = masterprogramApi;
