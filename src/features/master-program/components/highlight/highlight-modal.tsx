@@ -34,13 +34,13 @@ const highlightSchema = z.object({
   desc: z.string().min(1, "Description is required"),
 });
 
-type HighlightFormValues = z.infer<typeof highlightSchema>;
+export type HighlightFormValues = z.infer<typeof highlightSchema>;
 
 interface HighlightsFormModalProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   initialData?: HighlightFormValues;
-  onSubmitHighlight?: (data: HighlightFormValues) => void;
+  onSubmitHighlight?: (data: HighlightFormValues) => Promise<void> | void;
   trigger?: React.ReactNode;
 }
 
@@ -60,24 +60,28 @@ export default function HighlightsFormModal({
 
   const { handleSubmit, reset, clearErrors } = form;
 
-  // Reset form only when dialog opens or initialData changes
   useEffect(() => {
     if (open) {
       reset(initialData || { label: "", value: "", desc: "" });
-      // Clear any existing errors when modal opens
       clearErrors();
     }
   }, [open, initialData, reset, clearErrors]);
 
-  const onSubmit = (data: HighlightFormValues) => {
-    console.log("Submitted Highlight:", data);
-    toast.success(`Highlight "${data.label}" saved!`);
-    onSubmitHighlight?.(data);
-    onOpenChange?.(false);
-    reset();
+  const onSubmit = async (data: HighlightFormValues) => {
+    try {
+      await onSubmitHighlight?.(data);
+      toast.success(
+        initialData
+          ? `Highlight "${data.label}" updated!`
+          : `Highlight "${data.label}" created!`
+      );
+      onOpenChange?.(false);
+      reset();
+    } catch (err) {
+      toast.error("Failed to save highlight.");
+    }
   };
 
-  // Function to handle field changes and clear errors
   const handleFieldChange =
     (
       fieldName: keyof HighlightFormValues,
@@ -86,36 +90,26 @@ export default function HighlightsFormModal({
       ) => void
     ) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      // Clear the error for this specific field when user starts typing
       clearErrors(fieldName);
       onChange(event);
     };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button>{initialData ? "Edit Highlight" : "Add Highlight"}</Button>
-        )}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent
         className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
         onInteractOutside={(event) => {
-          // Prevent Radix from closing automatically
           event.preventDefault();
-
-          // Check if there are any empty required fields
           const values = form.getValues();
           const hasEmpty = Object.values(values).some(
             (v) => v === "" || v === undefined || v === null
           );
 
           if (hasEmpty) {
-            form.trigger(); // show validation messages
-            toast.error(
-              "Please fill all required fields before leaving the modal."
-            );
+            form.trigger();
+            toast.error("Please fill all required fields before leaving.");
           }
         }}
       >
@@ -130,13 +124,12 @@ export default function HighlightsFormModal({
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4"
             onKeyDown={(e) => {
-              // Press Enter to submit only if focused element is NOT a Textarea
               if (
                 e.key === "Enter" &&
                 (e.target as HTMLElement).tagName !== "TEXTAREA"
               ) {
-                e.preventDefault(); // prevent default behavior
-                handleSubmit(onSubmit)(); // manually trigger submit
+                e.preventDefault();
+                handleSubmit(onSubmit)();
               }
             }}
           >
@@ -199,15 +192,12 @@ export default function HighlightsFormModal({
 
             <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button
-                  variant="outline"
-                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white"
-                >
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white">
                   Cancel
                 </Button>
               </DialogClose>
               <Button type="submit" className="bg-primary text-white w-fit">
-                Save Highlight
+                {initialData ? "Update Highlight" : "Save Highlight"}
               </Button>
             </DialogFooter>
           </form>

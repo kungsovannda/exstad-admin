@@ -1,11 +1,11 @@
 import { openingProgramType } from "../opening-program";
 // shortCourseType.ts
 export type HighlightType = {
-    id: string;     // ✅ artificial id we generate
   label: string;
   value: string;
   desc: string;
 };
+export type HighlightPayload = Omit<HighlightType, "id">;
 type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
 type  visibility="public" | "private";
 type programType= "SHORT_COURSE" |"SCHOLARSHIP"
@@ -18,7 +18,7 @@ export type MasterProgramType = {
   subtitle: string;
   description: string;
   programLevel:Level;
-  // image: string;
+ posterUrl:string;
   thumbnailUrl:string;
   price: string;
   duration: string;
@@ -28,12 +28,12 @@ export type MasterProgramType = {
   totalslot:number;
   programOverviews: programOverviewType[];
   learningOutcomes: programLearningOutcomeType[];
-  requirements: courseRequirementType[];
+  requirements: RequirementsType[];
   highlights: HighlightType[];   // 👈 new
-  curriculum: curriculumType[]; // 👈 new
+  curriculum: CurriculumType[]; // 👈 new
   openingprograms: openingProgramType[]; // 👈 new
   faq:FaqDataType[];
-  curricula:curriculumDataType[];
+  curricula:CurriculumDataType[];
   visibility: visibility
   status: "draft" | "active" | "archived"
 };
@@ -46,6 +46,7 @@ export type MasterProgramCreate = {
   subtitle?: string;
   description?: string;
   programLevel?: Level;
+   posterUrl:string;
   // image?: string;
   thumbnailUrl?: string;
   price?: number;
@@ -56,12 +57,12 @@ export type MasterProgramCreate = {
   totalslot?: number;
   programOverviews?: programOverviewType[];
   learningOutcomes?: programLearningOutcomeType[];
-  requirements?: courseRequirementType[];
+  requirements?: RequirementsType[];
   highlights?: HighlightType[];
-  curriculum?: curriculumType[];
+  curriculum?: CurriculumType[];
   openingprograms?: openingProgramType[];
   faq?: FaqDataType[];
-  curricula?: curriculumDataType[];
+  curricula?: CurriculumDataType[];
   visibility?: "public" | "private";
   status?: "draft" | "active" | "archived";
 };
@@ -81,8 +82,8 @@ export type programLearningOutcomeType = {
 }
 
 
-export type courseRequirementType = {
-    id:number;
+export type  RequirementsType = {
+    id:string;
     title:string;
     subtitle:string;
     description:string[];
@@ -100,7 +101,7 @@ export type FaqDataType = {
   faqs:FaqType[];
 }
 
-export type curriculumType = {
+export type CurriculumType = {
     id:number;
     order:number;
     title:string;
@@ -108,10 +109,10 @@ export type curriculumType = {
     description:string[];
 }
 
-export  type curriculumDataType = {
+export  type CurriculumDataType = {
   id:number;
   title:string;
-  curriculumType:curriculumType[];
+  curriculumType:CurriculumType[];
 }
 
 

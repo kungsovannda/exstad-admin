@@ -14,6 +14,7 @@ export default function ProgramSetup() {
   const params = useParams(); // app router
   // const slug = params.slug;
   const programUuid = params.slug as string;
+console.log("Fetching highlights for UUID:", programUuid);
 
 
   return (

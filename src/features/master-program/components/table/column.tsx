@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { programType } from "@/types/program";
+import { MasterProgramType } from "@/types/program";
 import { ArrowUpDown } from "lucide-react";
 import { MasterActionsCell } from "./action-cell";
 import { programData } from "@/data/programData";
@@ -142,7 +142,7 @@ import { formatTitle } from "@/utils/formatTitle";
 // ];
 
 
-export const masterProgramColumns = (programs: programType[]): ColumnDef<programType>[] => {
+export const masterProgramColumns = (programs: MasterProgramType[]): ColumnDef<MasterProgramType>[] => {
   const visibilityOptions = buildUniqueOptions(programs, mp => mp.visibility);
   const programTypeOptions = buildUniqueOptions(programs, mp => mp.programType);
   const programLevelOptions = buildUniqueOptions(programs, mp => mp.programLevel);

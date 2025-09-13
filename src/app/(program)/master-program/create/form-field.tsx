@@ -39,6 +39,7 @@ export const programFormSchema = z.object({
   subtitle: z.string(),
   description: z.string(),
   thumbnailUrl: z.string(),
+  posterUrl: z.string(),
   bgColor: z.string(),
 });
 
@@ -63,11 +64,13 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
       subtitle: "",
       description: "",
       thumbnailUrl: "",
+      posterUrl:"",
       bgColor: "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
     },
   });
 
   const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
+  const [previewsPoster, setPreviewsPoster] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState(form.getValues("bgColor"));
   const [bgColor, setbgColor] = useState(form.getValues("bgColor"));
   const [showDialog, setShowDialog] = useState(false);
@@ -301,6 +304,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             </FormItem>
           )}
         />
+
         {previewsThumbnail.length > 0 && (
           <div className="flex gap-2 mt-2 flex-wrap">
             {previewsThumbnail.map((src, idx) => (
@@ -310,6 +314,44 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
                 width={100}
                 height={100}
                 alt={`Thumbnail ${idx}`}
+                className="w-24 h-24 object-cover rounded border"
+              />
+            ))}
+          </div>
+        )}
+
+         <FormField
+          control={form.control}
+          name="posterUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>posterUrl</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const url = URL.createObjectURL(file);
+                      field.onChange(url);
+                      setPreviewsThumbnail([url]);
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {previewsPoster.length > 0 && (
+          <div className="flex gap-2 mt-2 flex-wrap">
+            {previewsPoster.map((src, idx) => (
+              <Image
+                key={idx}
+                src={src}
+                width={100}
+                height={100}
+                alt={`Poster ${idx}`}
                 className="w-24 h-24 object-cover rounded border"
               />
             ))}

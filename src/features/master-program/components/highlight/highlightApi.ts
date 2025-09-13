@@ -2,6 +2,13 @@ import { useBaseQuery } from "@/services/use-base-query";
 import { HighlightType } from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
+// Separate type for backend payload
+export type HighlightPayload = {
+  label: string;
+  value: string;
+  desc: string;
+};
+
 export const highlightsApi = createApi({
   reducerPath: "highlightsApi",
   baseQuery: useBaseQuery,
@@ -9,19 +16,30 @@ export const highlightsApi = createApi({
   endpoints: (builder) => ({
     getAllHighlight: builder.query<HighlightType[], string>({
       query: (programUuid) => `/api/v1/programs/${programUuid}/highlights`,
-      // no transformResponse needed, backend already returns an array
       providesTags: (result, error, uuid) =>
         result
           ? [
               ...result.map((_, index) => ({
                 type: "Highlights" as const,
-                id: `${uuid}-${index}`, // unique id
+                id: `${uuid}-${index}`, // unique for caching
               })),
               { type: "Highlights", id: "LIST" },
             ]
           : [{ type: "Highlights", id: "LIST" }],
     }),
+
+    updateHighlights: builder.mutation<
+      void, // backend returns nothing
+      { programUuid: string; highlights: HighlightPayload[] } // payload type
+    >({
+      query: ({ programUuid, highlights }) => ({
+        url: `/api/v1/programs/${programUuid}/highlights`,
+        method: "PUT",
+        body: highlights, // send only what backend expects
+      }),
+      invalidatesTags: [{ type: "Highlights", id: "LIST" }],
+    }),
   }),
 });
 
-export const { useGetAllHighlightQuery } = highlightsApi;
+export const { useGetAllHighlightQuery, useUpdateHighlightsMutation } = highlightsApi;
