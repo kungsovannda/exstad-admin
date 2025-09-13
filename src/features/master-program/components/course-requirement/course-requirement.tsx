@@ -5,180 +5,256 @@ import { FiPlus } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import AddTopicDialog from "../item-admin/add-topic-dialog";
-import AddSectionDialog from "../item-admin/section-dialog";
-import DeleteModal from "../../opening-program/activity/delete-modal-component";
+import AddTopicDialog from "./add-topic-dialog";
+import AddSectionDialog from "./section-dialog";
+import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
+import {
+  useGetAllRequirementsQuery,
+  useUpdateRequirementsMutation,
+} from "./requirementsApi";
+import { RequirementsType } from "@/types/program";
 
-type Section = { id: string; title: string };
-type Requirement = {
-  id: string;
-  order: number;
-  title: string;
-  subtitle: string;
-  sections: Section[];
-};
+type Props = { programUuid: string };
 
-// ===== MOCK DATA =====
-const initialRequirements: Requirement[] = [
-  {
-    id: "1",
-    order: 1,
-    title: "Course Requirements",
-    subtitle:
-      "Pre-university is the stage of education that bridges high school and university.",
-    sections: [
-      {
-        id: "1-1",
-        title:
-          "For foundation-year or first-year students in the Digital Technology (IT) field",
-      },
-      {
-        id: "1-2",
-        title:
-          "Grade 12 students who have the interest and aspiration to learn digital technology (IT) skills",
-      },
-    ],
-  },
-];
+export default function CourseRequirementsAdmin({ programUuid }: Props) {
+  // Fetch requirements
+  const {
+    data: requirements = [],
+    isLoading,
+    isError,
+  } = useGetAllRequirementsQuery(programUuid, {
+    refetchOnMountOrArgChange: true,
+  });
 
-export default function CourseRequirementsAdmin() {
-  const [requirements, setRequirements] = useState<Requirement[]>(
-    initialRequirements
-  );
+  const [updateRequirements] = useUpdateRequirementsMutation();
 
+  // UI states
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(
+    null
+  );
+  const [editingSection, setEditingSection] = useState<{
+    reqIndex: number;
+    index: number;
+  } | null>(null);
+  const [addingSectionReqIndex, setAddingSectionReqIndex] = useState<
+    number | null
+  >(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: "topic" | "section";
+    reqIndex?: number;
+    index?: number;
+  } | null>(null);
+
   const toggleExpand = (id: string) =>
     setExpandedItems((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
 
-  // ===== Handlers =====
-  const handleAddRequirement = (data: { title: string; subtitle?: string }) => {
-    const newRequirement: Requirement = {
-      id: Date.now().toString(),
-      order: requirements.length + 1,
-      title: data.title,
-      subtitle: data.subtitle || "",
-      sections: [],
-    };
-    setRequirements((prev) => [...prev, newRequirement]);
-  };
+  if (isLoading) return <div>Loading requirements...</div>;
+  if (isError)
+    return <div className="text-destructive">Failed to load requirements</div>;
 
-  const handleEditRequirement = (
-    id: string,
-    data: { title: string; subtitle?: string }
+  // ======================
+  // Unified Handlers
+  // ======================
+
+  // --- Topic create/update ---
+  // --- Topic create/update ---
+  const handleSaveTopic = async (
+    data: { title: string; subtitle: string },
+    targetIndex?: number
   ) => {
-    setRequirements((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, ...data } : r))
-    );
+    try {
+      const safeRequirements = requirements ?? [];
+
+      let newRequirements: RequirementsType[];
+
+      if (targetIndex !== undefined) {
+        // Update existing topic
+        newRequirements = safeRequirements.map((r, i) =>
+          i === targetIndex
+            ? { ...r, title: data.title, subtitle: data.subtitle }
+            : r
+        );
+      } else {
+        // Create new topic
+        newRequirements = [
+          ...safeRequirements,
+          {
+            id: crypto.randomUUID(),
+            title: data.title,
+            subtitle: data.subtitle || "", // <-- ensure subtitle is always a string
+            description: [],
+          },
+        ];
+      }
+
+      await updateRequirements({
+        programUuid,
+        requirements: newRequirements,
+      }).unwrap();
+      toast.success(
+        targetIndex !== undefined ? "Topic updated!" : "Topic added!"
+      );
+    } catch (err: any) {
+      toast.error(`Failed to save topic: ${err.message || err}`);
+    }
   };
 
-  const handleDeleteRequirement = (id: string) => {
-    setRequirements((prev) => prev.filter((r) => r.id !== id));
-  };
-
-  const handleAddSection = (reqId: string, data: { title: string }) => {
-    setRequirements((prev) =>
-      prev.map((r) =>
-        r.id === reqId
-          ? {
-              ...r,
-              sections: [
-                ...r.sections,
-                { id: Date.now().toString(), title: data.title },
-              ],
-            }
-          : r
-      )
-    );
-  };
-
-  const handleEditSection = (
-    reqId: string,
-    sectionId: string,
-    data: { title: string }
+  // --- Section create/update ---
+  // --- Section create/update ---
+  const handleSaveSection = async (
+    reqIndex: number,
+    data: { title: string },
+    sectionIndex?: number
   ) => {
-    setRequirements((prev) =>
-      prev.map((r) =>
-        r.id === reqId
+    try {
+      const safeRequirements = requirements.map((r) => ({
+        ...r,
+        description: [...r.description],
+      }));
+
+      const req = safeRequirements[reqIndex];
+
+      const updatedReq =
+        sectionIndex !== undefined
           ? {
-              ...r,
-              sections: r.sections.map((s) =>
-                s.id === sectionId ? { ...s, ...data } : s
+              ...req,
+              description: req.description.map((d, i) =>
+                i === sectionIndex ? data.title : d
               ),
             }
-          : r
-      )
-    );
+          : { ...req, description: [...req.description, data.title] };
+
+      safeRequirements[reqIndex] = updatedReq;
+
+      await updateRequirements({
+        programUuid,
+        requirements: safeRequirements,
+      }).unwrap();
+      toast.success(
+        sectionIndex !== undefined ? "Section updated!" : "Section added!"
+      );
+    } catch (err: any) {
+      toast.error(`Failed to save section: ${err.message || err}`);
+    }
   };
 
-  const handleDeleteSection = (reqId: string, sectionId: string) => {
-    setRequirements((prev) =>
-      prev.map((r) =>
-        r.id === reqId
-          ? { ...r, sections: r.sections.filter((s) => s.id !== sectionId) }
-          : r
-      )
-    );
+  // --- Section delete ---
+  const handleDeleteSection = async (
+    reqIndex: number,
+    sectionIndex: number
+  ) => {
+    try {
+      const safeRequirements = requirements.map((r) => ({
+        ...r,
+        description: [...r.description],
+      }));
+
+      const req = safeRequirements[reqIndex];
+      safeRequirements[reqIndex] = {
+        ...req,
+        description: req.description.filter((_, i) => i !== sectionIndex),
+      };
+
+      await updateRequirements({
+        programUuid,
+        requirements: safeRequirements,
+      }).unwrap();
+      toast.success("Section deleted!");
+    } catch (err: any) {
+      toast.error(`Failed to delete section: ${err.message || err}`);
+    }
   };
 
-  const handleSave = () => {
-    console.log("Saved Course Requirements:", requirements);
-    toast.success("Course requirements saved!");
+  // --- Delete ---
+  const handleDelete = async (
+    type: "topic" | "section",
+    reqIndex?: number,
+    index?: number
+  ) => {
+    try {
+      const safeRequirements = [...requirements];
+      let newRequirements: RequirementsType[];
+
+      if (type === "topic" && reqIndex !== undefined) {
+        newRequirements = safeRequirements.filter((_, i) => i !== reqIndex);
+      } else if (
+        type === "section" &&
+        reqIndex !== undefined &&
+        index !== undefined
+      ) {
+        const req = { ...safeRequirements[reqIndex] };
+        req.description = req.description?.filter((_, i) => i !== index) ?? [];
+        newRequirements = safeRequirements.map((r, i) =>
+          i === reqIndex ? req : r
+        );
+      } else return;
+
+      const payload = newRequirements.map(
+        ({ title, subtitle, description }) => ({ title, subtitle, description })
+      );
+      await updateRequirements({ programUuid, requirements: payload }).unwrap();
+      toast.success(type === "topic" ? "Topic deleted!" : "Section deleted!");
+      setDeleteTarget(null);
+    } catch (err: any) {
+      toast.error(`Failed to delete: ${err.message || err}`);
+    }
   };
 
-  // ===== Modal State =====
-  const [deleteTarget, setDeleteTarget] = useState<{
-    type: "topic" | "section";
-    id: string;
-    parentId?: string;
-  } | null>(null);
-
-  const [editingRequirementId, setEditingRequirementId] = useState<string | null>(null);
-
-  const [editingSection, setEditingSection] = useState<{
-    reqId: string;
-    sectionId: string;
-  } | null>(null);
-
-  const [addingSectionReqId, setAddingSectionReqId] = useState<string | null>(
-    null
-  );
-
-  // ===== JSX =====
+  // ======================
+  // JSX
+  // ======================
   return (
     <div className="flex flex-col gap-5 w-full">
-      {/* Header + Add Requirement */}
+      {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-[18px] font-bold text-foreground">Course Requirements</h2>
+        <h2 className="text-[18px] font-bold text-foreground">
+          Course Requirements
+        </h2>
         <AddTopicDialog
-          onSubmit={handleAddRequirement}
+          programUuid={programUuid}
+          onSubmit={(data) => handleSaveTopic(data)}
           trigger={
             <Button>
               <FiPlus />
-              <span className="text-[14px] font-bold">Add Requirement</span>
+              <span className="text-[14px] font-bold">Add Topic</span>
             </Button>
           }
         />
       </div>
 
-      {/* Requirement List */}
-      {requirements.map((req) => {
-        const isExpanded = expandedItems.includes(req.id);
+      {requirements.length === 0 && (
+        <div className="text-muted-foreground">
+          No requirements yet. Add one!
+        </div>
+      )}
 
+      {/* List */}
+      {requirements.map((req, reqIndex) => {
+        const isExpanded = expandedItems.includes(String(reqIndex));
         return (
-          <div key={req.id} className="flex flex-col gap-2.5 bg-accent rounded-sm p-4">
+          <div
+            key={reqIndex}
+            className="flex flex-col gap-2.5 bg-accent rounded-sm p-4"
+          >
+            {/* Topic Header */}
             <div className="flex justify-between items-center">
               <div
                 className="flex items-center gap-2.5 cursor-pointer"
-                onClick={() => toggleExpand(req.id)}
+                onClick={() => toggleExpand(String(reqIndex))}
               >
                 <FiPlus className="bg-black rounded-full text-white text-lg" />
-                <div className="flex flex-col cursor-pointer">
-                  <span className="text-[16px] font-semibold text-foreground">{req.title}</span>
+                <div className="flex flex-col">
+                  <span className="text-[16px] font-semibold text-foreground">
+                    {req.title}
+                  </span>
                   {req.subtitle && (
-                    <span className="text-[12px] text-muted-foreground">{req.subtitle}</span>
+                    <span className="text-[12px] text-muted-foreground">
+                      {req.subtitle}
+                    </span>
                   )}
                 </div>
               </div>
@@ -187,28 +263,29 @@ export default function CourseRequirementsAdmin() {
                 <Trash
                   size={16}
                   className="text-destructive cursor-pointer"
-                  onClick={() => setDeleteTarget({ type: "topic", id: req.id })}
+                  onClick={() => setDeleteTarget({ type: "topic", reqIndex })}
                 />
                 <SquarePen
                   size={16}
                   className="text-primary-hover cursor-pointer"
-                  onClick={() => setEditingRequirementId(req.id)}
+                  onClick={() => setEditingTopicIndex(reqIndex)}
                 />
 
-                {/* Edit Requirement Modal */}
                 <AddTopicDialog
-                  open={editingRequirementId === req.id}
-                  onOpenChange={(open) => setEditingRequirementId(open ? req.id : null)}
+                  programUuid={programUuid}
+                  open={editingTopicIndex === reqIndex}
+                  onOpenChange={(open) =>
+                    setEditingTopicIndex(open ? reqIndex : null)
+                  }
                   initialData={{ title: req.title, subtitle: req.subtitle }}
-                  onSubmit={(data) => {
-                    handleEditRequirement(req.id, data);
-                    setEditingRequirementId(null);
-                  }}
+                  onSubmit={(data) => handleSaveTopic(data, reqIndex)}
                 />
 
                 <FaChevronDown
-                  onClick={() => toggleExpand(req.id)}
-                  className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`}
+                  className={`transition-transform duration-200 ${
+                    isExpanded ? "rotate-180" : "rotate-0"
+                  }`}
+                  onClick={() => toggleExpand(String(reqIndex))}
                 />
               </div>
             </div>
@@ -216,14 +293,16 @@ export default function CourseRequirementsAdmin() {
             {/* Sections */}
             {isExpanded && (
               <div className="flex flex-col gap-2.5 mt-2">
-                {req.sections.map((section) => (
+                {req.description?.map((desc, index) => (
                   <div
-                    key={section.id}
+                    key={index}
                     className="flex justify-between items-center p-2.5 bg-background rounded-[4px]"
                   >
                     <div className="flex items-center gap-2.5">
                       <FaChevronRight className="bg-[#0FC65E] rounded-full p-1 text-white text-[18px]" />
-                      <span className="text-[14px] font-semibold text-foreground">{section.title}</span>
+                      <span className="text-[14px] font-semibold text-foreground">
+                        {desc}
+                      </span>
                     </div>
 
                     <div className="flex gap-2 items-center">
@@ -231,68 +310,73 @@ export default function CourseRequirementsAdmin() {
                         size={16}
                         className="text-destructive cursor-pointer"
                         onClick={() =>
-                          setDeleteTarget({ type: "section", id: section.id, parentId: req.id })
+                          setDeleteTarget({ type: "section", reqIndex, index })
                         }
                       />
                       <SquarePen
                         size={16}
                         className="text-primary-hover cursor-pointer"
-                        onClick={() =>
-                          setEditingSection({ reqId: req.id, sectionId: section.id })
-                        }
+                        onClick={() => setEditingSection({ reqIndex, index })}
                       />
 
-                      {/* Edit Section Modal */}
                       <AddSectionDialog
-                        open={editingSection?.reqId === req.id && editingSection?.sectionId === section.id}
-                        onOpenChange={(open) => !open && setEditingSection(null)}
-                        initialData={{ title: section.title }}
-                        onSubmit={(data) => {
-                          handleEditSection(req.id, section.id, data);
-                          setEditingSection(null);
-                        }}
+                        programUuid={programUuid} // required
+                        reqIndex={reqIndex} // required
+                        open={
+                          editingSection?.reqIndex === reqIndex &&
+                          editingSection?.index === index
+                        }
+                        onOpenChange={(open) =>
+                          !open && setEditingSection(null)
+                        }
+                        initialData={{ title: desc }}
+                        onSubmit={(data) =>
+                          handleSaveSection(reqIndex, data, index)
+                        }
                       />
                     </div>
                   </div>
                 ))}
 
-                {/* Add Section Modal */}
-                <Button className="flex w-fit items-center" onClick={() => setAddingSectionReqId(req.id)}  >
-                <FiPlus /> <span className="text-[14px] font-semibold">Add Section</span>  </Button>
-                <AddSectionDialog
-                  open={addingSectionReqId === req.id}
-                  onOpenChange={(open) => !open && setAddingSectionReqId(null)}
-                  onSubmit={(data) => {
-                    handleAddSection(req.id, data);
-                    setAddingSectionReqId(null);
-                  }}
-                />
+                <Button
+                  className="flex w-fit items-center"
+                  onClick={() => setAddingSectionReqIndex(reqIndex)}
+                >
+                  <FiPlus />{" "}
+                  <span className="text-[14px] font-semibold">Add Section</span>
+                </Button>
+
+                {addingSectionReqIndex === reqIndex && (
+                  <AddSectionDialog
+                   programUuid={programUuid}        // required
+                   reqIndex={reqIndex}  
+                    open={true}
+                    onOpenChange={(open) =>
+                      !open && setAddingSectionReqIndex(null)
+                    }
+                    onSubmit={(data) => handleSaveSection(reqIndex, data)}
+                  />
+                )}
               </div>
             )}
-
-            {/* Delete Modal */}
-            <DeleteModal
-              open={!!deleteTarget}
-              onOpenChange={(open) => !open && setDeleteTarget(null)}
-              itemName={deleteTarget?.type === "topic" ? "requirement" : "section"}
-              onConfirm={() => {
-                if (deleteTarget?.type === "topic") handleDeleteRequirement(deleteTarget.id);
-                else if (deleteTarget?.type === "section" && deleteTarget.parentId)
-                  handleDeleteSection(deleteTarget.parentId, deleteTarget.id);
-                setDeleteTarget(null);
-                toast.success("Deleted successfully!");
-              }}
-            />
           </div>
         );
       })}
 
-      {/* Save Button */}
-      <div className="flex justify-end mt-6">
-        <Button onClick={handleSave} className="bg-primary text-white">
-          Save Course Requirements
-        </Button>
-      </div>
+      {/* Delete Modal */}
+      <DeleteModal
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        itemName={deleteTarget?.type === "topic" ? "topic" : "section"}
+        onConfirm={() =>
+          deleteTarget &&
+          handleDelete(
+            deleteTarget.type,
+            deleteTarget.reqIndex,
+            deleteTarget.index
+          )
+        }
+      />
     </div>
   );
 }

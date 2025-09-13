@@ -1,12 +1,12 @@
 "use client";
 
 import Curriculum from "@/components/program/master-program/curriculum/curriculum";
-import Faq from "@/components/program/master-program/faq/faq";
+import Faq from "@/features/master-program/components/faq/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
 import LearningOutcomesAdmin from "@/components/program/master-program/learning-outcome/learning-outcome";
-import CourseRequirementsAdmin from "@/components/program/master-program/course-requirement/course-requirement";
+import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/course-requirement";
 import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
 
 export default function ProgramSetup() {
@@ -34,9 +34,9 @@ console.log("Fetching highlights for UUID:", programUuid);
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <Curriculum />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
-      {tab === "faq" && <Faq />}
+      {tab === "faq" && <Faq  />}
       {tab === "learning-outcomes" && <LearningOutcomesAdmin />}
-      {tab === "course-requirements" && <CourseRequirementsAdmin/>}
+      {tab === "course-requirements" && <CourseRequirementsAdmin programUuid={programUuid}/>}
     </div>
   );
 }

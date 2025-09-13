@@ -37,11 +37,11 @@ const highlightSchema = z.object({
 export type HighlightFormValues = z.infer<typeof highlightSchema>;
 
 interface HighlightsFormModalProps {
+  trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   initialData?: HighlightFormValues;
   onSubmitHighlight?: (data: HighlightFormValues) => Promise<void> | void;
-  trigger?: React.ReactNode;
 }
 
 export default function HighlightsFormModal({

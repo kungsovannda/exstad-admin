@@ -98,7 +98,7 @@ export type FaqType = {
 export type FaqDataType = {
   id:number;
   title:string;
-  faqs:FaqType[];
+  faq:FaqType[];
 }
 
 export type CurriculumType = {

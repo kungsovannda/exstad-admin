@@ -16,18 +16,19 @@ import { HighlightPayload, HighlightType } from "@/types/program";
 type Props = { programUuid: string };
 
 export default function HighlightsAdmin({ programUuid }: Props) {
+  // Fetch highlights, default to empty array if null
   const { data: highlights = [], isLoading, isError } =
     useGetAllHighlightQuery(programUuid, { refetchOnMountOrArgChange: true });
-  console.log(highlights)
+
   const [putHighlights] = useUpdateHighlightsMutation();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<HighlightType | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<HighlightType | null>(null);
 
-  // Add unique uid for React keys
+  // Safely add unique uid for React keys
   const highlightsWithUid = useMemo(
-    () => highlights.map((h) => ({ ...h, uid: crypto.randomUUID() })),
+    () => (highlights ?? []).map((h) => ({ ...h, uid: crypto.randomUUID() })),
     [highlights]
   );
 
@@ -37,20 +38,22 @@ export default function HighlightsAdmin({ programUuid }: Props) {
   // --- Save highlight (create or update) ---
   const handleSaveHighlight = async (data: HighlightFormValues, target?: HighlightType) => {
     try {
+      const safeHighlights = highlights ?? []; // null-safe
+
       let newHighlights: HighlightType[];
 
       if (target) {
-        // Update existing highlight by matching current values
-        newHighlights = highlights.map((h) =>
+        // Update existing highlight
+        newHighlights = safeHighlights.map((h) =>
           h.label === target.label &&
           h.value === target.value &&
           h.desc === target.desc
-            ? { ...h, ...data } // Replace with updated values
+            ? { ...h, ...data }
             : h
         );
       } else {
         // Create new highlight
-        newHighlights = [...highlights, { ...data }];
+        newHighlights = [...safeHighlights, { ...data }];
       }
 
       // Backend expects array without 'id'
@@ -61,8 +64,7 @@ export default function HighlightsAdmin({ programUuid }: Props) {
       }));
 
       await putHighlights({ programUuid, highlights: payload }).unwrap();
-
-      toast.success(target ? `Highlight updated!` : `Highlight created!`);
+      toast.success(target ? "Highlight updated!" : "Highlight added!");
     } catch (err: any) {
       toast.error(`Failed to save: ${err.message || err}`);
     }
@@ -71,7 +73,9 @@ export default function HighlightsAdmin({ programUuid }: Props) {
   // --- Delete highlight ---
   const handleDeleteHighlight = async (target: HighlightType) => {
     try {
-      const newHighlights = highlights.filter(
+      const safeHighlights = highlights ?? [];
+
+      const newHighlights = safeHighlights.filter(
         (h) =>
           !(h.label === target.label && h.value === target.value && h.desc === target.desc)
       );
@@ -112,45 +116,58 @@ export default function HighlightsAdmin({ programUuid }: Props) {
       </div>
 
       {/* Highlight List */}
-      {highlightsWithUid.map((h) => (
-        <div
-          key={h.uid} // React key
-          className="flex justify-between items-center bg-accent rounded-sm p-4"
-        >
-          <div className="flex flex-col">
-            <span className="text-[16px] font-semibold text-foreground">
-              {h.label} - {h.value}
-            </span>
-            <span className="text-[12px] text-muted-foreground">{h.desc}</span>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            {/* Delete */}
-            <Trash
-              size={16}
-              className="text-destructive cursor-pointer"
-              onClick={() => setDeleteTarget(h)}
-            />
-
-            {/* Edit */}
-            <HighlightsFormModal
-              open={!!editTarget && editTarget.label === h.label && editTarget.value === h.value && editTarget.desc === h.desc}
-              onOpenChange={(open) => !open && setEditTarget(null)}
-              initialData={editTarget || undefined}
-              onSubmitHighlight={(data) =>
-                handleSaveHighlight(data, editTarget!).finally(() => setEditTarget(null))
-              }
-              trigger={
-                <SquarePen
-                  size={16}
-                  className="text-primary-hover cursor-pointer"
-                  onClick={() => setEditTarget(h)}
-                />
-              }
-            />
-          </div>
+      {highlightsWithUid.length === 0 ? (
+        <div className="text-muted-foreground">
+          No highlights yet. Add one to get started!
         </div>
-      ))}
+      ) : (
+        highlightsWithUid.map((h) => (
+          <div
+            key={h.uid} // React key
+            className="flex justify-between items-center bg-accent rounded-sm p-4"
+          >
+            <div className="flex flex-col">
+              <span className="text-[16px] font-semibold text-foreground">
+                {h.label} - {h.value}
+              </span>
+              <span className="text-[12px] text-muted-foreground">{h.desc}</span>
+            </div>
+
+            <div className="flex gap-2 items-center">
+              {/* Delete */}
+              <Trash
+                size={16}
+                className="text-destructive cursor-pointer"
+                onClick={() => setDeleteTarget(h)}
+              />
+
+              {/* Edit */}
+              <HighlightsFormModal
+                open={
+                  !!editTarget &&
+                  editTarget.label === h.label &&
+                  editTarget.value === h.value &&
+                  editTarget.desc === h.desc
+                }
+                onOpenChange={(open) => !open && setEditTarget(null)}
+                initialData={editTarget || undefined}
+                onSubmitHighlight={(data) =>
+                  handleSaveHighlight(data, editTarget!).finally(() =>
+                    setEditTarget(null)
+                  )
+                }
+                trigger={
+                  <SquarePen
+                    size={16}
+                    className="text-primary-hover cursor-pointer"
+                    onClick={() => setEditTarget(h)}
+                  />
+                }
+              />
+            </div>
+          </div>
+        ))
+      )}
 
       {/* Delete Modal */}
       <DeleteModal
