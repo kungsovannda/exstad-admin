@@ -22,7 +22,7 @@ interface ActionsCellProps {
   onDelete?: (id: number) => void; // callback to remove class from parent state
 }
 
-export function MasterActionsCell({ program,onDelete  }: ActionsCellProps) {
+export function MasterActionsCell({ program  }: ActionsCellProps) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteMasterProgram] = useDeleteMasterProgramMutation();
@@ -32,8 +32,9 @@ export function MasterActionsCell({ program,onDelete  }: ActionsCellProps) {
       await deleteMasterProgram(program.uuid).unwrap();
       toast.success(`Program "${program.title}" delete successfully!`);
       setDeleteOpen(false);
-    }catch(err:any){
-      toast.error(`Failed to delete: ${err.message || err}`);
+    }catch(err:unknown){
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to delete: ${message || err}`);
     }
   }
   return (

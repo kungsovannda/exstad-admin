@@ -27,9 +27,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
 
   // UI states
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(
-    null
-  );
+  const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(null );
   const [editingSection, setEditingSection] = useState<{
     reqIndex: number;
     index: number;
@@ -99,7 +97,6 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
         sectionIndex !== undefined
           ? { ...req, description: (req.description || []).map((d, i) => (i === sectionIndex ? data.title : d)) }
           : { ...req, description: [...(req.description || []), data.title] };
-
       safeRequirements[reqIndex] = updatedReq;
 
       await updateRequirements({ programUuid, requirements: safeRequirements }).unwrap();

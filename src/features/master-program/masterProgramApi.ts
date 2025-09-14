@@ -1,9 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { useBaseQuery } from "@/services/use-base-query";
 import { MasterProgramType, MasterProgramCreate } from "@/types/program";
-import build from "next/dist/build";
-import { string, uuid } from "zod";
-import { error } from "console";
 
 export const masterprogramApi = createApi({
     reducerPath: "masterprogramApi",

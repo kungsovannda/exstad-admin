@@ -2,9 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { MasterProgramType } from "@/types/program";
 import { ArrowUpDown } from "lucide-react";
 import { MasterActionsCell } from "./action-cell";
-import { programData } from "@/data/programData";
 import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
-import { formatTitle } from "@/utils/formatTitle";
 
 
 

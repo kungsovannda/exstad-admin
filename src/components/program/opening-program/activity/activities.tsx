@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import ActivityModal from "./acitivity-modal";
 import { useState } from "react";
-import ActivityTable from "@/features/opening-program/components/table/activity/activity-table";
+import ActivityTable from "@/features/opening-program/components/activity/table/activity-table";
 
 // Flatten all activities
 

@@ -1,6 +1,6 @@
 "use client";
 
-import Curriculum from "@/components/program/master-program/curriculum/curriculum";
+import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
@@ -14,6 +14,9 @@ export default function ProgramSetup() {
   >("class");
   const params = useParams(); // app router
   const slug = params.slug;
+  // const slug = params.slug;
+  const programUuid = params.slug as string;
+console.log("Fetching highlights for UUID:", programUuid);
 
   return (
     <div className="p-5">
@@ -56,7 +59,7 @@ export default function ProgramSetup() {
 
       {/* Tab Content */}
       {tab === "class" && <ClassPage />}
-      {tab === "curriculum" && <Curriculum />}
+      {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "timeline" && <TimelinePage />}
       {tab === "activities" && <Activities />}

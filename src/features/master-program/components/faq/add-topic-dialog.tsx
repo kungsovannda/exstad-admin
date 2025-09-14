@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -35,53 +35,51 @@ const topicSchema = z.object({
 type TopicFormValues = z.infer<typeof topicSchema>;
 
 type AddTopicFaqProps = {
-  initialTitle?: string;
-  onSubmit: (title: string) => void;
+  programUuid:string;
+  initialData?:Partial<TopicFormValues>;
+  faqIndex?:number;
+  onSubmit: (data: TopicFormValues) => void;
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
 export function AddTopicFaq({
-  initialTitle = "",
+  programUuid,
+  faqIndex,
   onSubmit,
   trigger,
-  open: controlledOpen,
+  open,
   onOpenChange,
+  initialData,
 }: AddTopicFaqProps) {
-  const [localOpen, setLocalOpen] = useState(false);
-  const isControlled =
-    typeof controlledOpen === "boolean" && typeof onOpenChange === "function";
-  const open = isControlled ? controlledOpen : localOpen;
-  const setOpen = isControlled ? onOpenChange! : setLocalOpen;
-
   const form = useForm<TopicFormValues>({
     resolver: zodResolver(topicSchema),
-    defaultValues: { title: initialTitle },
+    defaultValues: { title:  "", ...initialData },
+    mode:"onSubmit",
+    reValidateMode:"onSubmit",
   });
-
   const { handleSubmit, reset, clearErrors, getValues, trigger: triggerValidation } = form;
 
-  // Reset form when dialog opens or initialTitle changes
+  // Reset form when dialog opens or initialData changes
   useEffect(() => {
     if (open) {
-      reset({ title: initialTitle });
+      reset({ title: initialData?.title || ""});
       clearErrors();
     }
-  }, [initialTitle, open, reset, clearErrors]);
+  }, [initialData, open, reset, clearErrors]);
 
-  const handleSubmitForm = (values: TopicFormValues) => {
+  const onSubmitForm = async (data: TopicFormValues) => {
     try {
-      onSubmit(values.title);
+      await onSubmit?.(data);
       toast.success(
-        initialTitle
-          ? `Topic "${values.title}" updated successfully!`
-          : `Topic "${values.title}" added successfully!`
+        initialData
+          ? `Topic "${data.title}" updated successfully!`
+          : `Topic "${data.title}" added successfully!`
       );
-      setOpen(false);
+      onOpenChange?.(false);
       reset();
     } catch (err) {
-      console.error(err);
       toast.error("Failed to submit topic. Please try again.");
     }
   };
@@ -93,11 +91,10 @@ export function AddTopicFaq({
     };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       {!open && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-      <DialogContent
-        className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
+      <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
         onInteractOutside={(event) => {
           event.preventDefault();
           const values = getValues();
@@ -116,11 +113,21 @@ export function AddTopicFaq({
         }}
       >
         <DialogHeader className="mb-6">
-          <DialogTitle>{initialTitle ? "Edit Topic" : "Add Topic"}</DialogTitle>
+          <DialogTitle>{initialData ? "Edit Topic" : "Add Topic"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4"
+           onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                (e.target as HTMLElement).tagName !== "TEXTAREA"
+              ) {
+                e.preventDefault();
+                handleSubmit(onSubmit)();
+              }
+            }}
+          >
             <FormField
               control={form.control}
               name="title"
@@ -145,7 +152,7 @@ export function AddTopicFaq({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">{initialTitle ? "Save Changes" : "Add Topic"}</Button>
+              <Button type="submit">{initialData ? "Save Changes" : "Add Topic"}</Button>
             </DialogFooter>
           </form>
         </Form>

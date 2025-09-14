@@ -5,7 +5,7 @@ import Faq from "@/features/master-program/components/faq/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {  useParams } from "next/navigation";
-import LearningOutcomesAdmin from "@/components/program/master-program/learning-outcome/learning-outcome";
+import LearningOutcomesAdmin from "@/features/master-program/components/learningoutcomes/learning-outcome";
 import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/course-requirement";
 import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
 
@@ -34,7 +34,7 @@ console.log("Fetching highlights for UUID:", programUuid);
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
-      {tab === "faq" && <Faq  />}
+      {tab === "faq" && <Faq programUuid={programUuid} />}
       {tab === "learning-outcomes" && <LearningOutcomesAdmin programUuid={programUuid}/>}
       {tab === "course-requirements" && <CourseRequirementsAdmin programUuid={programUuid}/>}
     </div>

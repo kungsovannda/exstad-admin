@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -35,7 +34,9 @@ const questionSchema = z.object({
 
 type QuestionFormValues = z.infer<typeof questionSchema>;
 
-type AddQuestionDialogProps = {
+interface AddQuestionDialogProps {
+  programUuid: string;
+  faqIndex?: number;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onAddQuestion?: (question: string, answer: string) => void;
@@ -44,10 +45,18 @@ type AddQuestionDialogProps = {
   initialAnswer?: string;
   submitText?: string;
   trigger?: React.ReactNode;
+  onSubmit: (data: QuestionFormValues) => void;
+  initialData?: Partial<QuestionFormValues>;
+
+
 };
 
 export function AddQuestionDialog({
-  open: controlledOpen,
+  programUuid,
+  faqIndex,
+  initialData,
+  onSubmit,
+  open,
   onOpenChange,
   onAddQuestion,
   onUpdateQuestion,
@@ -55,13 +64,8 @@ export function AddQuestionDialog({
   initialAnswer = "",
   submitText = "Add Question",
   trigger,
+  
 }: AddQuestionDialogProps) {
-  const [localOpen, setLocalOpen] = useState(false);
-  const isControlled =
-    typeof controlledOpen === "boolean" && typeof onOpenChange === "function";
-  const open = isControlled ? controlledOpen : localOpen;
-  const setOpen = isControlled ? onOpenChange! : setLocalOpen;
-
   const form = useForm<QuestionFormValues>({
     resolver: zodResolver(questionSchema),
     defaultValues: { question: initialQuestion, answer: initialAnswer },
@@ -77,16 +81,22 @@ export function AddQuestionDialog({
     }
   }, [initialQuestion, initialAnswer, open, reset, clearErrors]);
 
-  const handleSubmitForm = (values: QuestionFormValues) => {
+  const handleSubmitForm =async (data: QuestionFormValues) => {
     try {
-      if (onUpdateQuestion) {
-        onUpdateQuestion(values.question, values.answer);
-        toast.success("Question updated successfully!");
-      } else if (onAddQuestion) {
-        onAddQuestion(values.question, values.answer);
-        toast.success("Question added successfully!");
-      }
-      setOpen(false);
+      await onSubmit?.(data);
+      // if (onUpdateQuestion) {
+      //   onUpdateQuestion(data.question, data.answer);
+      //   toast.success("Question updated successfully!");
+      // } else if (onAddQuestion) {
+      //   onAddQuestion(data.question, data.answer);
+      //   toast.success("Question added successfully!");
+      // }
+      toast.success(
+              initialData
+                ? `Section "${data.question}" updated!`
+                : `Section "${data.question}" created!`
+            );
+      onOpenChange?.(false);
       reset();
     } catch (err) {
       console.error(err);
@@ -102,28 +112,23 @@ export function AddQuestionDialog({
     };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       {!open && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent
         className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
         onInteractOutside={(event) => {
-          event.preventDefault();
-          const values = getValues();
-          const hasEmpty = Object.values(values).some((v) => !v?.trim());
-          if (hasEmpty) {
-            triggerValidation();
-            toast.error("Please fill all required fields before leaving the modal.");
-          }
-        }}
-        onEscapeKeyDown={(event) => {
-          event.preventDefault();
-          const values = getValues();
-          const hasEmpty = Object.values(values).some((v) => !v?.trim());
-          if (hasEmpty) {
-            triggerValidation();
-            toast.error("Please fill all required fields before leaving the modal.");
-          }
+                  event.preventDefault(); // prevent closing if invalid
+                  const values = form.getValues();
+                  const hasEmpty = Object.values(values).some(
+                    (v) => v === "" || v === undefined || v === null
+                  );
+                  if (hasEmpty) {
+                    form.trigger(); // trigger validation
+                    toast.error(
+                      "Please fill all required fields before leaving the modal."
+                    );
+                  }
         }}
       >
         <DialogHeader className="mb-6">

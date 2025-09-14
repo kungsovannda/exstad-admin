@@ -11,7 +11,7 @@ import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { MasterProgramType } from "@/types/program";
 
 export default function Page() {
-  const { data, isFetching, error, refetch } = useGetAllMasterProgramsQuery(undefined, {
+  const { data, isFetching, error } = useGetAllMasterProgramsQuery(undefined, {
   refetchOnMountOrArgChange: true,
 });
 

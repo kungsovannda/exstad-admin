@@ -32,7 +32,7 @@ export type MasterProgramType = {
   highlights: HighlightType[];   // 👈 new
   curriculum: CurriculumType[]; // 👈 new
   openingprograms: openingProgramType[]; // 👈 new
-  faq:FaqDataType[];
+  faq:FaqItem[];
   curricula:CurriculumType[];
   visibility: visibility
   status: "draft" | "active" | "archived"
@@ -61,7 +61,7 @@ export type MasterProgramCreate = {
   highlights?: HighlightType[];
   curriculum?: CurriculumType[];
   openingprograms?: openingProgramType[];
-  faq?: FaqDataType[];
+  faq?: FaqItem[];
   // curricula?: CurriculumDataType[];
   visibility?: "public" | "private";
   status?: "draft" | "active" | "archived";
@@ -90,15 +90,14 @@ export type  RequirementsType = {
 }
 
 
-export type FaqType = {
-    id:number;
+export type FaqSection = {
+    id:string;
     question:string;
     answer:string;
 }
-export type FaqDataType = {
-  id:number;
+export type FaqItem = {
   title:string;
-  faq:FaqType[];
+  faqs:FaqSection[];
 }
 
 export type CurriculumType = {

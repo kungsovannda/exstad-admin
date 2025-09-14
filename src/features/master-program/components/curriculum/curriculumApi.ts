@@ -1,5 +1,5 @@
 import { useBaseQuery } from "@/services/use-base-query";
-import { CurriculumType, HighlightType } from "@/types/program";
+import { CurriculumType} from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export type CurriculumPayload = {
