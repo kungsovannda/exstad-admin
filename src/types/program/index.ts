@@ -27,7 +27,7 @@ export type MasterProgramType = {
   deadline:string;
   totalslot:number;
   programOverviews: programOverviewType[];
-  learningOutcomes: programLearningOutcomeType[];
+  learningOutcomes: LearningOutcomeType[];
   requirements: RequirementsType[];
   highlights: HighlightType[];   // 👈 new
   curriculum: CurriculumType[]; // 👈 new
@@ -56,7 +56,7 @@ export type MasterProgramCreate = {
   deadline?: string;
   totalslot?: number;
   programOverviews?: programOverviewType[];
-  learningOutcomes?: programLearningOutcomeType[];
+  learningOutcomes?: LearningOutcomeType[];
   requirements?: RequirementsType[];
   highlights?: HighlightType[];
   curriculum?: CurriculumType[];
@@ -74,8 +74,8 @@ export type programOverviewType = {
     description: string;
 }
 
-export type programLearningOutcomeType = {
-    id:number;
+export type LearningOutcomeType = {
+    id:string;
     title:string;
     subtitle:string;
     description:string[];

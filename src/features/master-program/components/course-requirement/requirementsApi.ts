@@ -43,28 +43,28 @@ export const requiementApi = createApi({
     }),
 
     // --- Optional: update single requirement sections ---
-    updateRequirementSections: builder.mutation<
-      void,
-      {
-        programUuid: string;
-        reqIndex: number; // index of requirement in array
-        sectionData: { title: string };
-        isEdit?: boolean;
-        sectionIndex?: number; // for editing existing section
-      }
-    >({
-      query: ({ programUuid, reqIndex, sectionData, isEdit, sectionIndex }) => ({
-        url: `/api/v1/programs/${programUuid}/requirements/sections`,
-        method: "PUT",
-        body: { reqIndex, sectionData, isEdit, sectionIndex },
-      }),
-      invalidatesTags: [{ type: "Requirements", id: "LIST" }],
-    }),
+    // updateRequirementSections: builder.mutation<
+    //   void,
+    //   {
+    //     programUuid: string;
+    //     reqIndex: number; // index of requirement in array
+    //     sectionData: { title: string };
+    //     isEdit?: boolean;
+    //     sectionIndex?: number; // for editing existing section
+    //   }
+    // >({
+    //   query: ({ programUuid, reqIndex, sectionData, isEdit, sectionIndex }) => ({
+    //     url: `/api/v1/programs/${programUuid}/requirements/sections`,
+    //     method: "PUT",
+    //     body: { reqIndex, sectionData, isEdit, sectionIndex },
+    //   }),
+    //   invalidatesTags: [{ type: "Requirements", id: "LIST" }],
+    // }),
   }),
 });
 
 export const {
   useGetAllRequirementsQuery,
   useUpdateRequirementsMutation,
-  useUpdateRequirementSectionsMutation,
+  // useUpdateRequirementSectionsMutation,
 } = requiementApi;

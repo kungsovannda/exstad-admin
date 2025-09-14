@@ -33,7 +33,8 @@ type SectionFormValues = z.infer<typeof sectionSchema>;
 
 interface AddSectionDialogProps {
   programUuid: string;
-  reqIndex: number;
+  reqIndex?: number;
+  outcomeIndex?: number;
   trigger?: React.ReactNode;
   onSubmit: (data: SectionFormValues) => void;
   initialData?: Partial<SectionFormValues>;
@@ -44,22 +45,25 @@ interface AddSectionDialogProps {
 export default function AddSectionDialog({
   programUuid,
   reqIndex,
+  outcomeIndex,
   trigger,
   onSubmit,
   initialData,
-  open: controlledOpen,
-  onOpenChange: controlledOnOpenChange,
+  open,
+  onOpenChange,
 }: AddSectionDialogProps) {
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
-  const open = controlledOpen ?? uncontrolledOpen;
-  const onOpenChange = controlledOnOpenChange ?? setUncontrolledOpen;
-
   const form = useForm<SectionFormValues>({
     resolver: zodResolver(sectionSchema),
     defaultValues: { title: "", ...initialData },
   });
 
-  const { handleSubmit, reset, clearErrors, getValues, trigger: triggerValidation } = form;
+  const {
+    handleSubmit,
+    reset,
+    clearErrors,
+    getValues,
+    trigger: triggerValidation,
+  } = form;
 
   useEffect(() => {
     if (open) {
@@ -68,15 +72,26 @@ export default function AddSectionDialog({
     }
   }, [open, initialData, reset, clearErrors]);
 
-  const onSubmitForm = (data: SectionFormValues) => {
-    onSubmit(data);
-    // toast.success(initialData ? "Section updated!" : "Section added!");
-    onOpenChange(false);
-    reset();
+  const onSubmitForm = async (data: SectionFormValues) => {
+    try {
+      await onSubmit?.(data);
+      toast.success(
+        initialData
+          ? `Section "${data.title}" updated!`
+          : `Section "${data.title}" created!`
+      );
+      onOpenChange?.(false);
+      reset();
+    } catch (err) {
+      toast.error("Failed to save Section");
+    }
   };
 
   const handleFieldChange =
-    (fieldName: keyof SectionFormValues, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void) =>
+    (
+      fieldName: keyof SectionFormValues,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    ) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       clearErrors(fieldName);
       onChange(e);
@@ -89,24 +104,23 @@ export default function AddSectionDialog({
       <DialogContent
         className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
         onInteractOutside={(event) => {
-          const values = getValues();
-          if (values.title.trim() === "") {
-            event.preventDefault();
-            triggerValidation("title");
-            toast.error("Please fill the section title before leaving the modal.");
-          }
-        }}
-        onEscapeKeyDown={(event) => {
-          const values = getValues();
-          if (values.title.trim() === "") {
-            event.preventDefault();
-            triggerValidation("title");
-            toast.error("Please fill the section title before leaving the modal.");
+          event.preventDefault(); // prevent closing if invalid
+          const values = form.getValues();
+          const hasEmpty = Object.values(values).some(
+            (v) => v === "" || v === undefined || v === null
+          );
+          if (hasEmpty) {
+            form.trigger(); // trigger validation
+            toast.error(
+              "Please fill all required fields before leaving the modal."
+            );
           }
         }}
       >
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Section" : "Add Section"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Section" : "Add Section"}
+          </DialogTitle>
         </DialogHeader>
 
         <FormProvider {...form}>
@@ -131,11 +145,16 @@ export default function AddSectionDialog({
 
             <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="outline" className="bg-red-500 hover:bg-red-400 text-white">
+                <Button
+                  variant="outline"
+                  className="bg-red-500 hover:bg-red-400 text-white"
+                >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">{initialData ? "Save Changes" : "Add Section"}</Button>
+              <Button type="submit">
+                {initialData ? "Save Changes" : "Add Section"}
+              </Button>
             </DialogFooter>
           </form>
         </FormProvider>

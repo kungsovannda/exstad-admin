@@ -16,17 +16,14 @@ import { HighlightPayload, HighlightType } from "@/types/program";
 type Props = { programUuid: string };
 
 export default function HighlightsAdmin({ programUuid }: Props) {
-  // Fetch highlights, default to empty array if null
   const { data: highlights = [], isLoading, isError } =
     useGetAllHighlightQuery(programUuid, { refetchOnMountOrArgChange: true });
 
   const [putHighlights] = useUpdateHighlightsMutation();
-
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<HighlightType | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<HighlightType | null>(null);
 
-  // Safely add unique uid for React keys
   const highlightsWithUid = useMemo(
     () => (highlights ?? []).map((h) => ({ ...h, uid: crypto.randomUUID() })),
     [highlights]
@@ -35,28 +32,21 @@ export default function HighlightsAdmin({ programUuid }: Props) {
   if (isLoading) return <div>Loading highlights...</div>;
   if (isError) return <div className="text-destructive">Failed to load highlights</div>;
 
-  // --- Save highlight (create or update) ---
   const handleSaveHighlight = async (data: HighlightFormValues, target?: HighlightType) => {
     try {
-      const safeHighlights = highlights ?? []; // null-safe
-
+      const safeHighlights = highlights ?? [];
       let newHighlights: HighlightType[];
 
       if (target) {
-        // Update existing highlight
         newHighlights = safeHighlights.map((h) =>
-          h.label === target.label &&
-          h.value === target.value &&
-          h.desc === target.desc
+          h.label === target.label && h.value === target.value && h.desc === target.desc
             ? { ...h, ...data }
             : h
         );
       } else {
-        // Create new highlight
         newHighlights = [...safeHighlights, { ...data }];
       }
 
-      // Backend expects array without 'id'
       const payload: HighlightPayload[] = newHighlights.map(({ label, value, desc }) => ({
         label,
         value,
@@ -70,11 +60,9 @@ export default function HighlightsAdmin({ programUuid }: Props) {
     }
   };
 
-  // --- Delete highlight ---
   const handleDeleteHighlight = async (target: HighlightType) => {
     try {
       const safeHighlights = highlights ?? [];
-
       const newHighlights = safeHighlights.filter(
         (h) =>
           !(h.label === target.label && h.value === target.value && h.desc === target.desc)
@@ -87,7 +75,6 @@ export default function HighlightsAdmin({ programUuid }: Props) {
       }));
 
       await putHighlights({ programUuid, highlights: payload }).unwrap();
-
       toast.success(`Highlight "${target.label}" deleted!`);
     } catch (err: any) {
       toast.error(`Failed to delete: ${err.message || err}`);
@@ -103,9 +90,10 @@ export default function HighlightsAdmin({ programUuid }: Props) {
         <HighlightsFormModal
           open={isCreateOpen}
           onOpenChange={setIsCreateOpen}
-          onSubmitHighlight={(data) =>
-            handleSaveHighlight(data).finally(() => setIsCreateOpen(false))
-          }
+          onSubmitHighlight={async (data) => {
+            await handleSaveHighlight(data);
+            setIsCreateOpen(false); // close modal after save
+          }}
           trigger={
             <Button>
               <FiPlus />
@@ -123,7 +111,7 @@ export default function HighlightsAdmin({ programUuid }: Props) {
       ) : (
         highlightsWithUid.map((h) => (
           <div
-            key={h.uid} // React key
+            key={h.uid}
             className="flex justify-between items-center bg-accent rounded-sm p-4"
           >
             <div className="flex flex-col">
@@ -134,14 +122,12 @@ export default function HighlightsAdmin({ programUuid }: Props) {
             </div>
 
             <div className="flex gap-2 items-center">
-              {/* Delete */}
               <Trash
                 size={16}
                 className="text-destructive cursor-pointer"
                 onClick={() => setDeleteTarget(h)}
               />
 
-              {/* Edit */}
               <HighlightsFormModal
                 open={
                   !!editTarget &&
@@ -151,11 +137,10 @@ export default function HighlightsAdmin({ programUuid }: Props) {
                 }
                 onOpenChange={(open) => !open && setEditTarget(null)}
                 initialData={editTarget || undefined}
-                onSubmitHighlight={(data) =>
-                  handleSaveHighlight(data, editTarget!).finally(() =>
-                    setEditTarget(null)
-                  )
-                }
+                onSubmitHighlight={async (data) => {
+                  if (editTarget) await handleSaveHighlight(data, editTarget);
+                  setEditTarget(null); // close modal after edit
+                }}
                 trigger={
                   <SquarePen
                     size={16}
@@ -174,10 +159,10 @@ export default function HighlightsAdmin({ programUuid }: Props) {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         itemName={deleteTarget?.label || ""}
-        onConfirm={() =>
-          deleteTarget &&
-          handleDeleteHighlight(deleteTarget).finally(() => setDeleteTarget(null))
-        }
+        onConfirm={async () => {
+          if (deleteTarget) await handleDeleteHighlight(deleteTarget);
+          setDeleteTarget(null); // close after delete
+        }}
       />
     </div>
   );

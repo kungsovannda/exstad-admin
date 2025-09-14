@@ -18,7 +18,6 @@ import { RequirementsType } from "@/types/program";
 type Props = { programUuid: string };
 
 export default function CourseRequirementsAdmin({ programUuid }: Props) {
-  // Fetch requirements
   const {
     data: requirements = [],
     isLoading,
@@ -46,6 +45,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
     reqIndex?: number;
     index?: number;
   } | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const toggleExpand = (id: string) =>
     setExpandedItems((prev) =>
@@ -57,35 +57,30 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
     return <div className="text-destructive">Failed to load requirements</div>;
 
   // ======================
-  // Unified Handlers
+  // Handlers
   // ======================
 
-  // --- Topic create/update ---
-  // --- Topic create/update ---
   const handleSaveTopic = async (
     data: { title: string; subtitle: string },
     targetIndex?: number
   ) => {
     try {
       const safeRequirements = requirements ?? [];
-
       let newRequirements: RequirementsType[];
 
       if (targetIndex !== undefined) {
-        // Update existing topic
         newRequirements = safeRequirements.map((r, i) =>
           i === targetIndex
             ? { ...r, title: data.title, subtitle: data.subtitle }
             : r
         );
       } else {
-        // Create new topic
         newRequirements = [
           ...safeRequirements,
           {
             id: crypto.randomUUID(),
             title: data.title,
-            subtitle: data.subtitle || "", // <-- ensure subtitle is always a string
+            subtitle: data.subtitle || "",
             description: [],
           },
         ];
@@ -95,6 +90,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
         programUuid,
         requirements: newRequirements,
       }).unwrap();
+
       toast.success(
         targetIndex !== undefined ? "Topic updated!" : "Topic added!"
       );
@@ -103,8 +99,6 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
     }
   };
 
-  // --- Section create/update ---
-  // --- Section create/update ---
   const handleSaveSection = async (
     reqIndex: number,
     data: { title: string },
@@ -134,6 +128,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
         programUuid,
         requirements: safeRequirements,
       }).unwrap();
+
       toast.success(
         sectionIndex !== undefined ? "Section updated!" : "Section added!"
       );
@@ -142,34 +137,6 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
     }
   };
 
-  // --- Section delete ---
-  const handleDeleteSection = async (
-    reqIndex: number,
-    sectionIndex: number
-  ) => {
-    try {
-      const safeRequirements = requirements.map((r) => ({
-        ...r,
-        description: [...r.description],
-      }));
-
-      const req = safeRequirements[reqIndex];
-      safeRequirements[reqIndex] = {
-        ...req,
-        description: req.description.filter((_, i) => i !== sectionIndex),
-      };
-
-      await updateRequirements({
-        programUuid,
-        requirements: safeRequirements,
-      }).unwrap();
-      toast.success("Section deleted!");
-    } catch (err: any) {
-      toast.error(`Failed to delete section: ${err.message || err}`);
-    }
-  };
-
-  // --- Delete ---
   const handleDelete = async (
     type: "topic" | "section",
     reqIndex?: number,
@@ -196,6 +163,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
       const payload = newRequirements.map(
         ({ title, subtitle, description }) => ({ title, subtitle, description })
       );
+
       await updateRequirements({ programUuid, requirements: payload }).unwrap();
       toast.success(type === "topic" ? "Topic deleted!" : "Section deleted!");
       setDeleteTarget(null);
@@ -214,9 +182,15 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
         <h2 className="text-[18px] font-bold text-foreground">
           Course Requirements
         </h2>
+
         <AddTopicDialog
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
           programUuid={programUuid}
-          onSubmit={(data) => handleSaveTopic(data)}
+          onSubmit={async (data) => {
+            await handleSaveTopic(data);
+            setIsCreateOpen(false); // close automatically
+          }}
           trigger={
             <Button>
               <FiPlus />
@@ -278,7 +252,10 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
                     setEditingTopicIndex(open ? reqIndex : null)
                   }
                   initialData={{ title: req.title, subtitle: req.subtitle }}
-                  onSubmit={(data) => handleSaveTopic(data, reqIndex)}
+                  onSubmit={async (data) => {
+                    await handleSaveTopic(data, reqIndex);
+                    setEditingTopicIndex(null); // close after edit
+                  }}
                 />
 
                 <FaChevronDown
@@ -320,8 +297,8 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
                       />
 
                       <AddSectionDialog
-                        programUuid={programUuid} // required
-                        reqIndex={reqIndex} // required
+                        programUuid={programUuid}
+                        reqIndex={reqIndex}
                         open={
                           editingSection?.reqIndex === reqIndex &&
                           editingSection?.index === index
@@ -342,14 +319,14 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
                   className="flex w-fit items-center"
                   onClick={() => setAddingSectionReqIndex(reqIndex)}
                 >
-                  <FiPlus />{" "}
+                  <FiPlus />
                   <span className="text-[14px] font-semibold">Add Section</span>
                 </Button>
 
                 {addingSectionReqIndex === reqIndex && (
                   <AddSectionDialog
-                   programUuid={programUuid}        // required
-                   reqIndex={reqIndex}  
+                    programUuid={programUuid}
+                    reqIndex={reqIndex}
                     open={true}
                     onOpenChange={(open) =>
                       !open && setAddingSectionReqIndex(null)

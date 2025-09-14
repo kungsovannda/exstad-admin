@@ -3,6 +3,7 @@ import { currentAddressApi } from "@/features/current-address/currentAddressApi"
 import { requiementApi } from "@/features/master-program/components/course-requirement/requirementsApi";
 import { faqApi } from "@/features/master-program/components/faq/faqApi";
 import { highlightsApi } from "@/features/master-program/components/highlight/highlightApi";
+import { learningOutcomesApi } from "@/features/master-program/components/learningoutcomes/learningOutcomesApi";
 import { masterprogramApi } from "@/features/master-program/masterProgramApi";
 import { provinceApi } from "@/features/province/provinceApi";
 import { universityApi } from "@/features/university/universityApi";
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   [highlightsApi.reducerPath]: highlightsApi.reducer,
   [faqApi.reducerPath]: faqApi.reducer,
   [requiementApi.reducerPath]: requiementApi.reducer,
+  [learningOutcomesApi.reducerPath]: learningOutcomesApi.reducer,
 });
 
 const persistConfig = {
@@ -42,6 +44,7 @@ export const makeStore = () => {
         highlightsApi.middleware, 
         faqApi.middleware,
         requiementApi.middleware,
+        learningOutcomesApi.middleware,
       ),
   });
 

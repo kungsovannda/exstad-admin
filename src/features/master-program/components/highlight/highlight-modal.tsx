@@ -96,7 +96,7 @@ export default function HighlightsFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger> }
 
       <DialogContent
         className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"

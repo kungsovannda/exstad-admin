@@ -35,7 +35,7 @@ console.log("Fetching highlights for UUID:", programUuid);
       {tab === "curriculum" && <Curriculum />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "faq" && <Faq  />}
-      {tab === "learning-outcomes" && <LearningOutcomesAdmin />}
+      {tab === "learning-outcomes" && <LearningOutcomesAdmin programUuid={programUuid}/>}
       {tab === "course-requirements" && <CourseRequirementsAdmin programUuid={programUuid}/>}
     </div>
   );
