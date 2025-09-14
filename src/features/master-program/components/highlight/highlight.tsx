@@ -55,8 +55,9 @@ export default function HighlightsAdmin({ programUuid }: Props) {
 
       await putHighlights({ programUuid, highlights: payload }).unwrap();
       toast.success(target ? "Highlight updated!" : "Highlight added!");
-    } catch (err: any) {
-      toast.error(`Failed to save: ${err.message || err}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to save: ${message || err}`);
     }
   };
 
@@ -76,8 +77,9 @@ export default function HighlightsAdmin({ programUuid }: Props) {
 
       await putHighlights({ programUuid, highlights: payload }).unwrap();
       toast.success(`Highlight "${target.label}" deleted!`);
-    } catch (err: any) {
-      toast.error(`Failed to delete: ${err.message || err}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to delete: ${message || err}`);
     }
   };
 

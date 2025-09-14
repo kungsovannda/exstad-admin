@@ -8,7 +8,6 @@ export type RequirementPayload = {
   subtitle?: string;
   description: string[]; // sections
 };
-
 export const requiementApi = createApi({
   reducerPath: "requiementsApi",
   baseQuery: useBaseQuery,

@@ -35,6 +35,7 @@ interface AddSectionDialogProps {
   programUuid: string;
   reqIndex?: number;
   outcomeIndex?: number;
+  curriculumIndex?:number;
   trigger?: React.ReactNode;
   onSubmit: (data: SectionFormValues) => void;
   initialData?: Partial<SectionFormValues>;
@@ -46,6 +47,7 @@ export default function AddSectionDialog({
   programUuid,
   reqIndex,
   outcomeIndex,
+  curriculumIndex,
   trigger,
   onSubmit,
   initialData,

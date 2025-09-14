@@ -1,6 +1,6 @@
 "use client";
 
-import Curriculum from "@/components/program/master-program/curriculum/curriculum";
+import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
 import Faq from "@/features/master-program/components/faq/faq";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ console.log("Fetching highlights for UUID:", programUuid);
 
       {/* Tab Content */}
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
-      {tab === "curriculum" && <Curriculum />}
+      {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "faq" && <Faq  />}
       {tab === "learning-outcomes" && <LearningOutcomesAdmin programUuid={programUuid}/>}

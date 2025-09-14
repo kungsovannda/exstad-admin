@@ -16,14 +16,8 @@ import {
 } from "@/features/master-program/components/learningoutcomes/learningOutcomesApi";
 import { LearningOutcomeType } from "@/types/program";
 
-// ======================
-// Types
-// ======================
 type Props = { programUuid: string };
 
-// ======================
-// Component
-// ======================
 export default function LearningOutcomesAdmin({ programUuid }: Props) {
   const { data: outcomes = [], isLoading, isError } =
     useGetAllLearningOutcomesQuery(programUuid, {
@@ -70,7 +64,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
     targetIndex?: number
   ) => {
     try {
-      const safeOutcomes = outcomes ?? [];
+      const safeOutcomes: LearningOutcomeType[] = outcomes ?? [];
       let newOutcomes: LearningOutcomeType[];
 
       if (targetIndex !== undefined) {
@@ -99,9 +93,8 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
       toast.success(
         targetIndex !== undefined ? "Outcome updated!" : "Outcome added!"
       );
-    } catch (err: any) {
-      const message =
-        err?.data?.message || err?.data?.error || err?.error || "Unknown error";
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       toast.error(`Failed to save outcome: ${message}`);
     }
   };
@@ -112,22 +105,26 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
     sectionIndex?: number
   ) => {
     try {
-      const safeOutcomes = outcomes.map((o) => ({
+      const safeOutcomes: LearningOutcomeType[] = outcomes.map((o) => ({
         ...o,
-        description: [...o.description],
+        description: [...(o.description || [])],
       }));
 
       const outcome = safeOutcomes[outcomeIndex];
+      if (!outcome) return;
 
       const updatedOutcome =
         sectionIndex !== undefined
           ? {
               ...outcome,
-              description: outcome.description.map((d, i) =>
+              description: (outcome.description || []).map((d, i) =>
                 i === sectionIndex ? data.title : d
               ),
             }
-          : { ...outcome, description: [...outcome.description, data.title] };
+          : {
+              ...outcome,
+              description: [...(outcome.description || []), data.title],
+            };
 
       safeOutcomes[outcomeIndex] = updatedOutcome;
 
@@ -139,8 +136,9 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
       toast.success(
         sectionIndex !== undefined ? "Section updated!" : "Section added!"
       );
-    } catch (err: any) {
-      toast.error(`Failed to save section: ${err.message || err}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to save section: ${message || err}`);
     }
   };
 
@@ -161,8 +159,9 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
         index !== undefined
       ) {
         const outcome = { ...safeOutcomes[outcomeIndex] };
-        outcome.description =
-          outcome.description?.filter((_, i) => i !== index) ?? [];
+        outcome.description = (outcome.description || []).filter(
+          (_, i) => i !== index
+        );
         newOutcomes = safeOutcomes.map((o, i) =>
           i === outcomeIndex ? outcome : o
         );
@@ -171,8 +170,9 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
       await updateOutcomes({ programUuid, learningOutcomes: newOutcomes }).unwrap();
       toast.success(type === "outcome" ? "Outcome deleted!" : "Section deleted!");
       setDeleteTarget(null);
-    } catch (err: any) {
-      toast.error(`Failed to delete: ${err.message || err}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to delete: ${message || err}`);
     }
   };
 
@@ -204,18 +204,20 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
         />
       </div>
 
-      {outcomes.length === 0 && (
+      {(!outcomes || outcomes.length === 0) && (
         <div className="text-muted-foreground">
           No learning outcomes yet. Add one!
         </div>
       )}
 
       {/* List */}
-      {outcomes.map((outcome, outcomeIndex) => {
+      {(outcomes || []).map((outcome, outcomeIndex) => {
         const isExpanded = expandedItems.includes(String(outcomeIndex));
+        const sections = outcome.description || [];
+
         return (
           <div
-            key={outcomeIndex}
+            key={outcome.id || outcomeIndex}
             className="flex flex-col gap-2.5 bg-accent rounded-sm p-4"
           >
             {/* Outcome Header */}
@@ -279,7 +281,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
             {/* Sections */}
             {isExpanded && (
               <div className="flex flex-col gap-2.5 mt-2">
-                {outcome.description?.map((section, index) => (
+                {sections.map((section, index) => (
                   <div
                     key={index}
                     className="flex justify-between items-center p-2.5 bg-background rounded-[4px]"
