@@ -9,6 +9,8 @@ export type HighlightPayload = Omit<HighlightType, "id">;
 type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
 type  visibility="public" | "private";
 type programType= "SHORT_COURSE" |"SCHOLARSHIP"
+
+
 export type MasterProgramType = {
   uuid: string;
   programType:programType;
@@ -46,7 +48,7 @@ export type MasterProgramCreate = {
   subtitle?: string;
   description?: string;
   programLevel?: Level;
-   posterUrl:string;
+  posterUrl:string;
   // image?: string;
   thumbnailUrl?: string;
   price?: number;

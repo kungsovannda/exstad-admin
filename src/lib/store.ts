@@ -6,6 +6,7 @@ import { faqApi } from "@/features/master-program/components/faq/faqApi";
 import { highlightsApi } from "@/features/master-program/components/highlight/highlightApi";
 import { learningOutcomesApi } from "@/features/master-program/components/learningoutcomes/learningOutcomesApi";
 import { masterprogramApi } from "@/features/master-program/masterProgramApi";
+import { openingProgramApi } from "@/features/opening-program/openingProgramApi";
 import { provinceApi } from "@/features/province/provinceApi";
 import { universityApi } from "@/features/university/universityApi";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   [requiementApi.reducerPath]: requiementApi.reducer,
   [learningOutcomesApi.reducerPath]: learningOutcomesApi.reducer,
   [curriculumApi.reducerPath]: curriculumApi.reducer,
+  [openingProgramApi.reducerPath]: openingProgramApi.reducer,
 });
 
 const persistConfig = {
@@ -48,6 +50,7 @@ export const makeStore = () => {
         requiementApi.middleware,
         learningOutcomesApi.middleware,
         curriculumApi.middleware,
+        openingProgramApi.middleware,
       ),
   });
 

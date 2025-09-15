@@ -1,19 +1,61 @@
 export type openingProgramType = {
-    uuid: string;
+    programUuid:string;
+    uuid:string;
     title: string;
-    generation:number;
-    description: string;
-    image: string;
-    shortcourseimage:string;
-    qrimage: string;
-    template?: string[];
-    activities: ActivityDataType[];
-    timeline: timeline[];
-    classes:Classes[];
+    generation:number;  
+    thumbnail:string;
     slug:string;
-    programType: string; 
-    visibility: "public" | "private";
+    originalFee:number;
+    price:number;
+    scholarship:number;
+    duration:string;
+    curriculumPdfUri:string;
+    totalSlot: number;
+    qrCodeUrl: string;
+    // extra fields from backend
+    telegramGroup: string;
+    status: "OPEN" | "CLOSED" | "ARCHIVED";
+    // image: string;
+    // shortcourseimage:string; 
+    // template?: string[];
 
+    // optional fields (if backend adds them later)
+    // description?: string;
+    programType: string;
+    visibility: "public" | "private";
+    activities?: ActivityDataType[];
+    timeline?: timeline[];
+    classes?: Classes[];
+   
+}
+
+export type openingProgramCreate = {
+    programUuid:string
+    title: string;
+    generation?:number;  
+    thumbnail:string;
+    slug?:string;
+    originalFee?:number;
+    price?:number;
+    scholarship?:number;
+    duration?:string;
+    curriculumPdfUri?:string;
+    totalSlot: number;
+    qrCodeUrl?: string;
+    // extra fields from backend
+    telegramGroup?: string;
+    status?: "OPEN" | "CLOSED" | "ARCHIVED";
+    // image: string;
+    // shortcourseimage:string; 
+    // template?: string[];
+
+    // optional fields (if backend adds them later)
+    // description?: string;
+    programType?: string;
+    visibility?: "public" | "private";
+    activities?: ActivityDataType[];
+    timeline?: timeline[];
+    classes?: Classes[];
 }
 
 export type ActivityType = {

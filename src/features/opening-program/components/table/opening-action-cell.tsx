@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import { useDeleteOpeningProgramMutation } from "../../openingProgramApi";
 
 interface ActionsCellProps {
   openingprogram: openingProgramType;
@@ -24,6 +25,18 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
   const router = useRouter();
   // const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteOpeningProgram] = useDeleteOpeningProgramMutation();
+  
+    const handleDelete = async () =>  {
+      try{
+        await deleteOpeningProgram(openingprogram.uuid).unwrap();
+        toast.success(`Program "${openingprogram.title}" delete successfully!`);
+        setDeleteOpen(false);
+      }catch(err:unknown){
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(`Failed to delete: ${message || err}`);
+      }
+    }
 
   return (
     <>
@@ -37,26 +50,9 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() =>
-              router.push(
-                `/opening-program/setup-openingprogram/${openingprogram.slug}`
-              )
-            }
-          >
-            Set Up
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => router.push(`/opening-program/create`)}
-          >
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-red-600"
-            onClick={() => setDeleteOpen(true)}
-          >
-            Delete{" "}
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push(   `/opening-program/setup-openingprogram/${openingprogram.programUuid}` ) }>  Set  </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push(`/opening-program/edit/${openingprogram.uuid}`)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="text-red-600"onClick={() => setDeleteOpen(true)}>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -64,11 +60,7 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         itemName={openingprogram.title}
-        onConfirm={() => {
-          toast.success(
-            `Program "${openingprogram.title}" deleted successfully!`
-          );
-        }}
+        onConfirm={handleDelete}
       />
     </>
   );

@@ -18,16 +18,16 @@ export default function MasterProgramEdit() {
   // Convert numeric fields to strings for the form
   const initialValues: MasterProgramFormValues = {
     ...program,
-    price: program.price?.toString() ?? "0",
-    scholarship: program.scholarship?.toString() ?? "0",
+    // price: program.price?.toString() ?? "0",
+    // scholarship: program.scholarship?.toString() ?? "0",
   };
 
   const handleSubmit = (values: MasterProgramFormValues) => {
     const payload = {
       ...values,
       slug: program.slug, // keep existing slug
-      price: Number(values.price),
-      scholarship: Number(values.scholarship),
+      // price: Number(values.price),
+      // scholarship: Number(values.scholarship),
     };
     toast.promise(updateMasterProgram({ uuid: program.uuid, body: payload }).unwrap(), {
       loading: "Updating...",

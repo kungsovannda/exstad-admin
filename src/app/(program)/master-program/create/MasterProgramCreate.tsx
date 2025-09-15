@@ -9,8 +9,6 @@ export default function MasterProgramCreate() {
     const payload = {
       ...values,
       slug: values.title.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now(),
-      price: Number(values.price),
-      scholarship: Number(values.scholarship),
     };
     toast.promise(createMasterProgram(payload).unwrap(), {
       loading: "Creating...",

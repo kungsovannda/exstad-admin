@@ -1,20 +1,26 @@
-// import { DefaultTableModel } from "@/components/table/default-table-model";
-// import { programData } from "@/data/programData";
-// import { openingProgramColumns } from "./openingColumn";
+import { DefaultTableModel } from "@/components/table/default-table-model";
+import { openingProgramColumns } from "./openingColumn";
+import { openingProgramType } from "@/types/opening-program";
 
-// // Flatten all openingprograms from all programs
+// Flatten all openingprograms from all programs
 // const allOpeningPrograms = programData.flatMap(
 //   (program) => program.openingprogram || []
 // );
 
-// export default function OpeningProgramTable() {
-//   return (
-//     <div>
-//       <DefaultTableModel
-//         columns={openingProgramColumns}
-//         data={allOpeningPrograms}
-//         totalItems={programData.length}
-//       />
-//     </div>
-//   );
-// }
+interface OpeningProgramTableProps {
+  data:openingProgramType[];
+  totalItems:number;
+  columns: ReturnType<typeof openingProgramColumns>;
+}
+
+export default function OpeningProgramTable({data, totalItems, columns}: OpeningProgramTableProps) {
+  return (
+    <div>
+      <DefaultTableModel
+        data={data}
+        totalItems={totalItems}
+        columns={columns}
+      />
+    </div>
+  );
+}

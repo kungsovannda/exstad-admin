@@ -34,8 +34,6 @@ export const programFormSchema = z.object({
   programType: z.enum(["SHORT_COURSE", "SCHOLARSHIP"]),
   programLevel: z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]),
   visibility: z.enum(["public", "private"]),
-  price: z.string().min(1),
-  scholarship: z.string().min(1),
   subtitle: z.string(),
   description: z.string(),
   thumbnailUrl: z.string(),
@@ -59,8 +57,6 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
       programType: "SHORT_COURSE",
       programLevel: "BASIC",
       visibility: "public",
-      price: "0",
-      scholarship: "0",
       subtitle: "",
       description: "",
       thumbnailUrl: "",
@@ -221,37 +217,6 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             )}
           />
         </div>
-
-        {/* Price & Scholarship */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price ($)</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="scholarship"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Scholarship (%)</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
         {/* Subtitle & Description */}
         <FormField
           control={form.control}
@@ -260,7 +225,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             <FormItem>
               <FormLabel>Subtitle</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea placeholder="Enter subtitle"  {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -273,7 +238,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea placeholder="Enter description" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
