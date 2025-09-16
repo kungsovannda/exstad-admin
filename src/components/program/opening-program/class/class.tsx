@@ -1,25 +1,117 @@
 "use client";
-import ClassModal1 from "./class-modal";
+
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ClassDataTable from "@/features/opening-program/components/class/table/class-data";
+import ClassModal, { ClassFormValues } from "./class-modal";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
+import { ClassColumns } from "@/features/opening-program/components/class/table/classColumn";
+import { ClassPayload, ClassType } from "@/types/opening-program";
+import {
+  useGetAllClassesQuery,
+  useCreateClassMutation,
+  useUpdateClassMutation,
+  useDeleteClassMutation,
+} from "@/features/opening-program/components/class/classApi";
 
-// Flatten all classes from all opening programs
-// const allClasses: Classes[] = programData.flatMap(
-//   (program) => program.openingprogram?.flatMap((op) => op.classes || []) || []
-// );
+export default function ClassAdmin() {
+  // Fetch all classes
+  const { data: classes = [], isLoading, isFetching, isError } =
+    useGetAllClassesQuery(undefined, { refetchOnMountOrArgChange: true });
+
+  // RTK Query mutations
+  const [createClass] = useCreateClassMutation();
+  const [updateClass] = useUpdateClassMutation();
+  const [deleteClass] = useDeleteClassMutation();
+
+  // Modal state
+  const [open, setOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<ClassType | null>(null);
+
+  // Columns wired for edit/delete actions
+  const columns = ClassColumns(classes, {
+    onEdit: (classRow: ClassType) => {
+      setEditTarget(classRow);
+      setOpen(true);
+    },
+    onDelete: async (classRow: ClassType) => {
+      try {
+        await deleteClass(classRow.uuid).unwrap();
+        toast.success(`Class "${classRow.className}" deleted!`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(`Failed to delete class: ${message}`);
+      }
+    },
+  });
+
+  // Handle create/update submission
+const handleSubmitClass = async (data: ClassFormValues) => {
+  try {
+    const payload: ClassPayload = {
+      openingProgramUuid: "dacb1ddf-4792-4934-82d5-4b73ca507639", // always send program UUID
+      className: data.className,
+      shift: data.shift.toUpperCase() as "MORNING" | "AFTERNOON" | "EVENING",
+      instructor: data.instructor,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      isWeekend: data.isWeekend,
+      totalSlot: data.totalSlot,
+      room: data.room,
+      classCode: data.classCode,
+      telegram: data.telegram,
+    };
+
+    if (editTarget) {
+      await updateClass({ uuid: editTarget.uuid, body: payload }).unwrap();
+      toast.success(`Class "${data.className}" updated!`);
+    } else {
+      await createClass(payload).unwrap();
+      toast.success(`Class "${data.className}" created!`);
+    }
+
+    setOpen(false);
+    setEditTarget(null);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    toast.error(`Failed to save class: ${message}`);
+  }
+};
 
 
-export default function ClassPage() {
-  const [open, setOpen] = useState(false); 
+  if (isLoading) return <div>Loading classes...</div>;
+  if (isError) return <div className="text-destructive">Failed to load classes</div>;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center gap-10">
+      {/* Header + Add Button */}
+      <div className="flex justify-between items-center gap-4">
         <h1 className="text-lg font-semibold">Classes</h1>
-        <Button onClick={() => setOpen(true)}>Add Class</Button>
-        <ClassModal1 open={open} onOpenChange={setOpen} />
+        <ClassModal
+          open={open}
+          onOpenChange={(val) => {
+            setOpen(val);
+            if (!val) setEditTarget(null);
+          }}
+          initialData={editTarget || undefined}
+          onSubmitClass={handleSubmitClass}
+          trigger={<Button className="font-bold">Add Class</Button>}
+        />
       </div>
-      <ClassDataTable />
+
+      {/* Table or Skeleton */}
+      {isFetching ? (
+        <DataTableSkeleton columnCount={7} />
+      ) : classes.length === 0 ? (
+        <p>No classes yet. Add one to get started!</p>
+      ) : (
+        <ClassDataTable
+          data={classes}
+          totalItems={classes.length}
+          columns={columns}
+        />
+      )}
     </div>
   );
 }

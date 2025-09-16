@@ -3,9 +3,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { ActivityActionsCell } from "./activity-action-cell";
-import { FlattenedActivity } from "@/features/opening-program/components/table/activity/activity-table";
+// import { FlattenedActivity } from "@/features/opening-program/components/table/activity/activity-table";
+import { ActivityType } from "@/types/opening-program";
 
-export const activityColumns: ColumnDef<FlattenedActivity>[] = [
+export const activityColumns=(activity: ActivityType[]): ColumnDef<ActivityType>[] => {
+ return [
   {
     accessorKey: "activityGroup",
     header: "Title ",
@@ -52,5 +54,5 @@ export const activityColumns: ColumnDef<FlattenedActivity>[] = [
     cell: ({ row }) => (
       <ActivityActionsCell ActivityData={row.original} />
     ),
-  },
-];
+  },]
+};

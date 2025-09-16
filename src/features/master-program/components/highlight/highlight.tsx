@@ -112,24 +112,13 @@ export default function HighlightsAdmin({ programUuid }: Props) {
         </div>
       ) : (
         highlightsWithUid.map((h) => (
-          <div
-            key={h.uid}
-            className="flex justify-between items-center bg-accent rounded-sm p-4"
-          >
+          <div key={h.uid}  className="flex justify-between items-center bg-accent rounded-sm p-4">
             <div className="flex flex-col">
-              <span className="text-[16px] font-semibold text-foreground">
-                {h.label} - {h.value}
-              </span>
+              <span className="text-[16px] font-semibold text-foreground">{h.label} - {h.value}</span>
               <span className="text-[12px] text-muted-foreground">{h.desc}</span>
             </div>
-
             <div className="flex gap-2 items-center">
-              <Trash
-                size={16}
-                className="text-destructive cursor-pointer"
-                onClick={() => setDeleteTarget(h)}
-              />
-
+              <Trash size={16} className="text-destructive cursor-pointer" onClick={() => setDeleteTarget(h)}/>
               <HighlightsFormModal
                 open={
                   !!editTarget &&

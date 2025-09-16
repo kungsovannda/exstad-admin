@@ -25,7 +25,7 @@ export type openingProgramType = {
     visibility: "public" | "private";
     activities?: ActivityDataType[];
     timeline?: timeline[];
-    classes?: Classes[];
+    classes?: ClassType[];
    
 }
 
@@ -55,12 +55,11 @@ export type openingProgramCreate = {
     visibility?: "public" | "private";
     activities?: ActivityDataType[];
     timeline?: timeline[];
-    classes?: Classes[];
+    classes?: ClassType[];
 }
 
 export type ActivityType = {
-    id:number;
-    subtitle:string;
+    title:string;
     description:string;
     image:string;
 }
@@ -76,19 +75,48 @@ export type timeline = {
   title: string;
 };
 
+export type ClassPayload = {
+  openingProgramUuid: string;
+  className: string;
+  shift: "MORNING" | "AFTERNOON" | "EVENING";
+  instructor: string;
+  startTime: string;  // HH:mm:ss
+  endTime: string;    // HH:mm:ss
+  isWeekend: boolean;
+  totalSlot: number;
+  room: string;
+  classCode: string;
+  telegram: string;
+};
 
-export type Classes = {
-    id:number;
-    title:string;
+export type ClassType = {
+    uuid:string;
+    className:string;
     shift:string;
     instructor:string;
-    startTime:Date;
-    endTime:Date;
+    startTime:string;
+    endTime:string;
     isWeekend:boolean;
-    totalSlots:number;
+    totalSlot:number;
     room:string;
     classCode:string;
+    telegram:string
 }
+export type ClassCreate = {
+    // openingProgramUuid:string;
+    className:string;
+    shift:string;
+    instructor:string;
+    startTime:string;
+    endTime:string;
+    isWeekend:boolean;
+    totalSlot:number;
+    room:string;
+    classCode:string;
+    telegram:string;
+}
+
+
 
 // export type RoadmapType = {
 

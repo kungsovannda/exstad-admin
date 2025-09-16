@@ -15,8 +15,6 @@ export default function ProgramSetup() {
   // const slug = params.slug;
   const programUuid = params.slug as string;
 console.log("Fetching highlights for UUID:", programUuid);
-
-
   return (
     <div className="p-5">
       <h1 className="text-2xl font-semibold mb-4">Program Setup - {programUuid}</h1>

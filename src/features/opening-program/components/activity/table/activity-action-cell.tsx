@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import ActivityModal from "@/components/program/opening-program/activity/acitivity-modal";
-import { FlattenedActivity } from "@/features/opening-program/components/table/activity/activity-table";
+// import { FlattenedActivity } from "@/features/opening-program/components/table/activity/activity-table";
+import { FlattenedActivity } from "./activity-table";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { toast } from "sonner";
 
@@ -70,3 +71,62 @@ export function ActivityActionsCell({ ActivityData,onDelete }: ActivityActionsCe
     </>
   );
 }
+
+
+
+
+// "use client";
+
+// import { activityColumns } from "./activityColumn";
+// import { ActivityDataType,ActivityType } from "@/types/opening-program";
+// import { MasterProgramType } from "@/types/program";
+// import { DefaultTableModel } from "@/components/table/default-table-model";
+
+// // Flatten all activities
+
+// export type FlattenedActivity = {
+//   id: number;
+//   activityGroup: string;  // comes from ActivityDataType.title
+//   subtitle: string;
+//   description: string;
+//   image: string;
+// };
+
+// const rawActivities: FlattenedActivity[] = programData.flatMap(
+//   (program: programType) =>
+//     program.openingprogram?.flatMap(op =>
+//       op.activities.flatMap((activityData: ActivityDataType) =>
+//         activityData.activityType.map<FlattenedActivity>((act: ActivityType) => ({
+//           id: act.id,
+//           activityGroup: activityData.title,
+//           subtitle: act.subtitle,
+//           description: act.description,
+//           image: act.image,
+//         }))
+//       )
+//     ) || []
+// );
+
+// // Deduplicate by id + group
+// const allActivities: FlattenedActivity[] = Array.from(
+//   new Map(rawActivities.map(act => [`${act.id}-${act.activityGroup}`, act])).values()
+// );
+
+// interface ActivityTableProps {
+//   data:ActivityType[];
+//   totalItems:number;
+//   columns:ReturnType<typeof activityColumns>;
+// }
+// export default function ActivityTable({data,totalItems,columns}:ActivityTableProps) {
+//   return (
+//     <div >
+
+//      <DefaultTableModel 
+//       data={data}
+//       totalItems={totalItems}
+//       columns={columns}
+
+//      />
+//     </div>
+//   );
+// }
