@@ -8,7 +8,6 @@
   --font-inter: var(--font-inter);
   --font-koh: var(--font-koh);
 
-  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -132,4 +131,8 @@
 
 body {
   font-family: var(--font-inter), var(--font-koh), sans-serif;
+}
+
+*::selection {
+  color: var(--primary);
 }

@@ -52,6 +52,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { ScholarGeneralInformation } from "./AddScholar";
+import Image from "next/image";
 
 const formSchema = z.object({
   englishName: z.string().min(1).min(5).max(100),
@@ -77,7 +78,7 @@ export default function CreateGeneralInformation({
   const dropZoneConfig = {
     maxFiles: 5,
     maxSize: 1024 * 1024 * 4,
-    multiple: true,
+    multiple: false,
   };
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -475,8 +476,20 @@ export default function CreateGeneralInformation({
                     {files &&
                       files.length > 0 &&
                       files.map((file, i) => (
-                        <FileUploaderItem key={i} index={i}>
-                          <Paperclip className="h-4 w-4 stroke-current" />
+                        <FileUploaderItem
+                          className="h-16 overflow-hidden flex items-start justify-start"
+                          key={i}
+                          index={i}
+                        >
+                          <figure className="h-16 aspect-square rounded-sm overflow-hidden object-center">
+                            <Image
+                              className="rounded-sm"
+                              width={64}
+                              height={64}
+                              src={URL.createObjectURL(file)}
+                              alt={file.name}
+                            />
+                          </figure>
                           <span>{file.name}</span>
                         </FileUploaderItem>
                       ))}
