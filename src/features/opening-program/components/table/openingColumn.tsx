@@ -6,18 +6,18 @@ import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOption
 export const openingProgramColumns = (
   openingPrograms: openingProgramType[]
 ): ColumnDef<openingProgramType>[] => {
-  const programTypeOptions = buildUniqueOptions(
-    openingPrograms,
-    (op) => op.programType
-  );
+  // const programTypeOptions = buildUniqueOptions(
+  //   openingPrograms,
+  //   (op) => op.programType
+  // );
   const generationOptions = buildUniqueOptions(
     openingPrograms,
     (gen) => gen.generation
   );
-  const visibilitOptions = buildUniqueOptions(
-    openingPrograms,
-    (vs) => vs.visibility
-  );
+  // const visibilitOptions = buildUniqueOptions(
+  //   openingPrograms,
+  //   (vs) => vs.visibility
+  // );
   const statusOptions = buildUniqueOptions(
     openingPrograms,
     (st) => st.status,

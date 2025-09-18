@@ -78,8 +78,9 @@ export default function AddTopicDialog({
             );
             onOpenChange?.(false);
             reset();
-    }catch(err){
-      toast.error("Failed to save Requirements");
+    }catch (err : unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          toast.error(`Failed to save: ${message || err}`);
     }
   };
 

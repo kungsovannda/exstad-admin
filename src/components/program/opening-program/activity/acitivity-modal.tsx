@@ -8,7 +8,7 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+// import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -128,7 +128,10 @@ export default function ActivityformModal({
       try {
         const parsed = JSON.parse(initialData.description);
         setEditorState(parsed);
-      } catch (e) {
+      } 
+        catch (err : unknown) {
+              const message = err instanceof Error ? err.message : String(err);
+              toast.error(`Failed to save: ${message || err}`);
         // If parsing fails, create a simple editor state with plain text
         setEditorState({
           root: {
@@ -194,17 +197,17 @@ export default function ActivityformModal({
   //   setPreviewsImage(filePreviews);
   // };
 
-    const handleFieldChange =
-      (
-        fieldName: keyof ActivityFormValues,
-        onChange: (
-          event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-        ) => void
-      ) =>
-      (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        clearErrors(fieldName);
-        onChange(event);
-      };
+    // const handleFieldChange =
+    //   (
+    //     fieldName: keyof ActivityFormValues,
+    //     onChange: (
+    //       event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    //     ) => void
+    //   ) =>
+    //   (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    //     clearErrors(fieldName);
+    //     onChange(event);
+    //   };
 
   // ---------------------------
   // Close handler (Cancel & X should use this)

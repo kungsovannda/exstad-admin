@@ -70,7 +70,7 @@ export default function ClassModal({
   onOpenChange,
   initialData,
   onSubmitClass,
-  submitLabel,
+  // submitLabel,
 }: ClassModalProps) {
   // Resolver cast to fix TS SubmitHandler error
   const resolver: Resolver<ClassFormValues> = zodResolver(formSchema) as unknown as Resolver<ClassFormValues>;
@@ -101,7 +101,7 @@ export default function ClassModal({
     reValidateMode: "onSubmit",
   });
 
-  const { handleSubmit, reset, clearErrors, getValues, trigger: triggerValidation } = form;
+  const { handleSubmit, reset, clearErrors,  } = form;
 
   useEffect(() => {
     if (open) {
