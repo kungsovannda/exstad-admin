@@ -10,22 +10,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import ActivityModal from "@/components/program/opening-program/activity/acitivity-modal";
-// import { FlattenedActivity } from "@/features/opening-program/components/table/activity/activity-table";
-import { FlattenedActivity } from "./activity-table";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { toast } from "sonner";
-
+import { ActivityType } from "@/types/opening-program";
+import { useState } from "react";
 
 interface ActivityActionsCellProps {
-  ActivityData: FlattenedActivity;
-  onDelete?: (id: number) => void; // optional callback
-  
+  activities: ActivityType;
+  onEdit?: (a: ActivityType) => void;
+  onDelete?: (a: ActivityType) => void;
 }
 
-export function ActivityActionsCell({ ActivityData,onDelete }: ActivityActionsCellProps) {
-  const [open, setOpen] = useState(false);
+export function ActivityActionsCell({ activities, onEdit, onDelete }: ActivityActionsCellProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
@@ -40,93 +36,28 @@ export function ActivityActionsCell({ ActivityData,onDelete }: ActivityActionsCe
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem className="text-red-600"onClick={() => setDeleteOpen(true)} >   Delete
+          <DropdownMenuItem onClick={() => onEdit?.(activities)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="text-red-600" onClick={() => setDeleteOpen(true)}>
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-
-      <ActivityModal
-        open={open}
-        onOpenChange={setOpen}
-        initialData={{
-          title: ActivityData.activityGroup,
-          subtitle: ActivityData.subtitle,
-          description: ActivityData.description,
-          images: [], // your modal expects an array of File objects
-           imageUrl: ActivityData.image, // existing image for preview
-        }}
-      />
-       {/* Delete Modal */}
+      {/* Delete Modal */}
       <DeleteModal
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={ActivityData.activityGroup}
-        onConfirm={() => {
-          onDelete?.(ActivityData.id); // call parent callback
-          toast.success(`Activity "${ActivityData.activityGroup}" deleted successfully!`);
+        itemName={activities.title}
+        onConfirm={async () => {
+          try {
+            if (onDelete) await onDelete(activities);
+            setDeleteOpen(false);
+          } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            toast.error(`Failed to delete activity: ${message || err}`);
+          }
         }}
       />
     </>
   );
 }
-
-
-
-
-// "use client";
-
-// import { activityColumns } from "./activityColumn";
-// import { ActivityDataType,ActivityType } from "@/types/opening-program";
-// import { MasterProgramType } from "@/types/program";
-// import { DefaultTableModel } from "@/components/table/default-table-model";
-
-// // Flatten all activities
-
-// export type FlattenedActivity = {
-//   id: number;
-//   activityGroup: string;  // comes from ActivityDataType.title
-//   subtitle: string;
-//   description: string;
-//   image: string;
-// };
-
-// const rawActivities: FlattenedActivity[] = programData.flatMap(
-//   (program: programType) =>
-//     program.openingprogram?.flatMap(op =>
-//       op.activities.flatMap((activityData: ActivityDataType) =>
-//         activityData.activityType.map<FlattenedActivity>((act: ActivityType) => ({
-//           id: act.id,
-//           activityGroup: activityData.title,
-//           subtitle: act.subtitle,
-//           description: act.description,
-//           image: act.image,
-//         }))
-//       )
-//     ) || []
-// );
-
-// // Deduplicate by id + group
-// const allActivities: FlattenedActivity[] = Array.from(
-//   new Map(rawActivities.map(act => [`${act.id}-${act.activityGroup}`, act])).values()
-// );
-
-// interface ActivityTableProps {
-//   data:ActivityType[];
-//   totalItems:number;
-//   columns:ReturnType<typeof activityColumns>;
-// }
-// export default function ActivityTable({data,totalItems,columns}:ActivityTableProps) {
-//   return (
-//     <div >
-
-//      <DefaultTableModel 
-//       data={data}
-//       totalItems={totalItems}
-//       columns={columns}
-
-//      />
-//     </div>
-//   );
-// }

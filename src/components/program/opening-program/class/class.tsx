@@ -15,7 +15,7 @@ import {
   useDeleteClassMutation,
 } from "@/features/opening-program/components/class/classApi";
 
-export default function ClassAdmin() {
+export default function ClassAdmin({ openingProgramUuid }: { openingProgramUuid: string }) {
   // Fetch all classes
   const { data: classes = [], isLoading, isFetching, isError } =
     useGetAllClassesQuery(undefined, { refetchOnMountOrArgChange: true });
@@ -38,7 +38,7 @@ export default function ClassAdmin() {
     onDelete: async (classRow: ClassType) => {
       try {
         await deleteClass(classRow.uuid).unwrap();
-        toast.success(`Class "${classRow.className}" deleted!`);
+        toast.success(`Class "${classRow.classCode}" deleted!`);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         toast.error(`Failed to delete class: ${message}`);
@@ -50,8 +50,7 @@ export default function ClassAdmin() {
 const handleSubmitClass = async (data: ClassFormValues) => {
   try {
     const payload: ClassPayload = {
-      openingProgramUuid: "dacb1ddf-4792-4934-82d5-4b73ca507639", // always send program UUID
-      className: data.className,
+      openingProgramUuid, // <-- use from props
       shift: data.shift.toUpperCase() as "MORNING" | "AFTERNOON" | "EVENING",
       instructor: data.instructor,
       startTime: data.startTime,
@@ -65,10 +64,10 @@ const handleSubmitClass = async (data: ClassFormValues) => {
 
     if (editTarget) {
       await updateClass({ uuid: editTarget.uuid, body: payload }).unwrap();
-      toast.success(`Class "${data.className}" updated!`);
+      toast.success(`Class "${data.classCode}" updated!`);
     } else {
       await createClass(payload).unwrap();
-      toast.success(`Class "${data.className}" created!`);
+      toast.success(`Class "${data.classCode}" created!`);
     }
 
     setOpen(false);

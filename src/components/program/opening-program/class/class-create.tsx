@@ -11,12 +11,11 @@ export default function ClassCreateModal(){
     
     const handleSubmit = async (values: ClassFormValues) => {
         const payload: ClassCreate = {
-            className: values.className,
             shift: values.shift,
             instructor: values.instructor,
             startTime: values.startTime,
             endTime: values.endTime,
-            totalSlots: values.totalSlots,
+            totalSlot: values.totalSlot,
             room: values.room,
             classCode: values.classCode,
             isWeekend: values.isWeekend,

@@ -54,6 +54,8 @@ export const classApi = createApi({
             }),
             invalidatesTags: (result, error, { uuid }) => [
                 { type: "Class", id: uuid },
+                { type: "Class", id: "LIST" },
+
             ],
         }),
 

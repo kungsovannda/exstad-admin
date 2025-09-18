@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DialogClose } from "@radix-ui/react-dialog";
+import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 
 import { SerializedEditorState } from "lexical";
 import { Editor } from "@/components/blocks/editor-00/editor";
@@ -34,12 +34,11 @@ import Image from "next/image";
 // ---------------------------
 const formSchema = z.object({
   title: z.string().min(1, "Activity title is required"),
-  subtitle: z.string().min(1, "Activity subtitle is required"),
   description: z.string().min(1, "Activity description is required"),
-  images: z.array(z.instanceof(File)).min(1, "At least one image is required"),
+  image:z.string(),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+export type ActivityFormValues = z.infer<typeof formSchema>;
 
 // ---------------------------
 // Initial Editor Value
@@ -77,45 +76,43 @@ const initialValue = {
 // ---------------------------
 // Props
 // ---------------------------
-interface ActivityModalProps {
-  open: boolean;
+
+interface ActivityFormModalProps {
+  open?: boolean;
   onOpenChange: (open: boolean) => void;
-  initialData?: Partial<FormValues> & { imageUrl?: string };
+  initialData?: Partial<ActivityFormValues> & { imageUrl?: string };
+  trigger?: React.ReactNode;
+  onSubmitActivity?: (data:ActivityFormValues) => Promise<void> | void;
 }
 
 // ---------------------------
 // Component
 // ---------------------------
-export default function ActivityModal({
+export default function ActivityformModal({
   open,
   onOpenChange,
   initialData,
-}: ActivityModalProps) {
+  onSubmitActivity,
+  trigger,
+}: ActivityFormModalProps) {
   const [previewsImage, setPreviewsImage] = useState<string[]>([]);
   const [editorState, setEditorState] =
-    useState<SerializedEditorState>(initialValue);
+  useState<SerializedEditorState>(initialValue);
 
-  const form = useForm<FormValues>({
+  const form = useForm<ActivityFormValues>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
+    reValidateMode:"onSubmit",
     defaultValues: initialData || {
       title: "",
-      subtitle: "",
       description: "",
-      images: [],
+      image: "",
     },
+
   });
 
   // renamed trigger -> validateForm to avoid identifier conflicts
-  const {
-    reset,
-    handleSubmit,
-    setValue,
-    trigger: validateForm,
-    getValues,
-    clearErrors,
-    formState,
-  } = form;
+  const {reset,handleSubmit, setValue, trigger: validateForm, getValues, clearErrors, formState,} = form;
 
   // Preload image preview and description if editing
   useEffect(() => {
@@ -123,7 +120,7 @@ export default function ActivityModal({
     else setPreviewsImage([]);
 
     reset(
-      initialData || { title: "", subtitle: "", description: "", images: [] }
+      initialData || { title: "", description: "", image: "" }
     );
 
     // Safely parse description
@@ -171,31 +168,43 @@ export default function ActivityModal({
   // ---------------------------
   // Submit handler
   // ---------------------------
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = async (data: ActivityFormValues) => {
     try {
-      if (initialData) {
-        console.log("Updating activity:", values);
-        toast.success(`Activity "${values.title}" updated successfully!`);
-      } else {
-        console.log("Creating activity:", values);
-        toast.success(`Activity "${values.title}" created successfully!`);
-      }
-      handleClose();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to submit the activity. Please try again.");
+      await onSubmitActivity?.(data);
+      toast.success(
+        initialData
+         ? `Activity "${data.title}" updated successfully!`
+         : `Activity "${data.title}" created successfully!`
+      );
+      onOpenChange?.(false);
+      reset();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to submit the activity: ${message || err}`);
     }
   };
 
   // ---------------------------
   // Handle file input changes
   // ---------------------------
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    setValue("images", files, { shouldValidate: true });
-    const filePreviews = files.map((file) => URL.createObjectURL(file));
-    setPreviewsImage(filePreviews);
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const files = Array.from(e.target.files ?? []);
+  //   setValue("image", files, { shouldValidate: true });
+  //   const filePreviews = files.map((file) => URL.createObjectURL(file));
+  //   setPreviewsImage(filePreviews);
+  // };
+
+    const handleFieldChange =
+      (
+        fieldName: keyof ActivityFormValues,
+        onChange: (
+          event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        ) => void
+      ) =>
+      (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        clearErrors(fieldName);
+        onChange(event);
+      };
 
   // ---------------------------
   // Close handler (Cancel & X should use this)
@@ -240,6 +249,7 @@ export default function ActivityModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
         onInteractOutside={handleOutsideClick} // ONLY outside click triggers validation
@@ -268,25 +278,6 @@ export default function ActivityModal({
               )}
             />
 
-            {/* Subtitle */}
-            <FormField
-              control={form.control}
-              name="subtitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subtitle</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter Subtitle"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Description / Editor */}
             <div>
               <Editor
@@ -303,12 +294,20 @@ export default function ActivityModal({
             {/* Image Upload */}
             <FormField
               control={form.control}
-              name="images"
-              render={() => (
+              name="image"
+              render={({field}) => (
                 <FormItem>
                   <FormLabel>Upload Images</FormLabel>
                   <FormControl>
-                    <Input type="file" multiple onChange={handleFileChange} />
+                    <Input type="file" multiple 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if(file) {
+                        const url = URL.createObjectURL(file);
+                        field.onChange(url);
+                        setPreviewsImage([url]);
+                      }
+                    }} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

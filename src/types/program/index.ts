@@ -1,14 +1,5 @@
 import { openingProgramType } from "../opening-program";
 // shortCourseType.ts
-export type HighlightType = {
-  label: string;
-  value: string;
-  desc: string;
-};
-export type HighlightPayload = Omit<HighlightType, "id">;
-type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
-type  visibility="public" | "private";
-type programType= "SHORT_COURSE" |"SCHOLARSHIP"
 
 
 export type MasterProgramType = {
@@ -69,12 +60,24 @@ export type MasterProgramCreate = {
   status?: "draft" | "active" | "archived";
 };
 
+export type HighlightType = {
+  label: string;
+  value: string;
+  desc: string;
+};
+export type HighlightPayload = Omit<HighlightType, "id">;
+type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
+type  visibility="public" | "private";
+type programType= "SHORT_COURSE" |"SCHOLARSHIP"
+
+
 
 export type programOverviewType = {
-    id: number;
     title: string;
     description: string;
 }
+
+export type programOverviewsPayload = Omit<programOverviewType, "id">;
 
 export type LearningOutcomeType = {
     id:string;

@@ -14,15 +14,11 @@ export const ClassColumns = (classes: ClassType[] , actions?: { onEdit?: (c: Cla
     {
       accessorKey: "classCode",
       header: "Class Code",
-    },
-    { 
-      accessorKey: "className",
-      header: "Class Name",
       enableColumnFilter: true,
       meta: {
         variant: "text",
-        placeholder: "Search courses...",
-        label: "Course",
+        placeholder: "Search class...",
+        label: "Class Code",
       },
     },
     {
@@ -72,6 +68,9 @@ export const ClassColumns = (classes: ClassType[] , actions?: { onEdit?: (c: Cla
         variant: "select",
         placeholder: "Select instructors...",
         label: "Instructor",
+        options:[
+          {label: "Chan Chhaya", value:"Chan Chhaya"}
+        ]
         // options: instructorOptions,
       },
     },

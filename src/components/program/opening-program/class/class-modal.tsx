@@ -36,7 +36,6 @@ import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 // ----------------- Validation schema -----------------
 const formSchema = z.object({
   uuid: z.string().optional(), // optional for new class
-  className: z.string().min(1, "Class name is required"),
   telegram: z.string().url("Must be a valid URL"),
   classCode: z.string().min(1, "Class code is required"),
   room: z.string().min(1, "Room is required"),
@@ -88,7 +87,6 @@ export default function ClassModal({
         }
       : {
           uuid: "",
-          className: "",
           telegram: "",
           classCode: "",
           room: "",
@@ -120,8 +118,8 @@ export default function ClassModal({
       await onSubmitClass?.(data);
       toast.success(
         initialData
-          ? `Class "${data.className}" updated successfully!`
-          : `Class "${data.className}" created successfully!`
+          ? `Class "${data.classCode}" updated successfully!`
+          : `Class "${data.classCode}" created successfully!`
       );
       onOpenChange?.(false);
       reset();
@@ -143,19 +141,6 @@ export default function ClassModal({
           <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6 mt-4">
             {/* Row 1: Class Name & Telegram */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="className"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Class Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter Class Name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="telegram"

@@ -79,8 +79,9 @@ export function AddTopicFaq({
       );
       onOpenChange?.(false);
       reset();
-    } catch (err) {
-      toast.error("Failed to submit topic. Please try again.");
+    } catch (err :unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to submit topic: ${message || err}`);
     }
   };
 

@@ -176,10 +176,10 @@ export default function CurriculumAdmin({ programUuid }: Props) {
       )}
 
       {/* Curriculum List */}
-      {curriculums?.map((curriculum, curriculumIndex) => {
+      {(curriculums || []).map((curriculum, curriculumIndex) => {
         const isExpanded = expandedItems.includes(String(curriculumIndex));
         return (
-          <div key={curriculum.id} className="flex flex-col gap-2.5 bg-accent rounded-sm p-4">
+          <div key={curriculum.id || curriculumIndex} className="flex flex-col gap-2.5 bg-accent rounded-sm p-4">
             {/* Curriculum Header */}
             <div className="flex justify-between items-center">
               <div

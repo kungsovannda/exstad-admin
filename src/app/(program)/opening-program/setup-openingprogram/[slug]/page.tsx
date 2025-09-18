@@ -5,8 +5,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import TimelinePage from "@/components/program/opening-program/timeline/timeline";
-import ClassPage from "@/components/program/opening-program/class/class";
 import Activities from "@/components/program/opening-program/activity/activities";
+import ClassAdmin from "@/components/program/opening-program/class/class";
 
 export default function ProgramSetup() {
   const [tab, setTab] = useState< "class" | "timeline" | "curriculum" | "roadmap" | "activities">("class");
@@ -29,11 +29,11 @@ console.log("Fetching highlights for UUID:", openingProgramUuid);
       </div>
 
       {/* Tab Content */}
-      {tab === "class" && <ClassPage />}
+      {tab === "class" && <ClassAdmin openingProgramUuid={openingProgramUuid}/>}
       {tab === "curriculum" && <CurriculumAdmin programUuid={openingProgramUuid} />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "timeline" && <TimelinePage />}
-      {tab === "activities" && <Activities />}
+      {tab === "activities" && <Activities openingProgramUuid={openingProgramUuid} />}
     </div>
   );
 }

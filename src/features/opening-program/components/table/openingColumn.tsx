@@ -2,7 +2,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { openingProgramType } from "@/types/opening-program";
 import { OpeningActionsCell } from "./opening-action-cell";
 import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
-import { formatTitle } from "@/utils/formatTitle";
 
 export const openingProgramColumns = (
   openingPrograms: openingProgramType[]

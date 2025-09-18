@@ -23,7 +23,7 @@ export type openingProgramType = {
     // description?: string;
     programType: string;
     visibility: "public" | "private";
-    activities?: ActivityDataType[];
+    activities?: ActivityType[];
     timeline?: timeline[];
     classes?: ClassType[];
    
@@ -48,12 +48,9 @@ export type openingProgramCreate = {
     // image: string;
     // shortcourseimage:string; 
     // template?: string[];
-
-    // optional fields (if backend adds them later)
-    // description?: string;
     programType?: string;
     visibility?: "public" | "private";
-    activities?: ActivityDataType[];
+    activities?: ActivityType[];
     timeline?: timeline[];
     classes?: ClassType[];
 }
@@ -62,11 +59,6 @@ export type ActivityType = {
     title:string;
     description:string;
     image:string;
-}
-export type ActivityDataType = {
-    id:number;
-    title:string;
-    activityType:ActivityType[];
 }
 
 export type timeline = {
@@ -77,7 +69,6 @@ export type timeline = {
 
 export type ClassPayload = {
   openingProgramUuid: string;
-  className: string;
   shift: "MORNING" | "AFTERNOON" | "EVENING";
   instructor: string;
   startTime: string;  // HH:mm:ss
@@ -91,7 +82,6 @@ export type ClassPayload = {
 
 export type ClassType = {
     uuid:string;
-    className:string;
     shift:string;
     instructor:string;
     startTime:string;
@@ -104,7 +94,6 @@ export type ClassType = {
 }
 export type ClassCreate = {
     // openingProgramUuid:string;
-    className:string;
     shift:string;
     instructor:string;
     startTime:string;

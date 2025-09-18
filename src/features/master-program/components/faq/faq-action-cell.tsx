@@ -9,13 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Classes } from "@/types/opening-program";
+import { ClassType } from "@/types/opening-program";
 import { MoreHorizontal } from "lucide-react";
 // import { useRouter } from "next/navigation";
 // import { useState } from "react";
 
 interface ClassActionsCellProps {
-  classData: Classes;
+  classData: ClassType;
 }
 
 export function FaqActionsCell({ classData }: ClassActionsCellProps) {
@@ -33,10 +33,10 @@ export function FaqActionsCell({ classData }: ClassActionsCellProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => console.log("Edit class", classData.id)}>
+        <DropdownMenuItem onClick={() => console.log("Edit class", classData.uuid)}>
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete class", classData.id)}>
+        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Delete class", classData.uuid)}>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>

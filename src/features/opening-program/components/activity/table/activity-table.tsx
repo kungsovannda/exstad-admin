@@ -1,14 +1,13 @@
 "use client";
-import { activityColumns } from "./activityColumn";
-import { ActivityDataType,ActivityType } from "@/types/opening-program";
-import { MasterProgramType } from "@/types/program";
+import { ActivityColumns } from "./activityColumn";
+import {ActivityType } from "@/types/opening-program";
 import { DefaultTableModel } from "@/components/table/default-table-model";
 
 
 interface ActivityTableProps {
   data:ActivityType[];
   totalItems:number;
-  columns:ReturnType<typeof activityColumns>;
+  columns:ReturnType<typeof ActivityColumns>;
 }
 export default function ActivityTable({data,totalItems,columns}:ActivityTableProps) {
   return (

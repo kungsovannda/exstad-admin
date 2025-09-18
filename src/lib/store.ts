@@ -5,7 +5,9 @@ import { curriculumApi } from "@/features/master-program/components/curriculum/c
 import { faqApi } from "@/features/master-program/components/faq/faqApi";
 import { highlightsApi } from "@/features/master-program/components/highlight/highlightApi";
 import { learningOutcomesApi } from "@/features/master-program/components/learningoutcomes/learningOutcomesApi";
+import { programOverviewsApi } from "@/features/master-program/components/programOverview/programOverviewApi";
 import { masterprogramApi } from "@/features/master-program/masterProgramApi";
+import { activityApi } from "@/features/opening-program/components/activity/activityApi";
 import { classApi } from "@/features/opening-program/components/class/classApi";
 import { openingProgramApi } from "@/features/opening-program/openingProgramApi";
 import { provinceApi } from "@/features/province/provinceApi";
@@ -27,6 +29,8 @@ const rootReducer = combineReducers({
   [curriculumApi.reducerPath]: curriculumApi.reducer,
   [openingProgramApi.reducerPath]: openingProgramApi.reducer,
   [classApi.reducerPath]: classApi.reducer,
+  [programOverviewsApi.reducerPath]: programOverviewsApi.reducer,
+  [activityApi.reducerPath]: activityApi.reducer,
 });
 
 const persistConfig = {
@@ -54,6 +58,8 @@ export const makeStore = () => {
         curriculumApi.middleware,
         openingProgramApi.middleware,
         classApi.middleware,
+        programOverviewsApi.middleware,
+        activityApi.middleware,
       ),
   });
 

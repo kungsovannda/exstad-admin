@@ -28,32 +28,31 @@ import { Textarea } from "@/components/ui/textarea";
 // -----------------
 // Validation schema
 // -----------------
-const highlightSchema = z.object({
-  label: z.string().min(1, "Label is required"),
-  value: z.string().min(1, "Value is required"),
-  desc: z.string().min(1, "Description is required"),
+const programOverviewSchema = z.object({
+title: z.string().min(1, "Title is required"),
+description: z.string().min(1, "Description is required"),
 });
 
-export type HighlightFormValues = z.infer<typeof highlightSchema>;
+export type ProgramOverviewFormValue = z.infer<typeof programOverviewSchema>;
 
-interface HighlightsFormModalProps {
+interface ProgramOverviewFormModalProps {
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  initialData?: HighlightFormValues;
-  onSubmitHighlight?: (data: HighlightFormValues) => Promise<void> | void;
+  initialData?: ProgramOverviewFormValue;
+  onSubmitProgramOverview?: (data: ProgramOverviewFormValue) => Promise<void> | void;
 }
 
-export default function HighlightsFormModal({
+export default function ProgramOverviewFormModal({
   open,
   onOpenChange,
   initialData,
-  onSubmitHighlight,
+  onSubmitProgramOverview,
   trigger,
-}: HighlightsFormModalProps) {
-  const form = useForm<HighlightFormValues>({
-    resolver: zodResolver(highlightSchema),
-    defaultValues: initialData || { label: "", value: "", desc: "" },
+}: ProgramOverviewFormModalProps) {
+  const form = useForm<ProgramOverviewFormValue>({
+    resolver: zodResolver(programOverviewSchema),
+    defaultValues: initialData || { title: "", description: "" },
     mode: "onSubmit",
     reValidateMode: "onSubmit",
   });
@@ -62,30 +61,29 @@ export default function HighlightsFormModal({
 
   useEffect(() => {
     if (open) {
-      reset(initialData || { label: "", value: "", desc: "" });
+      reset(initialData || { title: "", description: "" });
       clearErrors();
     }
   }, [open, initialData, reset, clearErrors]);
 
-  const onSubmit = async (data: HighlightFormValues) => {
+  const onSubmit = async (data: ProgramOverviewFormValue) => {
     try {
-      await onSubmitHighlight?.(data);
+      await  onSubmitProgramOverview?.(data);
       toast.success(
         initialData
-          ? `Highlight "${data.label}" updated!`
-          : `Highlight "${data.label}" created!`
+          ? `Program Overview "${data.title}" updated!`
+          : `Program Overview "${data.title}" created!`
       );
       onOpenChange?.(false);
       reset();
-    } catch (err : unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save: ${message || err}`);
+    } catch (err) {
+      toast.error("Failed to save Program Overview.");
     }
   };
 
   const handleFieldChange =
     (
-      fieldName: keyof HighlightFormValues,
+      fieldName: keyof ProgramOverviewFormValue,
       onChange: (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       ) => void
@@ -116,7 +114,7 @@ export default function HighlightsFormModal({
       >
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Edit Highlight" : "Add Highlight"}
+            {initialData ? "Edit Program Overview" : "Add Program Overview"}
           </DialogTitle>
         </DialogHeader>
 
@@ -137,45 +135,25 @@ export default function HighlightsFormModal({
             {/* Label */}
             <FormField
               control={form.control}
-              name="label"
+              name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Label</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter label"
+                      placeholder="Enter Title"
                       {...field}
-                      onChange={handleFieldChange("label", field.onChange)}
+                      onChange={handleFieldChange("title", field.onChange)}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Value */}
-            <FormField
-              control={form.control}
-              name="value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Value</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter value"
-                      {...field}
-                      onChange={handleFieldChange("value", field.onChange)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Description */}
             <FormField
               control={form.control}
-              name="desc"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
@@ -183,7 +161,7 @@ export default function HighlightsFormModal({
                     <Textarea
                       placeholder="Enter description"
                       {...field}
-                      onChange={handleFieldChange("desc", field.onChange)}
+                      onChange={handleFieldChange("description", field.onChange)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -198,7 +176,7 @@ export default function HighlightsFormModal({
                 </Button>
               </DialogClose>
               <Button type="submit" className="bg-primary text-white w-fit">
-                {initialData ? "Update Highlight" : "Save Highlight"}
+                {initialData ? "Update Program Overview" : "Save Program Overview"}
               </Button>
             </DialogFooter>
           </form>

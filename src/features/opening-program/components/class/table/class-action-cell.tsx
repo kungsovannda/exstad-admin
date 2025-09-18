@@ -33,7 +33,7 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
   const handleDelete = async () => {
     try {
       await deleteClass(classes.uuid).unwrap();
-      toast.success(`Class "${classes.className}" deleted successfully!`);
+      toast.success(`Class "${classes.classCode}" deleted successfully!`);
       setDeleteOpen(false);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -45,7 +45,7 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
   const handleUpdate = async (data: ClassFormValues) => {
     try {
       await updateClass({ uuid: classes.uuid, body: data }).unwrap();
-      toast.success(`Class "${data.className}" updated successfully!`);
+      toast.success(`Class "${data.classCode}" updated successfully!`);
       setOpen(false);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -87,7 +87,7 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
       <DeleteModal
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={classes.className}
+        itemName={classes.classCode}
         onConfirm={handleDelete}
       />
     </>

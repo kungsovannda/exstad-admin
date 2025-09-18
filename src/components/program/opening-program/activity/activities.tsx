@@ -1,38 +1,133 @@
 "use client";
+
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import ActivityModal from "./acitivity-modal";
-import { useState } from "react";
+import ActivityModal, { ActivityFormValues } from "./acitivity-modal";
 import ActivityTable from "@/features/opening-program/components/activity/table/activity-table";
+import {
+  ActivityPayload,
+  useGetAllActivityQuery,
+  useUpdateActivityMutation,
+} from "@/features/opening-program/components/activity/activityApi";
+import { toast } from "sonner";
+import { ActivityType } from "@/types/opening-program";
+import { ActivityColumns } from "@/features/opening-program/components/activity/table/activityColumn";
 
-// Flatten all activities
+type Props = { openingProgramUuid: string };
 
+export default function ActivityAdmin({ openingProgramUuid }: Props) {
+  const { data: activities = [], isLoading, isError } =
+    useGetAllActivityQuery(openingProgramUuid, { refetchOnMountOrArgChange: true });
 
+  const [putActivities] = useUpdateActivityMutation();
 
-// Assume programData: openingProgramType[]
-// const allActivities: FlattenedActivity[] = programData.flatMap((program: openingProgramType) =>
-//   program.activities?.flatMap((op) =>
-//     op.activityType.flatMap((activityData: ActivityDataType) =>
-//       activityData.activityType.map<FlattenedActivity>((act: ActivityType) => ({
-//         id: act.id,
-//         activityGroup: activityData.title,
-//         subtitle: act.subtitle,
-//         description: act.description,
-//         image: act.image,
-//       }))
-//     )
-//   ) || []
-// );
+  // Single modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentActivity, setCurrentActivity] = useState<ActivityType | null>(null);
 
-export default function ActivityPage() {
-  const [open, setOpen] = useState(false);
+  // Stable uid for rendering
+  const activitiesWithUid = useMemo(
+    () => activities.map((a, index) => ({ ...a, uid: `${a.title}-${index}` })),
+    [activities]
+  );
+
+  if (isLoading) return <div>Loading activities...</div>;
+  if (isError) return <div className="text-destructive">Failed to load activities</div>;
+
+  // Convert ActivityType to payload for API
+  const toPayload = (a: ActivityType): ActivityPayload => ({
+    title: a.title,
+    description: a.description,
+    image: a.image,
+  });
+
+  // Add/Edit activity
+  const handleSaveActivity = async (data: ActivityFormValues, target?: ActivityType) => {
+    try {
+      let newActivities: ActivityType[];
+
+      if (target) {
+        // Edit existing
+        newActivities = activities.map((a) =>
+          a.title === target.title &&
+          a.description === target.description &&
+          a.image === target.image
+            ? { ...a, ...data }
+            : a
+        );
+      } else {
+        // Add new
+        newActivities = [...activities, { ...data }];
+      }
+
+      const payload = newActivities.map(toPayload);
+      await putActivities({ openingProgramUuid, activities: payload }).unwrap();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to save: ${message || err}`);
+    }
+  };
+
+  // Delete activity
+  const handleDeleteActivity = async (target: ActivityType) => {
+    try {
+      const newActivities = activities.filter(
+        (a) =>
+          !(a.title === target.title &&
+            a.description === target.description &&
+            a.image === target.image)
+      );
+
+      const payload = newActivities.map(toPayload);
+      await putActivities({ openingProgramUuid, activities: payload }).unwrap();
+      toast.success(`Activity "${target.title}" deleted!`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to delete: ${message || err}`);
+    }
+  };
+
+  // Columns with parent callbacks
+  const columns = ActivityColumns(activities, {
+    onEdit: (activity: ActivityType) => {
+      setCurrentActivity(activity);
+      setModalOpen(true);
+    },
+    onDelete: async (activity: ActivityType) => await handleDeleteActivity(activity),
+  });
+
   return (
-    <div className=" space-y-6">
-      <div className="flex justify-between items-center gap-10">
-        <h1 className="text-lg font-bold">Activities</h1>
-        <Button onClick={() => setOpen(true)}>Add Activity</Button>
-        <ActivityModal open={open} onOpenChange={setOpen} />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center gap-4">
+        <h1 className="text-lg font-semibold">Activities</h1>
+
+        {/* Add Activity button */}
+        <ActivityModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          initialData={currentActivity || undefined}
+          onSubmitActivity={async (data) => {
+            await handleSaveActivity(data, currentActivity || undefined);
+            setModalOpen(false);
+            setCurrentActivity(null);
+          }}
+          trigger={<Button className="font-bold">Add Activity</Button>}
+        />
       </div>
-      <ActivityTable />
+
+      {/* Activity Table */}
+      {activitiesWithUid.length === 0 ? (
+        <div className="text-muted-foreground">
+          No activities yet. Add one to get started!
+        </div>
+      ) : (
+        <ActivityTable
+          data={activitiesWithUid}
+          totalItems={activities.length}
+          columns={columns}
+        />
+      )}
     </div>
   );
 }
