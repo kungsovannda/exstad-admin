@@ -64,10 +64,8 @@ const handleSubmitClass = async (data: ClassFormValues) => {
 
     if (editTarget) {
       await updateClass({ uuid: editTarget.uuid, body: payload }).unwrap();
-      toast.success(`Class "${data.classCode}" updated!`);
     } else {
       await createClass(payload).unwrap();
-      toast.success(`Class "${data.classCode}" created!`);
     }
 
     setOpen(false);

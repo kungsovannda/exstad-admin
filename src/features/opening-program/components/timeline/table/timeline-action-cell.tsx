@@ -3,18 +3,17 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import SimpleTimelineForm from "@/components/program/opening-program/timeline/timeline-modal";
 import { toast } from "sonner";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
-import { TimelineRow } from "./timelineColumn";
+import { TimelineType } from "@/types/opening-program";
 
 interface TimelineActionsCellProps {
-  timeline: TimelineRow;
-  onDelete?: (id: number) => void;
+  timelines: TimelineType;
+  onDelete?: (t: TimelineType) => void;
+  onEdit?: (t:TimelineType) => void;
 }
 
-export function TimelineActionsCell({ timeline, onDelete }: TimelineActionsCellProps) {
-  const [open, setOpen] = useState(false);
+export function TimelineActionsCell({ timelines, onDelete ,onEdit}: TimelineActionsCellProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
@@ -32,31 +31,22 @@ export function TimelineActionsCell({ timeline, onDelete }: TimelineActionsCellP
             onPointerDown={(e) => e.stopPropagation()} >
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onEdit?.(timelines)}>Edit</DropdownMenuItem>
           <DropdownMenuItem className="text-red-600" onClick={() => setDeleteOpen(true)}>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <SimpleTimelineForm
-        initialData={{
-          title: timeline.title,
-          date: timeline.startDate || new Date(),
-        }}
-        open={open}
-        onOpenChange={setOpen}
-        onSubmit={(data)=>{
-          console.log("Updated timeline:", data); 
-          setOpen(false);
-        }}
-      />
-
       <DeleteModal
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={timeline.title}
-        onConfirm={() => {
-          onDelete?.(timeline.id);
-          toast.success(`Timeline "${timeline.title}" deleted successfully!`);
+        itemName={timelines.title}
+        onConfirm={async () => {
+          try {
+            if (onDelete) await onDelete(timelines);
+            setDeleteOpen(false);
+          } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            toast.error(`Failed to delete timeline: ${message || err}`);
+          }
         }}
       />
     </>

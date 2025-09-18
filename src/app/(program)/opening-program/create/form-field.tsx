@@ -42,7 +42,7 @@ export const openingProgramformSchema = z.object({
   thumbnail: z.string(),
 });
 
-export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>;
+export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>; 
 
 type Props = {
   initialValues?: OpeningProgramFormValue;

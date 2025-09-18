@@ -16,8 +16,11 @@ import { ActivityColumns } from "@/features/opening-program/components/activity/
 type Props = { openingProgramUuid: string };
 
 export default function ActivityAdmin({ openingProgramUuid }: Props) {
-  const { data: activities = [], isLoading, isError } =
+  const { data: activitiesData, isLoading, isError } =
     useGetAllActivityQuery(openingProgramUuid, { refetchOnMountOrArgChange: true });
+
+  // Always ensure activities is an array
+  const activities: ActivityType[] = Array.isArray(activitiesData) ? activitiesData : [];
 
   const [putActivities] = useUpdateActivityMutation();
 
@@ -27,7 +30,11 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
 
   // Stable uid for rendering
   const activitiesWithUid = useMemo(
-    () => activities.map((a, index) => ({ ...a, uid: `${a.title}-${index}` })),
+    () =>
+      activities.map((a, index) => ({
+        ...a,
+        uid: `${a.title}-${index}`,
+      })),
     [activities]
   );
 
@@ -44,11 +51,12 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
   // Add/Edit activity
   const handleSaveActivity = async (data: ActivityFormValues, target?: ActivityType) => {
     try {
+      const safeActivities = Array.isArray(activities) ? activities : [];
       let newActivities: ActivityType[];
 
       if (target) {
         // Edit existing
-        newActivities = activities.map((a) =>
+        newActivities = safeActivities.map((a) =>
           a.title === target.title &&
           a.description === target.description &&
           a.image === target.image
@@ -57,11 +65,12 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
         );
       } else {
         // Add new
-        newActivities = [...activities, { ...data }];
+        newActivities = [...safeActivities, { ...data }];
       }
 
       const payload = newActivities.map(toPayload);
       await putActivities({ openingProgramUuid, activities: payload }).unwrap();
+      toast.success(target ? "Activity updated!" : "Activity added!");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error(`Failed to save: ${message || err}`);
@@ -71,7 +80,8 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
   // Delete activity
   const handleDeleteActivity = async (target: ActivityType) => {
     try {
-      const newActivities = activities.filter(
+      const safeActivities = Array.isArray(activities) ? activities : [];
+      const newActivities = safeActivities.filter(
         (a) =>
           !(a.title === target.title &&
             a.description === target.description &&

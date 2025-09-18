@@ -24,7 +24,7 @@ export type openingProgramType = {
     programType: string;
     visibility: "public" | "private";
     activities?: ActivityType[];
-    timeline?: timeline[];
+    timeline?: TimelineType[];
     classes?: ClassType[];
    
 }
@@ -51,7 +51,7 @@ export type openingProgramCreate = {
     programType?: string;
     visibility?: "public" | "private";
     activities?: ActivityType[];
-    timeline?: timeline[];
+    timeline?: TimelineType[];
     classes?: ClassType[];
 }
 
@@ -61,10 +61,12 @@ export type ActivityType = {
     image:string;
 }
 
-export type timeline = {
-  id: number;
-  date: string;
-  title: string;
+export type TimelineType = {
+  title:string;
+  startDate:string;
+  endDate:string;
+_clientId: string; // 🔑 local unique id
+
 };
 
 export type ClassPayload = {
