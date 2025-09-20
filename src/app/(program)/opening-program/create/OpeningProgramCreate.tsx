@@ -9,34 +9,54 @@ export default function OpeningProgramCreate() {
   const [createOpeningProgram] = useCreateOpeningProgramMutation();
 
   const handleSubmit = async (values: OpeningProgramFormValue) => {
-    const thumbnailUrl = values.thumbnail || "";
+    try {
+      // Ensure numbers
+      const generation = Number(values.generation || 0);
+      const totalSlot = Number(values.totalSlot || 0);
+      const originalFee = Number(values.originalFee || 0);
+      const scholarship = Number(values.scholarship || 0);
 
-    const originalFee = values.price;
-    const priceAfterDiscount = originalFee - (originalFee * values.scholarship) / 100;
+      // Calculate discounted price
+      const price = originalFee - (originalFee * scholarship) / 100;
 
-    const payload: openingProgramCreate = {
-      programUuid: values.programUuid,
-      title: values.title,
-      slug: `${values.title.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
-      generation: values.generation,
-      programType: values.programType || "",
-      price: priceAfterDiscount,
-      scholarship: values.scholarship,
-      originalFee: originalFee,
-      duration: values.duration || "N/A",
-      curriculumPdfUri: values.curriculumPdfUri || "",
-      thumbnail: thumbnailUrl,
-      totalSlot: values.totalSlot,
-      telegramGroup: values.telegramGroup,
-      status: "OPEN",
-      qrCodeUrl: "",
-    };
+      // Replace local file URL with placeholder or uploaded URL
+      const thumbnailUrl =
+        values.thumbnail && values.thumbnail.startsWith("http")
+          ? values.thumbnail
+          : "https://example.com/thumbnails/fsd.png";
 
-    toast.promise(createOpeningProgram(payload).unwrap(), {
-      loading: "Creating...",
-      success: "Created successfully!",
-      error: (err) => `Failed: ${err.message || err}`,
-    });
+      const curriculumPdfUri = values.curriculumPdfUri || "";
+
+      const payload: openingProgramCreate = {
+        programUuid: values.programUuid,
+        title: values.title,
+        slug: `${values.title
+          .toLowerCase()
+          .replace(/\s+/g, "-")}-${Date.now()}`,
+        generation,
+        price,
+        scholarship,
+        originalFee,
+        duration: values.duration || "N/A",
+        curriculumPdfUri,
+        thumbnail: thumbnailUrl,
+        totalSlot,
+        telegramGroup: values.telegramGroup || "",
+        status: "OPEN",
+        qrCodeUrl: "https://example.com/qrcodes/fsd.png",
+      };
+
+      console.log("Submitting payload:", payload);
+
+      await toast.promise(createOpeningProgram(payload).unwrap(), {
+        loading: "Creating...",
+        success: "Created successfully!",
+        error: (err) => `Failed: ${err.message || err}`,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to create: ${message || err}`);
+    }
   };
 
   return <OpeningProgramForm onSubmit={handleSubmit} submitLabel="Create" />;

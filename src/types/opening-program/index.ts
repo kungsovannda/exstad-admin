@@ -14,7 +14,7 @@ export type openingProgramType = {
     qrCodeUrl: string;
     // extra fields from backend
     telegramGroup: string;
-    status: "OPEN" | "CLOSED" | "ARCHIVED";
+    status: "OPEN" | "CLOSED" | "ACHIEVED";
     // image: string;
     // shortcourseimage:string; 
     // template?: string[];
@@ -30,30 +30,27 @@ export type openingProgramType = {
 }
 
 export type openingProgramCreate = {
-    programUuid:string
-    title: string;
-    generation?:number;  
-    thumbnail:string;
-    slug?:string;
-    originalFee?:number;
-    price?:number;
-    scholarship?:number;
-    duration?:string;
-    curriculumPdfUri?:string;
-    totalSlot: number;
-    qrCodeUrl?: string;
-    // extra fields from backend
-    telegramGroup?: string;
-    status?: "OPEN" | "CLOSED" | "ARCHIVED";
-    // image: string;
-    // shortcourseimage:string; 
-    // template?: string[];
-    programType?: string;
-    visibility?: "public" | "private";
-    activities?: ActivityType[];
-    timeline?: TimelineType[];
-    classes?: ClassType[];
+  programUuid: string;
+  title: string;
+  generation: number;  
+  thumbnail: string;
+  slug: string;
+  originalFee: number;
+  price: number;
+  scholarship: number;
+  duration: string;
+  curriculumPdfUri?: string; // optional if backend allows
+  totalSlot: number;
+  qrCodeUrl: string;
+  telegramGroup: string;
+  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  programType?: string; // optional if backend allows
+  visibility?: "public" | "private"; // optional
+  activities?: ActivityType[];
+  timeline?: TimelineType[];
+  classes?: ClassType[];
 }
+
 
 export type ActivityType = {
     title:string;

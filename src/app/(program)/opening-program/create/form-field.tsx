@@ -25,13 +25,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
+import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
   programUuid: z.string(),
   title: z.string().min(1),
   telegramGroup: z.string(),
-  programType: z.string(),
   generation: z.preprocess((val) => Number(val), z.number()),
   originalFee: z.preprocess((val) => Number(val), z.number()),
   scholarship: z.preprocess((val) => Number(val), z.number()),
@@ -40,9 +40,12 @@ export const openingProgramformSchema = z.object({
   duration: z.string(),
   curriculumPdfUri: z.string().optional(),
   thumbnail: z.string(),
+  slug: z.string().min(1), // required by backend
+  status: z.enum(["OPEN", "CLOSED", "ACHIEVED"]), // required by backend
+  qrCodeUrl: z.string().url(), // required by backend
 });
 
-export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>; 
+export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>;
 
 type Props = {
   initialValues?: OpeningProgramFormValue;
@@ -56,6 +59,7 @@ export default function OpeningProgramForm({
   onSubmit,
   submitLabel = "Submit",
 }: Props) {
+  const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
   const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
   const resolver: Resolver<OpeningProgramFormValue> = zodResolver(
     openingProgramformSchema
@@ -63,32 +67,34 @@ export default function OpeningProgramForm({
 
   // ------------------- FORM -------------------
   const form = useForm<OpeningProgramFormValue>({
-    resolver, // <--- FIX TS ERROR
+    resolver,
     defaultValues: initialValues || {
-      programUuid: "04ce0f27-7c57-4a03-bfbe-93ba369a69a8",
+      programUuid: "",
       originalFee: 0,
       scholarship: 0,
       price: 0,
       generation: 0,
-      title: "sambath",
+      title: "",
       telegramGroup: "",
-      programType: "",
       totalSlot: 0,
       duration: "",
       curriculumPdfUri: "",
       thumbnail: "",
+      slug: "",
+      status: "OPEN",
+      qrCodeUrl: "",
     },
   });
 
   const { watch, setValue } = form;
-  const price = watch("price") || 0;
+  const originalFee = watch("originalFee") || 0;
   const scholarship = watch("scholarship") || 0;
 
   // ------------------- AUTO DISCOUNT -------------------
   useEffect(() => {
-    const discount = price - (price * scholarship) / 100;
+    const discount = originalFee - (originalFee * scholarship) / 100;
     setValue("price", isNaN(discount) ? 0 : discount);
-  }, [price, scholarship, setValue]);
+  }, [originalFee, scholarship, setValue]);
 
   return (
     <Form {...form}>
@@ -96,61 +102,31 @@ export default function OpeningProgramForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 grid w-full items-center"
       >
-                {/* Program Type */}
-        <FormField
-          control={form.control}
-          name="programType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Program Type</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Short Course">Short Course</SelectItem>
-                  <SelectItem value="Scholarship">Scholarship</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* <Select onValueChange={setProgramType} value={programType}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Program Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Scholarship">Scholarship</SelectItem>
-            <SelectItem value="Short Course">Short Course</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select onValueChange={field.onChange} value={field.value}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Master Program" />
-          </SelectTrigger>
-          <SelectContent>
-            {masterPrograms
-              .filter((p) => p.programType === programType)
-              .map((program) => (
-                <SelectItem key={program.uuid} value={program.uuid}>
-                  {program.title} ({program.duration}, Slots:{" "}
-                  {program.totalSlot})
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select> */}
-
-        {/* Program UUID */}
+        {/* Master Program */}
         <FormField
           control={form.control}
           name="programUuid"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Program UUID</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter program UUID" {...field} />
-              </FormControl>
+              <FormLabel>Master Program</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Master Program" />
+                </SelectTrigger>
+                <SelectContent>
+                  {masterPrograms.length > 0 ? (
+                    masterPrograms.map((program) => (
+                      <SelectItem key={program.uuid} value={program.uuid}>
+                        {program.title}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-gray-500">
+                      No programs available
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -165,6 +141,21 @@ export default function OpeningProgramForm({
               <FormLabel>Title</FormLabel>
               <FormControl>
                 <Input placeholder="Enter program title" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Slug */}
+        <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. full-stack-web-dev" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -186,6 +177,43 @@ export default function OpeningProgramForm({
           )}
         />
 
+        {/* QR Code URL */}
+        <FormField
+          control={form.control}
+          name="qrCodeUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>QR Code URL</FormLabel>
+              <FormControl>
+                <Input placeholder="https://example.com/qrcode.png" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Status */}
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="OPEN">Open</SelectItem>
+                  <SelectItem value="CLOSED">Closed</SelectItem>
+                  <SelectItem value="ACHIEVED">Achiened</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Generation & Total Slot */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -199,7 +227,7 @@ export default function OpeningProgramForm({
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value)} // keep string while typing
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -292,7 +320,22 @@ export default function OpeningProgramForm({
             <FormItem>
               <FormLabel>Duration</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. 3 months" {...field} />
+                <Input placeholder="e.g. 6 months" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Curriculum PDF */}
+        <FormField
+          control={form.control}
+          name="curriculumPdfUri"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Curriculum PDF URL</FormLabel>
+              <FormControl>
+                <Input placeholder="https://example.com/curriculum.pdf" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

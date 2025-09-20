@@ -20,8 +20,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 
 import { SerializedEditorState } from "lexical";
-import { Editor } from "@/components/blocks/editor-00/editor";
+// import { Editor } from "@/components/blocks/editor-00/editor";
 import Image from "next/image";
+import { Textarea } from "@/components/ui/textarea";
 
 // ---------------------------
 // Zod Schema
@@ -211,13 +212,26 @@ export default function ActivityFormModal({
 
             {/* Description / Editor */}
             <div>
-              <Editor
+                <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Enter description" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+              {/* <Editor
                 editorSerializedState={editorState}
                 onSerializedChange={(value) => {
                   setEditorState(value);
                   setValue("description", JSON.stringify(value), { shouldValidate: true });
                 }}
-              />
+              /> */}
             </div>
 
             {/* Image Upload */}
