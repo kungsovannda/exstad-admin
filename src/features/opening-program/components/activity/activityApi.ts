@@ -27,7 +27,7 @@ export const activityApi = createApi({
             ]
           : [{ type: "Activities", id: "LIST" }],
     }),
-
+ 
     updateActivity: builder.mutation<
       void, // backend returns nothing
       { openingProgramUuid: string; activities: ActivityPayload[] } // payload type
