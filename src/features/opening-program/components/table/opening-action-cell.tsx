@@ -50,8 +50,8 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push(`/opening-program/setup-openingprogram/${openingprogram.uuid}` ) }>  Set Up  </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push(`/opening-program/edit/${openingprogram.uuid}`)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push(`/opening-program/setup-openingprogram/${openingprogram.slug}` ) }>  Set Up  </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push(`/opening-program/edit/${openingprogram.slug}`)}>Edit</DropdownMenuItem>
           <DropdownMenuItem className="text-red-600"onClick={() => setDeleteOpen(true)}>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

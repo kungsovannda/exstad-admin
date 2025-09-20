@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import TimelineModal, { TimelineFormValues } from "./timeline-modal";
 import TimelineTable from "@/features/opening-program/components/timeline/table/timeline-table";
@@ -23,38 +23,21 @@ export default function TimelinePage({ openingProgramUuid }: Props) {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentTimeline, setCurrentTimeline] = useState<TimelineType | null>(null);
+
+  // Local copy for drag-and-drop or temporary edits
   const [localTimelines, setLocalTimelines] = useState<TimelineType[]>([]);
 
-
-  // Ensure each timeline has a stable _clientId
-  const timelinesWithId = useMemo(
-    () =>
+  // Initialize localTimelines when timelines change
+  useEffect(() => {
+    setLocalTimelines(
       timelines.map((t, index) => ({
         ...t,
         _clientId: t._clientId ?? `${t.title}-${index}`,
-      })),
-    [timelines]
-  );
-  useEffect(() => {
-  setLocalTimelines(timelinesWithId);
-}, [timelinesWithId]);
+      }))
+    );
+  }, [timelines]);
 
-const handleReorder = async (newData: TimelineType[]) => {
-  setLocalTimelines(newData); // update UI immediately
-  const payload = newData.map(toPayload);
-  try {
-    await putTimelines({ openingProgramUuid, timelines: payload }).unwrap();
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    toast.error(`Failed to reorder timeline: ${message || err}`);
-  }
-};
-
-
-  if (isLoading) return <div>Loading timelines...</div>;
-  if (isError) return <div className="text-destructive">Failed to load timelines</div>;
-
-  // Convert TimelineType to payload for API
+  // Convert TimelineType to API payload
   const toPayload = (t: TimelineType): TimelinePayload => ({
     title: t.title,
     startDate: t.startDate,
@@ -64,42 +47,46 @@ const handleReorder = async (newData: TimelineType[]) => {
   // Update timeline list and sync to backend
   const updateTimelines = async (updated: TimelineType[]) => {
     const payload = updated.map(toPayload);
-    await putTimelines({ openingProgramUuid, timelines: payload }).unwrap();
+    try {
+      await putTimelines({ openingProgramUuid, timelines: payload }).unwrap();
+      setLocalTimelines(updated); // keep local state in sync
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to update timeline: ${message || err}`);
+    }
   };
 
   // Add/Edit timeline
   const handleSaveTimeline = async (data: TimelineFormValues, target?: TimelineType) => {
-    try {
-      let updated: TimelineType[];
-      if (target) {
-        updated = timelinesWithId.map(t =>
-          t._clientId === target._clientId ? { ...t, ...data, _clientId: t._clientId } : t
-        );
-      } else {
-        updated = [...timelinesWithId, { ...data, _clientId: `${data.title}-${Date.now()}` }];
-      }
-      await updateTimelines(updated);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save timeline: ${message || err}`);
+    let updated: TimelineType[];
+    if (target) {
+      updated = localTimelines.map(t =>
+        t._clientId === target._clientId ? { ...t, ...data } : t
+      );
+    } else {
+      updated = [
+        ...localTimelines,
+        { ...data, _clientId: `${data.title}-${Date.now()}` },
+      ];
     }
+    await updateTimelines(updated);
   };
 
   // Delete timeline
   const handleDeleteTimeline = async (target: TimelineType) => {
-    try {
-      const updated = timelinesWithId.filter(t => t._clientId !== target._clientId);
-      await updateTimelines(updated);
-      toast.success(`Timeline "${target.title}" deleted!`);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to delete timeline: ${message || err}`);
-    }
+    const updated = localTimelines.filter(t => t._clientId !== target._clientId);
+    await updateTimelines(updated);
+    toast.success(`Timeline "${target.title}" deleted!`);
+  };
+
+  // Handle drag-and-drop reorder
+  const handleReorder = async (newData: TimelineType[]) => {
+    await updateTimelines(newData);
   };
 
   // Handle date change from table
   const handleDateChange = async (rowId: string, field: "startDate" | "endDate", date: string) => {
-    const updated = timelinesWithId.map(t =>
+    const updated = localTimelines.map(t =>
       t._clientId === rowId ? { ...t, [field]: date } : t
     );
     await updateTimelines(updated);
@@ -114,8 +101,8 @@ const handleReorder = async (newData: TimelineType[]) => {
     onDelete: async (timeline) => await handleDeleteTimeline(timeline),
   });
 
-  
-  
+  if (isLoading) return <div>Loading timelines...</div>;
+  if (isError) return <div className="text-destructive">Failed to load timelines</div>;
 
   return (
     <div className="space-y-6">
@@ -137,16 +124,16 @@ const handleReorder = async (newData: TimelineType[]) => {
       </div>
 
       {/* Table */}
-      {timelinesWithId.length === 0 ? (
+      {localTimelines.length === 0 ? (
         <div className="text-muted-foreground">
           No timelines yet. Add one to get started!
         </div>
       ) : (
         <TimelineTable
-          data={timelinesWithId}
-          totalItems={timelines.length}
+          data={localTimelines}
+          totalItems={localTimelines.length}
           columns={columns}
-            onReorder={handleReorder}
+          onReorder={handleReorder}
         />
       )}
     </div>

@@ -32,6 +32,13 @@ export const openingProgramApi = createApi({
                 result ? [{ type: "OpeningProgram", id: result.programUuid }] : [],
         }),
 
+        // Get single opening program by slug 
+        getOpeningProgramBySlug: builder.query<openingProgramType , {slug:string}> ({
+            query: ({slug}) => `/api/v1/opening-programs/slug/${slug}`,
+            providesTags: (result) => 
+                result ? [{type: "OpeningProgram", id: result.slug}] : [],
+        }),
+
         // CREATE opening program
         createOpeningProgram: builder.mutation<openingProgramType, openingProgramCreate>({
             query: (body) => ({
@@ -75,6 +82,7 @@ export const openingProgramApi = createApi({
 export const {
     useGetAllOpeningProgramsQuery,
     useGetOpeningProgramByUuidQuery,
+    useGetOpeningProgramBySlugQuery,
     useCreateOpeningProgramMutation,
     useUpdateOpeningProgramMutation,
     useDeleteOpeningProgramMutation,

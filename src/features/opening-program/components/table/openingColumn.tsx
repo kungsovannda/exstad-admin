@@ -106,7 +106,7 @@ export const openingProgramColumns = (
         const bgClass =
           status === "CLOSED"
             ? "bg-blue-500 text-white"
-            : status === "ARCHIVED"
+            : status === "ACHIEVED"
             ? "bg-yellow-400 text-white"
             : "bg-[#E6F4EA] text-[#1E7D34]"; // Active
 

@@ -31,6 +31,13 @@ export const masterprogramApi = createApi({
             result ? [{ type: "MasterProgram", id: result.uuid }] : [],
         }),
 
+        // Fetch a single program by slug
+        getMasterProgramBySlug: builder.query<MasterProgramType, {slug:string}> ({
+            query:({slug}) => `/api/v1/programs/slug/${slug}`,
+            providesTags:(result) =>
+                result? [{type: "MasterProgram",id:result.slug}] : [],
+        }),
+
         // CREATE a new master program
         createMasterProgram: builder.mutation<MasterProgramType,MasterProgramCreate>({
             query:(body) => ({
@@ -71,6 +78,7 @@ export const masterprogramApi = createApi({
 export const {
     useGetAllMasterProgramsQuery,
     useGetMasterProgramByUuidQuery,
+    useGetMasterProgramBySlugQuery,
     useCreateMasterProgramMutation,
     useUpdateMasterProgramMutation,
     useDeleteMasterProgramMutation

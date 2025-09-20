@@ -63,7 +63,6 @@ export type TimelineType = {
   startDate:string;
   endDate:string;
 _clientId: string; // 🔑 local unique id
-
 };
 
 export type ClassPayload = {
@@ -80,7 +79,9 @@ export type ClassPayload = {
 };
 
 export type ClassType = {
+    
     uuid:string;
+      openingProgramUuid: string; 
     shift:string;
     instructor:string;
     startTime:string;
