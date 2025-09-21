@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { ScholarCredentialInformation } from "@/types/scholar";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -21,12 +23,27 @@ const formSchema = z.object({
   cfPassword: z.string(),
 });
 
-export default function CreateCredentialInformation() {
+export default function CreateCredentialInformation({
+  data,
+  handleSubmit,
+  handleOnChange,
+}: {
+  data?: Partial<ScholarCredentialInformation>;
+  handleSubmit: (data: ScholarCredentialInformation) => void;
+  handleOnChange: (data: Partial<ScholarCredentialInformation>) => void;
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: data ?? {
+      username: "",
+      email: "",
+      password: "",
+      cfPassword: "",
+    },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    handleSubmit({ ...values });
     try {
       console.log(values);
       toast(
@@ -39,6 +56,13 @@ export default function CreateCredentialInformation() {
       toast.error("Failed to submit the form. Please try again.");
     }
   }
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      handleOnChange(values);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, handleOnChange]);
 
   return (
     <Form {...form}>
