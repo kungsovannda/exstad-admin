@@ -14,20 +14,42 @@ export function StatisticCard() {
   const [total, setTotal] = useState<State>();
   const [active, setActive] = useState<State>();
   const [graduated, setGraduated] = useState<State>();
+  const [abroad, setAbroad] = useState<State>();
 
   useEffect(() => {
-    const totalScholar = scholars!.length | 0;
-    const totalFemaleScholar = scholars?.filter(
-      (s) => s.gender === ScholarGender.FEMALE
-    ).length;
+    const totalScholar = Array.isArray(scholars) ? scholars.length : 0;
+    const totalFemaleScholar = Array.isArray(scholars)
+      ? scholars.filter((s) => s.gender === ScholarGender.FEMALE).length
+      : 0;
     setTotal({
-      total: totalScholar!,
-      female: totalFemaleScholar!,
-      male: totalScholar! - totalFemaleScholar!,
+      total: totalScholar,
+      female: totalFemaleScholar,
+      male: totalScholar - totalFemaleScholar,
     });
 
-    setActive(getStateByStatus(scholars!, ScholarStatus.ACTIVE));
-    setGraduated(getStateByStatus(scholars!, ScholarStatus.GRADUATED));
+    setActive(
+      getState(
+        Array.isArray(scholars)
+          ? scholars.filter(
+              (s) => s.status === ScholarStatus.ACTIVE.toUpperCase()
+            )
+          : []
+      )
+    );
+    setGraduated(
+      getState(
+        Array.isArray(scholars)
+          ? scholars.filter(
+              (s) => s.status === ScholarStatus.GRADUATED.toUpperCase()
+            )
+          : []
+      )
+    );
+    setAbroad(
+      getState(
+        Array.isArray(scholars) ? scholars.filter((s) => s.isAbroad) : []
+      )
+    );
   }, [scholars]);
 
   if (isLoading) return <div>Loading...</div>;
@@ -83,27 +105,23 @@ export function StatisticCard() {
           <UserX className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">89</div>
-          <p className="text-xs text-muted-foreground">-5.2% from last month</p>
+          <div className="text-2xl font-bold">{abroad?.total}</div>
+          <p className="text-xs text-muted-foreground">
+            Female: {abroad?.female}, Male: {abroad?.male}
+          </p>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-const getStateByStatus = (
-  scholars: Scholar[],
-  status: ScholarStatus
-): State => {
-  const totalScholars = scholars?.filter(
-    (s) => s.status === status.toUpperCase()
-  );
-  const totalFemale = totalScholars?.filter(
+const getState = (scholars: Scholar[]): State => {
+  const totalFemale = scholars?.filter(
     (s) => s.gender === ScholarGender.FEMALE
   );
   return {
-    total: totalScholars!.length,
+    total: scholars!.length,
     female: totalFemale!.length,
-    male: totalScholars!.length - totalFemale!.length,
+    male: scholars!.length - totalFemale!.length,
   };
 };

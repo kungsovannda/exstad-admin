@@ -225,17 +225,21 @@ export default function ScholarCharts() {
   const { data: scholars } = useGetAllScholarsQuery();
   const [genderDataChart, setGenderDataChart] = useState<GenderChartData[]>([]);
   useEffect(() => {
-    const totalFemale = scholars?.filter(
-      (s) => s.gender === ScholarGender.FEMALE
-    );
-    const totalMale = scholars?.filter((s) => s.gender === ScholarGender.MALE);
+    const totalFemale = Array.isArray(scholars)
+      ? scholars.filter((s) => s.gender === ScholarGender.FEMALE)
+      : [];
+    const totalMale = Array.isArray(scholars)
+      ? scholars?.filter((s) => s.gender === ScholarGender.MALE)
+      : [];
     setGenderDataChart([
-      { gender: "Female", count: totalFemale!.length, fill: "var(--chart-1)" },
-      { gender: "Male", count: totalMale!.length, fill: "var(--chart-2)" },
+      { gender: "Female", count: totalFemale.length, fill: "var(--chart-1)" },
+      { gender: "Male", count: totalMale.length, fill: "var(--chart-2)" },
       {
         gender: "Other",
         count: Math.abs(
-          scholars!.length - totalFemale!.length - totalMale!.length
+          Array.isArray(scholars)
+            ? scholars.length
+            : 0 - totalFemale.length - totalMale.length
         ),
         fill: "var(--chart-3)",
       },

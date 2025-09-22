@@ -135,4 +135,5 @@ body {
 
 *::selection {
   color: var(--primary);
+  background-color: var(--secondary);
 }

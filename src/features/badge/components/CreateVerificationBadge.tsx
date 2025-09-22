@@ -21,7 +21,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 const schema = z.object({
   title: z.string().min(2).max(100),
   description: z.string().min(2).max(100),

@@ -57,8 +57,8 @@ export default function StatisticPage() {
           ) : (
             <ScholarTable
               columns={column}
-              totalItems={data!.length}
-              data={data!}
+              totalItems={Array.isArray(data) ? data.length : 0}
+              data={Array.isArray(data) ? data : []}
             />
           )}
           {isCreateOpen && (

@@ -20,6 +20,7 @@ export type Scholar = {
   avatar: string;
   phoneFamilyNumber: string;
   isPublic: boolean;
+  isAbroad: boolean;
   quote: string;
   audit: Audit;
   badges: BadgeForScholar[];
