@@ -14,7 +14,7 @@ export const universityApi = createApi({
   endpoints: (builder) => ({
     // GET all universities
     getAllUniversities: builder.query<University[], void>({
-      query: () => "/universities",
+      query: () => "/api/v1/universities",
       transformResponse: (response: { universities: University[] }) =>
         response.universities,
       providesTags: (result) =>
@@ -30,13 +30,13 @@ export const universityApi = createApi({
     }),
 
     getUniversityByUuid: builder.query<University, string>({
-      query: (uuid) => `/universities/${uuid}`,
+      query: (uuid) => `/api/v1/universities/${uuid}`,
       providesTags: (result, error, uuid) => [{ type: "University", id: uuid }],
     }),
 
     createUniversity: builder.mutation<University, UniversityCreate>({
       query: (body) => ({
-        url: "/universities",
+        url: "/api/v1/universities",
         method: "POST",
         body,
       }),
@@ -48,7 +48,7 @@ export const universityApi = createApi({
       { uuid: string; body: UniversityUpdate }
     >({
       query: ({ uuid, body }) => ({
-        url: `/universities/${uuid}`,
+        url: `/api/v1/universities/${uuid}`,
         method: "PATCH",
         body,
       }),
@@ -59,7 +59,7 @@ export const universityApi = createApi({
 
     deleteUniversity: builder.mutation<void, string>({
       query: (uuid) => ({
-        url: `/universities/${uuid}`,
+        url: `/api/v1/universities/${uuid}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, uuid) => [

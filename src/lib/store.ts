@@ -1,6 +1,9 @@
 import { certificateApi } from "@/features/certificate/certificateApi";
 import { currentAddressApi } from "@/features/current-address/currentAddressApi";
+import { documentApi } from "@/features/document/documentApi";
+import { openingProgramApi } from "@/features/opening-program/openingProgramApi";
 import { provinceApi } from "@/features/province/provinceApi";
+import { scholarApi } from "@/features/scholar/scholarApi";
 import { universityApi } from "@/features/university/universityApi";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
@@ -11,6 +14,9 @@ const rootReducer = combineReducers({
   [provinceApi.reducerPath]: provinceApi.reducer,
   [universityApi.reducerPath]: universityApi.reducer,
   [certificateApi.reducerPath]: certificateApi.reducer,
+  [documentApi.reducerPath]: documentApi.reducer,
+  [openingProgramApi.reducerPath]: openingProgramApi.reducer,
+  [scholarApi.reducerPath]: scholarApi.reducer,
 });
 
 const persistConfig = {
@@ -29,7 +35,10 @@ export const makeStore = () => {
         currentAddressApi.middleware,
         provinceApi.middleware,
         universityApi.middleware,
-        certificateApi.middleware
+        certificateApi.middleware,
+        documentApi.middleware,
+        openingProgramApi.middleware,
+        scholarApi.middleware
       ),
   });
 

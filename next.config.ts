@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
       "d2vyhi5ouo1we3.cloudfront.net",
       "scontent.fpnh11-1.fna.fbcdn.net",
       "upload.wikimedia.org",
-      "t4.ftcdn.net", // <- add this
+      "t4.ftcdn.net",
     ],
     remotePatterns: [
       {
@@ -15,7 +15,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "t4.ftcdn.net", // <- optional but useful for wildcard paths
+        hostname: "t4.ftcdn.net",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8080",
+        pathname: "/documents/**",
       },
     ],
   },

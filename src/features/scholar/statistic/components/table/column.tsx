@@ -4,7 +4,7 @@ import { Scholar } from "@/types/scholar";
 import { ColumnDef } from "@tanstack/react-table";
 import ScholarCellAction from "./cell-action";
 
-export const columns: ColumnDef<Scholar>[] = [
+export const scholarColumns: ColumnDef<Scholar>[] = [
   {
     id: "select",
     header: ({ table }) => (

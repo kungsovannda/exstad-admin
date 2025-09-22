@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { PiNotePencilFill } from "react-icons/pi";
+// import { PiNotePencilFill } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import HighlightsFormModal from "./form-field";
 import DeleteModal from "../../activity/delete-modal-component";
 import { toast } from "sonner";
-import { FaTrash } from "react-icons/fa";
+// import { FaTrash } from "react-icons/fa";
 import { SquarePen, Trash } from "lucide-react";
 
 type Highlight = {

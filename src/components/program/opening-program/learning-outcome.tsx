@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { FaTrash, FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { PiNotePencilFill } from "react-icons/pi";
+import {  FaChevronDown, FaChevronRight } from "react-icons/fa";
+// import { PiNotePencilFill } from "react-icons/pi";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import AddTopicDialog from "../curriculum-popup";

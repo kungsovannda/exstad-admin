@@ -8,7 +8,7 @@ export const provinceApi = createApi({
   tagTypes: ["Province"],
   endpoints: (builder) => ({
     getAllProvinces: builder.query<Province[], void>({
-      query: () => "/provinces",
+      query: () => "/api/v1/provinces",
       transformResponse: (response: { provinces: Province[] }) =>
         response.provinces,
       providesTags: (result) =>

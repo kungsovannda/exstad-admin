@@ -8,6 +8,7 @@ import {
   FileText,
   GraduationCap,
   OmegaIcon,
+  Settings,
   User2,
   UserCheck,
 } from "lucide-react";
@@ -88,6 +89,11 @@ const data = {
       title: "User",
       url: "/user",
       icon: User2,
+    },
+    {
+      title: "Setting",
+      url: "/setting",
+      icon: Settings,
     },
   ],
 };

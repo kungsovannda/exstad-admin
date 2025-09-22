@@ -126,10 +126,10 @@
   }
 }
 
-body::-webkit-scrollbar {
+*::-webkit-scrollbar {
   display: none;
 }
 
 body {
   font-family: var(--font-inter), var(--font-koh), sans-serif;
-} 
+}

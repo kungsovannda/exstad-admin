@@ -205,7 +205,7 @@ export default function ActivityModal({
             />
             {/* Show existing image */}
             {initialData?.imageUrl && previewsImage.length === 0 && (
-              <img
+              <Image
                 src={initialData.imageUrl}
                 alt="Current image"
                 className="w-24 h-24 object-cover rounded border"
@@ -216,7 +216,7 @@ export default function ActivityModal({
             {previewsImage.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
                 {previewsImage.map((src, idx) => (
-                  <img
+                  <Image
                     key={idx}
                     src={src} // URL.createObjectURL(file)
                     alt={`Preview ${idx + 1}`}

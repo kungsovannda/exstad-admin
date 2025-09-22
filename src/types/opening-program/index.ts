@@ -6,7 +6,7 @@ export type openingProgramType = {
     image: string;
     shortcourseimage:string;
     qrimage: string;
-    template?: string[];
+    templates?: string[];
     activities: ActivityDataType[];
     timeline: timeline[];
     classes:Classes[];

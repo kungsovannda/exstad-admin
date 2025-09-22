@@ -16,17 +16,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 
-interface StatisticTableProps<TData, TValue> {
+interface AcceptedEnrollmentTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   totalItems: number;
 }
 
-export function StatisticTable<TData, TValue>({
+export function AcceptedEnrollmentTable<TData, TValue>({
   columns,
   data,
   totalItems,
-}: StatisticTableProps<TData, TValue>) {
+}: AcceptedEnrollmentTableProps<TData, TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
     ? Number(searchParams.get("perPage"))
@@ -59,7 +59,9 @@ export function StatisticTable<TData, TValue>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Assign Badge</DropdownMenuItem>
+            <DropdownMenuItem>Accept</DropdownMenuItem>
+            <DropdownMenuItem>UnAccepted</DropdownMenuItem>
+            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </DataTableToolbar>

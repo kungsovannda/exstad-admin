@@ -1,6 +1,6 @@
-
 "use client";
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
 import { getSession } from "next-auth/react";
 
 export const useBaseQuery = fetchBaseQuery({
@@ -10,6 +10,8 @@ export const useBaseQuery = fetchBaseQuery({
     if (session?.accessToken) {
       headers.set("Authorization", `Bearer ${session.accessToken}`);
     }
+    headers.set("Content-Type", "application/json");
+    headers.set("Accept", "application/json");
     return headers;
   },
 });

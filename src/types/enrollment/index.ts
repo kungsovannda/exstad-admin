@@ -1,0 +1,20 @@
+export type Enrollment = {
+  uuid: string;
+  englishName: string;
+  khmerName: string;
+  program: string;
+  gender: "Male" | "Female" | "Other";
+  dob: string;
+  phoneNumber: string;
+  email: string;
+  avatar: string;
+  province: string;
+  currentAddress: string;
+  university: string;
+  educationQualification: string;
+  extra: Record<string, string>;
+  isPaid: boolean;
+  isAccepted: boolean;
+  isAchieved: boolean;
+  isPassed: boolean;
+};

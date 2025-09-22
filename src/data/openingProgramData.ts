@@ -2,9 +2,9 @@ import { openingProgramType } from "@/types/opening-program";
 
 export const openingProgramData: openingProgramType[] = [
   {
-    uuid: "1",
-    title: "Java Programming",
-    slug: "java-programming",
+    uuid: "2c621fd5-a7aa-4f9b-bc2e-6146fc634c48",
+    title: "Pre University",
+    slug: "pre-university",
     generation: 2,
     programType: "Short Course",
     visibility: "public",
@@ -13,10 +13,7 @@ export const openingProgramData: openingProgramType[] = [
       "https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
     qrimage:
       "https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
-    template: [
-      "https://d2vyhi5ouo1we3.cloudfront.net/force_jpg/aHR0cHM6Ly9pbWFnZXMuYmFubmVyYmVhci5jb20vcmVxdWVzdHMvaW1hZ2VzLzAwOC85MjQvNTc5L29yaWdpbmFsL2VhYzQyY2FiZjM5YzIxY2Y4NThlNWY4NDRlZmM0YTA1MjJmOGUxNzkucG5nPzE2MzI4MDgzMDI=/image.jpg",
-      "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
-    ],
+    templates: [],
     description:
       "Get ready for university with our Pre University Scholarship program. This comprehensive course is designed to equip you with the essential skills and knowledge needed to excel in your higher education journey. From academic writing and research skills to time management and critical thinking, our expert instructors will guide you through a curriculum tailored to prepare you for the challenges of university life. Join us and take the first step towards a successful academic future.",
     classes: [
@@ -101,9 +98,9 @@ export const openingProgramData: openingProgramType[] = [
     ],
   },
   {
-    uuid: "2",
-    title: "Full-Stack Web Developments",
-    slug: "full-stack-web-developments",
+    uuid: "77afee6d-166d-4779-a3d7-3a263f94bb9c",
+    title: "Full-Stack Web Development",
+    slug: "full-stack-web-development",
     generation: 1,
     programType: "Short Course",
     visibility: "public",
@@ -112,9 +109,10 @@ export const openingProgramData: openingProgramType[] = [
       "https://scontent.fpnh11-1.fna.fbcdn.net/v/t39.30808-6/481978395_646817804765390_8167577235669527897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHkAnlA2G_TEMm_BloSevRW052IGJkuxMPTnYgYmS7Ew8mKsiFN1rbvveDC6wxTX5y0RoGt0DzLS5REvNroF2nm&_nc_ohc=i-QT3x0SBRsQ7kNvwGoCuar&_nc_oc=AdmhEQ3XuOE6x9oueFUrj3NM4LqjTyvOUnStbPJhS-oez8y9HrrhoHzew2hFtTvXd58&_nc_zt=23&_nc_ht=scontent.fpnh11-1.fna&_nc_gid=m0n_yhA4jtqkT3hXGvWSzA&oh=00_AfUmXkv_8eTXeDXeOYgpeZww45mYFYSWSoYAuh_nE0aENA&oe=68B237D0",
     qrimage:
       "https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
-    template: [
+    templates: [
       "https://d2vyhi5ouo1we3.cloudfront.net/force_jpg/aHR0cHM6Ly9pbWFnZXMuYmFubmVyYmVhci5jb20vcmVxdWVzdHMvaW1hZ2VzLzAwOC85MjQvNTc5L29yaWdpbmFsL2VhYzQyY2FiZjM5YzIxY2Y4NThlNWY4NDRlZmM0YTA1MjJmOGUxNzkucG5nPzE2MzI4MDgzMDI=/image.jpg",
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+      "http://localhost:8080/documents/ff2e00a596064e4083990093ebdac6b8-2025Sep15-105234.png",
     ],
     description:
       "Get ready for university with our Pre University Scholarship program. This comprehensive course is designed to equip you with the essential skills and knowledge needed to excel in your higher education journey. From academic writing and research skills to time management and critical thinking, our expert instructors will guide you through a curriculum tailored to prepare you for the challenges of university life. Join us and take the first step towards a successful academic future.",

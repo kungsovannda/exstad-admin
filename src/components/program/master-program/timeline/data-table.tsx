@@ -26,8 +26,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import DeleteModal from '../../activity/delete-modal-component';
-import SimpleTimelineForm from './timeline-modal1';
+// import DeleteModal from '../../activity/delete-modal-component';
+// import SimpleTimelineForm from './timeline-modal1';
 
 // -----------------
 // TimelineRow type

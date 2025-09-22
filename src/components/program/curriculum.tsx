@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { FaChevronDown, FaChevronRight, FaTrash } from "react-icons/fa";
-import { PiNotePencilFill } from "react-icons/pi";
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+// import { PiNotePencilFill } from "react-icons/pi";
 import { Button } from "../ui/button";
 import AddTopicDialog from "./curriculum-popup"; // default export
 import { SectionModal } from "./description"; // named export
@@ -65,14 +65,14 @@ export default function CurriculumAdmin() {
     );
   };
 
-  const handleDelete = (topicId: string) => {
-    setCurriculum((prev) => prev.filter((t) => t.id !== topicId));
-    toast.success("Topic deleted successfully!");
-  };
+  // const handleDelete = (topicId: string) => {
+  //   setCurriculum((prev) => prev.filter((t) => t.id !== topicId));
+  //   toast.success("Topic deleted successfully!");
+  // };
 
-  const handleDeleteTopic = (topicId: string) => {
-    setCurriculum((prev) => prev.filter((t) => t.id !== topicId));
-  };
+  // const handleDeleteTopic = (topicId: string) => {
+  //   setCurriculum((prev) => prev.filter((t) => t.id !== topicId));
+  // };
 
   // --- Section Handlers ---
   const handleAddSection = (topicId: string, title: string) => {
