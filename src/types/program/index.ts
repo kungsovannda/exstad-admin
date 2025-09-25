@@ -1,7 +1,5 @@
 import { openingProgramType } from "../opening-program";
 // shortCourseType.ts
-
-
 export type MasterProgramType = {
   uuid: string;
   programType:programType;

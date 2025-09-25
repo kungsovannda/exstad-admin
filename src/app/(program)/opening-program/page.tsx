@@ -36,9 +36,7 @@ export default function OpeningProgramPage() {
         <Link href="/opening-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
             <FiPlus className="text-[18px]" />
-            <span className="text-[14px] font-bold">
-              Crete New Opening Program
-            </span>
+            <span className="text-[14px] ">Crete New Opening Program</span>
           </Button>
         </Link>
       </div>

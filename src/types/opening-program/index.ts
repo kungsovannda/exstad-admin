@@ -1,4 +1,5 @@
 export type openingProgramType = {
+  programName:string
     programUuid:string;
     uuid:string;
     title: string;
@@ -79,9 +80,8 @@ export type ClassPayload = {
 };
 
 export type ClassType = {
-    
     uuid:string;
-      openingProgramUuid: string; 
+    openingProgramUuid: string; 
     shift:string;
     instructor:string;
     startTime:string;

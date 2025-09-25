@@ -28,14 +28,17 @@ export default function TimelinePage({ openingProgramUuid }: Props) {
   const [localTimelines, setLocalTimelines] = useState<TimelineType[]>([]);
 
   // Initialize localTimelines when timelines change
-  useEffect(() => {
+useEffect(() => {
+  if (timelines && localTimelines.length === 0) {
     setLocalTimelines(
       timelines.map((t, index) => ({
         ...t,
         _clientId: t._clientId ?? `${t.title}-${index}`,
       }))
     );
-  }, [timelines]);
+  }
+}, [timelines, localTimelines.length]);
+
 
   // Convert TimelineType to API payload
   const toPayload = (t: TimelineType): TimelinePayload => ({

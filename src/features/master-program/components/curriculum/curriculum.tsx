@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
@@ -11,138 +11,149 @@ import DeleteModal from "@/components/program/opening-program/activity/delete-mo
 import { SquarePen, Trash } from "lucide-react";
 
 import {
-  useGetAllCurriculumQuery,
-  useUpdateCurriculumsMutation,
+  useGetMasterCurriculumsQuery,
+  useUpdateMasterCurriculumsMutation,
+  useGetOpeningCurriculumsQuery,
+  useUpdateOpeningCurriculumsMutation,
+  CurriculumPayload,
 } from "./curriculumApi";
 import { CurriculumType } from "@/types/program";
 
-type Props = { programUuid: string };
+type Props = {
+  programUuid: string; // master program
+  openingProgramUuid?: string; // optional opening program
+};
 
-export default function CurriculumAdmin({ programUuid }: Props) {
-  const { data: curriculums = [], isLoading, isError } =
-    useGetAllCurriculumQuery(programUuid, { refetchOnMountOrArgChange: true });
+export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Props) {
+  // Queries
+  const { data: masterCurriculums, isLoading: isMasterLoading } = useGetMasterCurriculumsQuery(programUuid);
+  const { data: openingCurriculums, isLoading: isOpeningLoading } = useGetOpeningCurriculumsQuery(
+    openingProgramUuid ?? "",
+    { skip: !openingProgramUuid }
+  );
 
-  const [updateCurriculums] = useUpdateCurriculumsMutation();
+  // Mutations
+  const [updateMasterCurriculums] = useUpdateMasterCurriculumsMutation();
+  const [updateOpeningCurriculums] = useUpdateOpeningCurriculumsMutation();
+
+  const [copied, setCopied] = useState(false);
+
+  // Auto-copy Master -> Opening if opening is empty
+  useEffect(() => {
+    if (
+      openingProgramUuid &&
+      !copied &&
+      (!openingCurriculums || openingCurriculums.length === 0) &&
+      masterCurriculums?.length
+    ) {
+      const copiedCurriculums: CurriculumPayload[] = masterCurriculums.map(c => ({
+        ...c,
+        id: crypto.randomUUID(),
+      }));
+
+      updateOpeningCurriculums({ openingProgramUuid, curriculums: copiedCurriculums })
+        .unwrap()
+        .then(() => setCopied(true))
+        .catch(err => console.error("Failed to copy master curriculum:", err));
+    }
+  }, [openingProgramUuid, openingCurriculums, masterCurriculums, updateOpeningCurriculums, copied]);
+
+  const curriculums: CurriculumType[] =
+    openingCurriculums?.length ? openingCurriculums : masterCurriculums ?? [];
 
   // UI states
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [editingCurriculumIndex, setEditingCurriculumIndex] = useState<number | null>(null);
-  const [editingSection, setEditingSection] = useState<{
-    curriculumIndex: number;
-    index: number;
-  } | null>(null);
+  const [editingSection, setEditingSection] = useState<{ curriculumIndex: number; index: number } | null>(null);
   const [addingSectionCurriculumIndex, setAddingSectionCurriculumIndex] = useState<number | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{
-    type: "curriculum" | "section";
-    curriculumIndex?: number;
-    index?: number;
-  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: "curriculum" | "section"; curriculumIndex?: number; index?: number } | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const toggleExpand = (id: string) =>
-    setExpandedItems((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setExpandedItems(prev => (prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]));
 
-  if (isLoading) return <div>Loading curriculum...</div>;
-  if (isError) return <div className="text-destructive">Failed to load curriculum</div>;
+  if (isOpeningLoading || isMasterLoading) return <div>Loading curriculum...</div>;
+  if (!curriculums) return <div className="text-destructive">Failed to load curriculum</div>;
+
+  const isOpening = !!openingProgramUuid; // detect if we are editing an opening program
+  const canEdit = !!(programUuid || openingProgramUuid); // allow editing for both
+
+  // ======================
+  // Helper to call correct mutation
+  // ======================
+  const handleUpdateCurriculums = async (curriculumsToUpdate: CurriculumPayload[]) => {
+    try {
+      if (isOpening) {
+        await updateOpeningCurriculums({ openingProgramUuid: openingProgramUuid!, curriculums: curriculumsToUpdate }).unwrap();
+      } else {
+        await updateMasterCurriculums({ programUuid, curriculums: curriculumsToUpdate }).unwrap();
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to update curriculum: ${message}`);
+      throw err;
+    }
+  };
 
   // ======================
   // Handlers
   // ======================
-  const handleSaveCurriculum = async (
-    data: { title: string; subtitle: string },
-    targetIndex?: number
-  ) => {
-    try {
-      const safeCurriculums: CurriculumType[] = curriculums ?? [];
-      let newCurriculums: CurriculumType[];
+  const handleSaveCurriculum = async (data: { title: string; subtitle: string }, targetIndex?: number) => {
+    if (!canEdit) return toast.error("Cannot edit program");
 
-      if (targetIndex !== undefined) {
-        // Edit existing, keep order
-        newCurriculums = safeCurriculums.map((c, i) =>
-          i === targetIndex ? { ...c, title: data.title, subtitle: data.subtitle } : c
-        );
-      } else {
-        // Add new curriculum
-        newCurriculums = [
-          ...safeCurriculums,
-          {
-            id: crypto.randomUUID(),
-            order: safeCurriculums.length + 1, // next order
-            title: data.title,
-            subtitle: data.subtitle || "",
-            description: [],
-          },
-        ];
-      }
+    const safeCurriculums = [...curriculums];
+    const newCurriculums: CurriculumPayload[] =
+      targetIndex !== undefined
+        ? safeCurriculums.map((c, i) => (i === targetIndex ? { ...c, title: data.title, subtitle: data.subtitle } : c))
+        : [
+            ...safeCurriculums,
+            {
+              id: crypto.randomUUID(),
+              order: safeCurriculums.length + 1,
+              title: data.title,
+              subtitle: data.subtitle || "",
+              description: [],
+            },
+          ];
 
-      await updateCurriculums({ programUuid, curriculums: newCurriculums }).unwrap();
-      toast.success(targetIndex !== undefined ? "Curriculum updated!" : "Curriculum added!");
-    } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save curriculum: ${message || err}`);
-    }
+    await handleUpdateCurriculums(newCurriculums);
+    toast.success(targetIndex !== undefined ? "Curriculum updated!" : "Curriculum added!");
   };
 
-  const handleSaveSection = async (
-    curriculumIndex: number,
-    data: { title: string },
-    sectionIndex?: number
-  ) => {
-    try {
-      const safeCurriculums: CurriculumType[] = curriculums.map((c) => ({
-        ...c,
-        description: [...(c.description ?? [])],
-      }));
+  const handleSaveSection = async (curriculumIndex: number, data: { title: string }, sectionIndex?: number) => {
+    if (!canEdit) return toast.error("Cannot edit program");
 
-      const curriculum = safeCurriculums[curriculumIndex];
-      if (!curriculum) return;
+    const safeCurriculums = curriculums.map(c => ({ ...c, description: [...(c.description ?? [])] }));
+    const curriculum = safeCurriculums[curriculumIndex];
+    if (!curriculum) return;
 
-      const updatedCurriculum =
-        sectionIndex !== undefined
-          ? {
-              ...curriculum,
-              description: curriculum.description.map((d, i) =>
-                i === sectionIndex ? data.title : d
-              ),
-            }
-          : { ...curriculum, description: [...curriculum.description, data.title] };
+    const updatedCurriculum: CurriculumType =
+      sectionIndex !== undefined
+        ? { ...curriculum, description: curriculum.description.map((d, i) => (i === sectionIndex ? data.title : d)) }
+        : { ...curriculum, description: [...curriculum.description, data.title] };
 
-      safeCurriculums[curriculumIndex] = updatedCurriculum;
-
-      await updateCurriculums({ programUuid, curriculums: safeCurriculums }).unwrap();
-      toast.success(sectionIndex !== undefined ? "Section updated!" : "Section added!");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save section: ${message || err}`);
-    }
+    safeCurriculums[curriculumIndex] = updatedCurriculum;
+    await handleUpdateCurriculums(safeCurriculums);
+    toast.success(sectionIndex !== undefined ? "Section updated!" : "Section added!");
   };
 
-  const handleDelete = async (
-    type: "curriculum" | "section",
-    curriculumIndex?: number,
-    index?: number
-  ) => {
-    try {
-      const safeCurriculums = [...curriculums];
-      let newCurriculums: CurriculumType[];
+  const handleDelete = async (type: "curriculum" | "section", curriculumIndex?: number, index?: number) => {
+    if (!canEdit) return toast.error("Cannot edit program");
 
-      if (type === "curriculum" && curriculumIndex !== undefined) {
-        newCurriculums = safeCurriculums.filter((_, i) => i !== curriculumIndex);
-      } else if (type === "section" && curriculumIndex !== undefined && index !== undefined) {
-        const curriculum = { ...safeCurriculums[curriculumIndex] };
-        curriculum.description = curriculum.description.filter((_, i) => i !== index);
-        newCurriculums = safeCurriculums.map((c, i) => (i === curriculumIndex ? curriculum : c));
-      } else return;
+    const safeCurriculums = [...curriculums];
+    let newCurriculums: CurriculumType[] = safeCurriculums;
 
-      await updateCurriculums({ programUuid, curriculums: newCurriculums }).unwrap();
-      toast.success(type === "curriculum" ? "Curriculum deleted!" : "Section deleted!");
-      setDeleteTarget(null);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to delete: ${message || err}`);
-    }
+    if (type === "curriculum" && curriculumIndex !== undefined) {
+      newCurriculums = safeCurriculums.filter((_, i) => i !== curriculumIndex);
+    } else if (type === "section" && curriculumIndex !== undefined && index !== undefined) {
+      const curriculum = { ...safeCurriculums[curriculumIndex] };
+      curriculum.description = curriculum.description.filter((_, i) => i !== index);
+      newCurriculums = safeCurriculums.map((c, i) => (i === curriculumIndex ? curriculum : c));
+    } else return;
+
+    await handleUpdateCurriculums(newCurriculums);
+    toast.success(type === "curriculum" ? "Curriculum deleted!" : "Section deleted!");
+    setDeleteTarget(null);
   };
 
   // ======================
@@ -154,77 +165,71 @@ export default function CurriculumAdmin({ programUuid }: Props) {
       <div className="flex justify-between items-center">
         <h2 className="text-[18px] font-bold text-foreground">Curriculum</h2>
 
-        <AddTopicDialog
-          programUuid={programUuid}
-          open={isCreateOpen}
-          onOpenChange={setIsCreateOpen}
-          onSubmit={async (data) => {
-            await handleSaveCurriculum(data);
-            setIsCreateOpen(false);
-          }}
-          trigger={
-            <Button className="flex items-center gap-2.5">
-              <FiPlus />
-              <span className="text-[14px] font-bold">Add Curriculum</span>
-            </Button>
-          }
-        />
+        {canEdit && (
+          <AddTopicDialog
+            programUuid={openingProgramUuid ?? programUuid}
+            open={isCreateOpen}
+            onOpenChange={setIsCreateOpen}
+            onSubmit={async data => {
+              await handleSaveCurriculum(data);
+              setIsCreateOpen(false);
+            }}
+            trigger={
+              <Button className="flex items-center gap-2.5">
+                <FiPlus />
+                <span className="text-[14px] font-bold">Add Curriculum</span>
+              </Button>
+            }
+          />
+        )}
       </div>
 
-      {(!curriculums || curriculums.length === 0) && (
-        <div className="text-muted-foreground">No curriculums yet. Add one!</div>
-      )}
+      {curriculums.length === 0 && <div className="text-muted-foreground">No curriculums yet.</div>}
 
-      {/* Curriculum List */}
-      {(curriculums || []).map((curriculum, curriculumIndex) => {
+      {curriculums.map((curriculum, curriculumIndex) => {
         const isExpanded = expandedItems.includes(String(curriculumIndex));
         return (
           <div key={curriculum.id || curriculumIndex} className="flex flex-col gap-2.5 bg-accent rounded-sm p-4">
             {/* Curriculum Header */}
             <div className="flex justify-between items-center">
-              <div
-                className="flex items-center gap-2.5 cursor-pointer"
-                onClick={() => toggleExpand(String(curriculumIndex))}
-              >
+              <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => toggleExpand(String(curriculumIndex))}>
                 <FiPlus className="bg-black rounded-full text-white text-lg" />
                 <div className="flex flex-col">
                   <span className="text-[16px] font-semibold text-foreground">{curriculum.title}</span>
-                  {curriculum.subtitle && (
-                    <span className="text-[12px] text-muted-foreground">{curriculum.subtitle}</span>
-                  )}
+                  {curriculum.subtitle && <span className="text-[12px] text-muted-foreground">{curriculum.subtitle}</span>}
                 </div>
               </div>
 
-              <div className="flex gap-2 items-center">
-                <Trash
-                  size={16}
-                  className="text-destructive cursor-pointer"
-                  onClick={() => setDeleteTarget({ type: "curriculum", curriculumIndex })}
-                />
-                <SquarePen
-                  size={16}
-                  className="text-primary-hover cursor-pointer"
-                  onClick={() => setEditingCurriculumIndex(curriculumIndex)}
-                />
+              {canEdit && (
+                <div className="flex gap-2 items-center">
+                  <Trash
+                    size={16}
+                    className="text-destructive cursor-pointer"
+                    onClick={() => setDeleteTarget({ type: "curriculum", curriculumIndex })}
+                  />
+                  <SquarePen
+                    size={16}
+                    className="text-primary-hover cursor-pointer"
+                    onClick={() => setEditingCurriculumIndex(curriculumIndex)}
+                  />
 
-                <AddTopicDialog
-                  programUuid={programUuid}
-                  open={editingCurriculumIndex === curriculumIndex}
-                  onOpenChange={(open) =>
-                    setEditingCurriculumIndex(open ? curriculumIndex : null)
-                  }
-                  initialData={{ title: curriculum.title, subtitle: curriculum.subtitle }}
-                  onSubmit={async (data) => {
-                    await handleSaveCurriculum(data, curriculumIndex);
-                    setEditingCurriculumIndex(null);
-                  }}
-                />
+                  <AddTopicDialog
+                    programUuid={openingProgramUuid ?? programUuid}
+                    open={editingCurriculumIndex === curriculumIndex}
+                    onOpenChange={open => setEditingCurriculumIndex(open ? curriculumIndex : null)}
+                    initialData={{ title: curriculum.title, subtitle: curriculum.subtitle }}
+                    onSubmit={async data => {
+                      await handleSaveCurriculum(data, curriculumIndex);
+                      setEditingCurriculumIndex(null);
+                    }}
+                  />
 
-                <FaChevronDown
-                  className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`}
-                  onClick={() => toggleExpand(String(curriculumIndex))}
-                />
-              </div>
+                  <FaChevronDown
+                    className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`}
+                    onClick={() => toggleExpand(String(curriculumIndex))}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Sections */}
@@ -237,46 +242,49 @@ export default function CurriculumAdmin({ programUuid }: Props) {
                       <span className="text-[14px] font-semibold text-foreground">{section}</span>
                     </div>
 
-                    <div className="flex gap-2 items-center">
-                      <Trash
-                        size={16}
-                        className="text-destructive cursor-pointer"
-                        onClick={() =>
-                          setDeleteTarget({ type: "section", curriculumIndex, index })
-                        }
-                      />
-                      <SquarePen
-                        size={16}
-                        className="text-primary-hover cursor-pointer"
-                        onClick={() => setEditingSection({ curriculumIndex, index })}
-                      />
+                    {canEdit && (
+                      <div className="flex gap-2 items-center">
+                        <Trash
+                          size={16}
+                          className="text-destructive cursor-pointer"
+                          onClick={() => setDeleteTarget({ type: "section", curriculumIndex, index })}
+                        />
+                        <SquarePen
+                          size={16}
+                          className="text-primary-hover cursor-pointer"
+                          onClick={() => setEditingSection({ curriculumIndex, index })}
+                        />
 
-                      <AddSectionDialog
-                        programUuid={programUuid}
-                        curriculumIndex={curriculumIndex}
-                        open={editingSection?.curriculumIndex === curriculumIndex && editingSection?.index === index}
-                        onOpenChange={(open) => !open && setEditingSection(null)}
-                        initialData={{ title: section }}
-                        onSubmit={(data) => handleSaveSection(curriculumIndex, data, index)}
-                      />
-                    </div>
+                        <AddSectionDialog
+                          programUuid={openingProgramUuid ?? programUuid}
+                          curriculumIndex={curriculumIndex}
+                          open={editingSection?.curriculumIndex === curriculumIndex && editingSection?.index === index}
+                          onOpenChange={open => !open && setEditingSection(null)}
+                          initialData={{ title: section }}
+                          onSubmit={data => handleSaveSection(curriculumIndex, data, index)}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
 
-                {/* Add Section */}
-                <Button className="flex w-fit items-center" onClick={() => setAddingSectionCurriculumIndex(curriculumIndex)}>
-                  <FiPlus />
-                  <span className="text-[14px] font-semibold">Add Section</span>
-                </Button>
+                {canEdit && (
+                  <>
+                    <Button className="flex w-fit items-center" onClick={() => setAddingSectionCurriculumIndex(curriculumIndex)}>
+                      <FiPlus />
+                      <span className="text-[14px] font-semibold">Add Section</span>
+                    </Button>
 
-                {addingSectionCurriculumIndex === curriculumIndex && (
-                  <AddSectionDialog
-                    programUuid={programUuid}
-                    curriculumIndex={curriculumIndex}
-                    open={true}
-                    onOpenChange={(open) => !open && setAddingSectionCurriculumIndex(null)}
-                    onSubmit={(data) => handleSaveSection(curriculumIndex, data)}
-                  />
+                    {addingSectionCurriculumIndex === curriculumIndex && (
+                      <AddSectionDialog
+                        programUuid={openingProgramUuid ?? programUuid}
+                        curriculumIndex={curriculumIndex}
+                        open={true}
+                        onOpenChange={open => !open && setAddingSectionCurriculumIndex(null)}
+                        onSubmit={data => handleSaveSection(curriculumIndex, data)}
+                      />
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -284,16 +292,14 @@ export default function CurriculumAdmin({ programUuid }: Props) {
         );
       })}
 
-      {/* Delete Modal */}
-      <DeleteModal
-        open={!!deleteTarget}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
-        itemName={deleteTarget?.type === "curriculum" ? "curriculum" : "section"}
-        onConfirm={() =>
-          deleteTarget &&
-          handleDelete(deleteTarget.type, deleteTarget.curriculumIndex, deleteTarget.index)
-        }
-      />
+      {canEdit && deleteTarget && (
+        <DeleteModal
+          open={!!deleteTarget}
+          onOpenChange={open => !open && setDeleteTarget(null)}
+          itemName={deleteTarget?.type === "curriculum" ? "curriculum" : "section"}
+          onConfirm={() => deleteTarget && handleDelete(deleteTarget.type, deleteTarget.curriculumIndex, deleteTarget.index)}
+        />
+      )}
     </div>
   );
 }

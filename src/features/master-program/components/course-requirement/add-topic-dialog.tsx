@@ -71,11 +71,6 @@ export default function AddTopicDialog({
   const onSubmitForm = async (data: TopicFormValues) => {
     try{
       await onSubmit?.(data);
-      toast.success(
-              initialData
-                ? `Requirement "${data.title}" updated!`
-                : `Requirement "${data.title}" created!`
-            );
             onOpenChange?.(false);
             reset();
     }catch (err : unknown) {
