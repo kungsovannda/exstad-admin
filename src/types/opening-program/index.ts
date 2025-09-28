@@ -23,6 +23,7 @@ export type openingProgramType = {
     // optional fields (if backend adds them later)
     // description?: string;
     programType: string;
+    // templates?: string[];
     visibility: "public" | "private";
     activities?: ActivityType[];
     timeline?: TimelineType[];

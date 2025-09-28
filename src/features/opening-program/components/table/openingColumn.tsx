@@ -6,10 +6,10 @@ import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOption
 export const openingProgramColumns = (
   openingPrograms: openingProgramType[]
 ): ColumnDef<openingProgramType>[] => {
-  // const programTypeOptions = buildUniqueOptions(
-  //   openingPrograms,
-  //   (op) => op.programType
-  // );
+  const programTypeOptions = buildUniqueOptions(
+    openingPrograms,
+    (op) => op.programType
+  );
   const generationOptions = buildUniqueOptions(
     openingPrograms,
     (gen) => gen.generation
@@ -23,10 +23,10 @@ export const openingProgramColumns = (
     (st) => st.status,
   )
   return [
-    { accessorKey: "uuid", header: "ID" },
+    // { accessorKey: "uuid", header: "ID" },
     {
       accessorKey: "title",
-      header: "Program Name",
+      header: "Opening Program Name",
       enableColumnFilter: true,
       meta: {
         variant: "text",
@@ -35,17 +35,17 @@ export const openingProgramColumns = (
       },
     },
 
-    //   {
-    //     accessorKey: "programType",
-    //     header: "Program Type",
-    //     enableColumnFilter: true,
-    //     meta: {
-    //       variant: "select",
-    //       placeholder: "Filter Program type",
-    //       label: "Program Type",
-    //       options: programTypeOptions,
-    //     },
-    //   },
+      // {
+      //   accessorKey: "programType",
+      //   header: "Program Type",
+      //   enableColumnFilter: true,
+      //   meta: {
+      //     variant: "select",
+      //     placeholder: "Filter Program type",
+      //     label: "Program Type",
+      //     options: programTypeOptions,
+      //   },
+      // },
 
     {
       accessorKey: "generation",
@@ -62,6 +62,15 @@ export const openingProgramColumns = (
         options: generationOptions,
       },
     },
+        {
+      accessorKey:"duration",
+      header:"Duration",
+    },
+    {
+      accessorKey:"price",
+      header:"Fee",
+      cell: ({ getValue }) => `$${getValue<number>()?.toFixed(2)}`
+    },  
       {
         accessorKey: "totalSlot",
         header: "Total Slots",
@@ -102,7 +111,7 @@ export const openingProgramColumns = (
       cell: ({ row }) => {
         const status = row.original.status; // 👈 directly from backend
         if (!status) return "N/A";
-
+            const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
         const bgClass =
           status === "CLOSED"
             ? "bg-blue-500 text-white"
@@ -114,7 +123,7 @@ export const openingProgramColumns = (
           <span
             className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}
           >
-            {status}
+        {formattedStatus}
           </span>
         );
       },

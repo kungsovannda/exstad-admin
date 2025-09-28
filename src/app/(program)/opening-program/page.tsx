@@ -16,14 +16,13 @@ import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 // const allOpeningPrograms = programData.flatMap(program => program.openingprogram || []);
 
 export default function OpeningProgramPage() {
-    const {data,isFetching,error} = useGetAllOpeningProgramsQuery(undefined,{
-        refetchOnMountOrArgChange:true,
-    })
-     console.log("Raw API data:", data);
+  const { data, isLoading, error } = useGetAllOpeningProgramsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
-    const openingPrograms: openingProgramType[] = data ?? [];
-    const columns = openingProgramColumns(openingPrograms);
-    console.log("Programs length:", openingPrograms.length);
+  const openingPrograms: openingProgramType[] = data ?? [];
+  const columns = openingProgramColumns(openingPrograms);
+  console.log("Programs length:", openingPrograms.length);
   console.log("Programs:", openingPrograms);
 
   return (
@@ -41,20 +40,19 @@ export default function OpeningProgramPage() {
         </Link>
       </div>
       <SectionCardsOpening />
-        {isFetching ? (
-            <DataTableSkeleton columnCount={5}/>
-        ): error ? (
-            <p className="text-red-500">Error loading opening Programs</p>
-        ) : openingPrograms.length === 0 ? (
-            <p>No openingprograms found</p>
-        ): (
-            <OpeningProgramTable
-             data={openingPrograms}
-             totalItems={openingPrograms.length}
-             columns={columns}
-             />
-        )
-    }
+      {isLoading ? (
+        <DataTableSkeleton columnCount={5} />
+      ) : error ? (
+        <p className="text-red-500">Error loading opening Programs</p>
+      ) : openingPrograms.length === 0 ? (
+        <p>No openingprograms found</p>
+      ) : (
+        <OpeningProgramTable
+          data={openingPrograms}
+          totalItems={openingPrograms.length}
+          columns={columns}
+        />
+      )}
     </div>
   );
 }

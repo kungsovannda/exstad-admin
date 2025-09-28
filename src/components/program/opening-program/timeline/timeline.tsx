@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import TimelineModal, { TimelineFormValues } from "./timeline-modal";
 import TimelineTable from "@/features/opening-program/components/timeline/table/timeline-table";
