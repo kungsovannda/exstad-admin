@@ -280,11 +280,11 @@ export default function ActivityFormModal({
             {/* Actions */}
             <div className="flex justify-end mt-4 gap-2">
               <DialogClose asChild>
-                <Button variant="outline" onClick={handleClose}>
+                <Button className="cursor-pointer" variant="outline" onClick={handleClose}>
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" className="bg-primary text-white">
+              <Button type="submit" className="bg-primary text-white cursor-pointer">
                 {initialData ? "Update" : "Save"}
               </Button>
             </div>

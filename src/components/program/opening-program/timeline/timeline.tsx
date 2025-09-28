@@ -12,11 +12,12 @@ import {
 import { toast } from "sonner";
 import { TimelineType } from "@/types/opening-program";
 import { TimelineColumns } from "@/features/opening-program/components/timeline/table/timelineColumn";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 
 type Props = { openingProgramUuid: string };
 
 export default function TimelinePage({ openingProgramUuid }: Props) {
-  const { data: timelines = [], isLoading, isError } =
+  const { data: timelines = [], isLoading,isFetching, isError } =
     useGetAllTimelineQuery(openingProgramUuid, { refetchOnMountOrArgChange: true });
 
   const [putTimelines] = useUpdateTimelineMutation();
@@ -122,12 +123,15 @@ useEffect(() => {
             setModalOpen(false);
             setCurrentTimeline(null);
           }}
-          trigger={<Button className="font-bold">Add Timeline</Button>}
+          trigger={<Button className="font-bold cursor-pointer">Add Timeline</Button>}
         />
       </div>
 
       {/* Table */}
-      {localTimelines.length === 0 ? (
+      {isFetching ? (
+        <DataTableSkeleton columnCount={5} />
+      ):
+      localTimelines.length === 0 ? (
         <div className="text-muted-foreground">
           No timelines yet. Add one to get started!
         </div>

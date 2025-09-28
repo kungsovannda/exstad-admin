@@ -11,7 +11,7 @@ import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { MasterProgramType } from "@/types/program";
 
 export default function Page() {
-  const { data, isFetching, error } = useGetAllMasterProgramsQuery(undefined, {
+  const { data, isLoading, error } = useGetAllMasterProgramsQuery(undefined, {
   refetchOnMountOrArgChange: true,
 });
 
@@ -39,7 +39,7 @@ export default function Page() {
 
       <SectionCards />
 
-      {isFetching ? (
+      {isLoading ? (
         <DataTableSkeleton columnCount={5} />
       ) : error ? (
         <p className="text-red-500">Error loading programs</p>

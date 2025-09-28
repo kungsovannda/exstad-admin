@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { openingProgramType } from "@/types/opening-program";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -40,19 +40,19 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu >
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
+          <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+            <span className="sr-only ">Open menu</span>
+            <MoreHorizontal className="h-4 w-4 " />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push(`/opening-program/setup-openingprogram/${openingprogram.slug}` ) }>  Set Up  </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push(`/opening-program/edit/${openingprogram.slug}`)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem className="text-red-600"onClick={() => setDeleteOpen(true)}>Delete</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/setup-openingprogram/${openingprogram.slug}` ) }><Settings2 size={16} className="text-primary-hover " />Set Up  </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/edit/${openingprogram.slug}`)}><SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer text-destructive " onClick={() => setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>      
         </DropdownMenuContent>
       </DropdownMenu>
 

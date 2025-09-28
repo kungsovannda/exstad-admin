@@ -15,6 +15,7 @@ import {
   useUpdateLearningOutcomesMutation,
 } from "@/features/master-program/components/learningoutcomes/learningOutcomesApi";
 import { LearningOutcomeType } from "@/types/program";
+import { SectionSkeleton } from "../section-skeleton";
 
 type Props = { programUuid: string };
 
@@ -49,7 +50,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
 
-  if (isLoading) return <div>Loading learning outcomes...</div>;
+  if (isLoading) return <SectionSkeleton count={4}/>;
   if (isError)
     return (
       <div className="text-destructive">Failed to load learning outcomes</div>
@@ -198,7 +199,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
           trigger={
             <Button>
               <FiPlus />
-              <span className="text-[14px] font-bold">Add Outcome</span>
+              <span className="text-[14px] font-bold cursor-pointer">Add Outcome</span>
             </Button>
           }
         />
@@ -337,7 +338,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
                   onClick={() => setAddingSectionOutcomeIndex(outcomeIndex)}
                 >
                   <FiPlus />
-                  <span className="text-[14px] font-semibold">Add Section</span>
+                  <span className="text-[14px] font-semibold cursor-pointer">Add Section</span>
                 </Button>
 
                 {addingSectionOutcomeIndex === outcomeIndex && (

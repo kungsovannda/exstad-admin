@@ -158,9 +158,9 @@ export default function AddTopicDialog({
 
             <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="outline"  className="bg-red-500 hover:bg-red-400 hover:text-white text-white">Cancel</Button>
+                <Button variant="outline"  className="bg-red-500 hover:bg-red-400 hover:text-white text-white cursor-pointer">Cancel</Button>
               </DialogClose>
-              <Button type="submit">{initialData ? "Save Changes" : "Add Requirement"}</Button>
+              <Button className="cursor-pointer" type="submit">{initialData ? "Save Changes" : "Add Requirement"}</Button>
             </DialogFooter>
           </form>
         </FormProvider>

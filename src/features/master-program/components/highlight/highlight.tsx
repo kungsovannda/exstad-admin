@@ -12,6 +12,7 @@ import {
   useUpdateHighlightsMutation,
 } from "./highlightApi";
 import { HighlightPayload, HighlightType } from "@/types/program";
+import { SectionSkeleton } from "../section-skeleton";
 
 type Props = { programUuid: string };
 
@@ -29,7 +30,7 @@ export default function HighlightsAdmin({ programUuid }: Props) {
     [highlights]
   );
 
-  if (isLoading) return <div>Loading highlights...</div>;
+  if (isLoading) return <SectionSkeleton count={4}/>;
   if (isError) return <div className="text-destructive">Failed to load highlights</div>;
 
   const handleSaveHighlight = async (data: HighlightFormValues, target?: HighlightType) => {
@@ -99,7 +100,7 @@ export default function HighlightsAdmin({ programUuid }: Props) {
           trigger={
             <Button>
               <FiPlus />
-              <span className="font-bold">Add Highlight</span>
+              <span className="font-bold cursor-pointer">Add Highlight</span>
             </Button>
           }
         />

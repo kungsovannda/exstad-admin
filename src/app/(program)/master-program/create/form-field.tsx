@@ -30,15 +30,21 @@ import ColorPicker from "react-best-gradient-color-picker";
 import Image from "next/image";
 
 export const programFormSchema = z.object({
-  title: z.string().min(1),
-  programType: z.enum(["SHORT_COURSE", "SCHOLARSHIP"]),
-  programLevel: z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]),
-  visibility: z.enum(["public", "private"]),
-  subtitle: z.string(),
-  description: z.string(),
-  thumbnailUrl: z.string(),
-  posterUrl: z.string(),
-  bgColor: z.string(),
+  title: z.string().min(1, { message: "Title is required" }),
+  programType: z
+    .union([z.enum(["SHORT_COURSE", "SCHOLARSHIP"]), z.undefined()])
+    .refine(val => val !== undefined, { message: "Program type is required" }),
+  programLevel: z
+    .union([z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]), z.undefined()])
+    .refine(val => val !== undefined, { message: "Program level is required" }),
+  visibility: z
+    .union([z.enum(["public", "private"]), z.undefined()])
+    .refine(val => val !== undefined, { message: "Visibility is required" }),
+  subtitle: z.string().min(1, { message: "Subtitle is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
+  thumbnailUrl: z.string().min(1, { message: "Thumbnail is required" }),
+  posterUrl: z.string().min(1, { message: "Poster is required" }),
+  bgColor: z.string().min(1, { message: "Theme color is required" }),
 });
 
 export type MasterProgramFormValues = z.infer<typeof programFormSchema>;
@@ -54,13 +60,13 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
     resolver: zodResolver(programFormSchema),
     defaultValues: initialValues || {
       title: "",
-      programType: "SHORT_COURSE",
-      programLevel: "BASIC",
-      visibility: "public",
+      programType: undefined,
+      programLevel: undefined,
+      visibility: undefined,
       subtitle: "",
       description: "",
       thumbnailUrl: "",
-      posterUrl:"",
+      posterUrl: "",
       bgColor: "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
     },
   });
@@ -78,6 +84,9 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
     }
     if (initialValues?.thumbnailUrl) {
       setPreviewsThumbnail([initialValues.thumbnailUrl]);
+    }
+    if (initialValues?.posterUrl) {
+      setPreviewsPoster([initialValues.posterUrl]);
     }
   }, [initialValues]);
 
@@ -113,7 +122,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             <FormItem>
               <FormLabel>Program Type</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value ?? ""}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
@@ -180,7 +189,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
               <FormItem>
                 <FormLabel>Program Level</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
@@ -202,7 +211,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
               <FormItem>
                 <FormLabel>Visibility</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
@@ -217,6 +226,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             )}
           />
         </div>
+
         {/* Subtitle & Description */}
         <FormField
           control={form.control}
@@ -269,7 +279,6 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             </FormItem>
           )}
         />
-
         {previewsThumbnail.length > 0 && (
           <div className="flex gap-2 mt-2 flex-wrap">
             {previewsThumbnail.map((src, idx) => (
@@ -285,12 +294,13 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
           </div>
         )}
 
-         <FormField
+        {/* Poster */}
+        <FormField
           control={form.control}
           name="posterUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>posterUrl</FormLabel>
+              <FormLabel>Poster</FormLabel>
               <FormControl>
                 <Input
                   type="file"
@@ -299,7 +309,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
                     if (file) {
                       const url = URL.createObjectURL(file);
                       field.onChange(url);
-                      setPreviewsThumbnail([url]);
+                      setPreviewsPoster([url]);
                     }
                   }}
                 />

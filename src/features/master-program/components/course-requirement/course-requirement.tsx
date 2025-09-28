@@ -14,6 +14,7 @@ import {
   useUpdateRequirementsMutation,
 } from "./requirementsApi";
 import { RequirementsType } from "@/types/program";
+import { SectionSkeleton } from "../section-skeleton";
 
 type Props = { programUuid: string };
 
@@ -45,7 +46,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
 
-  if (isLoading) return <div>Loading requirements...</div>;
+  if (isLoading) return <SectionSkeleton count={4}/>;
   if (isError)
     return <div className="text-destructive">Failed to load requirements</div>;
 
@@ -150,7 +151,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
           trigger={
             <Button>
               <FiPlus />
-              <span className="text-[14px] font-bold">Add Topic</span>
+              <span className="text-[14px] font-bold cursor-pointer">Add Topic</span>
             </Button>
           }
         />
@@ -227,7 +228,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
 
                 <Button className="flex w-fit items-center" onClick={() => setAddingSectionReqIndex(reqIndex)}>
                   <FiPlus />
-                  <span className="text-[14px] font-semibold">Add Section</span>
+                  <span className="text-[14px] font-semibold cursor-pointer">Add Section</span>
                 </Button>
 
                 {addingSectionReqIndex === reqIndex && (

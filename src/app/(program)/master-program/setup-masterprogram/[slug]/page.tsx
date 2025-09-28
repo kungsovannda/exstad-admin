@@ -41,26 +41,26 @@ export default function ProgramSetup() {
       <h1 className="text-2xl font-semibold mb-4">Program Setup - {programSlug}</h1>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit">
-        <Button variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}>
+      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit cursor-pointer">
+        <Button className="cursor-pointer" variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}>
           Highlight
         </Button>
-        <Button variant={tab === "program-overview" ? "default" : "outline"} onClick={() => setTab("program-overview")}>
+        <Button className="cursor-pointer" variant={tab === "program-overview" ? "default" : "outline"} onClick={() => setTab("program-overview")}>
           Program Overview
         </Button>
-        <Button variant={tab === "learning-outcomes" ? "default" : "outline"} onClick={() => setTab("learning-outcomes")}>
+        <Button className="cursor-pointer" variant={tab === "learning-outcomes" ? "default" : "outline"} onClick={() => setTab("learning-outcomes")}>
           Learning Outcomes
         </Button>
-        <Button variant={tab === "course-requirements" ? "default" : "outline"} onClick={() => setTab("course-requirements")}>
+        <Button className="cursor-pointer" variant={tab === "course-requirements" ? "default" : "outline"} onClick={() => setTab("course-requirements")}>
           Course Requirements
         </Button>
-        <Button variant={tab === "curriculum" ? "default" : "outline"} onClick={() => setTab("curriculum")}>
+        <Button className="cursor-pointer" variant={tab === "curriculum" ? "default" : "outline"} onClick={() => setTab("curriculum")}>
           Curriculum
         </Button>
-        <Button variant={tab === "roadmap" ? "default" : "outline"} onClick={() => setTab("roadmap")}>
+        <Button className="cursor-pointer" variant={tab === "roadmap" ? "default" : "outline"} onClick={() => setTab("roadmap")}>
           Roadmap
         </Button>
-        <Button variant={tab === "faq" ? "default" : "outline"} onClick={() => setTab("faq")}>
+        <Button className="cursor-pointer" variant={tab === "faq" ? "default" : "outline"} onClick={() => setTab("faq")}>
           FAQ
         </Button>
       </div>

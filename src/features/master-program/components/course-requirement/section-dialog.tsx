@@ -144,12 +144,12 @@ export default function AddSectionDialog({
               <DialogClose asChild>
                 <Button
                   variant="outline"
-                  className="bg-red-500 hover:bg-red-400 text-white"
+                  className="bg-red-500 hover:bg-red-400 text-white cursor-pointer"
                 >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">
+              <Button className="cursor-pointer" type="submit">
                 {initialData ? "Save Changes" : "Add Section"}
               </Button>
             </DialogFooter>

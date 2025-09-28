@@ -58,8 +58,9 @@ export default function OpeningProgramSetup() {
       <h1 className="text-2xl font-semibold mb-4">Program Setup - {openingProgram.title}</h1>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit">
+      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit ">
         <Button
+          className="cursor-pointer"
           variant={tab === "class" ? "default" : "outline"}
           onClick={() => setTab("class")}
         >
@@ -68,24 +69,28 @@ export default function OpeningProgramSetup() {
         <Button
           variant={tab === "curriculum" ? "default" : "outline"}
           onClick={() => setTab("curriculum")}
+          className="cursor-pointer"
         >
           Curriculum
         </Button>
         <Button
           variant={tab === "timeline" ? "default" : "outline"}
           onClick={() => setTab("timeline")}
+          className="cursor-pointer"
         >
           Timeline
         </Button>
         <Button
           variant={tab === "roadmap" ? "default" : "outline"}
           onClick={() => setTab("roadmap")}
+          className="cursor-pointer"
         >
           Roadmap
         </Button>
         <Button
           variant={tab === "activities" ? "default" : "outline"}
           onClick={() => setTab("activities")}
+          className="cursor-pointer"
         >
           Activity
         </Button>

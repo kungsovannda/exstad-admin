@@ -251,12 +251,12 @@ useEffect(() => {
               <DialogClose asChild>
                 <Button
                   variant="outline"
-                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white"
+                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white cursor-pointer"
                 >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">{initialData ? "Save Changes" : "Add Timeline"}</Button>
+              <Button className="cursor-pointer" type="submit">{initialData ? "Save Changes" : "Add Timeline"}</Button>
             </DialogFooter>
           </form>
         </FormProvider>

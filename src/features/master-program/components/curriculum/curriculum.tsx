@@ -18,6 +18,7 @@ import {
   CurriculumPayload,
 } from "./curriculumApi";
 import { CurriculumType } from "@/types/program";
+import { SectionSkeleton } from "../section-skeleton";
 
 type Props = {
   programUuid: string; // master program
@@ -72,7 +73,7 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
   const toggleExpand = (id: string) =>
     setExpandedItems(prev => (prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]));
 
-  if (isOpeningLoading || isMasterLoading) return <div>Loading curriculum...</div>;
+  if (isOpeningLoading || isMasterLoading) return <SectionSkeleton count={4}/>;
   if (!curriculums) return <div className="text-destructive">Failed to load curriculum</div>;
 
   const isOpening = !!openingProgramUuid; // detect if we are editing an opening program
@@ -177,7 +178,7 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
             trigger={
               <Button className="flex items-center gap-2.5">
                 <FiPlus />
-                <span className="text-[14px] font-bold">Add Curriculum</span>
+                <span className="text-[14px] font-bold cursor-pointer">Add Curriculum</span>
               </Button>
             }
           />
@@ -225,7 +226,7 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
                   />
 
                   <FaChevronDown
-                    className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`}
+                    className={`transition-transform duration-200 cursor-pointer ${isExpanded ? "rotate-180" : "rotate-0"}`}
                     onClick={() => toggleExpand(String(curriculumIndex))}
                   />
                 </div>
@@ -272,7 +273,7 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
                   <>
                     <Button className="flex w-fit items-center" onClick={() => setAddingSectionCurriculumIndex(curriculumIndex)}>
                       <FiPlus />
-                      <span className="text-[14px] font-semibold">Add Section</span>
+                      <span className="text-[14px] font-semibold cursor-pointer">Add Section</span>
                     </Button>
 
                     {addingSectionCurriculumIndex === curriculumIndex && (

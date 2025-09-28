@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, SquarePen, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -28,7 +28,7 @@ export function ActivityActionsCell({ activities, onEdit, onDelete }: ActivityAc
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
@@ -36,10 +36,8 @@ export function ActivityActionsCell({ activities, onEdit, onDelete }: ActivityAc
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onEdit?.(activities)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem className="text-red-600" onClick={() => setDeleteOpen(true)}>
-            Delete
-          </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit?.(activities)}><SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

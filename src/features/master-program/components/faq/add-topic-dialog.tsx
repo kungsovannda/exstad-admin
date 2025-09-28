@@ -149,11 +149,11 @@ export function AddTopicFaq({
 
             <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white">
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white cursor-pointer">
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">{initialData ? "Save Changes" : "Add Topic"}</Button>
+              <Button className="cursor-pointer" type="submit">{initialData ? "Save Changes" : "Add Topic"}</Button>
             </DialogFooter>
           </form>
         </Form>

@@ -114,7 +114,7 @@ export const openingProgramColumns = (
             const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
         const bgClass =
           status === "CLOSED"
-            ? "bg-blue-500 text-white"
+            ? "bg-[#FDECEC] text-[#B32121]"
             : status === "ACHIEVED"
             ? "bg-yellow-400 text-white"
             : "bg-[#E6F4EA] text-[#1E7D34]"; // Active
@@ -132,7 +132,7 @@ export const openingProgramColumns = (
       id: "actions",
       header: "Actions",
       cell: ({ row }) => <OpeningActionsCell openingprogram={row.original} />,
-    },
+    },  
   ];
 };
 

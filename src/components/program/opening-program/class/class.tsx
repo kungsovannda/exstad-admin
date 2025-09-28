@@ -93,7 +93,7 @@ const handleSubmitClass = async (data: ClassFormValues) => {
           }}
           initialData={editTarget || undefined}
           onSubmitClass={handleSubmitClass}
-          trigger={<Button className="font-bold">Add Class</Button>}
+          trigger={<Button className="font-bold cursor-pointer">Add Class</Button>}
         />
       </div>
 

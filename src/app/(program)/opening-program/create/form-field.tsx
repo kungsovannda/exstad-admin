@@ -29,21 +29,25 @@ import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterPr
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
-  programUuid: z.string(),
-  title: z.string().min(1),
-  telegramGroup: z.string(),
-  generation: z.preprocess((val) => Number(val), z.number()),
-  originalFee: z.preprocess((val) => Number(val), z.number()),
-  scholarship: z.preprocess((val) => Number(val), z.number()),
+  programUuid: z.string().min(1, { message: "Master Program is required" }),
+  title: z.string().min(1, { message: "Title is required" }),
+  telegramGroup: z.string().min(1, { message: "Telegram Group is required" }),
+  generation: z.preprocess((val) => Number(val), z.number().min(1, { message: "Generation is required" })),
+  originalFee: z.preprocess((val) => Number(val), z.number().min(1, { message: "Original fee is required" })),
+  scholarship: z.preprocess((val) => Number(val), z.number().min(1, { message: "Scholarship is required" })),
   price: z.preprocess((val) => Number(val), z.number()),
-  totalSlot: z.preprocess((val) => Number(val), z.number()),
-  duration: z.string(),
+  totalSlot: z.preprocess((val) => Number(val), z.number().min(1, { message: "Total Slot is required" })),
+  duration: z.string().min(1, { message: "Duration is required" }),
   curriculumPdfUri: z.string().optional(),
-  thumbnail: z.string(),
-  slug: z.string().min(1), // required by backend
-  status: z.enum(["OPEN", "CLOSED", "ACHIEVED"]), // required by backend
-  qrCodeUrl: z.string().url(), // required by backend
+  thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
+  slug: z.string().min(1, { message: "Slug is required" }),
+  status: z
+  .union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()])
+  .refine(val => val !== undefined, { message: "Status is required" }),
+
+  qrCodeUrl: z.string().url({ message: "Valid QR Code URL is required" }),
 });
+
 
 export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>;
 
@@ -81,7 +85,7 @@ export default function OpeningProgramForm({
       curriculumPdfUri: "",
       thumbnail: "",
       slug: "",
-      status: "OPEN",
+      status: undefined,
       qrCodeUrl: "",
     },
   });

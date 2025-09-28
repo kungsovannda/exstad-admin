@@ -179,28 +179,31 @@ export const masterProgramColumns = (
         label: "Program Type",
         options: programTypeOptions,
       },
-        cell: ({ getValue }) => {
-    const programType = getValue<string>();
-    // Capitalize first letter
-    return programType.charAt(0).toUpperCase() + programType.slice(1).toLowerCase();
-  },
+      cell: ({ getValue }) => {
+        const programType = getValue<string>();
+        // Capitalize first letter
+        return (
+          programType.charAt(0).toUpperCase() +
+          programType.slice(1).toLowerCase()
+        );
+      },
     },
-{
-  accessorKey: "programLevel",
-  header: "Level",
-  enableColumnFilter: true,
-  meta: {
-    variant: "select",
-    placeholder: "Filter level",
-    label: "Program Level",
-    options: programLevelOptions,
-  },
-  cell: ({ getValue }) => {
-    const level = getValue<string>();
-    // Capitalize first letter
-    return level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
-  },
-},
+    {
+      accessorKey: "programLevel",
+      header: "Level",
+      enableColumnFilter: true,
+      meta: {
+        variant: "select",
+        placeholder: "Filter level",
+        label: "Program Level",
+        options: programLevelOptions,
+      },
+      cell: ({ getValue }) => {
+        const level = getValue<string>();
+        // Capitalize first letter
+        return level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
+      },
+    },
     {
       accessorKey: "description",
       header: "Description",
@@ -216,10 +219,10 @@ export const masterProgramColumns = (
         );
       },
     },
-    {
-      accessorKey: "slug",
-      header: "Slug",
-    },
+    // {
+    //   accessorKey: "slug",
+    //   header: "Slug",
+    // },
     {
       accessorKey: "visibility",
       header: "Visibility",

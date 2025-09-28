@@ -12,11 +12,12 @@ import {
 import { toast } from "sonner";
 import { ActivityType } from "@/types/opening-program";
 import { ActivityColumns } from "@/features/opening-program/components/activity/table/activityColumn";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 
 type Props = { openingProgramUuid: string };
 
 export default function ActivityAdmin({ openingProgramUuid }: Props) {
-  const { data: activitiesData, isLoading, isError } =
+  const { data: activitiesData, isLoading,isFetching, isError } =
     useGetAllActivityQuery(openingProgramUuid, { refetchOnMountOrArgChange: true });
 
   // Always ensure activities is an array
@@ -122,12 +123,16 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
             setModalOpen(false);
             setCurrentActivity(null);
           }}
-          trigger={<Button className="font-bold">Add Activity</Button>}
+          trigger={<Button className="font-bold cursor-pointer">Add Activity</Button>}
         />
       </div>
 
       {/* Activity Table */}
-      {activitiesWithUid.length === 0 ? (
+
+      {isFetching ? (
+        <DataTableSkeleton columnCount={4} />
+      ) :
+      activitiesWithUid.length === 0 ? (
         <div className="text-muted-foreground">
           No activities yet. Add one to get started!
         </div>

@@ -177,12 +177,12 @@ export function AddQuestionDialog({
               <DialogClose asChild>
                 <Button
                   variant="outline"
-                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white"
+                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white cursor-pointer"
                 >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">{submitText}</Button>
+              <Button className="cursor-pointer" type="submit">{submitText}</Button>
             </DialogFooter>
           </form>
         </Form>

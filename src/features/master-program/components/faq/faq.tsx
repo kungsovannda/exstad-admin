@@ -12,6 +12,7 @@
   import { SquarePen, Trash } from "lucide-react";
   import { useGetAllFaqQuery, useUpdateFaqsMutation } from "./faqApi";
   import { FaqItem } from "@/types/program";
+import { SectionSkeleton } from "../section-skeleton";
   type Props = { programUuid: string };
 
   export default function FaqAdmin({ programUuid }: Props) {
@@ -41,7 +42,7 @@
 
     const [updateFaqs] = useUpdateFaqsMutation();
 
-    if (isLoading) return <div>Loading FAQ.....</div>;
+    if (isLoading) return <SectionSkeleton count={4}/>;
     if (isError) return <div className="text-destructive">Failed to load FAQ</div>;
 
     const handleSaveTopic = async (
@@ -133,7 +134,7 @@
             }}
             trigger={
               <Button className="flex items-center gap-2.5">
-                <FiPlus /> <span className="text-[14px] font-bold">Add Topic</span>
+                <FiPlus /> <span className="text-[14px] font-bold cursor-pointer">Add Topic</span>
               </Button>
             }
           />
@@ -223,7 +224,7 @@
                     onClick={() => setAddingSectionReqIndex(faqIndex)}
                   >
                     <FiPlus className="text-[18px]" />
-                    <span className="text-[14px] font-bold">Add Question</span>
+                    <span className="text-[14px] font-bold cursor-pointer">Add Question</span>
                   </Button>
                 </div>
               )}
@@ -241,11 +242,6 @@
             }
           />
         )}
-
-        {/* Save Button */}
-        <div className="flex justify-end mt-6">
-          <Button className="bg-primary text-white">Save FAQ</Button>
-        </div>
       </div>
     );
   }

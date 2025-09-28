@@ -193,11 +193,11 @@ export default function HighlightsFormModal({
 
             <DialogFooter className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white">
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white cursor-pointer">
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" className="bg-primary text-white w-fit">
+              <Button type="submit" className="bg-primary text-white w-fit cursor-pointer">
                 {initialData ? "Update Highlight" : "Save Highlight"}
               </Button>
             </DialogFooter>

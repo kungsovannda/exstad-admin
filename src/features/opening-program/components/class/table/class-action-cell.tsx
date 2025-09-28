@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ClassType } from "@/types/opening-program";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, SquarePen, Trash } from "lucide-react";
 import { useState } from "react";
 import ClassModal, { ClassFormValues } from "@/components/program/opening-program/class/class-modal";
 import { toast } from "sonner";
@@ -57,7 +57,7 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
@@ -65,13 +65,8 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onEdit ? onEdit(classes) :  setOpen(true)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-red-600"
-            onClick={() =>  onDelete ? onDelete(classes) :  setDeleteOpen(true)}
-          >
-            Delete
-          </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit ? onEdit(classes) :  setOpen(true)}> <SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() =>  onDelete ? onDelete(classes) :  setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>          
         </DropdownMenuContent>
       </DropdownMenu>
 
