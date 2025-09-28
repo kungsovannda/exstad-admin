@@ -8,7 +8,7 @@ export const masterprogramApi = createApi({
     tagTypes: ["MasterProgram"],
     endpoints: (builder) => ({
         getAllMasterPrograms: builder.query<MasterProgramType[], void>({
-            query: () => "/api/v1/programs",
+            query: () => "/programs",
             transformResponse: (response: { programs?: MasterProgramType[] }) =>
                 response.programs ?? [],
             providesTags: (result) =>
@@ -26,14 +26,14 @@ export const masterprogramApi = createApi({
         // 
             // Fetch a single program by UUID
         getMasterProgramByUuid: builder.query<MasterProgramType, { uuid: string }>({
-        query: ({ uuid }) => `/api/v1/programs/${uuid}`,
+        query: ({ uuid }) => `/programs/${uuid}`,
         providesTags: (result) =>
             result ? [{ type: "MasterProgram", id: result.uuid }] : [],
         }),
 
         // Fetch a single program by slug
         getMasterProgramBySlug: builder.query<MasterProgramType, {slug:string}> ({
-            query:({slug}) => `/api/v1/programs/slug/${slug}`,
+            query:({slug}) => `/programs/slug/${slug}`,
             providesTags:(result) =>
                 result? [{type: "MasterProgram",id:result.slug}] : [],
         }),
@@ -41,7 +41,7 @@ export const masterprogramApi = createApi({
         // CREATE a new master program
         createMasterProgram: builder.mutation<MasterProgramType,MasterProgramCreate>({
             query:(body) => ({
-                url:"/api/v1/programs",
+                url:"/programs",
                 method:"POST",
                 body,
             }),
@@ -54,7 +54,7 @@ export const masterprogramApi = createApi({
             {uuid:string;body: MasterProgramCreate}
         >({
             query:({uuid, body}) =>({
-                url: `/api/v1/programs/${uuid}`,
+                url: `/programs/${uuid}`,
                 method:"PUT",
                 body,
             }),
@@ -64,7 +64,7 @@ export const masterprogramApi = createApi({
         // DELETE a master program 
         deleteMasterProgram: builder.mutation<void, string>({
             query: (uuid) => ({
-                url: `/api/v1/programs/${uuid}`,
+                url: `/programs/${uuid}`,
                 method:"DELETE",
             }),
             invalidatesTags:(result,error,uuid) =>[

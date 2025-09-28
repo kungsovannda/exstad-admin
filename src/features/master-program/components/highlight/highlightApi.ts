@@ -15,7 +15,7 @@ export const highlightsApi = createApi({
   tagTypes: ["Highlights"],
   endpoints: (builder) => ({
     getAllHighlight: builder.query<HighlightType[], string>({
-      query: (programUuid) => `/api/v1/programs/${programUuid}/highlights`,
+      query: (programUuid) => `/programs/${programUuid}/highlights`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -33,7 +33,7 @@ export const highlightsApi = createApi({
       { programUuid: string; highlights: HighlightPayload[] } // payload type
     >({
       query: ({ programUuid, highlights }) => ({
-        url: `/api/v1/programs/${programUuid}/highlights`,
+        url: `/programs/${programUuid}/highlights`,
         method: "PUT",
         body: highlights, // send only what backend expects
       }),

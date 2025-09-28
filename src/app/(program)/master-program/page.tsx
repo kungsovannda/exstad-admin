@@ -22,9 +22,7 @@ export default function Page() {
 
   console.log("Programs length:", programs.length);
   console.log("Programs:", programs);
-
   const columns = masterProgramColumns(programs);
-
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center gap-10">
@@ -32,7 +30,7 @@ export default function Page() {
         <Link href="/master-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
             <FiPlus className="text-[18px]" />
-            <span className="text-[14px] ">Create New Program</span>
+            <span className="text-[14px] cursor-pointer">Create New Program</span>
           </Button>
         </Link>
       </div>

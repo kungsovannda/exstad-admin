@@ -16,7 +16,7 @@ export const TimelineApi = createApi({
   tagTypes: ["Timelines"],
   endpoints: (builder) => ({
     getAllTimeline: builder.query<TimelineType[], string>({
-      query: (openingProgramUuid) => `/api/v1/opening-programs/${openingProgramUuid}/timelines`,
+      query: (openingProgramUuid) => `/opening-programs/${openingProgramUuid}/timelines`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -34,7 +34,7 @@ export const TimelineApi = createApi({
       { openingProgramUuid: string; timelines: TimelinePayload[] } // payload type
     >({
       query: ({ openingProgramUuid, timelines }) => ({
-        url: `/api/v1/opening-programs/${openingProgramUuid}/timelines`,
+        url: `/opening-programs/${openingProgramUuid}/timelines`,
         method: "PUT",
         body: timelines, // send only what backend expects
       }),

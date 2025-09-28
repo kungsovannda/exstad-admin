@@ -17,7 +17,7 @@ export const learningOutcomesApi = createApi({
     // --- GET all learning outcomes ---
     getAllLearningOutcomes: builder.query<LearningOutcomeType[], string>({
       query: (programUuid) =>
-        `/api/v1/programs/${programUuid}/learning-outcomes`,
+        `/programs/${programUuid}/learning-outcomes`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -36,7 +36,7 @@ export const learningOutcomesApi = createApi({
       { programUuid: string; learningOutcomes: LearningOutcomesPayload[] }
     >({
       query: ({ programUuid, learningOutcomes }) => ({
-        url: `/api/v1/programs/${programUuid}/learning-outcomes`,
+        url: `/programs/${programUuid}/learning-outcomes`,
         method: "PUT",
         body: learningOutcomes, // ✅ send actual payload
       }),

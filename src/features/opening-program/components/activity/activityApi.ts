@@ -15,7 +15,7 @@ export const activityApi = createApi({
   tagTypes: ["Activities"],
   endpoints: (builder) => ({
     getAllActivity: builder.query<ActivityType[], string>({
-      query: (openingProgramUuid) => `/api/v1/opening-programs/${openingProgramUuid}/activities`,
+      query: (openingProgramUuid) => `/opening-programs/${openingProgramUuid}/activities`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -33,7 +33,7 @@ export const activityApi = createApi({
       { openingProgramUuid: string; activities: ActivityPayload[] } // payload type
     >({
       query: ({ openingProgramUuid, activities }) => ({
-        url: `/api/v1/opening-programs/${openingProgramUuid}/activities`,
+        url: `/opening-programs/${openingProgramUuid}/activities`,
         method: "PUT",
         body: activities, // send only what backend expects
       }),

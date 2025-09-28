@@ -14,7 +14,7 @@ export const programOverviewsApi = createApi({
   tagTypes: ["ProgramOverviews"],
   endpoints: (builder) => ({
     getAllProgramOverview: builder.query<programOverviewType[], string>({
-      query: (programUuid) => `/api/v1/programs/${programUuid}/program-overviews`,
+      query: (programUuid) => `/programs/${programUuid}/program-overviews`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -32,7 +32,7 @@ export const programOverviewsApi = createApi({
       { programUuid: string; programOverviews: ProgramOverviewsPayload[] } // payload type
     >({
       query: ({ programUuid, programOverviews }) => ({
-        url: `/api/v1/programs/${programUuid}/program-overviews`,
+        url: `/programs/${programUuid}/program-overviews`,
         method: "PUT",
         body: programOverviews, // send only what backend expects
       }),

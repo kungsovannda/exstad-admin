@@ -16,7 +16,7 @@ export const curriculumApi = createApi({
   endpoints: (builder) => ({ 
     // Master Program
     getMasterCurriculums: builder.query<CurriculumType[], string>({
-      query: (programUuid) => `/api/v1/programs/${programUuid}/curriculums`,
+      query: (programUuid) => `/programs/${programUuid}/curriculums`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -33,7 +33,7 @@ export const curriculumApi = createApi({
       { programUuid: string; curriculums: CurriculumPayload[] }
     >({
       query: ({ programUuid, curriculums }) => ({
-        url: `/api/v1/programs/${programUuid}/curriculums`,
+        url: `/programs/${programUuid}/curriculums`,
         method: "PUT",
         body: curriculums,
       }),
@@ -43,7 +43,7 @@ export const curriculumApi = createApi({
     // Opening Program
     getOpeningCurriculums: builder.query<CurriculumType[], string>({
       query: (openingProgramUuid) =>
-        `/api/v1/opening-programs/${openingProgramUuid}/curriculums`,
+        `/opening-programs/${openingProgramUuid}/curriculums`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -60,7 +60,7 @@ export const curriculumApi = createApi({
       { openingProgramUuid: string; curriculums: CurriculumPayload[] }
     >({
       query: ({ openingProgramUuid, curriculums }) => ({
-        url: `/api/v1/opening-programs/${openingProgramUuid}/curriculums`,
+        url: `/opening-programs/${openingProgramUuid}/curriculums`,
         method: "PUT",
         body: curriculums,
       }),

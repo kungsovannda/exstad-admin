@@ -26,7 +26,7 @@ export const faqApi = createApi({
   endpoints: (builder) => ({
     // GET all FAQ topics for a program
     getAllFaq: builder.query<FaqItem[], string>({
-      query: (programUuid) => `/api/v1/programs/${programUuid}/faqs`,
+      query: (programUuid) => `/programs/${programUuid}/faqs`,
       transformResponse: (response: BackendFaqResponse): FaqItem[] => {
         // Transform backend response to frontend format
         if (!response || !Array.isArray(response) || response.length === 0) {
@@ -76,7 +76,7 @@ export const faqApi = createApi({
         }];
 
         return {
-          url: `/api/v1/programs/${programUuid}/faqs`,
+          url: `/programs/${programUuid}/faqs`,
           method: "PUT",
           body: backendPayload,
         };

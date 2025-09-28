@@ -10,7 +10,7 @@ export const classApi = createApi({
 
         // GET all classes
         getAllClasses: builder.query<ClassType[], void>({
-            query: () => "/api/v1/classes",
+            query: () => "/classes",
             transformResponse: (response: { classes?: ClassType[] }) =>
                 response.classes ?? [],
             providesTags: (result) =>
@@ -27,7 +27,7 @@ export const classApi = createApi({
 
         // GET single class by UUID
         getClassByUuid: builder.query<ClassType, { uuid: string }>({
-            query: ({ uuid }) => `/api/v1/classes/${uuid}`,
+            query: ({ uuid }) => `/classes/${uuid}`,
             providesTags: (result) =>
                 result ? [{ type: "Class", id: result.uuid }] : [],
         }),
@@ -35,7 +35,7 @@ export const classApi = createApi({
         // CREATE class
         createClass: builder.mutation<ClassType, ClassCreate>({
             query: (body) => ({
-                url: "/api/v1/classes",
+                url: "/classes",
                 method: "POST",
                 body,
             }),
@@ -48,7 +48,7 @@ export const classApi = createApi({
             { uuid: string; body: ClassCreate }
         >({
             query: ({ uuid, body }) => ({
-                url: `/api/v1/classes/${uuid}`,
+                url: `/classes/${uuid}`,
                 method: "PUT",
                 body,
             }),
@@ -62,7 +62,7 @@ export const classApi = createApi({
         // DELETE class
         deleteClass: builder.mutation<void, string>({
             query: (uuid) => ({
-                url: `/api/v1/classes/${uuid}`,
+                url: `/classes/${uuid}`,
                 method: "DELETE",
             }),
             invalidatesTags: (result, error, uuid) => [

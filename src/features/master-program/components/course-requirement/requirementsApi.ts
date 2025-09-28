@@ -15,7 +15,7 @@ export const requiementApi = createApi({
   endpoints: (builder) => ({
     // --- GET all requirements ---
     getAllRequirements: builder.query<RequirementsType[], string>({
-      query: (programUuid) => `/api/v1/programs/${programUuid}/requirements`,
+      query: (programUuid) => `/programs/${programUuid}/requirements`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -34,7 +34,7 @@ export const requiementApi = createApi({
       { programUuid: string; requirements: RequirementPayload[] }
     >({
       query: ({ programUuid, requirements }) => ({
-        url: `/api/v1/programs/${programUuid}/requirements`,
+        url: `/programs/${programUuid}/requirements`,
         method: "PUT",
         body: requirements, // backend expects array of {title, subtitle, description}
       }),

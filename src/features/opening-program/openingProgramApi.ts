@@ -10,7 +10,7 @@ export const openingProgramApi = createApi({
 
         // GET all opening programs
         getAllOpeningPrograms: builder.query<openingProgramType[], void>({
-            query: () => "/api/v1/opening-programs",
+            query: () => "/opening-programs",
             transformResponse: (response: { "opening-programs"?: openingProgramType[] }) =>
             response["opening-programs"] ?? [],
             providesTags: (result) =>
@@ -27,14 +27,14 @@ export const openingProgramApi = createApi({
 
         // GET single opening program by UUID
         getOpeningProgramByUuid: builder.query<openingProgramType, { uuid: string }>({
-            query: ({ uuid }) => `/api/v1/opening-programs/${uuid}`,
+            query: ({ uuid }) => `/opening-programs/${uuid}`,
             providesTags: (result) =>
                 result ? [{ type: "OpeningProgram", id: result.programUuid }] : [],
         }),
 
         // Get single opening program by slug 
         getOpeningProgramBySlug: builder.query<openingProgramType , {slug:string}> ({
-            query: ({slug}) => `/api/v1/opening-programs/slug/${slug}`,
+            query: ({slug}) => `/opening-programs/slug/${slug}`,
             providesTags: (result) => 
                 result ? [{type: "OpeningProgram", id: result.slug}] : [],
         }),
@@ -42,7 +42,7 @@ export const openingProgramApi = createApi({
         // CREATE opening program
         createOpeningProgram: builder.mutation<openingProgramType, openingProgramCreate>({
             query: (body) => ({
-                url: "/api/v1/opening-programs",
+                url: "/opening-programs",
                 method: "POST",
                 body,
             }),
@@ -55,7 +55,7 @@ export const openingProgramApi = createApi({
             { uuid: string; body: openingProgramCreate }
         >({
             query: ({ uuid, body }) => ({
-                url: `/api/v1/opening-programs/${uuid}`,
+                url: `/opening-programs/${uuid}`,
                 method: "PUT",
                 body,
             }),
@@ -67,7 +67,7 @@ export const openingProgramApi = createApi({
         // DELETE opening program
         deleteOpeningProgram: builder.mutation<void, string>({
             query: (uuid) => ({
-                url: `/api/v1/opening-programs/${uuid}`,
+                url: `/opening-programs/${uuid}`,
                 method: "DELETE",
             }),
             invalidatesTags: (result, error, uuid) => [
