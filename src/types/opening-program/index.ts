@@ -1,52 +1,112 @@
 export type openingProgramType = {
-    uuid: string;
+  programName:string
+    programUuid:string;
+    uuid:string;
     title: string;
-    generation:number;
-    description: string;
-    image: string;
-    shortcourseimage:string;
-    qrimage: string;
-    template?: string[];
-    activities: ActivityDataType[];
-    timeline: timeline[];
-    classes:Classes[];
+    generation:number;  
+    thumbnail:string;
     slug:string;
-    programType: string; 
-    visibility: "public" | "private";
+    originalFee:number;
+    price:number;
+    scholarship:number;
+    duration:string;
+    curriculumPdfUri:string;
+    totalSlot: number;
+    qrCodeUrl: string;
+    // extra fields from backend
+    telegramGroup: string;
+    status: "OPEN" | "CLOSED" | "ACHIEVED";
+    // image: string;
+    // shortcourseimage:string; 
+    // template?: string[];
 
+    // optional fields (if backend adds them later)
+    // description?: string;
+    programType: string;
+    // templates?: string[];
+    visibility: "public" | "private";
+    activities?: ActivityType[];
+    timeline?: TimelineType[];
+    classes?: ClassType[];
+   
 }
 
+export type openingProgramCreate = {
+  programUuid: string;
+  title: string;
+  generation: number;  
+  thumbnail: string;
+  slug: string;
+  originalFee: number;
+  price: number;
+  scholarship: number;
+  duration: string;
+  curriculumPdfUri?: string; // optional if backend allows
+  totalSlot: number;
+  qrCodeUrl: string;
+  telegramGroup: string;
+  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  programType?: string; // optional if backend allows
+  visibility?: "public" | "private"; // optional
+  activities?: ActivityType[];
+  timeline?: TimelineType[];
+  classes?: ClassType[];
+}
+
+
 export type ActivityType = {
-    id:number;
-    subtitle:string;
+    title:string;
     description:string;
     image:string;
 }
-export type ActivityDataType = {
-    id:number;
-    title:string;
-    activityType:ActivityType[];
-}
 
-export type timeline = {
-  id: number;
-  date: string;
-  title: string;
+export type TimelineType = {
+  title:string;
+  startDate:string;
+  endDate:string;
+_clientId: string; // 🔑 local unique id
 };
 
+export type ClassPayload = {
+  openingProgramUuid: string;
+  shift: "MORNING" | "AFTERNOON" | "EVENING";
+  instructor: string;
+  startTime: string;  // HH:mm:ss
+  endTime: string;    // HH:mm:ss
+  isWeekend: boolean;
+  totalSlot: number;
+  room: string;
+  classCode: string;
+  telegram: string;
+};
 
-export type Classes = {
-    id:number;
-    title:string;
+export type ClassType = {
+    uuid:string;
+    openingProgramUuid: string; 
     shift:string;
     instructor:string;
-    startTime:Date;
-    endTime:Date;
+    startTime:string;
+    endTime:string;
     isWeekend:boolean;
-    totalSlots:number;
+    totalSlot:number;
     room:string;
     classCode:string;
+    telegram:string
 }
+export type ClassCreate = {
+    // openingProgramUuid:string;
+    shift:string;
+    instructor:string;
+    startTime:string;
+    endTime:string;
+    isWeekend:boolean;
+    totalSlot:number;
+    room:string;
+    classCode:string;
+    telegram:string;
+}
+
+
 
 // export type RoadmapType = {
 

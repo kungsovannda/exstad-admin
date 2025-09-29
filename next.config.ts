@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       "scontent.fpnh11-1.fna.fbcdn.net",
       "upload.wikimedia.org",
       "t4.ftcdn.net", // <- add this
+      "example.com"
     ],
     remotePatterns: [
       {

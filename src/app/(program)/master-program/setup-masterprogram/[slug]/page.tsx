@@ -1,39 +1,78 @@
 "use client";
 
-import Curriculum from "@/components/program/master-program/curriculum/curriculum";
-import Faq from "@/components/program/master-program/faq/faq";
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {  useParams } from "next/navigation";
-import LearningOutcomesAdmin from "@/components/program/master-program/learning-outcome/learning-outcome";
-import CourseRequirementsAdmin from "@/components/program/master-program/course-requirement/course-requirement";
-import Highlight from "@/components/program/master-program/highlight/highlight";
+
+import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
+import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
+import Faq from "@/features/master-program/components/faq/faq";
+import LearningOutcomesAdmin from "@/features/master-program/components/learningoutcomes/learning-outcome";
+import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/course-requirement";
+import ProgramOverviewAdmin from "@/features/master-program/components/programOverview/programOverview";
+
+import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
 export default function ProgramSetup() {
-  const [tab, setTab] = useState<"highlight"|"curriculum" | "roadmap"|"learning-outcomes" | "course-requirements"|  "faq">("highlight");
-  const params = useParams(); // app router
-  const slug = params.slug;
+  const [tab, setTab] = useState<
+    | "highlight"
+    | "program-overview"
+    | "curriculum"
+    | "roadmap"
+    | "learning-outcomes"
+    | "course-requirements"
+    | "faq"
+  >("highlight");
+
+  const params = useParams();
+  const programSlug = params.slug as string;
+
+  // Fetch all programs to find the one by slug
+  const { data: programs, isLoading, error } = useGetAllMasterProgramsQuery();
+  const program = programs?.find((p) => p.slug === programSlug);
+
+  if (isLoading) return <div>Loading program...</div>;
+  if (error || !program) return <div>Program not found</div>;
+
+  const programUuid = program.uuid;
 
   return (
     <div className="p-5">
-      <h1 className="text-2xl font-semibold mb-4">Program Setup - {slug}</h1>
-      {/* Tab buttons */}
-      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit">
-        <Button variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}> Hightlight </Button>
-        <Button variant={tab === "learning-outcomes" ? "default" : "outline"} onClick={() => setTab("learning-outcomes")}> Learning Outcomes </Button>
-        <Button variant={tab === "course-requirements" ? "default" : "outline"} onClick={() => setTab("course-requirements")}> Course Requirements </Button>
-        <Button variant={tab === "curriculum" ? "default" : "outline"} onClick={() => setTab("curriculum")}>Curriculum </Button>
-        <Button variant={tab === "roadmap" ? "default" : "outline"} onClick={() => setTab("roadmap")}>  Roadmap </Button>
-        <Button variant={tab === "faq" ? "default" : "outline"} onClick={() => setTab("faq")}>  FAQ </Button>
+      <h1 className="text-2xl font-semibold mb-4">Program Setup - {programSlug}</h1>
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit cursor-pointer">
+        <Button className="cursor-pointer" variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}>
+          Highlight
+        </Button>
+        <Button className="cursor-pointer" variant={tab === "program-overview" ? "default" : "outline"} onClick={() => setTab("program-overview")}>
+          Program Overview
+        </Button>
+        <Button className="cursor-pointer" variant={tab === "learning-outcomes" ? "default" : "outline"} onClick={() => setTab("learning-outcomes")}>
+          Learning Outcomes
+        </Button>
+        <Button className="cursor-pointer" variant={tab === "course-requirements" ? "default" : "outline"} onClick={() => setTab("course-requirements")}>
+          Course Requirements
+        </Button>
+        <Button className="cursor-pointer" variant={tab === "curriculum" ? "default" : "outline"} onClick={() => setTab("curriculum")}>
+          Curriculum
+        </Button>
+        <Button className="cursor-pointer" variant={tab === "roadmap" ? "default" : "outline"} onClick={() => setTab("roadmap")}>
+          Roadmap
+        </Button>
+        <Button className="cursor-pointer" variant={tab === "faq" ? "default" : "outline"} onClick={() => setTab("faq")}>
+          FAQ
+        </Button>
       </div>
 
       {/* Tab Content */}
-      {tab === "highlight" && <Highlight/>}
-      {tab === "curriculum" && <Curriculum />}
+      {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
+      {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
-      {tab === "faq" && <Faq />}
-      {tab === "learning-outcomes" && <LearningOutcomesAdmin />}
-      {tab === "course-requirements" && <CourseRequirementsAdmin/>}
+      {tab === "faq" && <Faq programUuid={programUuid} />}
+      {tab === "learning-outcomes" && <LearningOutcomesAdmin programUuid={programUuid} />}
+      {tab === "course-requirements" && <CourseRequirementsAdmin programUuid={programUuid} />}
+      {tab === "program-overview" && <ProgramOverviewAdmin programUuid={programUuid} />}
     </div>
   );
 }

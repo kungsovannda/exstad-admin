@@ -1,95 +1,353 @@
-// 'use client';
+"use client";
 
-// import React from "react";
-// import { FormField } from "@/components/program/form-field";
-// import { Button } from "@/components/ui/button";
-// import { FiPlus } from "react-icons/fi";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
+import React, { useEffect } from "react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { Resolver } from "react-hook-form";
+import * as z from "zod";
 
-// type Field = {
-//   id: string;
-//   label: string;
-//   type?: "text" | "email" | "select" | "textarea" | "number" | "date" | "file";
-//   placeholder?: string;
-//   options?: { value: string; label: string }[];
-//   rows?: number;
-// };
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 
-// export default function ClassModal() {
-//   const fields: Field[] = [
-//     { id: "name", label: "Class Name", type: "text", placeholder: "Enter your Class Name" },
-//     { id: "telegram", label: "Telegram Group Link", type: "text", placeholder: "Enter your Telegram Group Link" },
-//     { id: "classCode", label: "Class Code", type: "text", placeholder: "Enter your Class Code" }, 
-//     { id: "room", label: "Room", type: "select",
-//       options: [
-//         { value: "Blockchain", label: "Blockchain" },
-//         { value: "DevOps", label: "DevOps" },
-//         { value: "Fullstack", label: "Fullstack" },
-//         { value: "Mobile", label: "Mobile" },
-//         { value: "Data Analytics", label: "Data Analytics" },
-//       ],
-//       placeholder: "Select a Room" },
-//     { id: "shift", label: "Shift", type: "select",
-//       options: [
-//         { value: "Morning", label: "Morning" },
-//         { value: "Afternoon", label: "Afternoon" },
-//         { value: "Evening", label: "Evening" },
-//       ],
-//       placeholder: "Select a Shift" },
-//     { id: "instructor", label: "Instructor Name", type: "select",
-//       options: [
-//         { value: "Kim Chansokpheng", label: "Kim Chansokpheng" },
-//         { value: "Sreng Chipor", label: "Sreng Chipor" },
-//         { value: "Chan Chhaya", label: "Chan Chhaya" },
-//       ],
-//       placeholder: "Select an Instructor" },
-//     { id: "start", label: "Start Date", type: "date" },
-//     { id: "end", label: "End Date", type: "date" },
-//   ];
+// ----------------- Validation schema -----------------
+const formSchema = z.object({
+  uuid: z.string().optional(), // optional for new class
+  telegram: z.string().min(1, { message: "Telegram Group link is required" }).url("Must be a valid URL"),
+  classCode: z.string().min(1, { message: "Class code is required" }),
+  room: z.string().min(1, { message: "Room is required" }),
+  shift: z.string().min(1, { message: "Shift is required" }),
+  instructor: z.string().min(1, { message: "Instructor is required" }),
+  totalSlot: z.preprocess((val) => Number(val), z.number().min(1, { message: "Total Slot is required" })),
+  startTime: z.string().min(1, { message: "Start time is required" }),
+  endTime: z.string().min(1, { message: "End time is required" }),
+  isWeekend: z.boolean(),
+});
 
-//   const handleSave = () => {
-//     // TODO: API call to save class
-//   };
+export type ClassFormValues = z.infer<typeof formSchema>;
 
-//   return (
-//     <Dialog>
-//       <DialogTrigger asChild>
-//         <Button variant="default" className="flex items-center gap-2">
-//           <FiPlus className="text-lg" />
-//           Add Class
-//         </Button>
-//       </DialogTrigger>
-//       <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
-//         <DialogHeader>
-//           <DialogTitle>Add New Class</DialogTitle>
-//         </DialogHeader>
+// ----------------- Props -----------------
+type ClassModalProps = {
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialData?: ClassFormValues;
+  onSubmitClass?: (data: ClassFormValues) => Promise<void> | void;
+  submitLabel?: string;
+};
 
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-//           {fields.map((field) => (
-//             <FormField
-//               key={field.id}
-//               id={field.id}
-//               label={field.label}
-//               type={field.type}
-//               placeholder={field.placeholder}
-//               options={field.options}
-//               rows={field.rows}
-//             />
-//           ))}
-//         </div>
+// ----------------- Component -----------------
+export default function ClassModal({
+  trigger,
+  open,
+  onOpenChange,
+  initialData,
+  onSubmitClass,
+}: ClassModalProps) {
+  const resolver: Resolver<ClassFormValues> = zodResolver(formSchema) as unknown as Resolver<ClassFormValues>;
 
-//         <div className="flex justify-end mt-6">
-//           <Button onClick={handleSave} className="bg-primary text-white">
-//             Save
-//           </Button>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
+  const form = useForm<ClassFormValues>({
+    resolver,
+    defaultValues: initialData
+      ? {
+          startTime: initialData.startTime ?? "08:00",
+          endTime: initialData.endTime ?? "17:00",
+          room: initialData.room ?? "",
+          shift: initialData.shift ?? "",
+          instructor: initialData.instructor ?? "",
+          totalSlot: initialData.totalSlot ?? 0,
+          telegram: initialData.telegram ?? "",
+          isWeekend: initialData.isWeekend ?? false,
+          classCode: initialData.classCode ?? "",
+          uuid: initialData.uuid ?? "",
+        }
+      : {
+          uuid: "",
+          telegram: "",
+          classCode: "",
+          room: "",
+          shift: "",
+          instructor: "",
+          startTime: "08:00",
+          endTime: "17:00",
+          totalSlot: 0,
+          isWeekend: false,
+        },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+  });
+
+  const { handleSubmit, reset, clearErrors } = form;
+
+  useEffect(() => {
+    if (open) {
+      reset({ ...initialData });
+      clearErrors();
+    }
+  }, [open, initialData, reset, clearErrors]);
+
+  const onSubmitForm: (data: ClassFormValues) => Promise<void> = async (data) => {
+    try {
+      await onSubmitClass?.(data);
+      toast.success(
+        initialData
+          ? `Class "${data.classCode}" updated successfully!`
+          : `Class "${data.classCode}" created successfully!`
+      );
+      onOpenChange?.(false);
+      reset();
+    } catch (error) {
+      console.error("Form submission error", error);
+      toast.error("Failed to submit the form. Please try again.");
+    }
+  };
+
+  const handleFieldChange =
+    (fieldName: keyof ClassFormValues, onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      clearErrors(fieldName);
+      onChange(event);
+    };
+
+  const handleSelectChange = (fieldName: keyof ClassFormValues, onChange: (value: string) => void) => (value: string) => {
+    clearErrors(fieldName);
+    onChange(value);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent
+        className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
+        onInteractOutside={(event) => {
+          event.preventDefault();
+          const values = form.getValues();
+          const hasEmpty = Object.values(values).some((v) => v === "" || v === undefined || v === null);
+
+          if (hasEmpty) {
+            form.trigger();
+            toast.error("Please fill all required fields before leaving.");
+          }
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>{initialData ? "Edit Class" : "Add New Class"}</DialogTitle>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6 mt-4">
+            {/* Row 2: Class Code & Room */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="classCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Class Code</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ""} placeholder="Enter Class Code" onChange={handleFieldChange("classCode", field.onChange)} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="room"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Room</FormLabel>
+                    <Select onValueChange={handleSelectChange("room", field.onChange)} value={field.value ?? ""}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a room" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Blockchain">Blockchain</SelectItem>
+                        <SelectItem value="DevOps">DevOps</SelectItem>
+                        <SelectItem value="Fullstack">Fullstack</SelectItem>
+                        <SelectItem value="Mobile">Mobile</SelectItem>
+                        <SelectItem value="Data Analytics">Data Analytics</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 3: Shift & Instructor */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="shift"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Shift</FormLabel>
+                    <Select onValueChange={handleSelectChange("shift", field.onChange)} value={field.value ?? ""}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a shift" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Morning">Morning</SelectItem>
+                        <SelectItem value="Afternoon">Afternoon</SelectItem>
+                        <SelectItem value="Evening">Evening</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="instructor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Instructor</FormLabel>
+                    <Select onValueChange={handleSelectChange("instructor", field.onChange)} value={field.value ?? ""}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an instructor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Kim Chansokpheng">Kim Chansokpheng</SelectItem>
+                        <SelectItem value="Chan Chhaya">Chan Chhaya</SelectItem>
+                        <SelectItem value="Eung Lyzhia">Eung Lyzhia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 4: Start & End Time */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="startTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Time</FormLabel>
+                    <FormControl>
+                      <Input type="time" step="1" {...field} onChange={handleFieldChange("startTime", field.onChange)} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="endTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Time</FormLabel>
+                    <FormControl>
+                      <Input type="time" step="1" {...field} onChange={handleFieldChange("endTime", field.onChange)} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 5: Total Slots & Telegram */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="totalSlot"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Total Slots</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="telegram"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telegram Group Link</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter Telegram Link"
+                        value={field.value ?? ""}
+                        onChange={handleFieldChange("telegram", field.onChange)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 6: Is Weekend */}
+            <FormField
+              control={form.control}
+              name="isWeekend"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2">
+                  <FormLabel>Is Weekend?</FormLabel>
+                  <FormControl>
+                    <input
+                      type="checkbox"
+                      checked={field.value ?? false}
+                      onChange={(e) => {
+                        clearErrors("isWeekend");
+                        field.onChange(e.target.checked);
+                      }}
+                      className="w-4 h-4"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button variant="outline" className="bg-red-500 hover:bg-red-400 text-white cursor-pointer">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" className="bg-primary text-white cursor-pointer">
+                {initialData ? "Update" : "Save"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

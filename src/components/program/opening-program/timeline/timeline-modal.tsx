@@ -1,171 +1,476 @@
-// 'use client';
+"use client";
 
-// import React from "react";
-// import { useForm, Controller } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SerializedEditorState } from "lexical";
+import { initialValue } from "@/app/editor-00/page";
+
+// -----------------
+// Validation schema
+// -----------------
+const timelineSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  startDate: z.string().min(1, "Start Date is required"),
+  endDate: z.string().min(1, "End Date is required"),
+});
+
+export type TimelineFormValues = z.infer<typeof timelineSchema>;
+
+interface TimelineFormModalProps {
+  trigger?: React.ReactNode;
+  initialData?: Partial<TimelineFormValues>;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSubmitTimeline: (data: TimelineFormValues) => Promise<void> | void;
+}
+
+export default function TimelineFormModal({
+  trigger,
+  onSubmitTimeline,
+  initialData,
+  open,
+  onOpenChange,
+}: TimelineFormModalProps) {
+  if (typeof open === "undefined" || typeof onOpenChange !== "function") {
+    throw new Error(
+      "TimelineFormModal must be used as a controlled component. Pass `open` and `onOpenChange`."
+    );
+  }
+
+  const [editorState, setEditorState] = useState<SerializedEditorState>(initialValue);
+
+  // -----------------
+  // UseForm with onChange validation
+  // -----------------
+  const form = useForm<TimelineFormValues>({
+    resolver: zodResolver(timelineSchema),
+    defaultValues: initialData || { title: "", startDate: "", endDate: "" },
+    mode: "onSubmit", // <-- validate while typing/selecting
+    reValidateMode: "onSubmit",
+  });
+
+  const {
+    handleSubmit,
+    reset,
+    clearErrors,
+    formState,
+    getValues,
+    trigger: validateForm,
+    control,
+  } = form;
+
+useEffect(() => {
+  if (!open) return; // only reset when modal opens
+  reset({
+    title: initialData?.title || "",
+    startDate: initialData?.startDate || "",
+    endDate: initialData?.endDate || "",
+  });
+  clearErrors();
+}, [open]); 
+
+
+  // -----------------
+  // Submit handler
+  // -----------------
+  const onSubmitForm = async (data: TimelineFormValues) => {
+    try {
+      await onSubmitTimeline?.(data);
+      toast.success(
+        initialData
+          ? `Timeline "${data.title}" updated!`
+          : `Timeline "${data.title}" saved!`
+      );
+      onOpenChange(false);
+      reset();
+      setEditorState(initialValue);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to submit the timeline: ${message || err}`);
+    }
+  };
+
+  // -----------------
+  // Field change helpers
+  // -----------------
+  const handleFieldChange =
+    (
+      fieldName: keyof TimelineFormValues,
+      onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    ) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      clearErrors(fieldName);
+      onChange(event);
+    };
+
+  const handleDateChange =
+    (fieldName: keyof TimelineFormValues, onChange: (value: string) => void) =>
+    (date: Date | undefined) => {
+      clearErrors(fieldName);
+      onChange(date?.toISOString().split("T")[0] || "");
+    };
+
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {!open && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+
+      <DialogContent
+        className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
+         onInteractOutside={(event) => {
+                  event.preventDefault();
+                  const values = form.getValues();
+                  const hasEmpty = Object.values(values).some(
+                    (v) => v === "" || v === undefined || v === null
+                  );
+        
+                  if (hasEmpty) {
+                    form.trigger();
+                    toast.error("Please fill all required fields before leaving.");
+                  }
+                }}
+      >
+        <DialogHeader>
+          <DialogTitle>{initialData ? "Edit Timeline" : "Add Timeline"}</DialogTitle>
+        </DialogHeader>
+
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
+            {/* Title */}
+            <FormField
+              control={control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Timeline Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Enter timeline title..."
+                      onChange={handleFieldChange("title", field.onChange)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Start Date */}
+            <FormField
+              control={control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between text-left">
+                        <span>
+                          {field.value
+                            ? format(new Date(field.value), "PPP")
+                            : "Select start date"}
+                        </span>
+                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={handleDateChange("startDate", field.onChange)}
+                        captionLayout="dropdown"
+                        className="rounded-md border"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* End Date */}
+            <FormField
+              control={control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between text-left">
+                        <span>
+                          {field.value
+                            ? format(new Date(field.value), "PPP")
+                            : "Select end date"}
+                        </span>
+                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={handleDateChange("endDate", field.onChange)}
+                        captionLayout="dropdown"
+                        className="rounded-md border"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  className="bg-red-500 hover:bg-red-400 hover:text-white text-white cursor-pointer"
+                >
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button className="cursor-pointer" type="submit">{initialData ? "Save Changes" : "Add Timeline"}</Button>
+            </DialogFooter>
+          </form>
+        </FormProvider>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import React, { useEffect } from "react";
+// import { toast } from "sonner";
+// import { useForm, FormProvider } from "react-hook-form";
 // import { zodResolver } from "@hookform/resolvers/zod";
 // import * as z from "zod";
+
 // import { Button } from "@/components/ui/button";
-// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+// import { Input } from "@/components/ui/input";
 // import { Calendar } from "@/components/ui/calendar";
 // import { Calendar as CalendarIcon } from "lucide-react";
 // import { format } from "date-fns";
+// import {
+//   FormControl,
+//   FormField,
+//   FormItem,
+//   FormLabel,
+//   FormMessage,
+// } from "@/components/ui/form";
+// import {
+//   Dialog,
+//   DialogTrigger,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogFooter,
+//   DialogClose,
+// } from "@/components/ui/dialog";
+// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-// // 1️⃣ Define your form values type
-// type TimelineFormValues = {
-//   applicationPeriodStarted?: Date;
-//   applicationPeriodEnded?: Date;
-//   preliminaryLearningStarted?: Date;
-//   preliminaryLearningEnded?: Date;
-//   applicationList?: Date;
-//   orientation?: Date;
-//   writingTest?: Date;
-//   courseTrainingStarted?: Date;
-//   courseTrainingEnded?: Date;
-//   interviewTest?: Date;
-//   finalProjectStarted?: Date;
-//   finalProjectEnded?: Date;
-//   finalResult?: Date;
-//   closingDay?: Date;
-// };
-
-// // 2️⃣ Validation schema
+// // -----------------
+// // Validation schema
+// // -----------------
 // const timelineSchema = z.object({
-//   applicationPeriodStarted: z.date().optional(),
-//   applicationPeriodEnded: z.date().optional(),
-//   preliminaryLearningStarted: z.date().optional(),
-//   preliminaryLearningEnded: z.date().optional(),
-//   applicationList: z.date().optional(),
-//   orientation: z.date().optional(),
-//   writingTest: z.date().optional(),
-//   courseTrainingStarted: z.date().optional(),
-//   courseTrainingEnded: z.date().optional(),
-//   interviewTest: z.date().optional(),
-//   finalProjectStarted: z.date().optional(),
-//   finalProjectEnded: z.date().optional(),
-//   finalResult: z.date().optional(),
-//   closingDay: z.date().optional(),
+//   title: z.string().min(1, "Title is required"),
+//   date: z
+//     .date()
+//     .refine((val) => val instanceof Date && !isNaN(val.getTime()), {
+//       message: "Date is required",
+//     }),
 // });
 
-// // 3️⃣ Modal / Table Form props type
-// type TimelineTableFormProps = {
-//   open?: boolean; // optional, for parent modal control
-//   onOpenChange?: (open: boolean) => void;
-// };
+// type TimelineFormValues = z.infer<typeof timelineSchema>;
 
-// export default function TimelineTableForm({ open, onOpenChange }: TimelineTableFormProps) {
-//   const { control, handleSubmit } = useForm<TimelineFormValues>({
+// interface SimpleTimelineFormProps {
+//   trigger?: React.ReactNode;
+//   onSubmit: (data: TimelineFormValues) => void;
+//   initialData?: Partial<TimelineFormValues>;
+//   open?: boolean;
+//   onOpenChange?: (open: boolean) => void;
+// }
+
+// export default function SimpleTimelineForm({
+//   trigger,
+//   onSubmit,
+//   initialData,
+//   open,
+//   onOpenChange,
+// }: SimpleTimelineFormProps) {
+//   if (typeof open === "undefined" || typeof onOpenChange !== "function") {
+//     throw new Error(
+//       "SimpleTimelineForm must be used as a controlled component. Pass `open` and `onOpenChange`."
+//     );
+//   }
+
+//   const form = useForm<TimelineFormValues>({
 //     resolver: zodResolver(timelineSchema),
-//     defaultValues: {},
+//     defaultValues: {
+//       title: "",
+//       date: undefined,
+//       ...initialData,
+//     },
+//     mode: "onSubmit",
+//     reValidateMode: "onSubmit",
 //   });
 
-//   const onSubmit = (data: TimelineFormValues) => {
-//     console.log("Form Data:", data);
+//   const { handleSubmit, reset, clearErrors, getValues, trigger: triggerValidation, control } = form;
+
+//   useEffect(() => {
+//     if (open) {
+//       reset({
+//         title: initialData?.title || "",
+//         date: initialData?.date || undefined,
+//       });
+//       clearErrors();
+//     }
+//   }, [open, initialData, reset, clearErrors]);
+
+//   const onSubmitForm = (data: TimelineFormValues) => {
+//     onSubmit(data);
+//     toast.success(initialData ? `Timeline "${data.title}" updated!` : `Timeline "${data.title}" saved!`);
+//     onOpenChange(false);
+//     reset();
 //   };
 
-//   // 4️⃣ Timeline rows
-//   const rows = [
-//     { label: "Application Period", start: "applicationPeriodStarted", end: "applicationPeriodEnded" },
-//     { label: "Preliminary Learning", start: "preliminaryLearningStarted", end: "preliminaryLearningEnded" },
-//     { label: "Application List", start: "applicationList" },
-//     { label: "Orientation", start: "orientation" },
-//     { label: "Writing Test", start: "writingTest" },
-//     { label: "Course Training", start: "courseTrainingStarted", end: "courseTrainingEnded" },
-//     { label: "Interview Test", start: "interviewTest" },
-//     { label: "Final Project", start: "finalProjectStarted", end: "finalProjectEnded" },
-//     { label: "Final Result", start: "finalResult" },
-//     { label: "Closing Day", start: "closingDay" },
-//   ];
+//   const handleFieldChange = (
+//     fieldName: keyof TimelineFormValues,
+//     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+//   ) => (e: React.ChangeEvent<HTMLInputElement>) => {
+//     clearErrors(fieldName);
+//     onChange(e);
+//   };
+
 
 //   return (
-//     <form onSubmit={handleSubmit(onSubmit)} className="overflow-x-auto">
-//       <table className="w-full border border-gray-300 border-collapse">
-//         <thead>
-//           <tr className="bg-gray-200">
-//             <th className="border p-2 text-left">Timeline Item</th>
-//             <th className="border p-2 text-left">Start Date</th>
-//             <th className="border p-2 text-left">End Date</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {rows.map((row, index) => (
-//             <tr key={row.label} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-//               <td className="border p-2">{row.label}</td>
+//     <Dialog open={open} onOpenChange={onOpenChange}>
+//       {!open && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-//               {/* Start Date */}
-//               <td className="border p-2">
-//                 {row.start ? (
-//                   <Controller
-//                     name={row.start as keyof TimelineFormValues}
-//                     control={control}
-//                     render={({ field }) => (
-//                       <Popover>
-//                         <PopoverTrigger asChild>
-//                           <Button
-//                             variant="outline"
-//                             size="sm"
-//                             className="w-full justify-between text-left"
-//                           >
-//                             <span>{field.value ? format(field.value, "PPP") : "Select"}</span>
-//                             <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-//                           </Button>
-//                         </PopoverTrigger>
-//                         <PopoverContent className="w-auto p-0">
-//                           <Calendar
-//                             mode="single"
-//                             selected={field.value || undefined}
-//                             onSelect={(date) => field.onChange(date)}
-//                             captionLayout="dropdown"
-//                             className="rounded-md border"
-//                           />
-//                         </PopoverContent>
-//                       </Popover>
-//                     )}
-//                   />
-//                 ) : "-"}
-//               </td>
+//       <DialogContent
+//         className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
+//           onPointerDown={(e) => e.stopPropagation()} // ✅ Prevent drag when clicking inside modal
+//         onInteractOutside={(event) => {
+//           event.preventDefault();
+//           const values = getValues();
+//           if (!values.title || !values.date) {
+//             triggerValidation();
+//             toast.error("Please fill all required fields before leaving the modal.");
+//           }
+//         }}
+//         onEscapeKeyDown={(event) => {
+//           event.preventDefault();
+//           const values = getValues();
+//           if (!values.title || !values.date) {
+//             triggerValidation();
+//             toast.error("Please fill all required fields before leaving the modal.");
+//           }
+//         }}
+//       >
+//         <DialogHeader>
+//           <DialogTitle>{initialData ? "Edit Timeline" : "Add Timeline"}</DialogTitle>
+//         </DialogHeader>
 
-//               {/* End Date */}
-//               <td className="border p-2">
-//                 {row.end ? (
-//                   <Controller
-//                     name={row.end as keyof TimelineFormValues}
-//                     control={control}
-//                     render={({ field }) => (
-//                       <Popover>
-//                         <PopoverTrigger asChild>
-//                           <Button
-//                             variant="outline"
-//                             size="sm"
-//                             className="w-full justify-between text-left"
-//                           >
-//                             <span>{field.value ? format(field.value, "PPP") : "Select"}</span>
-//                             <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-//                           </Button>
-//                         </PopoverTrigger>
-//                         <PopoverContent className="w-auto p-0">
-//                           <Calendar
-//                             mode="single"
-//                             selected={field.value || undefined}
-//                             onSelect={(date) => field.onChange(date)}
-//                             captionLayout="dropdown"
-//                             className="rounded-md border"
-//                           />
-//                         </PopoverContent>
-//                       </Popover>
-//                     )}
-//                   />
-//                 ) : "-"}
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
+//         <FormProvider {...form}>
+//           <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
+//             {/* Title */}
+//             <FormField
+//               control={control}
+//               name="title"
+//               render={({ field }) => (
+//                 <FormItem>
+//                   <FormLabel>Timeline Title</FormLabel>
+//                   <FormControl>
+//                     <Input
+//                       {...field}
+//                       placeholder="Enter timeline title..."
+//                       onChange={handleFieldChange("title", field.onChange)}
+//                     />
+//                   </FormControl>
+//                   <FormMessage />
+//                 </FormItem>
+//               )}
+//             />
 
-//       <div className="flex justify-end mt-4">
-//         <Button type="submit" className="bg-primary text-white">
-//           Save
-//         </Button>
-//       </div>
-//     </form>
+//             {/* Date */}
+//             <FormField
+//               control={control}
+//               name="date"
+//               render={({ field }) => (
+//                 <FormItem>
+//                   <Popover>
+//                     <PopoverTrigger asChild>
+//                       <Button variant="outline" className="w-full justify-between text-left">
+//                         <span>{field.value ? format(field.value, "PPP") : "Select date"}</span>
+//                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+//                       </Button>
+//                     </PopoverTrigger>
+//                     <PopoverContent className="w-auto p-0">
+//                       <Calendar
+//                         mode="single"
+//                         selected={field.value || undefined}
+//                         onSelect={field.onChange}
+//                         captionLayout="dropdown"
+//                         className="rounded-md border"
+//                       />
+//                     </PopoverContent>
+//                   </Popover>
+//                   <FormMessage />
+//                 </FormItem>
+//               )}
+//             />
+
+//             <DialogFooter className="flex justify-end gap-2">
+//               <DialogClose asChild>
+//                 <Button variant="outline" className="bg-red-500 hover:bg-red-400 hover:text-white text-white">
+//                   Cancel
+//                 </Button>
+//               </DialogClose>
+//               <Button type="submit">{initialData ? "Save Changes" : "Add Timeline"}</Button>
+//             </DialogFooter>
+//           </form>
+//         </FormProvider>
+//       </DialogContent>
+//     </Dialog>
 //   );
 // }

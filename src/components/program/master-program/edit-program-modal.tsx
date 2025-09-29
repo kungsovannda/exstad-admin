@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { programType } from "@/types/program";
+import { MasterProgramType } from "@/types/program";
 
 type Field = {
   id: string;
@@ -24,7 +24,7 @@ type Field = {
 interface EditProgramModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  program:programType; // or programType
+  program:MasterProgramType; // or programType
 }
 
 export function EditProgramModal({ open, setOpen, program }: EditProgramModalProps) {

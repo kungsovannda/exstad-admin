@@ -1,6 +1,6 @@
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { useBaseQuery } from "@/services/use-base-query";
 import { Province } from "@/types/province";
-import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const provinceApi = createApi({
   reducerPath: "provinceApi",
@@ -8,16 +8,13 @@ export const provinceApi = createApi({
   tagTypes: ["Province"],
   endpoints: (builder) => ({
     getAllProvinces: builder.query<Province[], void>({
-      query: () => "/provinces",
+      query: () => "/api/v1/provinces",
       transformResponse: (response: { provinces: Province[] }) =>
         response.provinces,
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ uuid }) => ({
-                type: "Province" as const,
-                uuid,
-              })),
+              ...result.map(({ uuid }) => ({ type: "Province" as const, id: uuid })),
               { type: "Province", id: "LIST" },
             ]
           : [{ type: "Province", id: "LIST" }],
