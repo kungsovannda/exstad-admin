@@ -2,6 +2,14 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { useBaseQuery } from "@/services/use-base-query";
 import { openingProgramCreate, openingProgramType } from "@/types/opening-program";
 
+
+export interface SetUpTemplateRequest {
+  template: string; // URL of the template
+}
+export type SetUpTemplateResponse = string;
+
+
+
 export const openingProgramApi = createApi({
     reducerPath: "openingProgramApi",
     baseQuery: useBaseQuery,
@@ -75,6 +83,36 @@ export const openingProgramApi = createApi({
                 { type: "OpeningProgram", id: "LIST" },
             ],
         }),
+        setUpTemplate: builder.mutation<
+      SetUpTemplateResponse,
+      { uuid: string; template: string }
+    >({
+      query: ({ uuid, template }) => ({
+        url: `/opening-programs/${uuid}/template`,
+        method: "PUT",
+        body: {
+          template,
+        },
+        // Add this to handle plain text response
+        responseHandler: async (response: Response): Promise<string> => {
+          const text = await response.text();
+          console.log("Raw backend response:", text);
+
+          // Validate that it's a URL
+          if (text && text.trim().startsWith("http")) {
+            return text.trim();
+          }
+
+          // If response is not a URL, throw error
+          throw new Error(`Invalid URL returned from backend: ${text}`);
+        },
+      }),
+      invalidatesTags: (result, error, { uuid }) => [
+        { type: "OpeningProgram", id: uuid },
+        { type: "OpeningProgram", id: "LIST" },
+      ],
+    }),
+
     }),
 });
 
@@ -86,4 +124,5 @@ export const {
     useCreateOpeningProgramMutation,
     useUpdateOpeningProgramMutation,
     useDeleteOpeningProgramMutation,
+    useSetUpTemplateMutation,
 } = openingProgramApi;

@@ -28,7 +28,7 @@ export type openingProgramType = {
     activities?: ActivityType[];
     timeline?: TimelineType[];
     classes?: ClassType[];
-   
+    templates?:string[];
 }
 
 export type openingProgramCreate = {
@@ -51,6 +51,8 @@ export type openingProgramCreate = {
   activities?: ActivityType[];
   timeline?: TimelineType[];
   classes?: ClassType[];
+  templates?:string[];
+
 }
 
 
