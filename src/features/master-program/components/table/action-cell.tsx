@@ -49,10 +49,10 @@ export function MasterActionsCell({ program }: ActionsCellProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/master-program/setup-masterprogram/${program.slug}`)}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/master-program/${program.slug}/setup`)}>
             <Settings2 size={16} className="text-primary-hover " />Set Up
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/master-program/edit/${program.slug}`)}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/master-program/${program.slug}`)}>
             <SquarePen size={16} className="text-primary-hover "/>Edit
           </DropdownMenuItem>
           <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => setDeleteOpen(true)}>

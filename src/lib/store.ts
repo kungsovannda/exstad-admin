@@ -40,7 +40,7 @@ const rootReducer = combineReducers({
   [programOverviewsApi.reducerPath]: programOverviewsApi.reducer,
   [activityApi.reducerPath]: activityApi.reducer,
   [TimelineApi.reducerPath]: TimelineApi.reducer,
-  [documentAccessApi.reducerPath]: documentAccessApi.reducer
+  [documentAccessApi.reducerPath]: documentAccessApi.reducer,
 });
 
 const persistConfig = {
@@ -64,7 +64,7 @@ export const makeStore = () => {
         badgeApi.middleware,
         documentApi.middleware,
         masterprogramApi.middleware,
-        highlightsApi.middleware, 
+        highlightsApi.middleware,
         faqApi.middleware,
         requiementApi.middleware,
         learningOutcomesApi.middleware,
@@ -74,9 +74,6 @@ export const makeStore = () => {
         programOverviewsApi.middleware,
         activityApi.middleware,
         TimelineApi.middleware,
-        documentApi.middleware,
-        openingProgramApi.middleware,
-        scholarApi.middleware,
         documentAccessApi.middleware
       ),
   });

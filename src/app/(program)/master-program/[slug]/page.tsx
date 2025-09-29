@@ -5,7 +5,7 @@ import { useUpdateMasterProgramMutation, useGetMasterProgramBySlugQuery } from "
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 
-export default function MasterProgramEdit() {
+ function MasterProgramEdit() {
   const params = useParams();
   const programSlug = params.slug as string;
 
@@ -45,4 +45,15 @@ export default function MasterProgramEdit() {
   };
 
   return <MasterProgramForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Update" />;
+}
+
+export default function Page() {
+  return (
+    <div className="p-5 flex flex-col gap-4">
+      <h1 className="text-2xl font-semibold">Edit Program</h1>
+      <div className="w-[70%]">
+        <MasterProgramEdit />
+      </div>
+    </div>
+  );
 }

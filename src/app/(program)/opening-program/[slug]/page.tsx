@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
-export default function OpeningProgramEdit() {
+function OpeningProgramEdit() {
   const params = useParams(); // get { slug } from the URL
   const programSlug = params?.slug as string;
 
@@ -32,6 +32,7 @@ export default function OpeningProgramEdit() {
     const payload = {
       ...values,
       slug: openingProgram.slug, // keep existing slug
+      status: openingProgram.status!,
     };
 
     toast.promise(
@@ -45,4 +46,16 @@ export default function OpeningProgramEdit() {
   };
 
   return <OpeningProgramForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Update" />;
+}
+
+
+export default function Page() {
+  return (
+    <div className="p-5 flex flex-col gap-4">
+      <h1 className="text-2xl font-semibold">Edit Program</h1>
+      <div className="w-[70%]">
+        <OpeningProgramEdit />
+      </div>
+    </div>
+  );
 }

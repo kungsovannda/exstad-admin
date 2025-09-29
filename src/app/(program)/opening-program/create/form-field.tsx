@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
+import { generateSlug } from "@/services/generate-slug";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -40,11 +41,10 @@ export const openingProgramformSchema = z.object({
   duration: z.string().min(1, { message: "Duration is required" }),
   curriculumPdfUri: z.string().optional(),
   thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
-  slug: z.string().min(1, { message: "Slug is required" }),
+  slug: z.string(),
   status: z
   .union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()])
   .refine(val => val !== undefined, { message: "Status is required" }),
-
   qrCodeUrl: z.string().url({ message: "Valid QR Code URL is required" }),
 });
 
@@ -152,19 +152,24 @@ export default function OpeningProgramForm({
         />
 
         {/* Slug */}
-        <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Slug</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. full-stack-web-dev" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+  <FormField
+  control={form.control}
+  name="slug"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Slug</FormLabel>
+      <FormControl>
+        <Input
+          readOnly 
+          placeholder={generateSlug(form.watch("title") || "")}
+          {...field} // Bind the form field to the input
         />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
 
         {/* Telegram */}
         <FormField

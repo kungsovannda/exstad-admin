@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
-import { scholars } from "@/data/scholars";
 
 interface ScholarTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -71,13 +70,13 @@ export function ScholarTable<TData, TValue>({
         </DropdownMenu>
       </DataTableToolbar>
 
-      {isAssignBadgeOpen && (
+      {/* {isAssignBadgeOpen && (
         <AssignBadgeScholar
           onOpenChange={setIsAssignBadgeOpen}
           open={isAssignBadgeOpen}
           scholar={scholars[0]}
         />
-      )}
+      )} */}
     </DataTable>
   );
 }
