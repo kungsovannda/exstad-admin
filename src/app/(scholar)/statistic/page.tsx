@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { scholars } from "@/data/scholars";
 import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
 import AddScholar from "@/features/scholar/statistic/components/AddScholar";
 import { scholarColumns } from "@/features/scholar/statistic/components/table/column";

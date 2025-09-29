@@ -1,10 +1,34 @@
 "use client";
 import { Heading } from "@/components/Heading";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CloudUpload } from "lucide-react";
-import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CloudUpload, Paperclip, X } from "lucide-react";
+import Image from "next/image";
+import React, { useCallback, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  FileInput,
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+} from "@/components/ui/file-upload";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -14,85 +38,711 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { openingProgramData } from "@/data/openingProgramData";
-import { openingProgramType } from "@/types/opening-program";
+import {
+  useGetCertificateByScholarAndOpeningProgramQuery,
+  useVerifyCertificateMutation,
+} from "@/features/certificate/certificateApi";
 import { ScholarTable } from "@/features/certificate/components/data-table";
 import { scholarColumn } from "@/features/certificate/components/scholar-table/columns";
-import { scholarsForCertificate } from "@/data/certificate";
-import { Button } from "@/components/ui/button";
+import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
+import { useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/scholarApi";
+import { ScholarForCertificateType } from "@/types/certificate";
+import { Scholar } from "@/types/scholar";
 import { toast } from "sonner";
 
-const openingPrograms: openingProgramType[] = openingProgramData;
-export default function VerifiedPage() {
-  const [selected, setSelected] = useState("");
+// Define the API response interface locally
+interface ScholarApiResponse {
+  "opening-program-scholars": Scholar[];
+}
+
+const formSchema = z.object({
+  programSlug: z.string().min(1, "Please select a program"),
+  scholarUuid: z.string().min(1, "Please select a scholar"),
+});
+
+// Simple PDF Preview Component - just uses browser's native PDF rendering
+const PDFPreview = ({
+  url,
+  className = "",
+}: {
+  url: string;
+  className?: string;
+}) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   return (
-    <div className="flex flex-col gap-4 p-6 space-y-6 h-[90vh]">
-      <div className="flex justify-between items-center gap-10">
-        <Heading
-          title="Verify Certificate"
-          description="Upload the certificate you want to verify"
-        />
-      </div>
-      <div className="flex gap-10 justify-between">
-        <div>
-          <div className="flex flex-col w-full max-w-xl gap-2 rounded-lg h-[10vh]">
-            <h3 className="text-md">Program</h3>
-
-            <Select
-              name="program"
-              value={selected}
-              onValueChange={(v) => setSelected(v)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a program" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Programs</SelectLabel>
-                  {openingPrograms.map((program) => (
-                    <SelectItem key={program.uuid} value={program.slug}>
-                      {program.title} - Generation {program.generation}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+    <div
+      className={`${className} relative bg-gray-100 rounded overflow-hidden`}
+    >
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-xs text-gray-600">Loading PDF...</p>
           </div>
-          <div className="flex flex-col gap-4 w-full max-w-xl">
-            <Label htmlFor="picture text-md">Upload Certificate</Label>
-            <div className=" relative">
-              <Input id="picture" type="file" className="sr-only h-full" />
-              <label
-                htmlFor="picture"
-                className="flex flex-col items-center gap-2 w-full cursor-pointer rounded-md border px-40 py-16 text-center hover:opacity-70 h-full"
-              >
-                <CloudUpload className="h-24 w-24 text-muted-foreground" />
-                <span className="truncate text-sm text-muted-foreground">
-                  Select a file or drag and drop here
-                </span>
-              </label>
+        </div>
+      )}
+
+      {/* Direct PDF embed - simple and reliable */}
+      <object
+        data={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+        type="application/pdf"
+        className="w-full h-full"
+        onLoad={() => setLoading(false)}
+        onError={() => {
+          setLoading(false);
+          setError(true);
+        }}
+      >
+        <embed
+          src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+          type="application/pdf"
+          className="w-full h-full"
+          onLoad={() => setLoading(false)}
+          onError={() => {
+            setLoading(false);
+            setError(true);
+          }}
+        />
+      </object>
+
+      {/* Simple fallback */}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+          <div className="text-center p-3">
+            <div className="text-3xl mb-2 text-blue-500">📄</div>
+            <p className="text-xs text-gray-700 font-medium">PDF Certificate</p>
+            <p className="text-xs text-gray-500 mt-1">Click to select</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function VerifiedPage() {
+  const [selectedProgram, setSelectedProgram] = useState("");
+  const [selectedScholar, setSelectedScholar] = useState("");
+  const [files, setFiles] = useState<File[] | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showCertificateDialog, setShowCertificateDialog] = useState(false);
+  const [selectedCertificateUuid, setSelectedCertificateUuid] = useState("");
+
+  const dropZoneConfig = {
+    maxFiles: 1,
+    maxSize: 1024 * 1024 * 10, // 10MB
+    multiple: false,
+  };
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      programSlug: "",
+      scholarUuid: "",
+    },
+  });
+
+  const {
+    data: openingPrograms,
+    isError: isProgramError,
+    isLoading: isProgramLoading,
+  } = useGetAllOpeningProgramsQuery();
+
+  const selectedProgramData = openingPrograms?.find(
+    (program) => program.slug === selectedProgram
+  );
+
+  // Get scholars when program is selected
+  const {
+    data: scholars,
+    isLoading: isLoadingScholars,
+    isError: isErrorScholars,
+  } = useGetAllScholarsByOpeningProgramUuidQuery(
+    selectedProgramData?.uuid ?? "",
+    {
+      skip: !selectedProgramData?.uuid,
+    }
+  );
+
+  // Process scholars data without using 'any'
+  const scholarsForCertificate: ScholarForCertificateType[] = useMemo(() => {
+    let scholarsArray: Scholar[] = [];
+
+    if (scholars && typeof scholars === "object" && !Array.isArray(scholars)) {
+      const scholarsResponse = scholars as ScholarApiResponse;
+      if (
+        scholarsResponse["opening-program-scholars"] &&
+        Array.isArray(scholarsResponse["opening-program-scholars"])
+      ) {
+        scholarsArray = scholarsResponse["opening-program-scholars"];
+      }
+    } else if (Array.isArray(scholars)) {
+      scholarsArray = scholars as Scholar[];
+    }
+
+    if (!Array.isArray(scholarsArray)) {
+      return [];
+    }
+
+    return scholarsArray.map((scholar: Scholar) => ({
+      uuid: scholar.uuid || "",
+      englishName: scholar.englishName || "",
+      khmerName: scholar.khmerName || "",
+      title: selectedProgramData?.title || "",
+    }));
+  }, [scholars, selectedProgramData?.title]);
+
+  // Get certificates when scholar and program are selected
+  const {
+    data: certificates,
+    isLoading: isCertificatesLoading,
+    refetch: refetchCertificates,
+  } = useGetCertificateByScholarAndOpeningProgramQuery(
+    {
+      scholarUuid: selectedScholar,
+      openingProgramUuid: selectedProgramData?.uuid || "",
+    },
+    {
+      skip: !selectedScholar || !selectedProgramData?.uuid,
+    }
+  );
+
+  const [verifyCertificate, { isLoading: isVerifying }] =
+    useVerifyCertificateMutation();
+
+  // Handle file selection and preview
+  const handleFileChange = (newFiles: File[] | null) => {
+    setFiles(newFiles);
+
+    if (newFiles && newFiles.length > 0) {
+      const file = newFiles[0];
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+    }
+  };
+
+  // Clean up preview URL on component unmount
+  React.useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const removeFile = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    setFiles(null);
+  };
+
+  const handleScholarSelection = useCallback(
+    (scholarUuids: string[]) => {
+      const scholarUuid = scholarUuids[0];
+      setSelectedScholar(scholarUuid);
+      form.setValue("scholarUuid", scholarUuid);
+    },
+    [form]
+  );
+
+  // Helper function to check if file is PDF
+  const isPDF = (url: string | undefined): boolean => {
+    if (!url) return false;
+    return (
+      url.toLowerCase().endsWith(".pdf") || url.includes("application/pdf")
+    );
+  };
+
+  // Handle initial verify click - get certificates
+  const handleInitialVerify = async () => {
+    try {
+      // Validate required fields
+      if (!files || files.length === 0) {
+        toast.error("Please select a certificate file to verify");
+        return;
+      }
+
+      if (!selectedProgram) {
+        toast.error("Please select a program");
+        return;
+      }
+
+      if (!selectedScholar) {
+        toast.error("Please select a scholar");
+        return;
+      }
+
+      // Refetch certificates to ensure we have the latest data
+      await refetchCertificates();
+
+      // Show the certificate selection dialog
+      if (certificates && certificates.length > 0) {
+        setShowCertificateDialog(true);
+      } else {
+        toast.error(
+          "No certificates found for the selected scholar and program"
+        );
+      }
+    } catch (error: unknown) {
+      toast.error("An error occurred while fetching certificates");
+    }
+  };
+
+  // Handle final verification with selected certificate
+  const handleFinalVerify = async () => {
+    try {
+      if (!files || !selectedCertificateUuid || !selectedProgram) {
+        toast.error("Missing required information");
+        return;
+      }
+
+      const result = await verifyCertificate({
+        file: files[0],
+        programSlug: selectedProgram,
+        certificateUuid: selectedCertificateUuid,
+      }).unwrap();
+
+      setShowCertificateDialog(false);
+
+      // Since the response is CertificateResponse, we can access all its fields
+      if (result.isVerified) {
+        toast.success(
+          <div className="space-y-2">
+            <p className="font-semibold">
+              ✅ Certificate Verified Successfully!
+            </p>
+            <div className="text-sm space-y-1">
+              <p>
+                <strong>File:</strong> {result.fileName}
+              </p>
+              <p>
+                <strong>Certificate ID:</strong> {result.uuid}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className="text-green-600">Verified</span>
+              </p>
+              {result.certificateUrl && (
+                <p>
+                  <a
+                    href={result.certificateUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline hover:text-blue-800"
+                  >
+                    View Certificate
+                  </a>
+                </p>
+              )}
             </div>
           </div>
-        </div>
+        );
+      } else {
+        toast.error(
+          <div className="space-y-2">
+            <p className="font-semibold">❌ Certificate Verification Failed</p>
+            <div className="text-sm">
+              <p>
+                <strong>Certificate ID:</strong> {result.uuid}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className="text-red-600">Invalid</span>
+              </p>
+              <p>The uploaded file does not match the selected certificate.</p>
+            </div>
+          </div>
+        );
+      }
 
-        <div className="flex flex-col flex-1 w-full gap-3">
-          <h4 className="text-sm">Choose Scholars</h4>
-          <ScholarTable
-            columns={scholarColumn}
-            totalItems={scholarsForCertificate.length}
-            data={scholarsForCertificate}
+      // Reset form after verification
+      setFiles(null);
+      setPreviewUrl(null);
+      setSelectedCertificateUuid("");
+    } catch (error: unknown) {
+      const errorMessage =
+        error &&
+        typeof error === "object" &&
+        "data" in error &&
+        error.data &&
+        typeof error.data === "object" &&
+        "message" in error.data
+          ? (error.data.message as string)
+          : "Failed to verify certificate. Please try again.";
+
+      toast.error(errorMessage);
+      setShowCertificateDialog(false);
+    }
+  };
+
+  if (isProgramLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading programs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isProgramError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center text-red-500">
+          <p>❌ Error loading programs</p>
+          <p className="text-sm mt-2">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <div className="flex flex-col gap-4 p-6 space-y-6 h-[90vh]">
+        <div className="flex justify-between items-center gap-10">
+          <Heading
+            title="Verify Certificate"
+            description="Upload the certificate you want to verify"
           />
         </div>
-      </div>
-      <div className="flex justify-end">
-        <Button
-          className="bg-green-600"
-          onClick={() => toast("Verify Successfully")}
+
+        <div className="flex gap-10 justify-between">
+          <div className="flex flex-col max-w-xl w-full gap-4">
+            {/* Program Selection */}
+            <FormField
+              control={form.control}
+              name="programSlug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Program *</FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedProgram(value);
+                        // Reset scholar selection when program changes
+                        setSelectedScholar("");
+                        form.setValue("scholarUuid", "");
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a program first" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Programs</SelectLabel>
+                          {openingPrograms?.map((program) => (
+                            <SelectItem key={program.uuid} value={program.slug}>
+                              {program.title} - Generation {program.generation}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* File Upload */}
+            <div>
+              <FormLabel>Certificate File *</FormLabel>
+              <div className="space-y-4 mt-2">
+                {!previewUrl ? (
+                  <FileUploader
+                    value={files}
+                    onValueChange={handleFileChange}
+                    dropzoneOptions={dropZoneConfig}
+                    className="relative bg-accent rounded-lg p-2"
+                  >
+                    <FileInput
+                      id="fileInput"
+                      className="outline-dashed outline-1 outline-slate-500"
+                    >
+                      <div className="flex items-center justify-center flex-col p-8 w-full">
+                        <CloudUpload className="text-gray-500 w-10 h-10" />
+                        <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">Click to upload</span>
+                          &nbsp; or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          PNG, JPG, PDF (max 10MB)
+                        </p>
+                      </div>
+                    </FileInput>
+                    <FileUploaderContent>
+                      {files &&
+                        files.length > 0 &&
+                        files.map((file, i) => (
+                          <FileUploaderItem key={i} index={i}>
+                            <Paperclip className="h-4 w-4 stroke-current" />
+                            <span>{file.name}</span>
+                          </FileUploaderItem>
+                        ))}
+                    </FileUploaderContent>
+                  </FileUploader>
+                ) : (
+                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <Button
+                      type="button"
+                      onClick={removeFile}
+                      className="absolute top-2 right-2 z-10 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 w-6 h-6"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+
+                    <div className="space-y-2">
+                      <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
+                        {files?.[0]?.type === "application/pdf" ? (
+                          <PDFPreview
+                            url={previewUrl}
+                            className="w-full h-full"
+                          />
+                        ) : files?.[0]?.type.startsWith("image/") ? (
+                          <Image
+                            src={previewUrl}
+                            alt="Certificate preview"
+                            fill
+                            className="object-contain"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <div className="text-center">
+                              <Paperclip className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-500">
+                                {files?.[0]?.name}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                {files?.[0] &&
+                                  (files[0].size / 1024 / 1024).toFixed(2)}{" "}
+                                MB
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 text-center">
+                        {files?.[0]?.name}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col flex-1 w-full gap-3">
+            <FormField
+              control={form.control}
+              name="scholarUuid"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Choose Scholar
+                    {!selectedProgram && (
+                      <span className="text-red-500 text-sm ml-2">
+                        (Select a program first)
+                      </span>
+                    )}
+                    {selectedScholar && (
+                      <span className="text-green-600 ml-2">(1 selected)</span>
+                    )}
+                  </FormLabel>
+                  <FormControl>
+                    {!selectedProgram ? (
+                      <div className="border rounded-lg p-8 text-center text-gray-500">
+                        <p>📋 Please select a program first to see scholars</p>
+                      </div>
+                    ) : isLoadingScholars ? (
+                      <div className="border rounded-lg p-8 text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                        <p>Loading scholars...</p>
+                      </div>
+                    ) : isErrorScholars ? (
+                      <div className="border rounded-lg p-8 text-center text-red-500">
+                        <p>❌ Error loading scholars</p>
+                        <p className="text-sm mt-1">
+                          Please try selecting the program again
+                        </p>
+                      </div>
+                    ) : scholarsForCertificate.length === 0 ? (
+                      <div className="border rounded-lg p-8 text-center text-gray-500">
+                        <p>👥 No scholars found for this program</p>
+                      </div>
+                    ) : (
+                      <ScholarTable
+                        columns={scholarColumn}
+                        totalItems={scholarsForCertificate.length}
+                        data={scholarsForCertificate}
+                        onSelectionChange={handleScholarSelection}
+                      />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            className="bg-primary"
+            disabled={
+              isCertificatesLoading ||
+              !files ||
+              !selectedScholar ||
+              !selectedProgram ||
+              isLoadingScholars
+            }
+            onClick={handleInitialVerify}
+          >
+            {isCertificatesLoading
+              ? "Loading certificates..."
+              : isLoadingScholars
+              ? "Loading scholars..."
+              : "Find Certificates"}
+          </Button>
+        </div>
+
+        {/* Certificate Selection Dialog */}
+        <AlertDialog
+          open={showCertificateDialog}
+          onOpenChange={setShowCertificateDialog}
         >
-          Verify
-        </Button>
+          <AlertDialogContent className="max-w-[95vw] max-h-[80vh] overflow-hidden w-[95vw] h-[80vh] p-0">
+            <div className="flex flex-col h-full">
+              <AlertDialogHeader className="px-6 py-4 border-b">
+                <AlertDialogTitle className="text-2xl">
+                  Select Certificate to Verify
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-base">
+                  Which certificate do you want to verify? Click on a certificate to select it.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                {certificates && certificates.length > 0 ? (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    {certificates.map((certificate) => {
+                      const certificateUrl =
+                        certificate.tempCertificateUrl ||
+                        certificate.certificateUrl;
+                      const isPDFFile = isPDF(certificateUrl);
+
+                      return (
+                        <div
+                          key={certificate.uuid}
+                          className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                            selectedCertificateUuid === certificate.uuid
+                              ? "border-primary border-4 scale-105 shadow-xl bg-blue-50"
+                              : "border-gray-300 hover:border-gray-400 hover:shadow-lg"
+                          }`}
+                          onClick={() =>
+                            setSelectedCertificateUuid(certificate.uuid)
+                          }
+                        >
+                          <div className="space-y-4">
+                            {/* Bigger Preview Area */}
+                            <div className="relative w-full h-80 bg-gray-100 rounded overflow-hidden">
+                              {isPDFFile && certificateUrl ? (
+                                <iframe
+                                  src={certificateUrl}
+                                  className="w-full h-full border-0"
+                                  style={{ pointerEvents: "none" }}
+                                />
+                              ) : certificateUrl ? (
+                                <Image
+                                  src={certificateUrl}
+                                  alt={`Certificate ${
+                                    certificate.fileName || certificate.uuid
+                                  }`}
+                                  fill
+                                  className="object-contain"
+                                  onError={(e) => {
+                                    e.currentTarget.src =
+                                      "/images/placeholder.png";
+                                  }}
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center h-full">
+                                  <div className="text-center">
+                                    <div className="text-4xl mb-2">📄</div>
+                                    <p className="text-sm text-gray-600">
+                                      No Preview
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            {selectedCertificateUuid === certificate.uuid && (
+                              <div className="absolute -top-2 -right-2">
+                                {/* <span className="text-base font-bold">✓</span> */}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                      <div className="text-gray-400 text-8xl mb-4">📄</div>
+                      <p className="text-gray-500 text-xl">
+                        No certificates found for the selected scholar and
+                        program.
+                      </p>
+                      <p className="text-gray-400 text-base mt-2">
+                        Try selecting a different scholar or program.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-4 p-6 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowCertificateDialog(false);
+                    setSelectedCertificateUuid("");
+                  }}
+                  className="px-8 py-2"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleFinalVerify}
+                  disabled={!selectedCertificateUuid || isVerifying}
+                  className="bg-primary px-8 py-2"
+                >
+                  {isVerifying ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Verifying...
+                    </div>
+                  ) : (
+                    "Verify Certificate"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-    </div>
+    </Form>
   );
 }

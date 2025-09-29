@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { LearningOutcomeType } from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -11,13 +11,12 @@ export type LearningOutcomesPayload = {
 
 export const learningOutcomesApi = createApi({
   reducerPath: "learningOutcomesApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["LearningOutcomes"],
   endpoints: (builder) => ({
     // --- GET all learning outcomes ---
     getAllLearningOutcomes: builder.query<LearningOutcomeType[], string>({
-      query: (programUuid) =>
-        `/programs/${programUuid}/learning-outcomes`,
+      query: (programUuid) => `/programs/${programUuid}/learning-outcomes`,
       providesTags: (result, error, uuid) =>
         result
           ? [

@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { CurriculumType } from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -11,9 +11,9 @@ export type CurriculumPayload = {
 
 export const curriculumApi = createApi({
   reducerPath: "curriculumApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Curriculums"],
-  endpoints: (builder) => ({ 
+  endpoints: (builder) => ({
     // Master Program
     getMasterCurriculums: builder.query<CurriculumType[], string>({
       query: (programUuid) => `/programs/${programUuid}/curriculums`,

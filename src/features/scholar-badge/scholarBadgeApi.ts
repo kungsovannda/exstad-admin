@@ -1,9 +1,9 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { CreateScholarBadge, ScholarBadge } from "@/types/scholar-badge";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const scholarBadgeApi = createApi({
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["ScholarBadge"],
   reducerPath: "scholarBadgeApi",
   endpoints: (builder) => ({

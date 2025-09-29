@@ -1,15 +1,15 @@
 // src/features/university/universityApi.ts
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import {
   University,
   UniversityCreate,
   UniversityUpdate,
 } from "@/types/university";
+import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const universityApi = createApi({
   reducerPath: "universityApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["University"],
   endpoints: (builder) => ({
     // GET all universities
@@ -18,7 +18,7 @@ export const universityApi = createApi({
       transformResponse: (response: { universities?: University[] }) =>
         response.universities ?? [], // always return an array
       providesTags: (result) =>
-        result.length
+        result?.length
           ? [
               ...result.map(({ uuid }) => ({ type: "University" as const, id: uuid })),
               { type: "University", id: "LIST" },

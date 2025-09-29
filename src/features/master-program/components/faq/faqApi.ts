@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { FaqItem } from "@/types/program";
 
@@ -21,7 +21,7 @@ type BackendFaqResponse = {
 
 export const faqApi = createApi({
   reducerPath: "faqApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Faq"],
   endpoints: (builder) => ({
     // GET all FAQ topics for a program
@@ -32,7 +32,7 @@ export const faqApi = createApi({
         if (!response || !Array.isArray(response) || response.length === 0) {
           return [];
         }
-        
+
         const firstItem = response[0];
         if (!firstItem || !firstItem.faq || !Array.isArray(firstItem.faq)) {
           return [];
@@ -51,38 +51,42 @@ export const faqApi = createApi({
       providesTags: (result, error, uuid) =>
         result
           ? [
-              ...result.map((_, index) => ({ type: "Faq" as const, id: `${uuid}-${index}` })),
+              ...result.map((_, index) => ({
+                type: "Faq" as const,
+                id: `${uuid}-${index}`,
+              })),
               { type: "Faq", id: "LIST" },
             ]
           : [{ type: "Faq", id: "LIST" }],
     }),
 
     // UPDATE all FAQs for a program
-    updateFaqs: builder.mutation<
-      void,
-      { programUuid: string; faq: FaqItem[] }
-    >({
-      query: ({ programUuid, faq }) => {
-        // Transform frontend format back to backend format
-        const backendPayload = [{
-          faq: faq.map((item) => ({
-            title: item.title,
-            faqs: item.faqs.map((faqItem) => ({
-              uuid: faqItem.id,
-              question: faqItem.question,
-              answer: faqItem.answer,
-            })),
-          })),
-        }];
+    updateFaqs: builder.mutation<void, { programUuid: string; faq: FaqItem[] }>(
+      {
+        query: ({ programUuid, faq }) => {
+          // Transform frontend format back to backend format
+          const backendPayload = [
+            {
+              faq: faq.map((item) => ({
+                title: item.title,
+                faqs: item.faqs.map((faqItem) => ({
+                  uuid: faqItem.id,
+                  question: faqItem.question,
+                  answer: faqItem.answer,
+                })),
+              })),
+            },
+          ];
 
-        return {
-          url: `/programs/${programUuid}/faqs`,
-          method: "PUT",
-          body: backendPayload,
-        };
-      },
-      invalidatesTags: [{ type: "Faq", id: "LIST" }],
-    }),
+          return {
+            url: `/programs/${programUuid}/faqs`,
+            method: "PUT",
+            body: backendPayload,
+          };
+        },
+        invalidatesTags: [{ type: "Faq", id: "LIST" }],
+      }
+    ),
   }),
 });
 

@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import {
   Scholar,
   CreateScholar,
@@ -8,9 +8,13 @@ import {
 } from "@/types/scholar";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
+export interface ScholarApiResponse {
+  "opening-program-scholars": Scholar[];
+}
+
 export const scholarApi = createApi({
   reducerPath: "scholarApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Scholar", "ScholarSocialLink"],
   endpoints: (builder) => ({
     // GET all scholars
@@ -206,12 +210,34 @@ export const scholarApi = createApi({
     }),
 
     // Scholars by opening program
-    getScholarsByOpeningProgram: builder.query<Scholar[], string>({
-      query: (uuid) => `/scholars/${uuid}/opening-program`,
-      transformResponse: (response: {
-        "opening-program-scholars": Scholar[];
-      }) => response["opening-program-scholars"],
-      providesTags: [{ type: "Scholar", id: "LIST" }],
+    getAllScholarsByOpeningProgramUuid: builder.query<Scholar[], string>({
+      query: (openingProgramUuid) => {
+        return `/scholars/${openingProgramUuid}/opening-program`;
+      },
+      transformResponse: (
+        response: ScholarApiResponse | Scholar[] | unknown
+      ): Scholar[] => {
+        if (
+          response &&
+          typeof response === "object" &&
+          !Array.isArray(response)
+        ) {
+          const apiResponse = response as ScholarApiResponse;
+          if (
+            apiResponse["opening-program-scholars"] &&
+            Array.isArray(apiResponse["opening-program-scholars"])
+          ) {
+            return apiResponse["opening-program-scholars"];
+          }
+        }
+        if (Array.isArray(response)) {
+          return response as Scholar[];
+        }
+
+        // Always return an array
+        return [];
+      },
+      providesTags: ["Scholar"],
     }),
   }),
 });
@@ -235,5 +261,5 @@ export const {
   useSoftDeleteScholarMutation,
   useRestoreScholarMutation,
   useHardDeleteScholarMutation,
-  useGetScholarsByOpeningProgramQuery,
+  useGetAllScholarsByOpeningProgramUuidQuery,
 } = scholarApi;

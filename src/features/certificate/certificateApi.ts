@@ -1,60 +1,100 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
+import { Audit } from "@/types";
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { CertificateType } from "@/types/certificate";
+
+// Define the request type based on your Postman body
+export interface GenerateCertificateRequest {
+  scholarUuid: string;
+  openingProgramUuid: string;
+  bgImage: string;
+}
+
+// Updated response type to match your Java record
+export interface CertificateResponse {
+  uuid: string;
+  fileName: string;
+  scholarUuid: string;
+  openingProgramUuid: string;
+  tempCertificateUrl: string;
+  certificateUrl: string;
+  isVerified: boolean;
+  audit: Audit;
+}
 
 export const certificateApi = createApi({
   reducerPath: "certificateApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Certificate"],
   endpoints: (builder) => ({
-    generateCertificates: builder.mutation<
-      CertificateType,
+    generateCertificate: builder.mutation<
+      CertificateResponse,
+      GenerateCertificateRequest & { programSlug: string }
+    >({
+      query: ({ programSlug, scholarUuid, openingProgramUuid, bgImage }) => ({
+        url: `/generate-certificates/${programSlug}`,
+        method: "POST",
+        body: {
+          scholarUuid,
+          openingProgramUuid,
+          bgImage,
+        },
+      }),
+      invalidatesTags: [{ type: "Certificate", id: "LIST" }],
+    }),
+
+    // If you need to generate certificates for multiple scholars
+    generateMultipleCertificates: builder.mutation<
+      CertificateResponse[],
       {
+        programSlug: string;
         scholarUuids: string[];
         openingProgramUuid: string;
-        bgImage?: string;
-        offeringType?: string;
+        bgImage: string;
       }
     >({
-      query: (payload) => {
-        const offering = payload.offeringType ?? "default";
+      query: ({ programSlug, scholarUuids, openingProgramUuid, bgImage }) => ({
+        url: `/generate-certificates/${programSlug}`,
+        method: "POST",
+        body: scholarUuids.map((scholarUuid) => ({
+          scholarUuid,
+          openingProgramUuid,
+          bgImage,
+        })),
+      }),
+      invalidatesTags: [{ type: "Certificate", id: "LIST" }],
+    }),
+
+    getCertificateByScholarAndOpeningProgram: builder.query<
+      CertificateResponse[],
+      { scholarUuid: string; openingProgramUuid: string }
+    >({
+      query: ({ scholarUuid, openingProgramUuid }) => ({
+        url: `/certificates/${scholarUuid}/opening-program/${openingProgramUuid}`,
+        method: "GET",
+      }),
+    }),
+
+    verifyCertificate: builder.mutation<
+      CertificateResponse,
+      { file: File; programSlug: string; certificateUuid: string }
+    >({
+      query: ({ file, programSlug, certificateUuid }) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
         return {
-          url: `/generate-certificates/${offering}`,
+          url: `/verify-certificates/${programSlug}/${certificateUuid}`,
           method: "POST",
-          body: payload,
+          body: formData,
         };
       },
-      transformResponse: (response: CertificateType) => response,
-      invalidatesTags: (result) =>
-        result
-          ? [{ type: "Certificate" as const, id: result.certificateUrl }]
-          : [{ type: "Certificate" as const, id: "LIST" }],
-    }),
-    // Get all certificates (returns an array)
-    getAllCertificates: builder.query<CertificateType[], void>({
-      query: () => "/certificates",
-      transformResponse: (response: unknown) => {
-        // handle both array and { certificates: [...] } shapes
-        if (Array.isArray(response)) return response as CertificateType[];
-        const obj = response as Record<string, unknown> | null;
-        if (obj && Array.isArray(obj["certificates"])) {
-          return obj["certificates"] as CertificateType[];
-        }
-        return [];
-      },
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map((r) => ({
-                type: "Certificate" as const,
-                id: r.certificateUrl,
-              })),
-              { type: "Certificate" as const, id: "LIST" },
-            ]
-          : [{ type: "Certificate" as const, id: "LIST" }],
     }),
   }),
 });
 
-export const { useGenerateCertificatesMutation, useGetAllCertificatesQuery } =
-  certificateApi;
+export const {
+  useGenerateCertificateMutation,
+  useGenerateMultipleCertificatesMutation,
+  useGetCertificateByScholarAndOpeningProgramQuery,
+  useVerifyCertificateMutation,
+} = certificateApi;

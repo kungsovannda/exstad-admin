@@ -1,7 +1,7 @@
 import {
   CertificateData,
   CertificateType,
-  ScholarWithProgram,
+  ScholarForCertificateType,
 } from "@/types/certificate";
 export const certificateData: CertificateType[] = [
   {
@@ -22,178 +22,250 @@ export const certificateData: CertificateType[] = [
 ];
 export const certificateForData: CertificateData[] = [
   {
-    englishName: "John Doe",
-    khmerName: "ជូហាន់ ដូ",
     title: "Full-Stack Web Developments",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Jane Smith",
-    khmerName: "ចេន ស្មិត",
     title: "Frontend Developer",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "David Johnson",
-    khmerName: "ដេវីដ ចហ្សិនសុន",
     title: "Backend Engineer",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Sopha Chen",
-    khmerName: "សុផា ចេន",
     title: "UI/UX Designer",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Michael Kim",
-    khmerName: "ម៉ាយគឹល គីម",
     title: "DevOps Specialist",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Lisa Park",
-    khmerName: "លីសា ប៉ាក",
     title: "Data Scientist",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "John Doe",
-    khmerName: "ជូហាន់ ដូ",
     title: "Full-Stack Web Developments",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Jane Smith",
-    khmerName: "ចេន ស្មិត",
     title: "Frontend Developer",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "David Johnson",
-    khmerName: "ដេវីដ ចហ្សិនសុន",
     title: "Backend Engineer",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Sopha Chen",
-    khmerName: "សុផា ចេន",
     title: "UI/UX Designer",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Michael Kim",
-    khmerName: "ម៉ាយគឹល គីម",
     title: "DevOps Specialist",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
   {
-    englishName: "Lisa Park",
-    khmerName: "លីសា ប៉ាក",
     title: "Data Scientist",
     certificateUrl:
       "https://t4.ftcdn.net/jpg/02/01/82/51/360_F_201825112_dm1tHvITOxrZf7tA1lCSLLytD3ppx0nQ.jpg",
+    generation: "1",
   },
 ];
 
-export const scholarsForCertificate: ScholarWithProgram[] = [
+export const scholarsForCertificate: ScholarForCertificateType[] = [
   {
-    englishName: "John Doe",
-    khmerName: "ជូហាន់ ដូ",
+    uuid: "205b2568-ea56-434e-b225-13cc62ecb465",
+    englishName: "Jenna",
+    khmerName: "ចេនណា",
     title: "Full-Stack Web Developments",
   },
   {
-    englishName: "Jane Smith",
-    khmerName: "ចេន ស្មិត",
-    title: "Full-Stack Web Developments",
+    uuid: "68f3aed1-74d4-4231-8ecd-872f7eb1198c",
+    englishName: "Jenna",
+    khmerName: "ចេនណា",
+    title: "Pre University",
   },
   {
+    uuid: "1a816bed-849c-48e5-a888-932a5a903f4c",
+    englishName: "Tong Bora",
+    khmerName: "តុង បូរា",
+    title: "Pre University",
+  },
+  {
+    uuid: "68f3aed1-74d4-4231-8ecd-872f7eb1198c",
     englishName: "David Johnson",
     khmerName: "ដេវីដ ចហ្សិនសុន",
-    title: "Full-Stack Web Developments",
+    title: "Pre University",
   },
   {
+    uuid: "sch-004",
     englishName: "Sopha Chen",
     khmerName: "សុផា ចេន",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-005",
     englishName: "Michael Kim",
     khmerName: "ម៉ាយគឹល គីម",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-006",
     englishName: "Lisa Park",
     khmerName: "លីសា ប៉ាក",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-007",
     englishName: "John Doe",
     khmerName: "ជូហាន់ ដូ",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-008",
     englishName: "Jane Smith",
     khmerName: "ចេន ស្មិត",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-009",
     englishName: "David Johnson",
     khmerName: "ដេវីដ ចហ្សិនសុន",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-010",
     englishName: "Sopha Chen",
     khmerName: "សុផា ចេន",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-011",
     englishName: "Michael Kim",
     khmerName: "ម៉ាយគឹល គីម",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-012",
     englishName: "Lisa Park",
     khmerName: "លីសា ប៉ាក",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-013",
     englishName: "John Doe",
     khmerName: "ជូហាន់ ដូ",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-014",
     englishName: "Jane Smith",
     khmerName: "ចេន ស្មិត",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-015",
     englishName: "David Johnson",
     khmerName: "ដេវីដ ចហ្សិនសុន",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-016",
     englishName: "Sopha Chen",
     khmerName: "សុផា ចេន",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-017",
     englishName: "Michael Kim",
     khmerName: "ម៉ាយគឹល គីម",
     title: "Full-Stack Web Developments",
   },
   {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
+    englishName: "Lisa Park",
+    khmerName: "លីសា ប៉ាក",
+    title: "Full-Stack Web Developments",
+  },
+  {
+    uuid: "sch-018",
     englishName: "Lisa Park",
     khmerName: "លីសា ប៉ាក",
     title: "Full-Stack Web Developments",

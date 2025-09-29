@@ -1,10 +1,10 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { CreateCurrentAddress, CurrentAddress } from "@/types/current-address";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const currentAddressApi = createApi({
   reducerPath: "currentAddressApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["CurrentAddress"],
   endpoints: (builder) => ({
     getCurrentAddresses: builder.query<CurrentAddress[], void>({

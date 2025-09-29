@@ -1,10 +1,10 @@
+import { baseQuery } from "@/services/base-query";
 import { CreateDocument, Document } from "@/types/document";
-import { useBaseQuery } from "@/services/use-base-query";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const documentApi = createApi({
   reducerPath: "documentApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Document"],
   endpoints: (builder) => ({
     // Upload (multipart/form-data)

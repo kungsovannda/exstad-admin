@@ -1,10 +1,10 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { Badge, CreateBadge, UpdateBadge } from "@/types/badge";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const badgeApi = createApi({
   reducerPath: "badgeApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Badge"],
   endpoints: (builder) => ({
     // Create Badge
