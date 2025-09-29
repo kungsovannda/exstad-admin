@@ -1,5 +1,6 @@
 import MasterProgramForm, { MasterProgramFormValues } from "./form-field";
 import { useCreateMasterProgramMutation } from "@/features/master-program/masterProgramApi";
+import { generateSlug } from "@/services/generate-slug";
 import { toast } from "sonner";
 
 export default function MasterProgramCreate() {
@@ -8,10 +9,11 @@ export default function MasterProgramCreate() {
 const handleSubmit = (values: MasterProgramFormValues) => {
   const payload = {
     ...values,
-    slug: values.title.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now(),
+    slug: generateSlug(values.title),
     programType: values.programType!,   // ✅ TypeScript now knows it's defined
     programLevel: values.programLevel!,
     visibility: values.visibility!,
+    
   };
 
   toast.promise(createMasterProgram(payload).unwrap(), {

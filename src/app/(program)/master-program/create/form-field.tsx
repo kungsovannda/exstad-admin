@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ColorPicker from "react-best-gradient-color-picker";
 import Image from "next/image";
+import { generateSlug } from "@/services/generate-slug";
 
 export const programFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -45,6 +46,8 @@ export const programFormSchema = z.object({
   thumbnailUrl: z.string().min(1, { message: "Thumbnail is required" }),
   posterUrl: z.string().min(1, { message: "Poster is required" }),
   bgColor: z.string().min(1, { message: "Theme color is required" }),
+  slug: z.string(),
+
 });
 
 export type MasterProgramFormValues = z.infer<typeof programFormSchema>;
@@ -68,6 +71,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
       thumbnailUrl: "",
       posterUrl: "",
       bgColor: "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
+      slug: "",
     },
   });
 
@@ -108,6 +112,24 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
               <FormLabel>Title</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your program title" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+                {/* Slug */}
+          <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input
+                  readOnly 
+                  placeholder={generateSlug(form.watch("title") || "")}
+                  {...field} // Bind the form field to the input
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
