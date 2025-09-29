@@ -32,6 +32,7 @@ function OpeningProgramEdit() {
     const payload = {
       ...values,
       slug: openingProgram.slug, // keep existing slug
+      status: openingProgram.status!,
     };
 
     toast.promise(

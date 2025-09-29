@@ -2,6 +2,7 @@
 
 import OpeningProgramForm, { OpeningProgramFormValue } from "./form-field";
 import { useCreateOpeningProgramMutation } from "@/features/opening-program/openingProgramApi";
+import { generateSlug } from "@/services/generate-slug";
 import { openingProgramCreate } from "@/types/opening-program";
 import { toast } from "sonner";
 
@@ -30,9 +31,7 @@ export default function OpeningProgramCreate() {
       const payload: openingProgramCreate = {
         programUuid: values.programUuid,
         title: values.title,
-        slug: `${values.title
-          .toLowerCase()
-          .replace(/\s+/g, "-")}-${Date.now()}`,
+        slug: generateSlug(values.title),
         generation,
         price,
         scholarship,
