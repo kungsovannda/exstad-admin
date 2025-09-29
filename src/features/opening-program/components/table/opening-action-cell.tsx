@@ -50,8 +50,8 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/setup-openingprogram/${openingprogram.slug}` ) }><Settings2 size={16} className="text-primary-hover " />Set Up  </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/edit/${openingprogram.slug}`)}><SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}/setup` ) }><Settings2 size={16} className="text-primary-hover " />Set Up  </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}`)}><SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer text-destructive " onClick={() => setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>      
         </DropdownMenuContent>
       </DropdownMenu>
