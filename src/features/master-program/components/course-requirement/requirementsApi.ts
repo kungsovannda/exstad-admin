@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { RequirementsType } from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -10,7 +10,7 @@ export type RequirementPayload = {
 };
 export const requiementApi = createApi({
   reducerPath: "requiementsApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Requirements"],
   endpoints: (builder) => ({
     // --- GET all requirements ---

@@ -15,28 +15,28 @@ import {
 import { LabelList, Pie, PieChart } from "recharts";
 
 const chartData = [
-  { level: "First Year High School", count: 14, fill: "var(--chart-1)" },
-  { level: "Second Year High School", count: 10, fill: "var(--chart-2)" },
-  { level: "Third Year High School", count: 12, fill: "var(--chart-3)" },
-  { level: "Fourth Year High School", count: 9, fill: "var(--chart-4)" },
+  { level: "First Year", count: 14, fill: "var(--chart-1)" },
+  { level: "Second Year", count: 10, fill: "var(--chart-2)" },
+  { level: "Third Year", count: 12, fill: "var(--chart-3)" },
+  { level: "Fourth Year", count: 9, fill: "var(--chart-4)" },
   { level: "Others", count: 6, fill: "var(--chart-5)" },
 ];
 
 const chartConfig = {
   firstYear: {
-    label: "First Year High School",
+    label: "First Year",
     color: "var(--chart-1)",
   },
   secondYear: {
-    label: "Second Year High School",
+    label: "Second Year",
     color: "var(--chart-2)",
   },
   thirdYear: {
-    label: "Third Year High School",
+    label: "Third Year",
     color: "var(--chart-3)",
   },
   fourthYear: {
-    label: "Fourth Year High School",
+    label: "Fourth Year",
     color: "var(--chart-4)",
   },
   others: {

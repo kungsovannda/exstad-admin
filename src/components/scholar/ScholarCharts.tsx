@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -23,6 +23,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
+import { ScholarGender } from "@/types/scholar";
 
 const chartData = [
   { level: "Pre-University", count: 15, fill: "var(--chart-1)" },
@@ -117,11 +119,13 @@ function LevelPieCard() {
   );
 }
 
-const chartDataGender = [
-  { gender: "Female", count: 6420, fill: "var(--chart-1)" },
-  { gender: "Male", count: 5890, fill: "var(--chart-2)" },
-  { gender: "Others", count: 537, fill: "var(--chart-3)" },
-];
+type GenderChartData = { gender: string; count: number; fill: string };
+
+// const chartDataGender = [
+//   { gender: "Female", count: 6420, fill: "var(--chart-1)" },
+//   { gender: "Male", count: 5890, fill: "var(--chart-2)" },
+//   { gender: "Others", count: 537, fill: "var(--chart-3)" },
+// ];
 
 const chartConfigGender = {
   count: {
@@ -141,7 +145,11 @@ const chartConfigGender = {
   },
 };
 
-export function GenderDemographicsCard() {
+export function GenderDemographicsCard({
+  chartDataGender,
+}: {
+  chartDataGender: GenderChartData[];
+}) {
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
@@ -205,7 +213,7 @@ export function GenderDemographicsCard() {
         </div>
         <div className="flex items-center gap-1">
           <span className="flex items-center gap-1 border-l border-border pl-4 ml-2 text-xs font-medium">
-            Total: {chartDataGender.reduce((sum, item) => sum + item.count, 0)}
+            Total: {chartDataGender!.reduce((sum, item) => sum + item.count, 0)}
           </span>
         </div>
       </CardFooter>
@@ -214,10 +222,34 @@ export function GenderDemographicsCard() {
 }
 
 export default function ScholarCharts() {
+  const { data: scholars } = useGetAllScholarsQuery();
+  const [genderDataChart, setGenderDataChart] = useState<GenderChartData[]>([]);
+  useEffect(() => {
+    const totalFemale = Array.isArray(scholars)
+      ? scholars.filter((s) => s.gender === ScholarGender.FEMALE)
+      : [];
+    const totalMale = Array.isArray(scholars)
+      ? scholars?.filter((s) => s.gender === ScholarGender.MALE)
+      : [];
+    setGenderDataChart([
+      { gender: "Female", count: totalFemale.length, fill: "var(--chart-1)" },
+      { gender: "Male", count: totalMale.length, fill: "var(--chart-2)" },
+      {
+        gender: "Other",
+        count: Math.abs(
+          Array.isArray(scholars)
+            ? scholars.length
+            : 0 - totalFemale.length - totalMale.length
+        ),
+        fill: "var(--chart-3)",
+      },
+    ]);
+  }, [scholars]);
+
   return (
     <div className="grid grid-cols-2 gap-5 h-fit">
       <LevelPieCard />
-      <GenderDemographicsCard />
+      <GenderDemographicsCard chartDataGender={genderDataChart!} />
     </div>
   );
 }

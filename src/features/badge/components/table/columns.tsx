@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import VerificationCellAction from "./cell-action";
 
-export const columns: ColumnDef<Badge>[] = [
+export const verificationColumns: ColumnDef<Badge>[] = [
   {
     id: "select",
     header: ({ table }) => (

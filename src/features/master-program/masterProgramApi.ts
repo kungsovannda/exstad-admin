@@ -1,10 +1,10 @@
+import { baseQuery } from "@/services/base-query";
+import { MasterProgramCreate, MasterProgramType } from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { useBaseQuery } from "@/services/use-base-query";
-import { MasterProgramType, MasterProgramCreate } from "@/types/program";
 
 export const masterprogramApi = createApi({
     reducerPath: "masterprogramApi",
-    baseQuery: useBaseQuery,
+    baseQuery: baseQuery(),
     tagTypes: ["MasterProgram"],
     endpoints: (builder) => ({
         getAllMasterPrograms: builder.query<MasterProgramType[], void>({

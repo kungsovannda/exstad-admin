@@ -1,4 +1,4 @@
-  import { useBaseQuery } from "@/services/use-base-query";
+  import { baseQuery } from "@/services/base-query";
 import {  TimelineType } from "@/types/opening-program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -12,7 +12,7 @@ export type TimelinePayload = {
 
 export const TimelineApi = createApi({
   reducerPath: "timelineApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Timelines"],
   endpoints: (builder) => ({
     getAllTimeline: builder.query<TimelineType[], string>({

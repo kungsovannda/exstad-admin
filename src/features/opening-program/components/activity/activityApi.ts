@@ -1,21 +1,22 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { ActivityType } from "@/types/opening-program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 // Separate type for backend payload
 export type ActivityPayload = {
-    title:string;
-    description:string;
-    image:string;
+  title: string;
+  description: string;
+  image: string;
 };
 
 export const activityApi = createApi({
   reducerPath: "activityApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Activities"],
   endpoints: (builder) => ({
     getAllActivity: builder.query<ActivityType[], string>({
-      query: (openingProgramUuid) => `/opening-programs/${openingProgramUuid}/activities`,
+      query: (openingProgramUuid) =>
+        `/opening-programs/${openingProgramUuid}/activities`,
       providesTags: (result, error, uuid) =>
         result
           ? [
@@ -27,7 +28,7 @@ export const activityApi = createApi({
             ]
           : [{ type: "Activities", id: "LIST" }],
     }),
- 
+
     updateActivity: builder.mutation<
       void, // backend returns nothing
       { openingProgramUuid: string; activities: ActivityPayload[] } // payload type
@@ -42,4 +43,5 @@ export const activityApi = createApi({
   }),
 });
 
-export const { useGetAllActivityQuery, useUpdateActivityMutation } = activityApi;
+export const { useGetAllActivityQuery, useUpdateActivityMutation } =
+  activityApi;

@@ -1,16 +1,16 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { programOverviewType } from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 // Separate type for backend payload
 export type ProgramOverviewsPayload = {
-    title: string;
-    description: string;
+  title: string;
+  description: string;
 };
 
 export const programOverviewsApi = createApi({
   reducerPath: "programOverviewApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["ProgramOverviews"],
   endpoints: (builder) => ({
     getAllProgramOverview: builder.query<programOverviewType[], string>({
@@ -41,4 +41,7 @@ export const programOverviewsApi = createApi({
   }),
 });
 
-export const { useGetAllProgramOverviewQuery, useUpdateProgramOverviewMutation } = programOverviewsApi;
+export const {
+  useGetAllProgramOverviewQuery,
+  useUpdateProgramOverviewMutation,
+} = programOverviewsApi;

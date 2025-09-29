@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { HighlightType } from "@/types/program";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -11,7 +11,7 @@ export type HighlightPayload = {
 
 export const highlightsApi = createApi({
   reducerPath: "highlightsApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Highlights"],
   endpoints: (builder) => ({
     getAllHighlight: builder.query<HighlightType[], string>({
@@ -42,4 +42,5 @@ export const highlightsApi = createApi({
   }),
 });
 
-export const { useGetAllHighlightQuery, useUpdateHighlightsMutation } = highlightsApi;
+export const { useGetAllHighlightQuery, useUpdateHighlightsMutation } =
+  highlightsApi;

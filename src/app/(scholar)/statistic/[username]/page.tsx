@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { scholars } from "@/data/scholars";
+import { useGetScholarByUsernameQuery } from "@/features/scholar/scholarApi";
 import { UpdateScholar } from "@/types/scholar";
 import { Package } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -14,11 +14,18 @@ import { useState } from "react";
 
 export default function ScholarDetails() {
   const param = useParams();
-  const scholar = scholars.find((s) => s.username === param.username);
+  const username = param.username as string;
+  // const scholar = scholars.find((s) => s.username === param.username);
+  const {
+    data: scholar,
+    isLoading,
+    isError,
+  } = useGetScholarByUsernameQuery(username, { skip: !username });
   const [updateScholar, setUpdateScholar] = useState<UpdateScholar | null>(
     null
   );
   const [isAssignBadgeModalOpen, setIsAssignBadgeModalOpen] = useState(false);
+
   return (
     <div className="p-6 flex flex-col space-y-4">
       <Heading
@@ -113,11 +120,12 @@ export default function ScholarDetails() {
                 setUpdateScholar({ ...updateScholar, province: e.target.value })
               }
               value={scholar?.province}
+              defaultValue={scholar?.province}
             />
           </div>
           <div className="w-full flex flex-col space-y-2">
             <Label>Badges</Label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {scholar?.badges.length ? (
                 <div className="flex flex-wrap gap-2">
                   {scholar.badges.map((badge) => (
@@ -127,7 +135,9 @@ export default function ScholarDetails() {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground">No badges earned</p>
+                <p className="text-muted-foreground text-sm">
+                  No badges earned
+                </p>
               )}
               <Button
                 onClick={() => setIsAssignBadgeModalOpen(true)}
@@ -137,6 +147,17 @@ export default function ScholarDetails() {
                 Add Badge
               </Button>
             </div>
+          </div>
+
+          <div className="flex gap-2 justify-end items-center">
+            <Button
+              disabled={updateScholar == null}
+              variant={"outline"}
+              className=""
+            >
+              Reset
+            </Button>
+            <Button disabled={updateScholar == null}>Save Changes</Button>
           </div>
         </div>
 

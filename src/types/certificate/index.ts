@@ -11,13 +11,15 @@ export type CertificateType = {
 };
 
 export type CertificateData = {
-  englishName: string;
-  khmerName: string;
+  // englishName: string;
+  // khmerName: string;
   title: string;
   certificateUrl: string;
+  generation: string;
 };
 
-export type ScholarWithProgram = {
+export type ScholarForCertificateType = {
+  uuid: string;
   englishName: string;
   khmerName: string;
   title: string;
