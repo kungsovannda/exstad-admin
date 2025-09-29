@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { Audit } from "@/types";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -23,7 +23,7 @@ export interface CertificateResponse {
 
 export const certificateApi = createApi({
   reducerPath: "certificateApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Certificate"],
   endpoints: (builder) => ({
     generateCertificate: builder.mutation<
@@ -31,7 +31,7 @@ export const certificateApi = createApi({
       GenerateCertificateRequest & { programSlug: string }
     >({
       query: ({ programSlug, scholarUuid, openingProgramUuid, bgImage }) => ({
-        url: `/api/v1/generate-certificates/${programSlug}`,
+        url: `/generate-certificates/${programSlug}`,
         method: "POST",
         body: {
           scholarUuid,
@@ -53,7 +53,7 @@ export const certificateApi = createApi({
       }
     >({
       query: ({ programSlug, scholarUuids, openingProgramUuid, bgImage }) => ({
-        url: `/api/v1/generate-certificates/${programSlug}`,
+        url: `/generate-certificates/${programSlug}`,
         method: "POST",
         body: scholarUuids.map((scholarUuid) => ({
           scholarUuid,
@@ -64,11 +64,37 @@ export const certificateApi = createApi({
       invalidatesTags: [{ type: "Certificate", id: "LIST" }],
     }),
 
-    
+    getCertificateByScholarAndOpeningProgram: builder.query<
+      CertificateResponse[],
+      { scholarUuid: string; openingProgramUuid: string }
+    >({
+      query: ({ scholarUuid, openingProgramUuid }) => ({
+        url: `/certificates/${scholarUuid}/opening-program/${openingProgramUuid}`,
+        method: "GET",
+      }),
+    }),
+
+    verifyCertificate: builder.mutation<
+      CertificateResponse,
+      { file: File; programSlug: string; certificateUuid: string }
+    >({
+      query: ({ file, programSlug, certificateUuid }) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        return {
+          url: `/verify-certificates/${programSlug}/${certificateUuid}`,
+          method: "POST",
+          body: formData,
+        };
+      },
+    }),
   }),
 });
 
 export const {
   useGenerateCertificateMutation,
   useGenerateMultipleCertificatesMutation,
+  useGetCertificateByScholarAndOpeningProgramQuery,
+  useVerifyCertificateMutation,
 } = certificateApi;

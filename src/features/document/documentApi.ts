@@ -1,4 +1,4 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { Audit } from "@/types";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -27,16 +27,21 @@ export interface DownloadZipRequest {
 
 export const documentApi = createApi({
   reducerPath: "documentApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(false),
   tagTypes: ["Certificate"],
   endpoints: (builder) => ({
     uploadCertificate: builder.mutation<
       UploadCertificateResponse,
       UploadCertificateRequest
     >({
-      query: ({ file, programSlug, gen, documentType}) => {
+      query: ({ file, programSlug, gen, documentType, filename }) => {
         const formData = new FormData();
         formData.append("file", file);
+
+        // Add these additional fields that the backend expects
+        if (filename) {
+          formData.append("filename", filename);
+        }
 
         const url = `/api/v1/documents/${programSlug}/${gen}/${documentType}`;
 
@@ -44,6 +49,7 @@ export const documentApi = createApi({
           url,
           method: "POST",
           body: formData,
+          // Make sure no Content-Type header is set - let browser handle it
         };
       },
       invalidatesTags: [{ type: "Certificate", id: "LIST" }],

@@ -97,7 +97,7 @@ export const certificateForData: CertificateData[] = [
 
 export const scholarsForCertificate: ScholarForCertificateType[] = [
   {
-    uuid: "68f3aed1-74d4-4231-8ecd-872f7eb1198c",
+    uuid: "205b2568-ea56-434e-b225-13cc62ecb465",
     englishName: "Jenna",
     khmerName: "ចេនណា",
     title: "Full-Stack Web Developments",

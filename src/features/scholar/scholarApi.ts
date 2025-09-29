@@ -1,61 +1,48 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { Scholar } from "@/types/scholar";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
+export interface ScholarApiResponse {
+  "opening-program-scholars": Scholar[];
+}
+
 export const scholarApi = createApi({
   reducerPath: "scholarApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Scholar"],
   endpoints: (builder) => ({
-    // Get scholars by opening program UUID
     getAllScholarsByOpeningProgramUuid: builder.query<Scholar[], string>({
-      query: (uuid) => `/api/v1/scholars/${uuid}/opening-program`,
+      query: (openingProgramUuid) => {
+        return `/scholars/${openingProgramUuid}/opening-program`;
+      },
       transformResponse: (
-        response: Scholar[] | { data: Scholar[] } | { scholars: Scholar[] }
-      ) => {
-        // If response is already an array
+        response: ScholarApiResponse | Scholar[] | unknown
+      ): Scholar[] => {
+        if (
+          response &&
+          typeof response === "object" &&
+          !Array.isArray(response)
+        ) {
+          const apiResponse = response as ScholarApiResponse;
+          if (
+            apiResponse["opening-program-scholars"] &&
+            Array.isArray(apiResponse["opening-program-scholars"])
+          ) {
+            return apiResponse["opening-program-scholars"];
+          }
+        }
         if (Array.isArray(response)) {
-          return response;
+          return response as Scholar[];
         }
 
-        // If response is wrapped in 'data' property
-        if (
-          response &&
-          typeof response === "object" &&
-          "data" in response &&
-          Array.isArray(response.data)
-        ) {
-          return response.data;
-        }
-
-        // If response is wrapped in 'scholars' property
-        if (
-          response &&
-          typeof response === "object" &&
-          "scholars" in response &&
-          Array.isArray(response.scholars)
-        ) {
-          return response.scholars;
-        }
-
-        console.log("Unexpected response format, returning empty array");
+        // Always return an array
         return [];
       },
-      providesTags: (result) => {
-        return result && Array.isArray(result)
-          ? [
-              ...result.map(({ uuid }) => ({
-                type: "Scholar" as const,
-                id: uuid,
-              })),
-              { type: "Scholar", id: "OPENING_PROGRAM_LIST" },
-            ]
-          : [{ type: "Scholar", id: "OPENING_PROGRAM_LIST" }];
-      },
+      providesTags: ["Scholar"],
     }),
 
     getAllScholars: builder.query<Scholar[], void>({
-      query: () => "/api/v1/scholars",
+      query: () => "/scholars",
       providesTags: (result) =>
         result
           ? [

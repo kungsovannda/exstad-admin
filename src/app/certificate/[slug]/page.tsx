@@ -34,7 +34,7 @@ import {
   useSetUpTemplateMutation,
 } from "@/features/opening-program/openingProgramApi";
 import { useGenerateCertificateMutation } from "@/features/certificate/certificateApi";
-import { scholarsForCertificate } from "@/data/certificate";
+// import { scholarsForCertificate } from "@/data/certificate";
 import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
@@ -42,6 +42,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ScholarApiResponse, useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/scholarApi";
+import { ScholarForCertificateType } from "@/types/certificate";
+import { Scholar } from "@/types/scholar";
 
 const formSchema = z.object({
   bgImage: z.string().optional(),
@@ -60,7 +63,6 @@ export default function CertificatePage() {
   const [currentProgress, setCurrentProgress] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-  // Use ref for timeout to prevent memory leaks
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [downloadZip, { isLoading: isDownloadingZip }] =
@@ -84,6 +86,45 @@ export default function CertificatePage() {
     skip: !slug,
   });
 
+  const {
+    data: scholars,
+    isLoading: isLoadingScholars,
+    isError: isErrorScholars,
+    error: scholarError,
+  } = useGetAllScholarsByOpeningProgramUuidQuery(program?.uuid ?? "", {
+    skip: !program?.uuid,
+  });
+
+  const scholarsForCertificate: ScholarForCertificateType[] = useMemo(() => {
+    
+    let scholarsArray: Scholar[] = [];
+
+    if (scholars && typeof scholars === "object" && !Array.isArray(scholars)) {
+      
+      const scholarsResponse = scholars as ScholarApiResponse;
+      if (
+        scholarsResponse["opening-program-scholars"] &&
+        Array.isArray(scholarsResponse["opening-program-scholars"])
+      ) {
+        scholarsArray = scholarsResponse["opening-program-scholars"];
+      }
+    } else if (Array.isArray(scholars)) {
+     
+      scholarsArray = scholars as Scholar[];
+    }
+
+    if (!Array.isArray(scholarsArray)) {
+      return [];
+    }
+
+    return scholarsArray.map((scholar: Scholar) => ({
+      uuid: scholar.uuid || "",
+      englishName: scholar.englishName || "",
+      khmerName: scholar.khmerName || "",
+      title: program?.title || "",
+    }));
+  }, [scholars, program?.title]);
+
   const allTemplates = useMemo(() => {
     return [...(program?.templates || []), ...additionalTemplates];
   }, [program?.templates, additionalTemplates]);
@@ -98,7 +139,7 @@ export default function CertificatePage() {
     },
   });
 
-  // Update form when program loads
+  
   useEffect(() => {
     if (program) {
       form.setValue("programSlug", program.slug);
@@ -149,7 +190,7 @@ export default function CertificatePage() {
       programSlug: program?.slug ?? "",
       gen: program?.generation ?? 1,
       documentType: "certificate" as const,
-      filename: files[0].name,
+      filename: "null",
     };
 
     try {
@@ -295,6 +336,16 @@ export default function CertificatePage() {
     timeoutRef.current = setTimeout(() => {
       setShowProgressDialog(false);
     }, 3000);
+  }
+
+  // Add this after your query hooks
+  if (isLoadingScholars) {
+    return <div>Loading scholars...</div>;
+  }
+
+  if (isErrorScholars) {
+    console.error("Error loading scholars:", scholarError);
+    return <div>Error loading scholars</div>;
   }
 
   return (
@@ -485,7 +536,7 @@ export default function CertificatePage() {
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-center">
                   {currentProgress === 100 && successCount > 0
-                    ? "✅ Generation Complete!"
+                    ? "Generation Complete!"
                     : "Generating Certificates"}
                 </AlertDialogTitle>
               </AlertDialogHeader>

@@ -1,5 +1,5 @@
 // src/features/university/universityApi.ts
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import {
   University,
   UniversityCreate,
@@ -9,12 +9,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const universityApi = createApi({
   reducerPath: "universityApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["University"],
   endpoints: (builder) => ({
     // GET all universities
     getAllUniversities: builder.query<University[], void>({
-      query: () => "/api/v1/universities",
+      query: () => "/universities",
       transformResponse: (response: { universities: University[] }) =>
         response.universities,
       providesTags: (result) =>
@@ -30,13 +30,13 @@ export const universityApi = createApi({
     }),
 
     getUniversityByUuid: builder.query<University, string>({
-      query: (uuid) => `/api/v1/universities/${uuid}`,
+      query: (uuid) => `/universities/${uuid}`,
       providesTags: (result, error, uuid) => [{ type: "University", id: uuid }],
     }),
 
     createUniversity: builder.mutation<University, UniversityCreate>({
       query: (body) => ({
-        url: "/api/v1/universities",
+        url: "/universities",
         method: "POST",
         body,
       }),
@@ -48,7 +48,7 @@ export const universityApi = createApi({
       { uuid: string; body: UniversityUpdate }
     >({
       query: ({ uuid, body }) => ({
-        url: `/api/v1/universities/${uuid}`,
+        url: `/universities/${uuid}`,
         method: "PATCH",
         body,
       }),
@@ -59,7 +59,7 @@ export const universityApi = createApi({
 
     deleteUniversity: builder.mutation<void, string>({
       query: (uuid) => ({
-        url: `/api/v1/universities/${uuid}`,
+        url: `/universities/${uuid}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, uuid) => [

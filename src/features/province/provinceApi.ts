@@ -1,14 +1,14 @@
-import { useBaseQuery } from "@/services/use-base-query";
+import { baseQuery } from "@/services/base-query";
 import { Province } from "@/types/province";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const provinceApi = createApi({
   reducerPath: "provinceApi",
-  baseQuery: useBaseQuery,
+  baseQuery: baseQuery(),
   tagTypes: ["Province"],
   endpoints: (builder) => ({
     getAllProvinces: builder.query<Province[], void>({
-      query: () => "/api/v1/provinces",
+      query: () => "/provinces",
       transformResponse: (response: { provinces: Province[] }) =>
         response.provinces,
       providesTags: (result) =>
