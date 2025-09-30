@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +28,7 @@ import {
 import Image from "next/image";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { generateSlug } from "@/services/generate-slug";
+import { ThumbnailUploadField } from "../../master-program/create/ThumbnailUploadField";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -35,19 +37,16 @@ export const openingProgramformSchema = z.object({
   telegramGroup: z.string().min(1, { message: "Telegram Group is required" }),
   generation: z.preprocess((val) => Number(val), z.number().min(1, { message: "Generation is required" })),
   originalFee: z.preprocess((val) => Number(val), z.number().min(1, { message: "Original fee is required" })),
-  scholarship: z.preprocess((val) => Number(val), z.number().min(1, { message: "Scholarship is required" })),
+  scholarship: z.preprocess((val) => Number(val), z.number().min(0, { message: "Scholarship is required" })),
   price: z.preprocess((val) => Number(val), z.number()),
   totalSlot: z.preprocess((val) => Number(val), z.number().min(1, { message: "Total Slot is required" })),
   duration: z.string().min(1, { message: "Duration is required" }),
   curriculumPdfUri: z.string().optional(),
   thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
   slug: z.string(),
-  status: z
-  .union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()])
-  .refine(val => val !== undefined, { message: "Status is required" }),
+  status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
   qrCodeUrl: z.string().url({ message: "Valid QR Code URL is required" }),
 });
-
 
 export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>;
 
@@ -65,11 +64,16 @@ export default function OpeningProgramForm({
 }: Props) {
   const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
   const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
+  const [selectedProgramType, setSelectedProgramType] = useState<string | undefined>(
+    initialValues?.programUuid
+      ? masterPrograms.find(p => p.uuid === initialValues.programUuid)?.programType
+      : undefined
+  );
+
   const resolver: Resolver<OpeningProgramFormValue> = zodResolver(
     openingProgramformSchema
   ) as unknown as Resolver<OpeningProgramFormValue>;
 
-  // ------------------- FORM -------------------
   const form = useForm<OpeningProgramFormValue>({
     resolver,
     defaultValues: initialValues || {
@@ -93,6 +97,12 @@ export default function OpeningProgramForm({
   const { watch, setValue } = form;
   const originalFee = watch("originalFee") || 0;
   const scholarship = watch("scholarship") || 0;
+  const title = watch("title");
+
+  // ------------------- FILTER MASTER PROGRAMS -------------------
+  const filteredMasterPrograms = selectedProgramType
+    ? masterPrograms.filter((p) => p.programType === selectedProgramType)
+    : masterPrograms;
 
   // ------------------- AUTO DISCOUNT -------------------
   useEffect(() => {
@@ -100,13 +110,68 @@ export default function OpeningProgramForm({
     setValue("price", isNaN(discount) ? 0 : discount);
   }, [originalFee, scholarship, setValue]);
 
+  // ------------------- AUTO SLUG -------------------
+  useEffect(() => {
+    if (title) {
+      setValue("slug", generateSlug(title));
+    } else {
+      setValue("slug", "");
+    }
+  }, [title, setValue]);
+
+  // ------------------- RESET MASTER PROGRAM ON TYPE CHANGE -------------------
+  useEffect(() => {
+    if (!initialValues) {
+      setValue("programUuid", "");
+    }
+  }, [selectedProgramType, setValue, initialValues]);
+
+  // ------------------- SYNC PROGRAM TYPE WHEN EDITING -------------------
+  useEffect(() => {
+    if (initialValues?.programUuid && masterPrograms.length > 0) {
+      const selectedProgram = masterPrograms.find(
+        (p) => p.uuid === initialValues.programUuid
+      );
+      if (selectedProgram) {
+        setSelectedProgramType(selectedProgram.programType);
+        form.setValue("programUuid", selectedProgram.uuid);
+      }
+    }
+  }, [initialValues?.programUuid, masterPrograms, form]);
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 grid w-full items-center"
       >
-        {/* Master Program */}
+        {/* Program Type */}
+        <FormItem>
+          <FormLabel>Program Type</FormLabel>
+          <Select
+            onValueChange={setSelectedProgramType}
+            value={selectedProgramType ?? ""}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select Program Type" />
+            </SelectTrigger>
+            <SelectContent>
+              {masterPrograms.length > 0 ? (
+                [...new Set(masterPrograms.map((p) => p.programType))].map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type.replace("_", " ")}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-sm text-gray-500">
+                  Loading program types...
+                </div>
+              )}
+            </SelectContent>
+          </Select>
+        </FormItem>
+
+        {/* Master Program (filtered by programType) */}
         <FormField
           control={form.control}
           name="programUuid"
@@ -118,8 +183,8 @@ export default function OpeningProgramForm({
                   <SelectValue placeholder="Select Master Program" />
                 </SelectTrigger>
                 <SelectContent>
-                  {masterPrograms.length > 0 ? (
-                    masterPrograms.map((program) => (
+                  {filteredMasterPrograms.length > 0 ? (
+                    filteredMasterPrograms.map((program) => (
                       <SelectItem key={program.uuid} value={program.uuid}>
                         {program.title}
                       </SelectItem>
@@ -152,24 +217,19 @@ export default function OpeningProgramForm({
         />
 
         {/* Slug */}
-  <FormField
-  control={form.control}
-  name="slug"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Slug</FormLabel>
-      <FormControl>
-        <Input
-          readOnly 
-          placeholder={generateSlug(form.watch("title") || "")}
-          {...field} // Bind the form field to the input
+        <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input readOnly {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
 
         {/* Telegram */}
         <FormField
@@ -215,7 +275,7 @@ export default function OpeningProgramForm({
                 <SelectContent>
                   <SelectItem value="OPEN">Open</SelectItem>
                   <SelectItem value="CLOSED">Closed</SelectItem>
-                  <SelectItem value="ACHIEVED">Achiened</SelectItem>
+                  <SelectItem value="ACHIEVED">Achieved</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -236,7 +296,7 @@ export default function OpeningProgramForm({
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -254,7 +314,7 @@ export default function OpeningProgramForm({
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -276,7 +336,7 @@ export default function OpeningProgramForm({
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -294,7 +354,7 @@ export default function OpeningProgramForm({
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -308,12 +368,7 @@ export default function OpeningProgramForm({
               <FormItem>
                 <FormLabel>Discount Price ($)</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    disabled
-                    {...field}
-                    value={field.value ?? 0}
-                  />
+                  <Input type="number" disabled {...field} value={field.value ?? 0} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -355,26 +410,28 @@ export default function OpeningProgramForm({
         <FormField
           control={form.control}
           name="thumbnail"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Thumbnail</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  multiple
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = URL.createObjectURL(file);
-                      field.onChange(url);
-                      setPreviewsThumbnail([url]);
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={() => {
+            const selectedProgram = masterPrograms.find(
+              (p) => p.uuid === form.watch("programUuid")
+            );
+            const generation = form.watch("generation");
+
+            return (
+              <FormItem>
+                <FormLabel>Thumbnail *</FormLabel>
+                <FormControl>
+                  <div className="space-y-4 mt-2">
+                    <ThumbnailUploadField
+                      form={form}
+                      masterProgram={selectedProgram}
+                      openingProgram={{ generation }}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
 
         {previewsThumbnail.length > 0 && (

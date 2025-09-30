@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ColorPicker from "react-best-gradient-color-picker";
 import Image from "next/image";
 import { generateSlug } from "@/services/generate-slug";
+import { ThumbnailUploadField } from "./ThumbnailUploadField";
 
 export const programFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -39,7 +40,7 @@ export const programFormSchema = z.object({
     .union([z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]), z.undefined()])
     .refine(val => val !== undefined, { message: "Program level is required" }),
   visibility: z
-    .union([z.enum(["public", "private"]), z.undefined()])
+    .union([z.enum(["public", "private"]), z.undefined()])  
     .refine(val => val !== undefined, { message: "Visibility is required" }),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
@@ -109,7 +110,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>Title <span className="text-destructive">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter your program title" {...field} />
               </FormControl>
@@ -354,7 +355,6 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             ))}
           </div>
         )}
-
         <Button type="submit">{submitLabel}</Button>
       </form>
     </Form>

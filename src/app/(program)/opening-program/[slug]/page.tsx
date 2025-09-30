@@ -11,7 +11,9 @@ function OpeningProgramEdit() {
   const programSlug = params?.slug as string;
 
   // Fetch program by slug
-  const { data: openingProgram, isLoading, error } = useGetOpeningProgramBySlugQuery({ slug: programSlug });
+  const { data: openingProgram, isLoading, error } = useGetOpeningProgramBySlugQuery({ slug: programSlug },
+    { refetchOnMountOrArgChange: true }
+  );
    // Fetch all master programs
   const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
   const [updateOpeningProgram] = useUpdateOpeningProgramMutation();
