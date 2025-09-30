@@ -49,8 +49,6 @@ export default function Certificate() {
   const [selected, setSelected] = useState("");
   const [open, setOpen] = useState(false);
 
-  // const openingPrograms: openingProgramType[] = openingProgramData;
-
   const selectedProgram = openingPrograms?.find(
     (program) => program.slug === selected
   );

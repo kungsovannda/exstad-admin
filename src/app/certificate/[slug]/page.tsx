@@ -12,13 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
-import {
-  Form,
-  // FormControl,
-  // FormItem,
-  // FormLabel,
-  // FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import {
   FileInput,
   FileUploader,
@@ -34,15 +28,18 @@ import {
   useSetUpTemplateMutation,
 } from "@/features/opening-program/openingProgramApi";
 import { useGenerateCertificateMutation } from "@/features/certificate/certificateApi";
-// import { scholarsForCertificate } from "@/data/certificate";
 import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ScholarApiResponse, useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/scholarApi";
+import {
+  ScholarApiResponse,
+  useGetAllScholarsByOpeningProgramUuidQuery,
+} from "@/features/scholar/scholarApi";
 import { ScholarForCertificateType } from "@/types/certificate";
 import { Scholar } from "@/types/scholar";
 
@@ -56,7 +53,6 @@ const formSchema = z.object({
 export default function CertificatePage() {
   const [files, setFiles] = useState<File[] | null>(null);
   const [selectedScholars, setSelectedScholars] = useState<string[]>([]);
-  const [additionalTemplates, setAdditionalTemplates] = useState<string[]>([]);
   const [showProgressDialog, setShowProgressDialog] = useState(false);
   const [successCount, setSuccessCount] = useState(0);
   const [failureCount, setFailureCount] = useState(0);
@@ -82,9 +78,14 @@ export default function CertificatePage() {
   const params = useParams();
   const slug = params?.slug as string;
 
-  const { data: program } = useGetOpeningProgramBySlugQuery(slug, {
-    skip: !slug,
-  });
+  
+  const { data: program, refetch: refetchProgram } =
+    useGetOpeningProgramBySlugQuery(
+      { slug: slug || "" },
+      {
+        skip: !slug,
+      }
+    );
 
   const {
     data: scholars,
@@ -96,11 +97,9 @@ export default function CertificatePage() {
   });
 
   const scholarsForCertificate: ScholarForCertificateType[] = useMemo(() => {
-    
     let scholarsArray: Scholar[] = [];
 
     if (scholars && typeof scholars === "object" && !Array.isArray(scholars)) {
-      
       const scholarsResponse = scholars as ScholarApiResponse;
       if (
         scholarsResponse["opening-program-scholars"] &&
@@ -109,7 +108,6 @@ export default function CertificatePage() {
         scholarsArray = scholarsResponse["opening-program-scholars"];
       }
     } else if (Array.isArray(scholars)) {
-     
       scholarsArray = scholars as Scholar[];
     }
 
@@ -125,9 +123,10 @@ export default function CertificatePage() {
     }));
   }, [scholars, program?.title]);
 
+  
   const allTemplates = useMemo(() => {
-    return [...(program?.templates || []), ...additionalTemplates];
-  }, [program?.templates, additionalTemplates]);
+    return program?.templates || [];
+  }, [program?.templates]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -139,7 +138,6 @@ export default function CertificatePage() {
     },
   });
 
-  
   useEffect(() => {
     if (program) {
       form.setValue("programSlug", program.slug);
@@ -153,7 +151,12 @@ export default function CertificatePage() {
     }
   }, [selectedIndex, allTemplates, form]);
 
-  // Cleanup timeout on unmount
+  
+  useEffect(() => {
+    setSelectedIndex(0);
+    setSelectedScholars([]);
+  }, [program?.uuid]);
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -199,28 +202,24 @@ export default function CertificatePage() {
 
       if (program?.uuid) {
         try {
-          const templateResult = await setUpTemplate({
+          await setUpTemplate({
             uuid: program.uuid,
             template: uploadResult.uri,
           }).unwrap();
 
-          setAdditionalTemplates((prev) => {
-            if (prev.includes(templateResult)) {
-              return prev;
-            }
+          
+          const refetchResult = await refetchProgram();
 
-            const newTemplates = [...prev, templateResult];
-            const newIndex =
-              (program?.templates?.length || 0) + newTemplates.length - 1;
-
-            setTimeout(() => {
-              setSelectedIndex(newIndex);
-            }, 0);
-
-            return newTemplates;
-          });
-
+          toast.success("Template added successfully!");
           setFiles(null);
+
+          
+          if (
+            refetchResult.data?.templates &&
+            refetchResult.data.templates.length > 0
+          ) {
+            setSelectedIndex(refetchResult.data.templates.length - 1);
+          }
         } catch (templateError) {
           console.error(templateError);
           toast.error("Certificate uploaded but failed to add to templates");
@@ -313,7 +312,7 @@ export default function CertificatePage() {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
 
-        toast.success("Generated and downloaded certificates successfully!");
+        toast.success("Generated certificates successfully!");
       } catch (downloadError) {
         console.error("Error downloading ZIP:", downloadError);
         toast.error("Failed to download certificates as ZIP.");
@@ -332,13 +331,16 @@ export default function CertificatePage() {
       );
     }
 
-    // Set timeout with cleanup
     timeoutRef.current = setTimeout(() => {
       setShowProgressDialog(false);
     }, 3000);
   }
 
-  // Add this after your query hooks
+ 
+  if (!slug) {
+    return <div>Loading...</div>;
+  }
+
   if (isLoadingScholars) {
     return <div>Loading scholars...</div>;
   }
@@ -377,7 +379,6 @@ export default function CertificatePage() {
 
           <div className="flex gap-10 justify-between">
             <div className="flex flex-col gap-4 w-full max-w-xl">
-              {/* File Upload Section - Removed FormField wrapper */}
               <div>
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Upload New Certificate Template
@@ -539,6 +540,9 @@ export default function CertificatePage() {
                     ? "Generation Complete!"
                     : "Generating Certificates"}
                 </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Please wait while we generate your certificates. This process may take a few moments.
+                </AlertDialogDescription>
               </AlertDialogHeader>
 
               <div className="flex flex-col items-center justify-center w-full gap-4 p-6">
