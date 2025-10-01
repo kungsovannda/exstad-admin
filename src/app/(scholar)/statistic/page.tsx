@@ -2,6 +2,7 @@
 import { Heading } from "@/components/Heading";
 import ScholarCharts from "@/components/scholar/ScholarCharts";
 import { StatisticCard } from "@/components/scholar/statistic-card";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,15 +11,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { scholars } from "@/data/scholars";
+import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
 import AddScholar from "@/features/scholar/statistic/components/AddScholar";
 import { scholarColumns } from "@/features/scholar/statistic/components/table/column";
 import { ScholarTable } from "@/features/scholar/statistic/components/table/data-table";
+import { useProvinceFilterOptions } from "@/hooks/use-province-options";
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 
 export default function StatisticPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { data, isLoading } = useGetAllScholarsQuery();
+  const provinceOptions = useProvinceFilterOptions();
+  const column = scholarColumns(provinceOptions);
   return (
     <div className="p-6 space-y-6 min-h-screen h-fit">
       <div className="flex justify-between items-center  gap-10">
@@ -46,11 +51,15 @@ export default function StatisticPage() {
           <CardDescription>View and manage scholar information</CardDescription>
         </CardHeader>
         <CardContent>
-          <ScholarTable
-            columns={scholarColumns}
-            totalItems={scholars.length}
-            data={scholars}
-          />
+          {isLoading ? (
+            <DataTableSkeleton columnCount={5} />
+          ) : (
+            <ScholarTable
+              columns={column}
+              totalItems={Array.isArray(data) ? data.length : 0}
+              data={Array.isArray(data) ? data : []}
+            />
+          )}
           {isCreateOpen && (
             <AddScholar open={isCreateOpen} onOpenChange={setIsCreateOpen} />
           )}

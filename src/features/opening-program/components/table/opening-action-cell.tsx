@@ -1,0 +1,67 @@
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { openingProgramType } from "@/types/opening-program";
+import { MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import { useDeleteOpeningProgramMutation } from "../../openingProgramApi";
+
+interface ActionsCellProps {
+  openingprogram: openingProgramType;
+  onDelete?: (id: number) => void;
+}
+
+export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
+  const router = useRouter();
+  // const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteOpeningProgram] = useDeleteOpeningProgramMutation();
+  
+    const handleDelete = async () =>  {
+      try{
+        await deleteOpeningProgram(openingprogram.uuid).unwrap();
+        toast.success(`Program "${openingprogram.title}" delete successfully!`);
+        setDeleteOpen(false);
+      }catch(err:unknown){
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(`Failed to delete: ${message || err}`);
+      }
+    }
+
+  return (
+    <>
+      <DropdownMenu >
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+            <span className="sr-only ">Open menu</span>
+            <MoreHorizontal className="h-4 w-4 " />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}/setup` ) }><Settings2 size={16} className="text-primary-hover " />Set Up  </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}`)}><SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer text-destructive " onClick={() => setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>      
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DeleteModal
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        itemName={openingprogram.title}
+        onConfirm={handleDelete}
+      />
+    </>
+  );
+}

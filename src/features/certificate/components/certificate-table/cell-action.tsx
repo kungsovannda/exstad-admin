@@ -11,7 +11,6 @@ import { MoreHorizontal } from "lucide-react";
 import React from "react";
 
 export default function CertificateCellAction({
-  // data,
 }: {
   data: CertificateData;
 }) {

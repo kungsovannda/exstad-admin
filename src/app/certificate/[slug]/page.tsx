@@ -3,7 +3,7 @@ import { Heading } from "@/components/Heading";
 import { Button } from "@/components/ui/button";
 import { ScholarTable } from "@/features/certificate/components/data-table";
 import { scholarColumn } from "@/features/certificate/components/scholar-table/columns";
-
+// import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { CloudUpload, Paperclip } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -20,8 +20,7 @@ import {
   FileUploaderItem,
 } from "@/components/ui/file-upload";
 import {
-  useDownloadZipMutation,
-  useUploadCertificateMutation,
+  useCreateDocumentMutation,
 } from "@/features/document/documentApi";
 import {
   useGetOpeningProgramBySlugQuery,
@@ -42,6 +41,8 @@ import {
 } from "@/features/scholar/scholarApi";
 import { ScholarForCertificateType } from "@/types/certificate";
 import { Scholar } from "@/types/scholar";
+import { useDownloadZipMutation } from "@/features/document/documentAccessApi";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
   bgImage: z.string().optional(),
@@ -63,7 +64,7 @@ export default function CertificatePage() {
 
   const [downloadZip, { isLoading: isDownloadingZip }] =
     useDownloadZipMutation();
-  const [uploadCertificate, { isLoading }] = useUploadCertificateMutation();
+  const [uploadCertificate, { isLoading }] = useCreateDocumentMutation();
   const [setUpTemplate, { isLoading: isSettingUpTemplate }] =
     useSetUpTemplateMutation();
   const [generateCertificate, { isLoading: isGenerating }] =
@@ -78,7 +79,6 @@ export default function CertificatePage() {
   const params = useParams();
   const slug = params?.slug as string;
 
-  
   const { data: program, refetch: refetchProgram } =
     useGetOpeningProgramBySlugQuery(
       { slug: slug || "" },
@@ -123,7 +123,6 @@ export default function CertificatePage() {
     }));
   }, [scholars, program?.title]);
 
-  
   const allTemplates = useMemo(() => {
     return program?.templates || [];
   }, [program?.templates]);
@@ -151,7 +150,6 @@ export default function CertificatePage() {
     }
   }, [selectedIndex, allTemplates, form]);
 
-  
   useEffect(() => {
     setSelectedIndex(0);
     setSelectedScholars([]);
@@ -207,13 +205,11 @@ export default function CertificatePage() {
             template: uploadResult.uri,
           }).unwrap();
 
-          
           const refetchResult = await refetchProgram();
 
           toast.success("Template added successfully!");
           setFiles(null);
 
-          
           if (
             refetchResult.data?.templates &&
             refetchResult.data.templates.length > 0
@@ -336,13 +332,8 @@ export default function CertificatePage() {
     }, 3000);
   }
 
- 
   if (!slug) {
     return <div>Loading...</div>;
-  }
-
-  if (isLoadingScholars) {
-    return <div>Loading scholars...</div>;
   }
 
   if (isErrorScholars) {
@@ -504,12 +495,16 @@ export default function CertificatePage() {
                   <span className="text-red-500 text-xs ml-2">*</span>
                 )}
               </h4>
-              <ScholarTable
-                columns={scholarColumn}
-                totalItems={scholarsForCertificate.length}
-                data={scholarsForCertificate}
-                onSelectionChange={handleScholarSelection}
-              />
+              {isLoadingScholars ? (
+                <Skeleton className="h-96 w-full rounded-md" />
+              ) : (
+                <ScholarTable
+                  columns={scholarColumn}
+                  totalItems={scholarsForCertificate.length}
+                  data={scholarsForCertificate}
+                  onSelectionChange={handleScholarSelection}
+                />
+              )}
             </div>
           </div>
 

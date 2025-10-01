@@ -10,6 +10,10 @@ export interface SetUpTemplateRequest {
 }
 export type SetUpTemplateResponse = string;
 
+export interface SetUpTemplateRequest {
+  template: string; // URL of the template
+}
+
 export const openingProgramApi = createApi({
   reducerPath: "openingProgramApi",
   baseQuery: baseQuery(),

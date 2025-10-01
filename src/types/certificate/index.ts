@@ -16,6 +16,7 @@ export type CertificateData = {
   title: string;
   certificateUrl: string;
   generation: string;
+  slug?: string;
 };
 
 export type ScholarForCertificateType = {

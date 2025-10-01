@@ -160,18 +160,8 @@ const FlagComponent = ({ country, countryName }: RPNInput.FlagProps) => {
   const Flag = flags[country];
 
   return (
-    <span className="flex justify-center items-center h-6 w-8 overflow-hidden rounded-[4px]">
-      {Flag && (
-        <Flag
-          title={countryName}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            borderRadius: "4px",
-          }}
-        />
-      )}
+    <span className="flex justify-center items-center h-6 w-8 overflow-hidden object-fill rounded-[4px]">
+      {Flag && <Flag title={countryName} />}
     </span>
   );
 };

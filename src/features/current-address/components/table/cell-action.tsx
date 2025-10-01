@@ -15,6 +15,7 @@ export default function CurrentAddressCellAction({
 }: {
   data: CurrentAddress;
 }) {
+  console.log(data);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

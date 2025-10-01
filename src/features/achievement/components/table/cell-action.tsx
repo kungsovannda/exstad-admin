@@ -10,6 +10,7 @@ import { Achievement } from "@/types/achievement";
 import { MoreHorizontal } from "lucide-react";
 
 export default function AchievementCellAction({ data }: { data: Achievement }) {
+  console.log(data);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

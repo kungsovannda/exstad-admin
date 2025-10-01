@@ -11,6 +11,7 @@ import { MoreHorizontal } from "lucide-react";
 import React from "react";
 
 export default function ProvinceCellAction({ data }: { data: Province }) {
+  console.log(data);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

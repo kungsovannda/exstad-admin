@@ -4,9 +4,7 @@ import { DataTable } from "@/components/table/data-table";
 import { useDataTable } from "@/hooks/use-data-table";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
-// import { DataTablePagination } from "@/components/table/data-table-pagination";
-// import { DataTableToolbar } from "@/components/table/data-table-toolbar";
-// import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter";
+import { DataTableToolbar } from "./scholar-table/data-table-toolbar";
 
 interface ScholarTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -38,7 +36,7 @@ export function ScholarTable<TData, TValue>({
     enableRowSelection: true,
   });
 
-  // Get stable reference to row selection state
+  
   const rowSelection = table.getState().rowSelection;
 
   const rowSelectionString = useMemo(
@@ -46,7 +44,7 @@ export function ScholarTable<TData, TValue>({
     [rowSelection]
   );
 
-  // Watch for selection changes
+ 
   useEffect(() => {
     if (onSelectionChange) {
       const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -55,7 +53,6 @@ export function ScholarTable<TData, TValue>({
         .map((row) => {
           const rowData = row.original as TData;
 
-          // Type-safe access to UUID field
           const uuid =
             (rowData as Record<string, unknown>).uuid ??
             (rowData as Record<string, unknown>).scholarUuid ??
@@ -69,5 +66,7 @@ export function ScholarTable<TData, TValue>({
     }
   }, [rowSelectionString, onSelectionChange, table]);
 
-  return <DataTable table={table}></DataTable>;
+  return <DataTable table={table}>
+    <DataTableToolbar table={table} placeholder="Search scholars..." />
+  </DataTable>;
 }

@@ -92,7 +92,7 @@ export const certificateApi = createApi({
 
     getCertificateByOpeningProgram: builder.query<
       CertificateResponse[],
-      string // openingProgramUuid
+      string 
     >({
       query: (openingProgramUuid) => ({
         url: `/certificates/${openingProgramUuid}`,

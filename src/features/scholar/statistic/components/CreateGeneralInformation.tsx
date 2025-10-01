@@ -44,14 +44,15 @@ import { useGetCurrentAddressesQuery } from "@/features/current-address/currentA
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
 import { cn } from "@/lib/utils";
+import { ScholarGeneralInformation } from "@/types/scholar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, CloudUpload, Paperclip } from "lucide-react";
+import { Calendar as CalendarIcon, CloudUpload } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ScholarGeneralInformation } from "./AddScholar";
 
 const formSchema = z.object({
   englishName: z.string().min(1).min(5).max(100),
@@ -59,7 +60,7 @@ const formSchema = z.object({
   gender: z.string(),
   dob: z.date(),
   phoneNumber: z.string(),
-  familyPhoneNumber: z.string(),
+  phoneFamilyNumber: z.string(),
   university: z.string(),
   province: z.string(),
   currentAddress: z.string(),
@@ -68,8 +69,10 @@ const formSchema = z.object({
 });
 
 export default function CreateGeneralInformation({
+  data,
   handleOnSubmit,
 }: {
+  data?: ScholarGeneralInformation;
   handleOnSubmit: (data: ScholarGeneralInformation) => void;
 }) {
   const [files, setFiles] = useState<File[] | null>(null);
@@ -77,13 +80,18 @@ export default function CreateGeneralInformation({
   const dropZoneConfig = {
     maxFiles: 5,
     maxSize: 1024 * 1024 * 4,
-    multiple: true,
+    multiple: false,
   };
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      dob: new Date(),
-    },
+    defaultValues: data
+      ? {
+          ...data,
+          dob: data.dob ? new Date(data.dob) : new Date(),
+        }
+      : {
+          dob: new Date(),
+        },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -249,7 +257,7 @@ export default function CreateGeneralInformation({
           <div className="col-span-6">
             <FormField
               control={form.control}
-              name="familyPhoneNumber"
+              name="phoneFamilyNumber"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start">
                   <FormLabel>Family Phone Number</FormLabel>
@@ -446,7 +454,7 @@ export default function CreateGeneralInformation({
         <FormField
           control={form.control}
           name="avatar"
-          render={({ field }) => (
+          render={() => (
             <FormItem>
               <FormLabel>Avatar</FormLabel>
               <FormControl>
@@ -475,8 +483,20 @@ export default function CreateGeneralInformation({
                     {files &&
                       files.length > 0 &&
                       files.map((file, i) => (
-                        <FileUploaderItem key={i} index={i}>
-                          <Paperclip className="h-4 w-4 stroke-current" />
+                        <FileUploaderItem
+                          className="h-16 overflow-hidden flex items-start justify-start"
+                          key={i}
+                          index={i}
+                        >
+                          <figure className="h-16 aspect-square rounded-sm overflow-hidden object-center">
+                            <Image
+                              className="rounded-sm"
+                              width={64}
+                              height={64}
+                              src={URL.createObjectURL(file)}
+                              alt={file.name}
+                            />
+                          </figure>
                           <span>{file.name}</span>
                         </FileUploaderItem>
                       ))}

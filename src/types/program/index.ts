@@ -1,83 +1,131 @@
 import { openingProgramType } from "../opening-program";
 // shortCourseType.ts
-export type HighlightType = {
-  label: string;
-  value: string;
-  desc: string;
-};
-type Level = "Beginner" | "Intermediate" | "Advanced";
-export type programType = {
-  id: number;
-  program_type:string;
-  bg: string;
+export type MasterProgramType = {
+  uuid: string;
+  programType:programType;
+  bgColor: string;
   title: string;
   slug:string;
   subtitle: string;
   description: string;
-  level:Level;
-  image: string;
-  thumbnail:string;
+  programLevel:Level;
+ posterUrl:string;
+  thumbnailUrl:string;
   price: string;
   duration: string;
   scholarship?: number;
   discount: string;
   deadline:string;
   totalslot:number;
-  programOverview: programOverviewType[];
-  learningOutcome: programLearningOutcomeType[];
-  courseRequirement: courseRequirementType[];
+  programOverviews: programOverviewType[];
+  learningOutcomes: LearningOutcomeType[];
+  requirements: RequirementsType[];
   highlights: HighlightType[];   // 👈 new
-  // curriculum: curriculumType[]; // 👈 new
-  openingprogram: openingProgramType[]; // 👈 new
-  faq:FaqDataType[];
-  curriculum:curriculumDataType[];
-  visibility: "public" | "private";
+  curriculum: CurriculumType[]; // 👈 new
+  openingprograms: openingProgramType[]; // 👈 new
+  faq:FaqItem[];
+  curricula:CurriculumType[];
+  visibility: visibility
   status: "draft" | "active" | "archived"
 };
 
+export type MasterProgramCreate = {
+  title: string;
+  programType: string;
+  bgColor?: string;
+  slug?: string;
+  subtitle?: string;
+  description?: string;
+  programLevel?: Level;
+  posterUrl:string;
+  // image?: string;
+  thumbnailUrl?: string;
+  price?: number;
+  duration?: string;
+  scholarship?: number;
+  discount?: string;
+  deadline?: string;
+  totalslot?: number;
+  programOverviews?: programOverviewType[];
+  learningOutcomes?: LearningOutcomeType[];
+  requirements?: RequirementsType[];
+  highlights?: HighlightType[];
+  curriculum?: CurriculumType[];
+  openingprograms?: openingProgramType[];
+  faq?: FaqItem[];
+  // curricula?: CurriculumDataType[];
+  visibility?: "public" | "private";
+  status?: "draft" | "active" | "archived";
+};
+
+export type HighlightType = {
+  label: string;
+  value: string;
+  desc: string;
+};
+export type HighlightPayload = Omit<HighlightType, "id">;
+type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
+type  visibility="public" | "private";
+type programType= "SHORT_COURSE" |"SCHOLARSHIP"
+
+
+
 export type programOverviewType = {
-    id: number;
     title: string;
     description: string;
 }
 
-export type programLearningOutcomeType = {
-    id:number;
+export type programOverviewsPayload = Omit<programOverviewType, "id">;
+
+export type LearningOutcomeType = {
+    id:string;
     title:string;
     subtitle:string;
     description:string[];
 }
 
 
-export type courseRequirementType = {
-    id:number;
+export type  RequirementsType = {
+    id:string;
     title:string;
     subtitle:string;
     description:string[];
 }
 
 
-export type FaqType = {
-    id:number;
+export type FaqSection = {
+    id:string;
     question:string;
     answer:string;
 }
-export type FaqDataType = {
-  id:number;
+export type FaqItem = {
   title:string;
-  faqs:FaqType[];
+  faqs:FaqSection[];
 }
 
-export type curriculumType = {
-    id:number;
+export type CurriculumType = {
+    id:string;
     order:number;
     title:string;
     subtitle:string;
     description:string[];
 }
 
-export  type curriculumDataType = {
-  id:number;
-  title:string;
-  curriculumType:curriculumType[];
-}
+// export  type CurriculumDataType = {
+//   id:number;
+//   title:string;
+//   curriculumType:CurriculumType[];
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -10,23 +10,17 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import {
+  CreateScholar,
+  ScholarCredentialInformation,
+  ScholarGeneralInformation,
+  toScholarGender,
+} from "@/types/scholar";
 import { useState } from "react";
 import CreateCredentialInformation from "./CreateCredentialInformation";
 import CreateGeneralInformation from "./CreateGeneralInformation";
-
-export type ScholarGeneralInformation = {
-  englishName: string;
-  khmerName: string;
-  gender: string;
-  dob: string;
-  phoneNumber: string;
-  familyPhoneNumber: string;
-  university: string;
-  province: string;
-  currentAddress: string;
-  isPublic?: boolean;
-  avatar?: string;
-};
+import { useCreateScholarMutation } from "../../scholarApi";
+import { toast } from "sonner";
 
 export default function AddScholar({
   open,
@@ -36,13 +30,46 @@ export default function AddScholar({
   onOpenChange: (status: boolean) => void;
 }) {
   const [info, setInfo] = useState("general");
+  const [isOpen, setIsOpen] = useState(open);
+  const [generalData, setGeneralData] =
+    useState<ScholarGeneralInformation | null>(null);
+  const [credentialData, setCredentialData] = useState<
+    Partial<ScholarCredentialInformation>
+  >({});
+
+  const [createScholar] = useCreateScholarMutation();
 
   const handleNext = (data: ScholarGeneralInformation) => {
     window.alert(data);
+    setGeneralData(data);
     setInfo("credential");
   };
+
+  const handleSubmit = (data: ScholarCredentialInformation) => {
+    setCredentialData(data);
+    if (!generalData) return;
+    const scholar: CreateScholar = {
+      ...data,
+      ...generalData,
+      gender: toScholarGender(generalData.gender.toLowerCase()),
+      isPublic: generalData.isPublic ?? true,
+    };
+    console.log(scholar);
+    toast.promise(createScholar(scholar).unwrap(), {
+      loading: "Creating...",
+      success: () => {
+        setIsOpen(false);
+        return "Scholar created successfully!";
+      },
+      error: (error) => {
+        setIsOpen(false);
+        return `Failed to create scholar: ${error.message}`;
+      },
+    });
+  };
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={isOpen} onOpenChange={onOpenChange}>
       <DrawerContent className="h-screen min-h-screen">
         <DrawerHeader className="mx-auto max-w-3xl mt-4">
           <DrawerTitle>
@@ -84,10 +111,17 @@ export default function AddScholar({
           <div className="pb-10 overflow-hidden">
             <Tabs value={info} onValueChange={setInfo} defaultValue={info}>
               <TabsContent value="general">
-                <CreateGeneralInformation handleOnSubmit={handleNext} />
+                <CreateGeneralInformation
+                  data={generalData ?? undefined}
+                  handleOnSubmit={handleNext}
+                />
               </TabsContent>
               <TabsContent value="credential">
-                <CreateCredentialInformation />
+                <CreateCredentialInformation
+                  handleOnChange={setCredentialData}
+                  data={credentialData ?? undefined}
+                  handleSubmit={handleSubmit}
+                />
               </TabsContent>
             </Tabs>
             <DrawerFooter className="mx-auto flex flex-row justify-end items-start w-full px-0 max-w-3xl">
@@ -104,8 +138,6 @@ export default function AddScholar({
               <Button
                 onClick={() => setInfo("general")}
                 className={info === "general" ? "hidden" : ""}
-                form="scholar-general-information-form"
-                type="submit"
                 variant={"outline"}
               >
                 Previous

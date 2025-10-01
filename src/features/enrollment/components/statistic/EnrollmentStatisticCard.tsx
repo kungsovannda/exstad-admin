@@ -15,7 +15,9 @@ export function EnrollmentStatisticCard() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">12,847</div>
-          <p className="text-xs text-muted-foreground">+2.1% from last month</p>
+          <p className="text-xs text-muted-foreground">
+            Male: 800, Female: 900
+          </p>
         </CardContent>
       </Card>
 

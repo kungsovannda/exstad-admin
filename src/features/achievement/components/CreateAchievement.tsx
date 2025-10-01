@@ -97,7 +97,7 @@ export default function CreateAchievement({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 w-full grid grid-cols-2  gap-4 mx-auto "
+            className="space-y-8 w-full grid grid-cols-2 gap-4 mx-auto "
           >
             <div className="flex flex-col space-y-5">
               <FormField
@@ -193,11 +193,11 @@ export default function CreateAchievement({
               />
             </div>
 
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col h-fit space-y-5">
               <FormField
                 control={form.control}
                 name="icon"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>LOGO</FormLabel>
                     <FormControl>
@@ -244,12 +244,11 @@ export default function CreateAchievement({
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="h-full flex flex-col items-start">
                     <FormLabel>Description</FormLabel>
-                    <FormControl>
+                    <FormControl className="h-full">
                       <Textarea
                         placeholder="EXSTAD is the amazing project"
-                        className="resize-none"
                         {...field}
                       />
                     </FormControl>

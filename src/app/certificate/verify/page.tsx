@@ -1,21 +1,20 @@
 "use client";
 import { Heading } from "@/components/Heading";
-import { CloudUpload, Paperclip, X } from "lucide-react";
-import React, { useState, useCallback, useMemo } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CloudUpload, Paperclip, X } from "lucide-react";
 import Image from "next/image";
+import React, { useCallback, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   FileInput,
   FileUploader,
@@ -31,24 +30,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-} from "@/components/ui/alert-dialog";
-import { ScholarTable } from "@/features/certificate/components/data-table";
-import { scholarColumn } from "@/features/certificate/components/scholar-table/columns";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   useGetCertificateByScholarAndOpeningProgramQuery,
   useVerifyCertificateMutation,
 } from "@/features/certificate/certificateApi";
+import { ScholarTable } from "@/features/certificate/components/data-table";
+import { scholarColumn } from "@/features/certificate/components/scholar-table/columns";
+import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/scholarApi";
 import { ScholarForCertificateType } from "@/types/certificate";
 import { Scholar } from "@/types/scholar";
+import { toast } from "sonner";
 
 // Define the API response interface locally
 interface ScholarApiResponse {
@@ -250,7 +250,7 @@ export default function VerifiedPage() {
 
       setShowCertificateDialog(false);
 
-      // Since the response is CertificateResponse, we can access all its fields
+      
       if (result.isVerified) {
         toast.success(
           <div className="space-y-2">
@@ -411,7 +411,7 @@ export default function VerifiedPage() {
                     <div className="space-y-2">
                       <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
                         {files?.[0]?.type === "application/pdf" ? (
-                          // Enhanced PDF Preview with clean display
+                          
                           <div className="w-full h-full relative">
                             <object
                               data={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-fit`}
