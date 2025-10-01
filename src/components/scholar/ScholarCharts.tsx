@@ -229,20 +229,16 @@ export default function ScholarCharts() {
       ? scholars.filter((s) => s.gender === ScholarGender.FEMALE)
       : [];
     const totalMale = Array.isArray(scholars)
-      ? scholars?.filter((s) => s.gender === ScholarGender.MALE)
+      ? scholars.filter((s) => s.gender === ScholarGender.MALE)
       : [];
+    const totalOther = Array.isArray(scholars)
+      ? scholars.length - totalFemale.length - totalMale.length
+      : 0;
+
     setGenderDataChart([
       { gender: "Female", count: totalFemale.length, fill: "var(--chart-1)" },
       { gender: "Male", count: totalMale.length, fill: "var(--chart-2)" },
-      {
-        gender: "Other",
-        count: Math.abs(
-          Array.isArray(scholars)
-            ? scholars.length
-            : 0 - totalFemale.length - totalMale.length
-        ),
-        fill: "var(--chart-3)",
-      },
+      { gender: "Other", count: totalOther, fill: "var(--chart-3)" },
     ]);
   }, [scholars]);
 
