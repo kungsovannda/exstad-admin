@@ -1,12 +1,10 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Option } from "@/types/data-table";
 import { Scholar } from "@/types/scholar";
+import { formatTitle } from "@/utils/formatTitle";
 import { ColumnDef } from "@tanstack/react-table";
 import ScholarCellAction from "./cell-action";
-import { formatTitle } from "@/utils/formatTitle";
-import { Option } from "@/types/data-table";
-import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
-import { useProvinceFilterOptions } from "@/hooks/use-province-options";
 
 export const scholarColumns = (
   provinceOptions: Option[]
@@ -73,11 +71,15 @@ export const scholarColumns = (
         DROPPED: { bg: "bg-[#FDECEC]", text: "text-[#B32121]" },
       } as const;
 
-      const key = status as unknown as keyof typeof statusColors;
+      const key = status?.toUpperCase() as keyof typeof statusColors;
+      const color = statusColors[key] ?? {
+        bg: "bg-gray-100",
+        text: "text-gray-800",
+      };
 
       return (
         <span
-          className={`inline-flex items-center rounded-sm px-2 py-1 text-sm ${statusColors[key].bg} ${statusColors[key].text}`}
+          className={`inline-flex items-center rounded-sm px-2 py-1 text-sm ${color.bg} ${color.text}`}
         >
           {formatTitle(status)}
         </span>
