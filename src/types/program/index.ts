@@ -9,7 +9,7 @@ export type MasterProgramType = {
   subtitle: string;
   description: string;
   programLevel:Level;
- posterUrl:string;
+  posterUrl:string;
   thumbnailUrl:string;
   price: string;
   duration: string;
@@ -25,8 +25,9 @@ export type MasterProgramType = {
   openingprograms: openingProgramType[]; // 👈 new
   faq:FaqItem[];
   curricula:CurriculumType[];
-  visibility: visibility
-  status: "draft" | "active" | "archived"
+  visibility: visibility;
+  status: "draft" | "active" | "archived";
+  isDeleted:boolean
 }; 
 
 export type MasterProgramCreate = {
@@ -54,8 +55,10 @@ export type MasterProgramCreate = {
   openingprograms?: openingProgramType[];
   faq?: FaqItem[];
   // curricula?: CurriculumDataType[];
-  visibility?: "public" | "private";
+  visibility?: visibility;
   status?: "draft" | "active" | "archived";
+    isDeleted:boolean
+
 };
 
 export type HighlightType = {
@@ -65,7 +68,7 @@ export type HighlightType = {
 };
 export type HighlightPayload = Omit<HighlightType, "id">;
 type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
-type  visibility="public" | "private";
+type visibility="PUBLIC" | "PRIVATE";  
 type programType= "SHORT_COURSE" |"SCHOLARSHIP"
 
 

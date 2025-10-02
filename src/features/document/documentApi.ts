@@ -12,7 +12,6 @@ export const documentApi = createApi({
       query: (body) => {
         const formData = new FormData();
         formData.append("file", body.file);
-
         return {
           url: `/documents/${body.programSlug}/${body.gen}/${
             body.documentType

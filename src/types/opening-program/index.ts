@@ -4,12 +4,14 @@ export type openingProgramType = {
   uuid: string;
   title: string;
   generation: number;
+  posterUrl:string;
   thumbnail: string;
   slug: string;
   originalFee: number;
   price: number;
   scholarship: number;
   duration: string;
+  deadline: string;
   curriculumPdfUri: string;
   totalSlot: number;
   qrCodeUrl: string;
@@ -36,11 +38,13 @@ export type openingProgramCreate = {
   title: string;
   generation: number;
   thumbnail: string;
+  posterUrl:string;
   slug: string;
   originalFee: number;
   price: number;
   scholarship: number;
   duration: string;
+  deadline: string;
   curriculumPdfUri?: string; // optional if backend allows
   totalSlot: number;
   qrCodeUrl: string;
@@ -69,6 +73,7 @@ export type TimelineType = {
 
 export type ClassPayload = {
   openingProgramUuid: string;
+  openingProgramName:string;
   shift: "MORNING" | "AFTERNOON" | "EVENING";
   instructor: string;
   startTime: string; // HH:mm:ss

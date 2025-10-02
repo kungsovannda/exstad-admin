@@ -223,6 +223,36 @@ export const masterProgramColumns = (
     //   accessorKey: "slug",
     //   header: "Slug",
     // },
+    //  {
+    //   accessorKey: "status",
+    //   header: "Status",
+    //   enableColumnFilter:true,
+    //   meta:{
+    //     variant: "select",
+    //     placeholder: "Filter Status",
+    //     label: "Status",
+    //     options: statusOptions,
+    //   },
+    //   cell: ({ row }) => {
+    //     const status = row.original.status; // 👈 directly from backend
+    //     if (!status) return "N/A";
+    //         const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+    //     const bgClass =
+    //       status === "CLOSED"
+    //         ? "bg-[#FDECEC] text-[#B32121]"
+    //         : status === "ACHIEVED"
+    //         ? "bg-yellow-400 text-white"
+    //         : "bg-[#E6F4EA] text-[#1E7D34]"; // Active
+
+    //     return (
+    //       <span
+    //         className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}
+    //       >
+    //     {formattedStatus}
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       accessorKey: "visibility",
       header: "Visibility",
@@ -234,19 +264,27 @@ export const masterProgramColumns = (
         options: visibilityOptions,
       },
       cell: ({ row }) => {
-        const visibility = row.original.visibility;
-        const bgClass =
-          visibility === "public"
-            ? "bg-[#E6F4EA] text-[#1E7D34]"
-            : "bg-[#FDECEC] text-[#B32121]";
-        return (
-          <span
-            className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}
-          >
-            {visibility}
-          </span>
-        );
-      },
+  const visibility = row.original.visibility;
+  const formattedVisibility = visibility
+    ? visibility.charAt(0).toUpperCase() + visibility.slice(1).toLowerCase()
+    : "Unknown";
+
+  const bgClass =
+    visibility === "PUBLIC"
+      ? "bg-[#E6F4EA] text-[#1E7D34]"
+      : visibility === "PRIVATE"
+      ? "bg-[#FDECEC] text-[#B32121]"
+      : "bg-gray-100 text-gray-500"; // fallback style for null/undefined
+
+  return (
+    <span
+      className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}
+    >
+      {formattedVisibility}
+    </span>
+  );
+},
+
     },
     {
       id: "actions",

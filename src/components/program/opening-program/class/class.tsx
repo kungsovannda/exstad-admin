@@ -9,27 +9,31 @@ import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { ClassColumns } from "@/features/opening-program/components/class/table/classColumn";
 import { ClassPayload, ClassType } from "@/types/opening-program";
 import {
-  useGetAllClassesQuery,
+  useGetClassesByOpeningProgramQuery,
   useCreateClassMutation,
   useUpdateClassMutation,
   useDeleteClassMutation,
 } from "@/features/opening-program/components/class/classApi";
 
-export default function ClassAdmin({ openingProgramUuid }: { openingProgramUuid: string }) {
-  // Fetch all classes
-  const { data: classes = [], isLoading, isFetching, isError } =
-    useGetAllClassesQuery(undefined, { refetchOnMountOrArgChange: true });
+interface ClassAdminProps {
+  openingProgramTitle: string; // for fetching
+  openingProgramUuid: string;  // for creating/updating
+}
 
-  // RTK Query mutations
+export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: ClassAdminProps) {
+  const { data: classes = [], isLoading, isFetching, isError } =
+    useGetClassesByOpeningProgramQuery(openingProgramTitle, {
+      skip: !openingProgramTitle,
+      refetchOnMountOrArgChange: true,
+    });
+
   const [createClass] = useCreateClassMutation();
   const [updateClass] = useUpdateClassMutation();
   const [deleteClass] = useDeleteClassMutation();
-
-  // Modal state
+ 
   const [open, setOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<ClassType | null>(null);
 
-  // Columns wired for edit/delete actions
   const columns = ClassColumns(classes, {
     onEdit: (classRow: ClassType) => {
       setEditTarget(classRow);
@@ -46,43 +50,39 @@ export default function ClassAdmin({ openingProgramUuid }: { openingProgramUuid:
     },
   });
 
-  // Handle create/update submission
-const handleSubmitClass = async (data: ClassFormValues) => {
-  try {
-    const payload: ClassPayload = {
-      openingProgramUuid, // <-- use from props
-      shift: data.shift.toUpperCase() as "MORNING" | "AFTERNOON" | "EVENING",
-      instructor: data.instructor,
-      startTime: data.startTime,
-      endTime: data.endTime,
-      isWeekend: data.isWeekend,
-      totalSlot: data.totalSlot,
-      room: data.room,
-      classCode: data.classCode,
-      telegram: data.telegram,
-    };
+  const handleSubmitClass = async (data: ClassFormValues) => {
+    try {
+      const payload: ClassPayload = {
+        openingProgramUuid,              // ✅ required by backend
+        openingProgramName: openingProgramTitle, // optional, for frontend
+        shift: data.shift.toUpperCase() as "MORNING" | "AFTERNOON" | "EVENING",
+        instructor: data.instructor,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        isWeekend: data.isWeekend,
+        totalSlot: data.totalSlot,
+        room: data.room,
+        classCode: data.classCode,
+        telegram: data.telegram,
+      };
 
-    if (editTarget) {
-      await updateClass({ uuid: editTarget.uuid, body: payload }).unwrap();
-    } else {
-      await createClass(payload).unwrap();
+      if (editTarget) {
+        await updateClass({ uuid: editTarget.uuid, body: payload }).unwrap();
+      } else {
+        await createClass(payload).unwrap();
+      }
+
+      setOpen(false);
+      setEditTarget(null);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to save class: ${message}`);
     }
-
-    setOpen(false);
-    setEditTarget(null);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    toast.error(`Failed to save class: ${message}`);
-  }
-};
-
-
-  if (isLoading) return <div>Loading classes...</div>;
-  if (isError) return <div className="text-destructive">Failed to load classes</div>;
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header + Add Button */}
+      {/* Header + Add Button (always visible) */}
       <div className="flex justify-between items-center gap-4">
         <h1 className="text-lg font-semibold">Classes</h1>
         <ClassModal
@@ -97,18 +97,22 @@ const handleSubmitClass = async (data: ClassFormValues) => {
         />
       </div>
 
-      {/* Table or Skeleton */}
-      {isFetching ? (
+      {/* Loading skeleton */}
+      {isLoading || isFetching ? (
         <DataTableSkeleton columnCount={7} />
-      ) : classes.length === 0 ? (
-        <p>No classes yet. Add one to get started!</p>
       ) : (
-        <ClassDataTable
-          data={classes}
-          totalItems={classes.length}
-          columns={columns}
-        />
+        <>
+          {/* No classes message */}
+          {classes.length === 0 ? (
+            <p>No classes yet. Add one to get started!</p>
+          ) : (
+            <ClassDataTable data={classes} totalItems={classes.length} columns={columns} />
+          )}
+        </>
       )}
+
+      {/* Error handling */}
+      {isError && <p className="text-destructive">Failed to load classes</p>}
     </div>
   );
 }

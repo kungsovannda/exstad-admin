@@ -40,7 +40,7 @@ export const programFormSchema = z.object({
     .union([z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]), z.undefined()])
     .refine(val => val !== undefined, { message: "Program level is required" }),
   visibility: z
-    .union([z.enum(["public", "private"]), z.undefined()])  
+    .union([z.enum(["PUBLIC", "PRIVATE"]), z.undefined()])  
     .refine(val => val !== undefined, { message: "Visibility is required" }),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
@@ -48,6 +48,7 @@ export const programFormSchema = z.object({
   posterUrl: z.string().min(1, { message: "Poster is required" }),
   bgColor: z.string().min(1, { message: "Theme color is required" }),
   slug: z.string(),
+  isDeleted: z.boolean()
 
 });
 
@@ -73,6 +74,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
       posterUrl: "",
       bgColor: "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
       slug: "",
+      isDeleted:false,
     },
   });
 
@@ -239,8 +241,8 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="public">public</SelectItem>
-                      <SelectItem value="private">private</SelectItem>
+                    <SelectItem value="PUBLIC">PUBLIC</SelectItem>
+                    <SelectItem value="PRIVATE">PRIVATE</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>

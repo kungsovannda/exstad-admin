@@ -15,6 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { useDeleteOpeningProgramMutation } from "../../openingProgramApi";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ActionsCellProps {
   openingprogram: openingProgramType;
@@ -56,11 +57,12 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DeleteModal
+      <ModalDelete
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={openingprogram.title}
-        onConfirm={handleDelete}
+        title={"Delete Opening Program"}
+        description={`Are you sure you want to delete ${openingprogram.programName}? This action can not be undone `}
+        onDelete={handleDelete}
       />
     </>
   );

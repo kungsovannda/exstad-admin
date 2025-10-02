@@ -54,7 +54,7 @@ export const learningOutcomesApi = createApi({
     //   }
     // >({
     //   query: ({ programUuid, reqIndex, sectionData, isEdit, sectionIndex }) => ({
-    //     url: `/api/v1/programs/${programUuid}/learning-outcomes/sections`,
+    //     url: `/programs/${programUuid}/learning-outcomes/sections`,
     //     method: "PUT",
     //     body: { reqIndex, sectionData, isEdit, sectionIndex },
     //   }),

@@ -14,7 +14,7 @@ export const universityApi = createApi({
   endpoints: (builder) => ({
     // GET all universities
     getAllUniversities: builder.query<University[], void>({
-      query: () => "/api/v1/universities",
+      query: () => "/universities",
       transformResponse: (response: { universities?: University[] }) =>
         response.universities ?? [], // always return an array
       providesTags: (result) =>
@@ -28,14 +28,14 @@ export const universityApi = createApi({
 
     // GET a single university by UUID
     getUniversityByUuid: builder.query<University, string>({
-      query: (uuid) => `/api/v1/universities/${uuid}`,
+      query: (uuid) => `/universities/${uuid}`,
       providesTags: (result, error, uuid) => [{ type: "University", id: uuid }],
     }),
 
     // CREATE a new university
     createUniversity: builder.mutation<University, UniversityCreate>({
       query: (body) => ({
-        url: "/api/v1/universities",
+        url: "/universities",
         method: "POST",
         body,
       }),
@@ -48,7 +48,7 @@ export const universityApi = createApi({
       { uuid: string; body: UniversityUpdate }
     >({
       query: ({ uuid, body }) => ({
-        url: `/api/v1/universities/${uuid}`,
+        url: `/universities/${uuid}`,
         method: "PATCH",
         body,
       }),
@@ -58,7 +58,7 @@ export const universityApi = createApi({
     // DELETE a university
     deleteUniversity: builder.mutation<void, string>({
       query: (uuid) => ({
-        url: `/api/v1/universities/${uuid}`,
+        url: `/universities/${uuid}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, uuid) => [

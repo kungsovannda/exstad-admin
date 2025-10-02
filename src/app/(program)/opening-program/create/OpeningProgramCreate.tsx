@@ -26,6 +26,16 @@ export default function OpeningProgramCreate() {
           ? values.thumbnail
           : "https://example.com/thumbnails/fsd.png";
 
+      const posterUrl =
+        values.posterUrl && values.posterUrl.startsWith("http")
+          ? values.posterUrl
+          : "https://example.com/thumbnails/fsd.png";
+
+      const qrCodeUrl = 
+        values.qrCodeUrl && values.qrCodeUrl.startsWith("http")
+          ? values.qrCodeUrl
+          : "https://example.com/thumbnails/fsd.png"
+
       const curriculumPdfUri = values.curriculumPdfUri || "";
 
       const payload: openingProgramCreate = {
@@ -39,10 +49,12 @@ export default function OpeningProgramCreate() {
         duration: values.duration || "N/A",
         curriculumPdfUri,
         thumbnail: thumbnailUrl,
+        posterUrl: posterUrl,
         totalSlot,
         telegramGroup: values.telegramGroup || "",
         status: "OPEN",
-        qrCodeUrl: "https://example.com/qrcodes/fsd.png",
+        qrCodeUrl: qrCodeUrl,
+        deadline: values.deadline,
       };
 
       console.log("Submitting payload:", payload);
