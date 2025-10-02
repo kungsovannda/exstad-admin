@@ -38,8 +38,7 @@ useEffect(() => {
       }))
     );
   }
-}, [timelines, localTimelines.length]);
-
+}, [timelines]); 
 
   // Convert TimelineType to API payload
   const toPayload = (t: TimelineType): TimelinePayload => ({

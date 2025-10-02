@@ -22,7 +22,7 @@ export default function ComingSoon() {
                 Something amazing is on the way
               </h2>
               <p className="text-slate-600">
-                We're working hard to bring you an incredible dashboard
+                We&apos;re working hard to bring you an incredible dashboard
                 experience. Stay tuned for the launch!
               </p>
             </div>
