@@ -1,34 +1,52 @@
-import { Clock } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 
 export default function ComingSoon() {
   return (
-    <div className="h-content flex items-center justify-center p-4">
-      <Card className="w-full max-w-md border-0 shadow-lg">
-        <CardContent className="p-8">
-          {/* Main Content */}
-          <div className="text-center space-y-6">
-            {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200">
-              <Clock className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">
-                Coming Soon
+    <div className="h-content flex items-center justify-center p-16">
+      <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+        <div className="flex-1 text-center md:text-left space-y-6">
+          <div className="space-y-2">
+            <div className="inline-block px-3 py-1 bg-primary rounded-full">
+              <span className="text-md font-medium text-secondary">
+                Coming soon
               </span>
             </div>
-
-            {/* Heading */}
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold ">
-                Something amazing is on the way
-              </h2>
-              <p className="text-slate-600">
-                We&apos;re working hard to bring you an incredible dashboard
-                experience. Stay tuned for the launch!
-              </p>
-            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="space-y-4">
+            <h2 className="text-7xl leading-[120%] font-medium">
+              We&apos;re cooking something special! 🍳
+            </h2>
+            <p className="text-lg text-slate-600 leading-relaxed">
+              Our developers are currently in the kitchen, mixing the perfect
+              blend of code and creativity. We promise it&apos;ll be worth the
+              wait - no burnt features here!
+            </p>
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <div className="relative overflow-hidden rounded-lg shadow-xl">
+            <Image
+              unoptimized
+              src="/team.jpg"
+              alt="Our team cooking up something special"
+              width={600}
+              height={400}
+              className="w-full h-auto transform hover:scale-105 transition-transform duration-700 ease-out"
+              style={{
+                aspectRatio: "4/3",
+                objectFit: "cover",
+              }}
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-600/5 mix-blend-overlay"></div>
+
+            <div className="absolute -top-6 -right-6 w-24 h-24 bg-yellow-400/10 rounded-full blur-xl"></div>
+            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-blue-400/10 rounded-full blur-xl"></div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

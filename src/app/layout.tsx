@@ -11,6 +11,7 @@ import AuthProvider from "../components/layout/AuthProvider";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
 import "./globals.css";
 import "./theme.css";
+import { SessionWatcher } from "./SessionWatcher";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -72,6 +73,7 @@ export default async function RootLayout({
         )}
       >
         <AuthProvider>
+          <SessionWatcher />
           <NuqsAdapter>
             <ThemeProvider
               attribute="class"
