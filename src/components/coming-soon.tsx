@@ -39,11 +39,6 @@ export default function ComingSoon() {
                 objectFit: "cover",
               }}
             />
-
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-600/5 mix-blend-overlay"></div>
-
-            <div className="absolute -top-6 -right-6 w-24 h-24 bg-yellow-400/10 rounded-full blur-xl"></div>
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-blue-400/10 rounded-full blur-xl"></div>
           </div>
         </div>
       </div>
