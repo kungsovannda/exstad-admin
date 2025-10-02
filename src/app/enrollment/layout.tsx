@@ -65,7 +65,10 @@ const groups = [
 function EnrollmentSidebar() {
   const pathname = usePathname();
   return (
-    <Sidebar collapsible="icon" className="border-r static">
+    <Sidebar
+      collapsible="icon"
+      className="border-r static h-content overflow-y-hidden"
+    >
       <SidebarContent>
         {groups.map((group) => (
           <SidebarGroup key={group.title}>
@@ -100,20 +103,20 @@ export default function EnrollmentLayout({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <main className="flex flex-row h-screen">
+    <main className="flex flex-row h-content overflow-y-hidden">
       <SidebarProvider open={open} defaultOpen={open}>
         <div
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
-          className="flex"
+          className="flex h-content "
         >
           <EnrollmentSidebar />
         </div>
         <ScrollArea
           scrollHideDelay={0}
-          className="h-screen max-h-screen w-full overflow-x-hidden "
+          className="h-content w-full overflow-x-hidden "
         >
-          <main className="p-5 h-fit">
+          <main className="p-5 h-content">
             <Suspense fallback={<Loader />}>{children}</Suspense>
           </main>
         </ScrollArea>

@@ -1,10 +1,5 @@
-import { Button } from "@/components/ui/button";
-import React from "react";
+import ComingSoon from "@/components/coming-soon";
 
 export default function Page() {
-  return (
-    <div>
-      <Button>Hello</Button>
-    </div>
-  );
+  return <ComingSoon />;
 }

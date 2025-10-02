@@ -1,17 +1,16 @@
 "use client";
 
-import * as React from "react";
 import {
   Award,
   BookOpen,
   Bot,
   FileText,
   GraduationCap,
-  OmegaIcon,
   Settings,
   User2,
   UserCheck,
 } from "lucide-react";
+import * as React from "react";
 
 import { NavMain } from "@/components/app-sidebar/NavMain";
 import { NavUser } from "@/components/app-sidebar/NavUser";
@@ -25,6 +24,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 import Link from "next/link";
 
 const data = {
@@ -111,7 +111,16 @@ export default function AppSidebar({
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href="/">
-                <OmegaIcon className="!size-5" />
+                {/* <OmegaIcon className="!size-5" /> */}
+                <span>
+                  <Image
+                    width={20}
+                    height={20}
+                    src="/favicon.ico"
+                    alt="logo"
+                    className="h-8 w-8"
+                  />
+                </span>
                 <span className="text-base font-semibold">
                   Experimental STAD
                 </span>

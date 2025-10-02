@@ -20,9 +20,10 @@ export default function LayoutWrapper({
       ) : (
         <SidebarProvider>
           <AppSidebar />
-          <main className="w-full">
-            <ScrollArea className="h-screen">
-              <SiteHeader /> <div className="h-fit">{children}</div>
+          <main className="h-screen overflow-y-hidden w-full">
+            <SiteHeader />
+            <ScrollArea className="h-content">
+              <div className="h-full">{children}</div>
             </ScrollArea>
           </main>
         </SidebarProvider>

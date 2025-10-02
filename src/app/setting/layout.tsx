@@ -53,7 +53,10 @@ const groups = [
 function SettingSidebar() {
   const pathname = usePathname();
   return (
-    <Sidebar collapsible="icon" className="border-r static">
+    <Sidebar
+      collapsible="icon"
+      className="border-r static h-content overflow-y-hidden"
+    >
       <SidebarContent>
         {groups.map((group) => (
           <SidebarGroup key={group.title}>
@@ -88,7 +91,7 @@ export default function SettingLayout({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <main className="flex flex-row h-screen">
+    <main className="flex flex-row h-content overflow-y-hidden">
       <SidebarProvider open={open} defaultOpen={open}>
         <div
           onMouseEnter={() => setOpen(true)}
@@ -97,7 +100,7 @@ export default function SettingLayout({
         >
           <SettingSidebar />
         </div>
-        <ScrollArea className="h-screen w-full overflow-x-hidden">
+        <ScrollArea className="h-content w-full overflow-x-hidden">
           <main className="p-5 mb-10 h-fit">
             <Suspense fallback={<Loader />}>{children}</Suspense>
           </main>
