@@ -29,6 +29,8 @@ import Image from "next/image";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { generateSlug } from "@/services/generate-slug";
 import { ThumbnailUploadField } from "../../master-program/create/ThumbnailUploadField";
+import { PosterUploadField } from "../../master-program/create/PosterUrl";
+import { QrCodeUploadField } from "../../master-program/create/qrCodeUrl";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -41,11 +43,14 @@ export const openingProgramformSchema = z.object({
   price: z.preprocess((val) => Number(val), z.number()),
   totalSlot: z.preprocess((val) => Number(val), z.number().min(1, { message: "Total Slot is required" })),
   duration: z.string().min(1, { message: "Duration is required" }),
+  deadline: z.string().min(1, { message: "Deadline is required" }),
   curriculumPdfUri: z.string().optional(),
   thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
+  posterUrl: z.string().min(1, { message: "Poster is required" }),
   slug: z.string(),
   status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
-  qrCodeUrl: z.string().url({ message: "Valid QR Code URL is required" }),
+  qrCodeUrl: z.string().min(1,{ message: "Valid QR Code URL is required" }),
+  activity: z.string().optional(),  // URI of the uploaded activity
 });
 
 export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>;
@@ -86,8 +91,10 @@ export default function OpeningProgramForm({
       telegramGroup: "",
       totalSlot: 0,
       duration: "",
+      deadline: "",
       curriculumPdfUri: "",
       thumbnail: "",
+      posterUrl:"",
       slug: "",
       status: undefined,
       qrCodeUrl: "",
@@ -246,21 +253,6 @@ export default function OpeningProgramForm({
           )}
         />
 
-        {/* QR Code URL */}
-        <FormField
-          control={form.control}
-          name="qrCodeUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>QR Code URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/qrcode.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Status */}
         <FormField
           control={form.control}
@@ -390,6 +382,19 @@ export default function OpeningProgramForm({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="deadline"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Deadline</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. 18 AUG" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Curriculum PDF */}
         <FormField
@@ -448,6 +453,62 @@ export default function OpeningProgramForm({
             ))}
           </div>
         )}
+
+        {/* Poster */}
+        <FormField
+          control={form.control}
+          name="posterUrl"
+          render={() => {
+            const selectedProgram = masterPrograms.find(
+              (p) => p.uuid === form.watch("programUuid")
+            );
+            const generation = form.watch("generation");
+
+            return (
+              <FormItem>
+                <FormLabel>Poster *</FormLabel>
+                <FormControl>
+                  <div className="space-y-4 mt-2">
+                    <PosterUploadField
+                      form={form}
+                      masterProgram={selectedProgram}
+                      openingProgram={{ generation }}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        {/* QR Code Upload */}
+<FormField
+  control={form.control}
+  name="qrCodeUrl"
+  render={() => {
+    const selectedProgram = masterPrograms.find(
+      (p) => p.uuid === form.watch("programUuid")
+    );
+    const generation = form.watch("generation");
+
+    return (
+      <FormItem>
+        <FormLabel>QR Code *</FormLabel>
+        <FormControl>
+          <QrCodeUploadField
+            form={form}
+            masterProgram={selectedProgram}
+            openingProgram={{ generation }}
+            // onPreviewChange={(url) => setQrPreview(url ? [url] : [])}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
+
 
         <Button type="submit" className="w-fit">
           {submitLabel}

@@ -9,6 +9,7 @@ export default function MasterProgramCreate() {
 const handleSubmit = (values: MasterProgramFormValues) => {
   const payload = {
     ...values,
+    isDeleted: values.isDeleted ?? false, // 👈 enforce false if missing
     slug: generateSlug(values.title),
     programType: values.programType!,   // ✅ TypeScript now knows it's defined
     programLevel: values.programLevel!,
