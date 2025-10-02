@@ -89,6 +89,16 @@ export const certificateApi = createApi({
         };
       },
     }),
+
+    getCertificateByOpeningProgram: builder.query<
+      CertificateResponse[],
+      string 
+    >({
+      query: (openingProgramUuid) => ({
+        url: `/certificates/${openingProgramUuid}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -97,4 +107,5 @@ export const {
   useGenerateMultipleCertificatesMutation,
   useGetCertificateByScholarAndOpeningProgramQuery,
   useVerifyCertificateMutation,
+  useGetCertificateByOpeningProgramQuery,
 } = certificateApi;

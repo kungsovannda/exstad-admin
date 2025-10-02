@@ -16,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
 
 interface ScholarTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

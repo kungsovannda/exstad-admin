@@ -45,8 +45,6 @@ type AddTopicFaqProps = {
 };
 
 export function AddTopicFaq({
-  programUuid,
-  faqIndex,
   onSubmit,
   trigger,
   open,

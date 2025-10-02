@@ -60,67 +60,6 @@ const formSchema = z.object({
   scholarUuid: z.string().min(1, "Please select a scholar"),
 });
 
-// Simple PDF Preview Component - just uses browser's native PDF rendering
-const PDFPreview = ({
-  url,
-  className = "",
-}: {
-  url: string;
-  className?: string;
-}) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  return (
-    <div
-      className={`${className} relative bg-gray-100 rounded overflow-hidden`}
-    >
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-xs text-gray-600">Loading PDF...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Direct PDF embed - simple and reliable */}
-      <object
-        data={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-        type="application/pdf"
-        className="w-full h-full"
-        onLoad={() => setLoading(false)}
-        onError={() => {
-          setLoading(false);
-          setError(true);
-        }}
-      >
-        <embed
-          src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-          type="application/pdf"
-          className="w-full h-full"
-          onLoad={() => setLoading(false)}
-          onError={() => {
-            setLoading(false);
-            setError(true);
-          }}
-        />
-      </object>
-
-      {/* Simple fallback */}
-      {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-          <div className="text-center p-3">
-            <div className="text-3xl mb-2 text-blue-500">📄</div>
-            <p className="text-xs text-gray-700 font-medium">PDF Certificate</p>
-            <p className="text-xs text-gray-500 mt-1">Click to select</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 export default function VerifiedPage() {
   const [selectedProgram, setSelectedProgram] = useState("");
   const [selectedScholar, setSelectedScholar] = useState("");
@@ -165,7 +104,6 @@ export default function VerifiedPage() {
     }
   );
 
-  // Process scholars data without using 'any'
   const scholarsForCertificate: ScholarForCertificateType[] = useMemo(() => {
     let scholarsArray: Scholar[] = [];
 
@@ -227,7 +165,6 @@ export default function VerifiedPage() {
     }
   };
 
-  // Clean up preview URL on component unmount
   React.useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -244,9 +181,11 @@ export default function VerifiedPage() {
     setFiles(null);
   };
 
+  // Enforce single scholar selection
   const handleScholarSelection = useCallback(
     (scholarUuids: string[]) => {
-      const scholarUuid = scholarUuids[0];
+      // Only allow one scholar to be selected - take the first one and ignore the rest
+      const scholarUuid = scholarUuids.length > 0 ? scholarUuids[0] : "";
       setSelectedScholar(scholarUuid);
       form.setValue("scholarUuid", scholarUuid);
     },
@@ -261,10 +200,8 @@ export default function VerifiedPage() {
     );
   };
 
-  // Handle initial verify click - get certificates
   const handleInitialVerify = async () => {
     try {
-      // Validate required fields
       if (!files || files.length === 0) {
         toast.error("Please select a certificate file to verify");
         return;
@@ -292,6 +229,7 @@ export default function VerifiedPage() {
         );
       }
     } catch (error: unknown) {
+      console.log("Error fetching certificates:", error);
       toast.error("An error occurred while fetching certificates");
     }
   };
@@ -312,53 +250,17 @@ export default function VerifiedPage() {
 
       setShowCertificateDialog(false);
 
-      // Since the response is CertificateResponse, we can access all its fields
+      
       if (result.isVerified) {
         toast.success(
           <div className="space-y-2">
-            <p className="font-semibold">
-              ✅ Certificate Verified Successfully!
-            </p>
-            <div className="text-sm space-y-1">
-              <p>
-                <strong>File:</strong> {result.fileName}
-              </p>
-              <p>
-                <strong>Certificate ID:</strong> {result.uuid}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <span className="text-green-600">Verified</span>
-              </p>
-              {result.certificateUrl && (
-                <p>
-                  <a
-                    href={result.certificateUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
-                  >
-                    View Certificate
-                  </a>
-                </p>
-              )}
-            </div>
+            <p className="font-semibold">Certificate Verified Successfully!</p>
           </div>
         );
       } else {
         toast.error(
           <div className="space-y-2">
-            <p className="font-semibold">❌ Certificate Verification Failed</p>
-            <div className="text-sm">
-              <p>
-                <strong>Certificate ID:</strong> {result.uuid}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <span className="text-red-600">Invalid</span>
-              </p>
-              <p>The uploaded file does not match the selected certificate.</p>
-            </div>
+            <p className="font-semibold">Certificate Verification Failed</p>
           </div>
         );
       }
@@ -398,7 +300,7 @@ export default function VerifiedPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center text-red-500">
-          <p>❌ Error loading programs</p>
+          <p>Error loading programs</p>
           <p className="text-sm mt-2">Please try refreshing the page</p>
         </div>
       </div>
@@ -423,7 +325,9 @@ export default function VerifiedPage() {
               name="programSlug"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Program *</FormLabel>
+                  <FormLabel>
+                    Program <span className="text-red-600">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
@@ -455,9 +359,11 @@ export default function VerifiedPage() {
               )}
             />
 
-            {/* File Upload */}
+            {/* File Upload with PDF Preview */}
             <div>
-              <FormLabel>Certificate File *</FormLabel>
+              <FormLabel>
+                Certificate File <span className="text-red-600">*</span>
+              </FormLabel>
               <div className="space-y-4 mt-2">
                 {!previewUrl ? (
                   <FileUploader
@@ -505,10 +411,20 @@ export default function VerifiedPage() {
                     <div className="space-y-2">
                       <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
                         {files?.[0]?.type === "application/pdf" ? (
-                          <PDFPreview
-                            url={previewUrl}
-                            className="w-full h-full"
-                          />
+                          
+                          <div className="w-full h-full relative">
+                            <object
+                              data={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-fit`}
+                              type="application/pdf"
+                              className="w-full h-full min-h-[384px]"
+                            >
+                              <embed
+                                src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-fit`}
+                                type="application/pdf"
+                                className="w-full h-full min-h-[384px]"
+                              />
+                            </object>
+                          </div>
                         ) : files?.[0]?.type.startsWith("image/") ? (
                           <Image
                             src={previewUrl}
@@ -546,7 +462,7 @@ export default function VerifiedPage() {
             <FormField
               control={form.control}
               name="scholarUuid"
-              render={({ field }) => (
+              render={({}) => (
                 <FormItem>
                   <FormLabel>
                     Choose Scholar
@@ -561,8 +477,8 @@ export default function VerifiedPage() {
                   </FormLabel>
                   <FormControl>
                     {!selectedProgram ? (
-                      <div className="border rounded-lg p-8 text-center text-gray-500">
-                        <p>📋 Please select a program first to see scholars</p>
+                      <div className="border rounded-lg p-8 text-center text-accent-foreground/50">
+                        <p>Please select a program first to see scholars</p>
                       </div>
                     ) : isLoadingScholars ? (
                       <div className="border rounded-lg p-8 text-center">
@@ -571,14 +487,14 @@ export default function VerifiedPage() {
                       </div>
                     ) : isErrorScholars ? (
                       <div className="border rounded-lg p-8 text-center text-red-500">
-                        <p>❌ Error loading scholars</p>
+                        <p>Error loading scholars</p>
                         <p className="text-sm mt-1">
                           Please try selecting the program again
                         </p>
                       </div>
                     ) : scholarsForCertificate.length === 0 ? (
-                      <div className="border rounded-lg p-8 text-center text-gray-500">
-                        <p>👥 No scholars found for this program</p>
+                      <div className="border rounded-lg p-8 text-center text-accent-foreground/50">
+                        <p>No scholars found for this program</p>
                       </div>
                     ) : (
                       <ScholarTable
@@ -617,25 +533,27 @@ export default function VerifiedPage() {
           </Button>
         </div>
 
-        {/* Certificate Selection Dialog */}
+        {/* Enhanced Certificate Selection Dialog */}
         <AlertDialog
           open={showCertificateDialog}
           onOpenChange={setShowCertificateDialog}
         >
-          <AlertDialogContent className="max-w-[95vw] max-h-[80vh] overflow-hidden w-[95vw] h-[80vh] p-0">
+          <AlertDialogContent className="max-w-[95vw] max-h-[85vh] overflow-hidden w-[95vw] h-[85vh] p-0">
             <div className="flex flex-col h-full">
-              <AlertDialogHeader className="px-6 py-4 border-b">
+              <AlertDialogHeader className="px-6 py-4 border-b flex-shrink-0">
                 <AlertDialogTitle className="text-2xl">
                   Select Certificate to Verify
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-base">
-                  Which certificate do you want to verify? Click on a certificate to select it.
+                  Which certificate do you want to verify? Click on a
+                  certificate to select it.
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
+              {/* Updated certificate grid with no PDF embedding */}
               <div className="flex-1 overflow-y-auto p-6">
                 {certificates && certificates.length > 0 ? (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  <div className="grid grid-cols-2 gap-2">
                     {certificates.map((certificate) => {
                       const certificateUrl =
                         certificate.tempCertificateUrl ||
@@ -645,53 +563,59 @@ export default function VerifiedPage() {
                       return (
                         <div
                           key={certificate.uuid}
-                          className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                          className={`relative border-2 rounded-lg p-2 cursor-pointer transition-all hover:shadow-lg ${
                             selectedCertificateUuid === certificate.uuid
-                              ? "border-primary border-4 scale-105 shadow-xl bg-blue-50"
-                              : "border-gray-300 hover:border-gray-400 hover:shadow-lg"
+                              ? "border-primary border-2 scale-[1.02] shadow-xl"
+                              : "border-primary/10 hover:border-primary/2"
                           }`}
                           onClick={() =>
                             setSelectedCertificateUuid(certificate.uuid)
                           }
                         >
-                          <div className="space-y-4">
-                            {/* Bigger Preview Area */}
-                            <div className="relative w-full h-80 bg-gray-100 rounded overflow-hidden">
-                              {isPDFFile && certificateUrl ? (
-                                <iframe
-                                  src={certificateUrl}
-                                  className="w-full h-full border-0"
-                                  style={{ pointerEvents: "none" }}
-                                />
-                              ) : certificateUrl ? (
-                                <Image
-                                  src={certificateUrl}
-                                  alt={`Certificate ${
-                                    certificate.fileName || certificate.uuid
-                                  }`}
-                                  fill
-                                  className="object-contain"
-                                  onError={(e) => {
-                                    e.currentTarget.src =
-                                      "/images/placeholder.png";
-                                  }}
-                                />
-                              ) : (
-                                <div className="flex items-center justify-center h-full">
-                                  <div className="text-center">
-                                    <div className="text-4xl mb-2">📄</div>
-                                    <p className="text-sm text-gray-600">
-                                      No Preview
-                                    </p>
+                          <div className="space-y-3">
+                            {/* Simplified Preview Area - No PDF embedding */}
+                            <div className="relative w-full h-32 bg-primary rounded-lg overflow-hidden border flex items-center justify-center">
+                              {certificateUrl ? (
+                                isPDFFile ? (
+                                  <div className="text-center p-4">
+                                    <a
+                                      href={certificateUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      Preview
+                                    </a>
                                   </div>
+                                ) : (
+                                  <Image
+                                    src={certificateUrl}
+                                    alt={`Certificate ${
+                                      certificate.fileName || certificate.uuid
+                                    }`}
+                                    fill
+                                    className="object-contain p-2"
+                                    onError={(e) => {
+                                      e.currentTarget.src =
+                                        "/images/placeholder.png";
+                                    }}
+                                  />
+                                )
+                              ) : (
+                                // No URL available
+                                <div className="text-center">
+                                  <p className="text-sm text-accent-foreground/50">
+                                    No Preview Available
+                                  </p>
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    {certificate.fileName ||
+                                      certificate.uuid.slice(0, 8)}
+                                    ...
+                                  </p>
                                 </div>
                               )}
                             </div>
-                            {selectedCertificateUuid === certificate.uuid && (
-                              <div className="absolute -top-2 -right-2">
-                                {/* <span className="text-base font-bold">✓</span> */}
-                              </div>
-                            )}
                           </div>
                         </div>
                       );
@@ -700,12 +624,11 @@ export default function VerifiedPage() {
                 ) : (
                   <div className="flex items-center justify-center h-64">
                     <div className="text-center">
-                      <div className="text-gray-400 text-8xl mb-4">📄</div>
-                      <p className="text-gray-500 text-xl">
+                      <p className="text-accent-foreground/50 text-xl">
                         No certificates found for the selected scholar and
                         program.
                       </p>
-                      <p className="text-gray-400 text-base mt-2">
+                      <p className="text-accent-foreground/30 text-base mt-2">
                         Try selecting a different scholar or program.
                       </p>
                     </div>
@@ -713,31 +636,42 @@ export default function VerifiedPage() {
                 )}
               </div>
 
-              <div className="flex justify-end gap-4 p-6 border-t">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowCertificateDialog(false);
-                    setSelectedCertificateUuid("");
-                  }}
-                  className="px-8 py-2"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleFinalVerify}
-                  disabled={!selectedCertificateUuid || isVerifying}
-                  className="bg-primary px-8 py-2"
-                >
-                  {isVerifying ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Verifying...
-                    </div>
+              <div className="flex justify-between items-center gap-4 p-6 border-t flex-shrink-0 bg-primary/5">
+                <div className="text-sm text-accent-foreground/50">
+                  {selectedCertificateUuid && certificates?.length ? (
+                    <span className="font-medium text-primary">
+                      1 certificate selected
+                    </span>
                   ) : (
-                    "Verify Certificate"
+                    <span>Please select a certificate to verify</span>
                   )}
-                </Button>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowCertificateDialog(false);
+                      setSelectedCertificateUuid("");
+                    }}
+                    className="px-6 py-2"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleFinalVerify}
+                    disabled={!selectedCertificateUuid || isVerifying}
+                    className="bg-primary px-6 py-2"
+                  >
+                    {isVerifying ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Verifying...
+                      </div>
+                    ) : (
+                      "Verify Certificate"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </AlertDialogContent>

@@ -16,7 +16,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 
 import { SerializedEditorState } from "lexical";
@@ -90,7 +95,8 @@ export default function ActivityFormModal({
   trigger,
 }: ActivityFormModalProps) {
   const [previewsImage, setPreviewsImage] = useState<string[]>([]);
-  const [editorState, setEditorState] = useState<SerializedEditorState>(initialValue);
+  const [editorState, setEditorState] =
+    useState<SerializedEditorState>(initialValue);
 
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(formSchema),
@@ -102,7 +108,7 @@ export default function ActivityFormModal({
     },
   });
 
-  const { reset, handleSubmit, setValue, formState, getValues, clearErrors } = form;
+  const { reset, handleSubmit, clearErrors } = form;
 
   // Preload image & editor if editing
   useEffect(() => {
@@ -190,7 +196,9 @@ export default function ActivityFormModal({
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Activity" : "Add New Activity"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Activity" : "Add New Activity"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -212,19 +220,19 @@ export default function ActivityFormModal({
 
             {/* Description / Editor */}
             <div>
-                <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Enter description" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Enter description" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               {/* <Editor
                 editorSerializedState={editorState}
                 onSerializedChange={(value) => {
@@ -280,11 +288,18 @@ export default function ActivityFormModal({
             {/* Actions */}
             <div className="flex justify-end mt-4 gap-2">
               <DialogClose asChild>
-                <Button className="cursor-pointer" variant="outline" onClick={handleClose}>
+                <Button
+                  className="cursor-pointer"
+                  variant="outline"
+                  onClick={handleClose}
+                >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" className="bg-primary text-white cursor-pointer">
+              <Button
+                type="submit"
+                className="bg-primary text-white cursor-pointer"
+              >
                 {initialData ? "Update" : "Save"}
               </Button>
             </div>

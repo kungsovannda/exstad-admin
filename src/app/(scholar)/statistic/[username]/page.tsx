@@ -18,8 +18,6 @@ export default function ScholarDetails() {
   // const scholar = scholars.find((s) => s.username === param.username);
   const {
     data: scholar,
-    isLoading,
-    isError,
   } = useGetScholarByUsernameQuery(username, { skip: !username });
   const [updateScholar, setUpdateScholar] = useState<UpdateScholar | null>(
     null
