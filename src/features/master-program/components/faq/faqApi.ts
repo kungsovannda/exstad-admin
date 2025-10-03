@@ -70,7 +70,6 @@ export const faqApi = createApi({
               faq: faq.map((item) => ({
                 title: item.title,
                 faqs: item.faqs.map((faqItem) => ({
-                  uuid: faqItem.id,
                   question: faqItem.question,
                   answer: faqItem.answer,
                 })),
@@ -91,3 +90,4 @@ export const faqApi = createApi({
 });
 
 export const { useGetAllFaqQuery, useUpdateFaqsMutation } = faqApi;
+

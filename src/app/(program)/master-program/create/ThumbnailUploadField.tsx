@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useCreateDocumentMutation } from "@/features/document/documentApi";
 import {
   FormField,
   FormItem,
@@ -17,78 +16,50 @@ import { openingProgramType } from "@/types/opening-program";
 import { UseFormReturn } from "react-hook-form";
 import { OpeningProgramFormValue } from "../../opening-program/create/form-field";
 
+// Extend form to include optional thumbnail File reference
+interface ThumbnailForm extends UseFormReturn<OpeningProgramFormValue> {
+  _thumbnailFile?: File;
+}
+
 export function ThumbnailUploadField({
   form,
   masterProgram,
   openingProgram,
 }: {
-  form: UseFormReturn<OpeningProgramFormValue>;
+  form: ThumbnailForm;
   masterProgram: MasterProgramType | undefined;
-  openingProgram: Partial<openingProgramType>; // only need generation
+  openingProgram: Partial<openingProgramType>;
 }) {
   const [files, setFiles] = useState<File[] | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const [createDocument] = useCreateDocumentMutation();
-
   // Preload existing thumbnail when editing
   useEffect(() => {
     const existing = form.getValues("thumbnail");
-    if (existing) {
+    if (existing && !existing.startsWith("blob:")) {
       setPreviewUrl(existing);
     }
   }, [form]);
 
   const dropZoneConfig = {
     maxFiles: 1,
-    maxSize: 1024 * 1024 * 10, // 10MB max
+    maxSize: 10 * 1024 * 1024, // 10MB
     multiple: false,
   };
 
-  const handleFileChange = async (newFiles: File[] | null) => {
+  const handleFileChange = (newFiles: File[] | null) => {
     setFiles(newFiles);
 
     if (newFiles && newFiles.length > 0) {
       const file = newFiles[0];
       const blobUrl = URL.createObjectURL(file);
 
-      // Revoke previous blob URL if exists
       if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
 
-      // Show temporary preview while uploading
       setPreviewUrl(blobUrl);
 
-      const programSlug = masterProgram?.slug;
-      const generation = openingProgram.generation;
-
-      if (!programSlug || !generation) {
-        form.setError("thumbnail", {
-          message: "Select Master Program and Generation first",
-        });
-        return;
-      }
-
-      try {
-        const res = await createDocument({
-          file,
-          programSlug,
-          gen: generation,
-          documentType: "thumbnail",
-          filename: "",
-        }).unwrap();
-
-        // Update form value with backend URL
-        form.setValue("thumbnail", res.uri, { shouldValidate: true });
-
-        // Update preview to backend URL
-        setPreviewUrl(res.uri);
-
-        // Revoke temporary blob URL
-        URL.revokeObjectURL(blobUrl);
-      } catch (error) {
-        console.error("Upload failed:", error);
-        form.setError("thumbnail", { message: "Failed to upload thumbnail" });
-      }
+      // Store temporary blob URL in form for preview only
+      form.setValue("thumbnail", blobUrl, { shouldValidate: false });
     } else {
       if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
@@ -98,13 +69,21 @@ export function ThumbnailUploadField({
   };
 
   const removeFile = () => {
-    if (previewUrl?.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setFiles(null);
     form.setValue("thumbnail", "");
+    delete form._thumbnailFile;
   };
+
+  // Keep actual file object separate from form state
+  useEffect(() => {
+    if (files && files.length > 0) {
+      form._thumbnailFile = files[0];
+    } else {
+      delete form._thumbnailFile;
+    }
+  }, [files, form]);
 
   return (
     <FormField
@@ -125,8 +104,7 @@ export function ThumbnailUploadField({
                     <div className="flex items-center justify-center flex-col p-8 w-full">
                       <CloudUpload className="text-gray-500 w-10 h-10" />
                       <p className="mb-1 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span>
-                        &nbsp; or drag and drop
+                        <span className="font-semibold">Click to upload</span> or drag and drop
                       </p>
                       <p className="text-xs text-gray-500">
                         PNG, JPG, PDF (max 10MB)
@@ -146,7 +124,7 @@ export function ThumbnailUploadField({
 
                   <div className="space-y-2">
                     <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-                      {previewUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                      {previewUrl.match(/\.(jpg|jpeg|png|gif)$/i) || previewUrl.startsWith("blob:") ? (
                         <Image
                           src={previewUrl}
                           alt="Thumbnail preview"
@@ -154,7 +132,7 @@ export function ThumbnailUploadField({
                           className="object-contain"
                         />
                       ) : (
-                        <p className="text-center text-sm">
+                        <p className="text-center text-sm pt-4">
                           {files?.[0]?.name || "Uploaded file"}
                         </p>
                       )}

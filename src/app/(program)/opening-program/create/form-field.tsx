@@ -1,9 +1,8 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import type { Resolver } from "react-hook-form";
@@ -31,6 +30,7 @@ import { generateSlug } from "@/services/generate-slug";
 import { ThumbnailUploadField } from "../../master-program/create/ThumbnailUploadField";
 import { PosterUploadField } from "../../master-program/create/PosterUrl";
 import { QrCodeUploadField } from "../../master-program/create/qrCodeUrl";
+import { useCreateDocumentMutation } from "@/features/document/documentApi";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -50,10 +50,17 @@ export const openingProgramformSchema = z.object({
   slug: z.string(),
   status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
   qrCodeUrl: z.string().min(1,{ message: "Valid QR Code URL is required" }),
-  activity: z.string().optional(),  // URI of the uploaded activity
+  activity: z.string().optional(),
 });
 
 export type OpeningProgramFormValue = z.infer<typeof openingProgramformSchema>;
+
+// Extended form type with file storage
+interface ExtendedFormReturn extends UseFormReturn<OpeningProgramFormValue> {
+  _thumbnailFile?: File;
+  _posterFile?: File;
+  _qrCodeFile?: File;
+}
 
 type Props = {
   initialValues?: OpeningProgramFormValue;
@@ -68,7 +75,9 @@ export default function OpeningProgramForm({
   submitLabel = "Submit",
 }: Props) {
   const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
+  const [createDocument] = useCreateDocumentMutation();
   const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedProgramType, setSelectedProgramType] = useState<string | undefined>(
     initialValues?.programUuid
       ? masterPrograms.find(p => p.uuid === initialValues.programUuid)?.programType
@@ -99,7 +108,7 @@ export default function OpeningProgramForm({
       status: undefined,
       qrCodeUrl: "",
     },
-  });
+  }) as ExtendedFormReturn;
 
   const { watch, setValue } = form;
   const originalFee = watch("originalFee") || 0;
@@ -117,14 +126,19 @@ export default function OpeningProgramForm({
     setValue("price", isNaN(discount) ? 0 : discount);
   }, [originalFee, scholarship, setValue]);
 
-  // ------------------- AUTO SLUG -------------------
-  useEffect(() => {
-    if (title) {
-      setValue("slug", generateSlug(title));
-    } else {
-      setValue("slug", "");
-    }
-  }, [title, setValue]);
+// ------------------- AUTO SLUG (title + generation) -------------------
+const generation = watch("generation");
+
+useEffect(() => {
+  if (!title) {
+    setValue("slug", "");
+    return;
+  }
+  const baseSlug = generateSlug(title);
+  const fullSlug = generation > 0 ? `${baseSlug}-${generation}` : baseSlug;
+  setValue("slug", fullSlug);
+}, [title, generation, setValue]);
+
 
   // ------------------- RESET MASTER PROGRAM ON TYPE CHANGE -------------------
   useEffect(() => {
@@ -146,10 +160,73 @@ export default function OpeningProgramForm({
     }
   }, [initialValues?.programUuid, masterPrograms, form]);
 
+  // ------------------- HANDLE FORM SUBMISSION WITH FILE UPLOADS -------------------
+  const handleFormSubmit = async (data: OpeningProgramFormValue) => {
+    setIsUploading(true);
+
+    try {
+      const selectedProgram = masterPrograms.find((p) => p.uuid === data.programUuid);
+      const programSlug = selectedProgram?.slug;
+      const generation = data.generation;
+
+      if (!programSlug || !generation) {
+        form.setError("root", {
+          message: "Master Program and Generation are required",
+        });
+        setIsUploading(false);
+        return;
+      }
+
+      // Upload thumbnail if it's a new file (blob URL)
+      if (data.thumbnail.startsWith("blob:") && form._thumbnailFile) {
+        const thumbnailRes = await createDocument({
+          file: form._thumbnailFile,
+          programSlug,
+          gen: generation,
+          documentType: "thumbnail",
+          filename: "",
+        }).unwrap();
+        data.thumbnail = thumbnailRes.uri;
+      }
+
+      // Upload poster if it's a new file (blob URL)
+      if (data.posterUrl.startsWith("blob:") && form._posterFile) {
+        const posterRes = await createDocument({
+          file: form._posterFile,
+          programSlug,
+          gen: generation,
+          documentType: "poster",
+          filename: "",
+        }).unwrap();
+        data.posterUrl = posterRes.uri;
+      }
+
+      // Upload QR code if it's a new file (blob URL)
+      if (data.qrCodeUrl.startsWith("blob:") && form._qrCodeFile) {
+        const qrRes = await createDocument({
+          file: form._qrCodeFile,
+          programSlug,
+          gen: generation,
+          documentType: "qr",
+          filename: "",
+        }).unwrap();
+        data.qrCodeUrl = qrRes.uri;
+      }
+
+      // Now submit the form with uploaded URLs
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      form.setError("root", { message: "Failed to upload files" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleFormSubmit)}
         className="space-y-8 grid w-full items-center"
       >
         {/* Program Type */}
@@ -483,37 +560,35 @@ export default function OpeningProgramForm({
         />
 
         {/* QR Code Upload */}
-<FormField
-  control={form.control}
-  name="qrCodeUrl"
-  render={() => {
-    const selectedProgram = masterPrograms.find(
-      (p) => p.uuid === form.watch("programUuid")
-    );
-    const generation = form.watch("generation");
+        <FormField
+          control={form.control}
+          name="qrCodeUrl"
+          render={() => {
+            const selectedProgram = masterPrograms.find(
+              (p) => p.uuid === form.watch("programUuid")
+            );
+            const generation = form.watch("generation");
 
-    return (
-      <FormItem>
-        <FormLabel>QR Code *</FormLabel>
-        <FormControl>
-          <QrCodeUploadField
-            form={form}
-            masterProgram={selectedProgram}
-            openingProgram={{ generation }}
-            // onPreviewChange={(url) => setQrPreview(url ? [url] : [])}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    );
-  }}
-/>
+            return (
+              <FormItem>
+                <FormLabel>QR Code *</FormLabel>
+                <FormControl>
+                  <QrCodeUploadField
+                    form={form}
+                    masterProgram={selectedProgram}
+                    openingProgram={{ generation }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
 
-
-        <Button type="submit" className="w-fit">
-          {submitLabel}
+        <Button type="submit" className="w-fit" disabled={isUploading}>
+          {isUploading ? "Uploading..." : submitLabel}
         </Button>
       </form>
     </Form>
   );
-}
+} 
