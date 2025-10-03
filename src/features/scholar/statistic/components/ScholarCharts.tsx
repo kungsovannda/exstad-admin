@@ -6,13 +6,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "../ui/chart";
+} from "@/components/ui/chart";
 import {
   Bar,
   BarChart,

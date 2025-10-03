@@ -6,7 +6,7 @@ import { State } from "@/types";
 import { Scholar, ScholarGender, ScholarStatus } from "@/types/scholar";
 import { UserCheck, UserPlus, Users, UserX } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function StatisticCard() {
   const { data: scholars, isLoading } = useGetAllScholarsQuery();

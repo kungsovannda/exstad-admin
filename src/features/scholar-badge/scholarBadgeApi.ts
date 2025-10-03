@@ -7,7 +7,7 @@ export const scholarBadgeApi = createApi({
   tagTypes: ["ScholarBadge"],
   reducerPath: "scholarBadgeApi",
   endpoints: (builder) => ({
-    createScholarBadge: builder.mutation<CreateScholarBadge, ScholarBadge>({
+    createScholarBadge: builder.mutation<ScholarBadge, CreateScholarBadge>({
       query: (body) => ({
         url: "/scholar-badges",
         method: "POST",

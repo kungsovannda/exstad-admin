@@ -2,8 +2,10 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -30,24 +32,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CloudUpload, Paperclip } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useCreateAchievementMutation } from "../achievementApi";
+import { CreateAchievement } from "@/types/achievement";
 
 const formSchema = z.object({
   title: z.string().min(1),
   openingProgramUuid: z.string(),
+  achievementType: z.string(),
   tag: z.string().min(1),
   link: z.string().min(1),
   video: z.string().min(1),
-  icon: z.string(),
+  icon: z.string().optional(),
   description: z.string(),
 });
 
-export default function CreateAchievement({
+export default function CreateAchievementModal({
   open,
   onOpenChange,
 }: {
@@ -55,24 +61,33 @@ export default function CreateAchievement({
   onOpenChange: (status: boolean) => void;
 }) {
   const [files, setFiles] = useState<File[] | null>(null);
+  const { data: openingPrograms } = useGetAllOpeningProgramsQuery();
 
   const dropZoneConfig = {
     maxFiles: 5,
     maxSize: 1024 * 1024 * 4,
     multiple: true,
   };
+  const [createAchievement] = useCreateAchievementMutation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      const payload: CreateAchievement = {
+        ...values,
+        icon: "https://example.com",
+      };
+      toast.promise(createAchievement(payload).unwrap(), {
+        loading: "Creating...",
+        success: () => {
+          return "Achievement created successfully!";
+        },
+        error: (error) => {
+          return `Failed to create achievement: ${error.message}`;
+        },
+      });
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -89,13 +104,14 @@ export default function CreateAchievement({
     >
       <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Create university</DialogTitle>
+          <DialogTitle>Create achievement</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+            Make changes to your profile here. Click create when you are done
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
+            id="create-achievement-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8 w-full grid grid-cols-2 gap-4 mx-auto "
           >
@@ -129,14 +145,44 @@ export default function CreateAchievement({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="m@example.com">
-                          m@example.com
+                        {!openingPrograms || openingPrograms.length === 0 ? (
+                          <div className="text-sm w-full text-center text-muted-foreground h-8 flex items-center justify-center">
+                            No opening program found
+                          </div>
+                        ) : (
+                          openingPrograms?.map((p) => (
+                            <SelectItem key={p.uuid} value={p.uuid}>
+                              {p.title}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="achievementType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Achievement Type</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Mini Project" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={"MINI_PROJECT"}>
+                          Mini Project
                         </SelectItem>
-                        <SelectItem value="m@google.com">
-                          m@google.com
-                        </SelectItem>
-                        <SelectItem value="m@support.com">
-                          m@support.com
+                        <SelectItem value={"FINAL_PROJECT"}>
+                          Final Project
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -259,7 +305,14 @@ export default function CreateAchievement({
             </div>
           </form>
         </Form>
-        <Button type="submit">Submit</Button>
+        <DialogFooter>
+          <DialogClose>
+            <Button variant={"outline"}>Cancel</Button>
+          </DialogClose>
+          <Button form="create-achievement-form" type="submit">
+            Create Achievement
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

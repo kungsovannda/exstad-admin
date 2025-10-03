@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { iso, z } from "zod";
 import {
   Form,
   FormControl,
@@ -22,10 +22,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  FileInput,
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+} from "@/components/ui/file-upload";
+import { CloudUpload } from "lucide-react";
+import { useCreateBadgeMutation } from "../badgeApi";
+import { CreateBadge } from "@/types/badge";
+import { toast } from "sonner";
 const schema = z.object({
   title: z.string().min(2).max(100),
   description: z.string().min(2).max(100),
-  badgeImage: z.file(),
+  badgeImage: z.file().optional(),
 });
 
 export function CreateVerificationBadge({
@@ -43,17 +53,41 @@ export function CreateVerificationBadge({
       badgeImage: undefined,
     },
   });
-  const [previews, setPreviews] = useState<string[]>([]);
+
+  const [createBadge] = useCreateBadgeMutation();
+
+  const [files, setFiles] = useState<File[] | null>(null);
+  const [isOpen, setIsOpen] = useState(open);
+
+  const dropZoneConfig = {
+    maxFiles: 5,
+    maxSize: 1024 * 1024 * 4,
+    multiple: false,
+  };
+
   function onSubmit(values: z.infer<typeof schema>) {
-    console.log(values);
+    const payload: CreateBadge = {
+      ...values,
+      badgeImage: "https://example.com",
+    };
+    toast.promise(createBadge(payload).unwrap(), {
+      loading: "Creating...",
+      success: () => {
+        return "Badge created successfully!";
+      },
+      error: (error) => {
+        return `Failed to create badge: ${error.message}`;
+      },
+    });
   }
 
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) form.reset();
         onOpenChange(isOpen);
+        setIsOpen(isOpen);
       }}
     >
       <DialogContent className="sm:max-w-[425px]">
@@ -74,7 +108,7 @@ export function CreateVerificationBadge({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>English name</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input placeholder="Pre-University" {...field} />
                   </FormControl>
@@ -87,7 +121,7 @@ export function CreateVerificationBadge({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Khmer name</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Input placeholder="The beginning of journey" {...field} />
                   </FormControl>
@@ -98,22 +132,47 @@ export function CreateVerificationBadge({
             <FormField
               control={form.control}
               name="badgeImage"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Badge Image</FormLabel>
                   <FormControl>
-                    <Input
-                      type="file"
-                      onChange={(e) => {
-                        const files = Array.from(e.target.files ?? []);
-                        field.onChange(files);
-
-                        const filePreviews = files.map((file) =>
-                          URL.createObjectURL(file)
-                        );
-                        setPreviews(filePreviews);
-                      }}
-                    />
+                    <FileUploader
+                      value={files}
+                      onValueChange={setFiles}
+                      dropzoneOptions={dropZoneConfig}
+                      className="relative bg-background rounded-lg p-2"
+                    >
+                      <FileInput
+                        id="fileInput"
+                        className="outline-dashed outline-1 outline-slate-500"
+                      >
+                        <div className="flex items-center justify-center flex-col p-8 w-full ">
+                          <CloudUpload className="text-gray-500 w-10 h-10" />
+                          <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>
+                            &nbsp; or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            SVG, PNG, JPG or GIF
+                          </p>
+                        </div>
+                      </FileInput>
+                      <FileUploaderContent>
+                        {files &&
+                          files.length > 0 &&
+                          files.map((file, i) => (
+                            <FileUploaderItem
+                              className="h-16 overflow-hidden flex items-start justify-start"
+                              key={i}
+                              index={i}
+                            >
+                              <span>{file.name}</span>
+                            </FileUploaderItem>
+                          ))}
+                      </FileUploaderContent>
+                    </FileUploader>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,20 +180,6 @@ export function CreateVerificationBadge({
             />
           </form>
         </Form>
-        {previews.length > 0 && (
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {previews.map((src, idx) => (
-              <Image
-                width={100}
-                height={100}
-                key={idx}
-                src={src}
-                alt={`Preview ${idx + 1}`}
-                className="w-24 h-24 object-cover rounded border"
-              />
-            ))}
-          </div>
-        )}
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
