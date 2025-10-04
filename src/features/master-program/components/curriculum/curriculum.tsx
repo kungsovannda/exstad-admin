@@ -135,7 +135,6 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
 
     safeCurriculums[curriculumIndex] = updatedCurriculum;
     await handleUpdateCurriculums(safeCurriculums);
-    toast.success(sectionIndex !== undefined ? "Section updated!" : "Section added!");
   };
 
   const handleDelete = async (type: "curriculum" | "section", curriculumIndex?: number, index?: number) => {

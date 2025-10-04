@@ -1,35 +1,41 @@
+
+// ============================================
+// FILE 3: activity-admin.tsx
+// ============================================
 "use client";
 
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import ActivityModal, { ActivityFormValues } from "./acitivity-modal";
+import ActivityFormModal, { ActivityFormValues } from "./acitivity-modal";
 import ActivityTable from "@/features/opening-program/components/activity/table/activity-table";
 import {
   ActivityPayload,
   useGetAllActivityQuery,
   useUpdateActivityMutation,
 } from "@/features/opening-program/components/activity/activityApi";
+import { useCreateDocumentMutation } from "@/features/document/documentApi";
 import { toast } from "sonner";
 import { ActivityType } from "@/types/opening-program";
 import { ActivityColumns } from "@/features/opening-program/components/activity/table/activityColumn";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 
-type Props = { openingProgramUuid: string };
+interface Props {
+  masterProgram: { uuid: string; slug: string };
+  openingProgram: { uuid: string; generation: number };
+}
 
-export default function ActivityAdmin({ openingProgramUuid }: Props) {
-  const { data: activitiesData, isLoading,isFetching, isError } =
-    useGetAllActivityQuery(openingProgramUuid, { refetchOnMountOrArgChange: true });
+export default function ActivityAdmin({ masterProgram, openingProgram }: Props) {
+  const { data: activitiesData, isLoading, isFetching, isError } =
+    useGetAllActivityQuery(openingProgram.uuid, { refetchOnMountOrArgChange: true });
 
-  // Always ensure activities is an array
   const activities: ActivityType[] = Array.isArray(activitiesData) ? activitiesData : [];
 
   const [putActivities] = useUpdateActivityMutation();
+  const [createDocument] = useCreateDocumentMutation();
 
-  // Single modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [currentActivity, setCurrentActivity] = useState<ActivityType | null>(null);
 
-  // Stable uid for rendering
   const activitiesWithUid = useMemo(
     () =>
       activities.map((a, index) => ({
@@ -42,43 +48,65 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
   if (isLoading) return <div>Loading activities...</div>;
   if (isError) return <div className="text-destructive">Failed to load activities</div>;
 
-  // Convert ActivityType to payload for API
   const toPayload = (a: ActivityType): ActivityPayload => ({
     title: a.title,
     description: a.description,
     image: a.image,
   });
 
-  // Add/Edit activity
-  const handleSaveActivity = async (data: ActivityFormValues, target?: ActivityType) => {
+  const handleSaveActivity = async (data: ActivityFormValues, file?: File, target?: ActivityType) => {
     try {
       const safeActivities = Array.isArray(activities) ? activities : [];
       let newActivities: ActivityType[];
+      
+      // Handle file upload if a new file was provided
+      let imageUrl = data.image;
+      
+      if (file) {
+        const toastId = toast.loading("Uploading image...");
+        
+        try {
+          const uploadResult = await createDocument({
+            file,
+            programSlug: masterProgram.slug,
+            gen: openingProgram.generation,
+            documentType: "activity",
+            filename: file.name,
+          }).unwrap();
+          
+          // Get the URI from the upload result
+          imageUrl = uploadResult.uri;
+          
+          toast.dismiss(toastId);
+        } catch (uploadError) {
+          toast.dismiss(toastId);
+          throw new Error("Failed to upload image");
+        }
+      }
+
+      const activityData = { ...data, image: imageUrl };
 
       if (target) {
-        // Edit existing
         newActivities = safeActivities.map((a) =>
           a.title === target.title &&
           a.description === target.description &&
           a.image === target.image
-            ? { ...a, ...data }
+            ? { ...a, ...activityData }
             : a
         );
       } else {
-        // Add new
-        newActivities = [...safeActivities, { ...data }];
+        newActivities = [...safeActivities, activityData];
       }
 
       const payload = newActivities.map(toPayload);
-      await putActivities({ openingProgramUuid, activities: payload }).unwrap();
-      toast.success(target ? "Activity updated!" : "Activity added!");
+      await putActivities({ openingProgramUuid: openingProgram.uuid, activities: payload }).unwrap();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save: ${message || err}`);
+      toast.error(`Failed to save: ${message}`);
+      throw err;
     }
   };
 
-  // Delete activity
   const handleDeleteActivity = async (target: ActivityType) => {
     try {
       const safeActivities = Array.isArray(activities) ? activities : [];
@@ -90,15 +118,14 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
       );
 
       const payload = newActivities.map(toPayload);
-      await putActivities({ openingProgramUuid, activities: payload }).unwrap();
+      await putActivities({ openingProgramUuid: openingProgram.uuid, activities: payload }).unwrap();
       toast.success(`Activity "${target.title}" deleted!`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to delete: ${message || err}`);
+      toast.error(`Failed to delete: ${message}`);
     }
   };
 
-  // Columns with parent callbacks
   const columns = ActivityColumns(activities, {
     onEdit: (activity: ActivityType) => {
       setCurrentActivity(activity);
@@ -109,30 +136,30 @@ export default function ActivityAdmin({ openingProgramUuid }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center gap-4">
         <h1 className="text-lg font-semibold">Activities</h1>
 
-        {/* Add Activity button */}
-        <ActivityModal
+        <ActivityFormModal
           open={modalOpen}
-          onOpenChange={setModalOpen}
+          onOpenChange={(open) => {
+            setModalOpen(open);
+            if (!open) {
+              setCurrentActivity(null);
+            }
+          }}
+          masterProgram={masterProgram}
+          openingProgram={openingProgram}
           initialData={currentActivity || undefined}
-          onSubmitActivity={async (data) => {
-            await handleSaveActivity(data, currentActivity || undefined);
-            setModalOpen(false);
-            setCurrentActivity(null);
+          onSubmitActivity={async (data, file) => {
+            await handleSaveActivity(data, file, currentActivity || undefined);
           }}
           trigger={<Button className="font-bold cursor-pointer">Add Activity</Button>}
         />
       </div>
 
-      {/* Activity Table */}
-
       {isFetching ? (
         <DataTableSkeleton columnCount={4} />
-      ) :
-      activitiesWithUid.length === 0 ? (
+      ) : activitiesWithUid.length === 0 ? (
         <div className="text-muted-foreground">
           No activities yet. Add one to get started!
         </div>

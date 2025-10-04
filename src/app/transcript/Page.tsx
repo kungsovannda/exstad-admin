@@ -1,9 +1,6 @@
-import React from 'react'
+"use client";
+import ComingSoon from "@/components/coming-soon";
 
 export default function Page() {
-  return (
-    <div>
-      Transcript Page
-    </div>
-  )
+  return <ComingSoon />;
 }

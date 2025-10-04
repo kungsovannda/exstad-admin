@@ -1,10 +1,13 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -20,61 +23,66 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
-import { ActivityUploadField } from "@/app/(program)/master-program/create/activity";
-import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
-import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  ActivityUploadField,
+  ActivityFormWithFile,
+} from "@/app/(program)/master-program/create/activity";
 
+// ----------------- Validation schema -----------------
 const formSchema = z.object({
   title: z.string().min(1, "Activity title is required"),
   description: z.string().min(1, "Activity description is required"),
-  image: z.string(),
+  image: z.string().min(1, "Activity image is required"),
 });
 
 export type ActivityFormValues = z.infer<typeof formSchema>;
 
+// ----------------- Props -----------------
 interface ActivityFormModalProps {
   open?: boolean;
   onOpenChange: (open: boolean) => void;
   initialData?: Partial<ActivityFormValues> & { imageUrl?: string };
   trigger?: React.ReactNode;
-  onSubmitActivity?: (data: ActivityFormValues) => Promise<void> | void;
+  onSubmitActivity?: (
+    data: ActivityFormValues,
+    file?: File
+  ) => Promise<void> | void;
+  masterProgram: { uuid: string; slug: string };
+  openingProgram: { uuid: string; generation: number };
 }
+
+// ----------------- Component -----------------
 export default function ActivityFormModal({
   open,
   onOpenChange,
   initialData,
   onSubmitActivity,
   trigger,
+  masterProgram,
+  openingProgram,
 }: ActivityFormModalProps) {
-  const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
-  const { data: openingPrograms = [] } = useGetAllOpeningProgramsQuery();
-
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
-    defaultValues: initialData || {
-      title: "",
-      description: "",
-      image: "",
-    },
+    defaultValues: initialData || { title: "", description: "", image: "" },
   });
 
   const { reset, handleSubmit, clearErrors } = form;
 
-  const selectedMasterProgram = masterPrograms.find(
-    (program) => program.title === form.watch("title")
-  );
+  // Reset form when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+    } else {
+      reset({ title: "", description: "", image: "" });
+    }
+  }, [initialData, reset]);
 
-  const selectedOpeningProgram = openingPrograms.find(
-    (program) => program.title === form.watch("title")
-  );
-
-  console.log(selectedMasterProgram, selectedOpeningProgram); // Debug output
-
+  // ----------------- Submit handler -----------------
   const onSubmit = async (data: ActivityFormValues) => {
     try {
-      await onSubmitActivity?.(data);
+      const file = (form as ActivityFormWithFile)._activityFile;
+      await onSubmitActivity?.(data, file);
       toast.success(
         initialData
           ? `Activity "${data.title}" updated successfully!`
@@ -83,24 +91,28 @@ export default function ActivityFormModal({
       handleClose();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to submit the activity: ${message || err}`);
+      toast.error(`Failed to submit the activity: ${message}`);
     }
   };
 
+  // ----------------- Close handler -----------------
   const handleClose = () => {
     onOpenChange(false);
+    (form as ActivityFormWithFile)._activityFile = undefined;
     reset();
-
     clearErrors();
   };
 
+  // ----------------- Render -----------------
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+
       <DialogContent
-        className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
+        className="w-full max-w-3xl"
+        onInteractOutside={(event) => {
+          event.preventDefault(); // NEVER allow closing by clicking outside
+        }}
       >
         <DialogHeader>
           <DialogTitle>
@@ -146,36 +158,28 @@ export default function ActivityFormModal({
               name="image"
               render={() => (
                 <FormItem>
-                  <FormLabel>Poster *</FormLabel>
+                  <FormLabel>Image *</FormLabel>
                   <FormControl>
-                    {selectedMasterProgram && selectedOpeningProgram && (
-                      <ActivityUploadField
-                        form={form}
-                        masterProgram={selectedMasterProgram}
-                        openingProgram={selectedOpeningProgram}
-                      />
-                    )}
+                    <ActivityUploadField
+                      form={form as ActivityFormWithFile}
+                      openingProgram={openingProgram}
+                      masterProgram={masterProgram}
+                      initialImage={initialData?.imageUrl || initialData?.image} // show existing image
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Actions */}
+            {/* Buttons */}
             <div className="flex justify-end mt-4 gap-2">
               <DialogClose asChild>
-                <Button
-                  className="cursor-pointer"
-                  variant="outline"
-                  onClick={handleClose}
-                >
+                <Button type="button" variant="outline" onClick={handleClose}>
                   Cancel
                 </Button>
               </DialogClose>
-              <Button
-                type="submit"
-                className="bg-primary text-white cursor-pointer"
-              >
+              <Button type="submit" className="bg-primary text-white">
                 {initialData ? "Update" : "Save"}
               </Button>
             </div>
