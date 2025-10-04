@@ -50,7 +50,6 @@ function OpeningProgramEdit() {
   return <OpeningProgramForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Update" />;
 }
 
-
 export default function Page() {
   return (
     <div className="p-5 flex flex-col gap-4">

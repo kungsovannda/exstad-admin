@@ -17,7 +17,7 @@ export type openingProgramType = {
   qrCodeUrl: string;
   // extra fields from backend
   telegramGroup: string;
-  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  status: "OPEN" | "CLOSED" | "ACHIEVED" |"PENDING";
   // image: string;
   // shortcourseimage:string;
   // template?: string[];
@@ -49,7 +49,7 @@ export type openingProgramCreate = {
   totalSlot: number;
   qrCodeUrl: string;
   telegramGroup: string;
-  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  status: "OPEN" | "CLOSED" | "ACHIEVED" |"PENDING";
   programType?: string; // optional if backend allows
   visibility?: "public" | "private"; // optional
   activities?: ActivityType[];

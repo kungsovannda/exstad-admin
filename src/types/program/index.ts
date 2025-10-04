@@ -27,7 +27,6 @@ export type MasterProgramType = {
   curricula:CurriculumType[];
   visibility: visibility;
   status: "draft" | "active" | "archived";
-  isDeleted:boolean
 }; 
 
 export type MasterProgramCreate = {
@@ -57,7 +56,6 @@ export type MasterProgramCreate = {
   // curricula?: CurriculumDataType[];
   visibility?: visibility;
   status?: "draft" | "active" | "archived";
-    isDeleted:boolean
 
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
@@ -20,6 +20,9 @@ import { SectionSkeleton } from "../section-skeleton";
 type Props = { programUuid: string };
 
 export default function LearningOutcomesAdmin({ programUuid }: Props) {
+  // ======================
+  // Data fetching + mutation
+  // ======================
   const { data: outcomes = [], isLoading, isError } =
     useGetAllLearningOutcomesQuery(programUuid, {
       refetchOnMountOrArgChange: true,
@@ -27,7 +30,12 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
 
   const [updateOutcomes] = useUpdateLearningOutcomesMutation();
 
-  // UI states
+  // ======================
+  // Local State
+  // ======================
+  const [localOutcomes, setLocalOutcomes] = useState<LearningOutcomeType[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
+
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [editingOutcomeIndex, setEditingOutcomeIndex] = useState<number | null>(
     null
@@ -45,74 +53,86 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
   } | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
+  // sync server → local
+  useEffect(() => {
+    if (outcomes && Array.isArray(outcomes)) {
+      // ensure each outcome.description is an array
+      const safeOutcomes = outcomes.map((o) => ({
+        ...o,
+        description: Array.isArray(o.description) ? o.description : [],
+      }));
+      setLocalOutcomes(safeOutcomes);
+      setHasChanges(false);
+    }
+  }, [outcomes]);
+
+  // ======================
+  // UI Helpers
+  // ======================
   const toggleExpand = (id: string) =>
     setExpandedItems((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
 
-  if (isLoading) return <SectionSkeleton count={4}/>;
+  if (isLoading) return <SectionSkeleton count={4} />;
   if (isError)
     return (
       <div className="text-destructive">Failed to load learning outcomes</div>
     );
 
   // ======================
-  // Handlers
+  // Local Save Handlers
   // ======================
 
-  const handleSaveOutcome = async (
-    data: { title: string; subtitle: string },
-    targetIndex?: number
-  ) => {
-    try {
-      const safeOutcomes: LearningOutcomeType[] = outcomes ?? [];
-      let newOutcomes: LearningOutcomeType[];
+const handleSaveOutcomeLocal = (
+  data: { title: string; subtitle: string },
+  targetIndex?: number
+) => {
+  let message = "";
+  setLocalOutcomes((prev) => {
+    const safe = prev ?? [];
+    let newOutcomes: LearningOutcomeType[];
 
-      if (targetIndex !== undefined) {
-        newOutcomes = safeOutcomes.map((o, i) =>
-          i === targetIndex
-            ? { ...o, title: data.title, subtitle: data.subtitle }
-            : o
-        );
-      } else {
-        newOutcomes = [
-          ...safeOutcomes,
-          {
-            id: crypto.randomUUID(),
-            title: data.title,
-            subtitle: data.subtitle || "",
-            description: [],
-          },
-        ];
-      }
-
-      await updateOutcomes({
-        programUuid,
-        learningOutcomes: newOutcomes,
-      }).unwrap();
-
-      toast.success(
-        targetIndex !== undefined ? "Outcome updated!" : "Outcome added!"
+    if (targetIndex !== undefined) {
+      newOutcomes = safe.map((o, i) =>
+        i === targetIndex
+          ? { ...o, title: data.title, subtitle: data.subtitle }
+          : o
       );
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save outcome: ${message}`);
+      message = `Learning Outcome "${data.title}" updated!`;
+    } else {
+      newOutcomes = [
+        ...safe,
+        {
+          id: crypto.randomUUID(),
+          title: data.title,
+          subtitle: data.subtitle || "",
+          description: [],
+        },
+      ];
+      message = `Learning Outcome "${data.title}" created!`;
     }
-  };
 
-  const handleSaveSection = async (
+    setHasChanges(true);
+    return newOutcomes;
+  });
+
+  toast.success(message);
+};
+
+  const handleSaveSectionLocal = (
     outcomeIndex: number,
     data: { title: string },
     sectionIndex?: number
   ) => {
-    try {
-      const safeOutcomes: LearningOutcomeType[] = outcomes.map((o) => ({
+    setLocalOutcomes((prev) => {
+      const safe = prev.map((o) => ({
         ...o,
-        description: [...(o.description || [])],
+        description: Array.isArray(o.description) ? [...o.description] : [],
       }));
 
-      const outcome = safeOutcomes[outcomeIndex];
-      if (!outcome) return;
+      const outcome = safe[outcomeIndex];
+      if (!outcome) return prev;
 
       const updatedOutcome =
         sectionIndex !== undefined
@@ -127,49 +147,65 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
               description: [...(outcome.description || []), data.title],
             };
 
-      safeOutcomes[outcomeIndex] = updatedOutcome;
-
-      await updateOutcomes({
-        programUuid,
-        learningOutcomes: safeOutcomes,
-      }).unwrap();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save section: ${message || err}`);
-    }
+      safe[outcomeIndex] = updatedOutcome;
+      setHasChanges(true);
+      return safe;
+    });
   };
 
-  const handleDelete = async (
-    type: "outcome" | "section",
-    outcomeIndex?: number,
-    index?: number
-  ) => {
+  
+const handleDeleteLocal = (
+  type: "outcome" | "section",
+  outcomeIndex?: number,
+  index?: number
+) => {
+  let deletedName = "";
+
+  setLocalOutcomes((prev) => {
+    const safe = [...prev];
+    let newOutcomes: LearningOutcomeType[];
+
+    if (type === "outcome" && outcomeIndex !== undefined) {
+      deletedName = safe[outcomeIndex]?.title || `Outcome #${outcomeIndex + 1}`;
+      newOutcomes = safe.filter((_, i) => i !== outcomeIndex);
+    } else if (
+      type === "section" &&
+      outcomeIndex !== undefined &&
+      index !== undefined
+    ) {
+      const outcome = { ...safe[outcomeIndex] };
+      deletedName =
+        outcome.description?.[index] || `Section #${index + 1}`;
+      outcome.description = Array.isArray(outcome.description)
+        ? outcome.description.filter((_, i) => i !== index)
+        : [];
+      newOutcomes = safe.map((o, i) => (i === outcomeIndex ? outcome : o));
+    } else return prev;
+
+    setHasChanges(true);
+    return newOutcomes;
+  });
+
+  setDeleteTarget(null);
+  toast.info(`Learning Outcome "${deletedName}" deleted!`);
+};
+
+
+  // ======================
+  // Final Backend Save
+  // ======================
+  const handleSaveAllToBackend = async () => {
     try {
-      const safeOutcomes = [...outcomes];
-      let newOutcomes: LearningOutcomeType[];
+      await updateOutcomes({
+        programUuid,
+        learningOutcomes: localOutcomes,
+      }).unwrap();
 
-      if (type === "outcome" && outcomeIndex !== undefined) {
-        newOutcomes = safeOutcomes.filter((_, i) => i !== outcomeIndex);
-      } else if (
-        type === "section" &&
-        outcomeIndex !== undefined &&
-        index !== undefined
-      ) {
-        const outcome = { ...safeOutcomes[outcomeIndex] };
-        outcome.description = (outcome.description || []).filter(
-          (_, i) => i !== index
-        );
-        newOutcomes = safeOutcomes.map((o, i) =>
-          i === outcomeIndex ? outcome : o
-        );
-      } else return;
-
-      await updateOutcomes({ programUuid, learningOutcomes: newOutcomes }).unwrap();
-      toast.success(type === "outcome" ? "Outcome deleted!" : "Section deleted!");
-      setDeleteTarget(null);
+      toast.success("All learning outsomes saved!");
+      setHasChanges(false);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to delete: ${message || err}`);
+      toast.error(`Failed to sync: ${message}`);
     }
   };
 
@@ -188,29 +224,33 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
           open={isCreateOpen}
           onOpenChange={setIsCreateOpen}
           programUuid={programUuid}
-          onSubmit={async (data) => {
-            await handleSaveOutcome(data);
-            setIsCreateOpen(false); // automatically close after submit
+          onSubmit={(data) => {
+            handleSaveOutcomeLocal(data);
+            setIsCreateOpen(false);
           }}
           trigger={
             <Button>
               <FiPlus />
-              <span className="text-[14px] font-bold cursor-pointer">Add Outcome</span>
+              <span className="text-[14px] font-bold cursor-pointer">
+                Add Outcome
+              </span>
             </Button>
           }
         />
       </div>
 
-      {(!outcomes || outcomes.length === 0) && (
+      {localOutcomes.length === 0 && (
         <div className="text-muted-foreground">
           No learning outcomes yet. Add one!
         </div>
       )}
 
       {/* List */}
-      {(outcomes || []).map((outcome, outcomeIndex) => {
+      {localOutcomes.map((outcome, outcomeIndex) => {
         const isExpanded = expandedItems.includes(String(outcomeIndex));
-        const sections = outcome.description || [];
+        const sections = Array.isArray(outcome.description)
+          ? outcome.description
+          : [];
 
         return (
           <div
@@ -260,9 +300,9 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
                     title: outcome.title,
                     subtitle: outcome.subtitle,
                   }}
-                  onSubmit={async (data) => {
-                    await handleSaveOutcome(data, outcomeIndex);
-                    setEditingOutcomeIndex(null); // close after edit
+                  onSubmit={(data) => {
+                    handleSaveOutcomeLocal(data, outcomeIndex);
+                    setEditingOutcomeIndex(null);
                   }}
                 />
 
@@ -322,7 +362,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
                         }
                         initialData={{ title: section }}
                         onSubmit={(data) =>
-                          handleSaveSection(outcomeIndex, data, index)
+                          handleSaveSectionLocal(outcomeIndex, data, index)
                         }
                       />
                     </div>
@@ -334,7 +374,9 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
                   onClick={() => setAddingSectionOutcomeIndex(outcomeIndex)}
                 >
                   <FiPlus />
-                  <span className="text-[14px] font-semibold cursor-pointer">Add Section</span>
+                  <span className="text-[14px] font-semibold cursor-pointer">
+                    Add Section
+                  </span>
                 </Button>
 
                 {addingSectionOutcomeIndex === outcomeIndex && (
@@ -345,7 +387,9 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
                     onOpenChange={(open) =>
                       !open && setAddingSectionOutcomeIndex(null)
                     }
-                    onSubmit={(data) => handleSaveSection(outcomeIndex, data)}
+                    onSubmit={(data) =>
+                      handleSaveSectionLocal(outcomeIndex, data)
+                    }
                   />
                 )}
               </div>
@@ -354,6 +398,17 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
         );
       })}
 
+      {/* Save Button at the bottom */}
+      <div className="flex justify-end mt-4">
+        <Button
+          variant={hasChanges ? "default" : "outline"}
+          disabled={!hasChanges}
+          onClick={handleSaveAllToBackend}
+        >
+          Save All Learning Outcomes
+        </Button>
+      </div>
+
       {/* Delete Modal */}
       <DeleteModal
         open={!!deleteTarget}
@@ -361,7 +416,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
         itemName={deleteTarget?.type === "outcome" ? "outcome" : "section"}
         onConfirm={() =>
           deleteTarget &&
-          handleDelete(
+          handleDeleteLocal(
             deleteTarget.type,
             deleteTarget.outcomeIndex,
             deleteTarget.index

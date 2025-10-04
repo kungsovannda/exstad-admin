@@ -48,7 +48,7 @@ export const openingProgramformSchema = z.object({
   thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
   posterUrl: z.string().min(1, { message: "Poster is required" }),
   slug: z.string(),
-  status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
+  status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED","PENDING"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
   qrCodeUrl: z.string().min(1,{ message: "Valid QR Code URL is required" }),
   activity: z.string().optional(),
 });
@@ -105,7 +105,7 @@ export default function OpeningProgramForm({
       thumbnail: "",
       posterUrl:"",
       slug: "",
-      status: undefined,
+      status: undefined as "OPEN" | "CLOSED" | "ACHIEVED" | "PENDING" | undefined,
       qrCodeUrl: "",
     },
   }) as ExtendedFormReturn;
@@ -345,6 +345,7 @@ useEffect(() => {
                   <SelectItem value="OPEN">Open</SelectItem>
                   <SelectItem value="CLOSED">Closed</SelectItem>
                   <SelectItem value="ACHIEVED">Achieved</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

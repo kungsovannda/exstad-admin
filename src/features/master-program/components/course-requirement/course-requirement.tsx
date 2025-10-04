@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
@@ -9,10 +9,7 @@ import AddTopicDialog from "./add-topic-dialog";
 import AddSectionDialog from "./section-dialog";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
-import {
-  useGetAllRequirementsQuery,
-  useUpdateRequirementsMutation,
-} from "./requirementsApi";
+import { useGetAllRequirementsQuery, useUpdateRequirementsMutation } from "./requirementsApi";
 import { RequirementsType } from "@/types/program";
 import { SectionSkeleton } from "../section-skeleton";
 
@@ -20,150 +17,173 @@ type Props = { programUuid: string };
 
 export default function CourseRequirementsAdmin({ programUuid }: Props) {
   const { data: requirements = [], isLoading, isError } =
-    useGetAllRequirementsQuery(programUuid, {
-      refetchOnMountOrArgChange: true,
-    });
+    useGetAllRequirementsQuery(programUuid, { refetchOnMountOrArgChange: true });
 
   const [updateRequirements] = useUpdateRequirementsMutation();
 
-  // UI states
+  const [localRequirements, setLocalRequirements] = useState<RequirementsType[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
+
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(null );
-  const [editingSection, setEditingSection] = useState<{
-    reqIndex: number;
-    index: number;
-  } | null>(null);
+  const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(null);
+  const [editingSection, setEditingSection] = useState<{ reqIndex: number; index: number } | null>(null);
   const [addingSectionReqIndex, setAddingSectionReqIndex] = useState<number | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{
-    type: "topic" | "section";
-    reqIndex?: number;
-    index?: number;
-  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: "topic" | "section"; reqIndex?: number; index?: number } | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
+  // -------------------------------
+  // Initialize local state safely
+  // -------------------------------
+  useEffect(() => {
+    const safeRequirements = Array.isArray(requirements)
+      ? requirements.map(r => ({
+          ...r,
+          description: Array.isArray(r.description) ? r.description : [],
+        }))
+      : [];
+    setLocalRequirements(safeRequirements);
+    setHasChanges(false);
+  }, [requirements]);
+
   const toggleExpand = (id: string) =>
-    setExpandedItems((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setExpandedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
 
-  if (isLoading) return <SectionSkeleton count={4}/>;
-  if (isError)
-    return <div className="text-destructive">Failed to load requirements</div>;
+  if (isLoading) return <SectionSkeleton count={4} />;
+  if (isError) return <div className="text-destructive">Failed to load requirements</div>;
 
-  // ======================
-  // Handlers
-  // ======================
-  const handleSaveTopic = async (
-    data: { title: string; subtitle: string },
-    targetIndex?: number
-  ) => {
-    try {
-      const safeRequirements = requirements ?? [];
-      let newRequirements: RequirementsType[];
+  // -------------------------------
+  // Local Handlers
+  // -------------------------------
+const handleSaveTopicLocal = (
+  data: { title: string; subtitle: string },
+  targetIndex?: number
+) => {
+  let message = "";
 
-      if (targetIndex !== undefined) {
-        newRequirements = safeRequirements.map((r, i) =>
-          i === targetIndex ? { ...r, title: data.title, subtitle: data.subtitle } : r
-        );
-      } else {
-        newRequirements = [
-          ...safeRequirements,
-          { id: crypto.randomUUID(), title: data.title, subtitle: data.subtitle || "", description: [] },
-        ];
-      }
+  setLocalRequirements((prev) => {
+    let newRequirements: RequirementsType[];
 
-      await updateRequirements({ programUuid, requirements: newRequirements }).unwrap();
-      toast.success(targetIndex !== undefined ? "Topic updated!" : "Topic added!");
-    } catch (err: unknown) {
-  const message = err instanceof Error ? err.message : String(err);
-  toast.error(`Failed to save topic: ${message}`);
-}
+    if (targetIndex !== undefined) {
+      newRequirements = prev.map((r, i) =>
+        i === targetIndex
+          ? {
+              ...r,
+              title: data.title,
+              subtitle: data.subtitle,
+              description: Array.isArray(r.description) ? r.description : [],
+            }
+          : r
+      );
+      message = `Topic "${data.title}" updated!`;
+    } else {
+      newRequirements = [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          title: data.title,
+          subtitle: data.subtitle || "",
+          description: [],
+        },
+      ];
+      message = `Topic "${data.title}" created!`;
+    }
+
+    setHasChanges(true);
+    return newRequirements;
+  });
+
+  // Show toast **after state update**
+  toast.success(message);
+};
+
+
+  const handleSaveSectionLocal = (reqIndex: number, data: { title: string }, sectionIndex?: number) => {
+    setLocalRequirements(prev => {
+      const newReqs = [...prev];
+      const req = newReqs[reqIndex];
+      if (!req) return prev;
+
+      const safeDescription = Array.isArray(req.description) ? [...req.description] : [];
+      const updatedDescription = sectionIndex !== undefined
+        ? safeDescription.map((d, i) => i === sectionIndex ? data.title : d)
+        : [...safeDescription, data.title];
+
+      newReqs[reqIndex] = { ...req, description: updatedDescription };
+      setHasChanges(true);
+      return newReqs;
+    });
   };
 
-  const handleSaveSection = async (
-    reqIndex: number,
-    data: { title: string },
-    sectionIndex?: number
-  ) => {
+const handleDeleteLocal = (
+  type: "topic" | "section",
+  reqIndex?: number,
+  index?: number
+) => {
+  let deletedName = "";
+
+  setLocalRequirements((prev) => {
+    let newRequirements: RequirementsType[];
+
+    if (type === "topic" && reqIndex !== undefined) {
+      deletedName = prev[reqIndex]?.title || `Topic #${reqIndex + 1}`;
+      newRequirements = prev.filter((_, i) => i !== reqIndex);
+    } else if (
+      type === "section" &&
+      reqIndex !== undefined &&
+      index !== undefined
+    ) {
+      const req = { ...prev[reqIndex] };
+      const sections = Array.isArray(req.description) ? [...req.description] : [];
+      deletedName = sections[index] || `Section #${index + 1}`;
+      req.description = sections.filter((_, i) => i !== index);
+      newRequirements = prev.map((r, i) => (i === reqIndex ? req : r));
+    } else {
+      return prev;
+    }
+
+    setHasChanges(true);
+    return newRequirements;
+  });
+
+  setDeleteTarget(null);
+  toast.info(`Requirement "${deletedName}" deleted!`);
+};
+
+
+  const handleSaveAllToBackend = async () => {
     try {
-      const safeRequirements = requirements.map((r) => ({
-        ...r,
-        description: [...(r.description || [])],
-      }));
-
-      const req = safeRequirements[reqIndex];
-      if (!req) return;
-
-      const updatedReq =
-        sectionIndex !== undefined
-          ? { ...req, description: (req.description || []).map((d, i) => (i === sectionIndex ? data.title : d)) }
-          : { ...req, description: [...(req.description || []), data.title] };
-      safeRequirements[reqIndex] = updatedReq;
-
-      await updateRequirements({ programUuid, requirements: safeRequirements }).unwrap();
+      await updateRequirements({ programUuid, requirements: localRequirements }).unwrap();
+      toast.success("All changes saved!");
+      setHasChanges(false);
     } catch (err: unknown) {
-  const message = err instanceof Error ? err.message : String(err);
-  toast.error(`Failed to save section: ${message}`);
-}
-
-  };
-
-  const handleDelete = async (type: "topic" | "section", reqIndex?: number, index?: number) => {
-    try {
-      const safeRequirements = [...requirements];
-      let newRequirements: RequirementsType[];
-
-      if (type === "topic" && reqIndex !== undefined) {
-        newRequirements = safeRequirements.filter((_, i) => i !== reqIndex);
-      } else if (type === "section" && reqIndex !== undefined && index !== undefined) {
-        const req = { ...safeRequirements[reqIndex] };
-        req.description = (req.description || []).filter((_, i) => i !== index);
-        newRequirements = safeRequirements.map((r, i) => (i === reqIndex ? req : r));
-      } else return;
-
-      await updateRequirements({ programUuid, requirements: newRequirements }).unwrap();
-      toast.success(type === "topic" ? "Topic deleted!" : "Section deleted!");
-      setDeleteTarget(null);
-    } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to delete: ${message || err}`);
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to save: ${message}`);
     }
   };
 
-  // ======================
+  // -------------------------------
   // JSX
-  // ======================
+  // -------------------------------
   return (
     <div className="flex flex-col gap-5 w-full">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-[18px] font-bold text-foreground">Course Requirements</h2>
-
         <AddTopicDialog
           open={isCreateOpen}
           onOpenChange={setIsCreateOpen}
           programUuid={programUuid}
-          onSubmit={async (data) => {
-            await handleSaveTopic(data);
-            setIsCreateOpen(false);
-          }}
-          trigger={
-            <Button>
-              <FiPlus />
-              <span className="text-[14px] font-bold cursor-pointer">Add Topic</span>
-            </Button>
-          }
+          onSubmit={(data) => { handleSaveTopicLocal(data); setIsCreateOpen(false); }}
+          trigger={<Button><FiPlus /><span className="text-[14px] font-bold cursor-pointer">Add Requirements</span></Button>}
         />
       </div>
 
-      {(!requirements || requirements.length === 0) && (
-        <div className="text-muted-foreground">No requirements yet. Add one!</div>
-      )}
+      {localRequirements.length === 0 && <div className="text-muted-foreground">No requirements yet. Add one!</div>}
 
       {/* List */}
-      {(requirements || []).map((req, reqIndex) => {
+      {localRequirements.map((req, reqIndex) => {
         const isExpanded = expandedItems.includes(String(reqIndex));
-        const sections = req.description || [];
+        const sections = Array.isArray(req.description) ? req.description : [];
 
         return (
           <div key={req.id || reqIndex} className="flex flex-col gap-2.5 bg-accent rounded-sm p-4">
@@ -186,16 +206,10 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
                   open={editingTopicIndex === reqIndex}
                   onOpenChange={(open) => setEditingTopicIndex(open ? reqIndex : null)}
                   initialData={{ title: req.title, subtitle: req.subtitle }}
-                  onSubmit={async (data) => {
-                    await handleSaveTopic(data, reqIndex);
-                    setEditingTopicIndex(null);
-                  }}
+                  onSubmit={(data) => { handleSaveTopicLocal(data, reqIndex); setEditingTopicIndex(null); }}
                 />
 
-                <FaChevronDown
-                  className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`}
-                  onClick={() => toggleExpand(String(reqIndex))}
-                />
+                <FaChevronDown className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`} onClick={() => toggleExpand(String(reqIndex))} />
               </div>
             </div>
 
@@ -219,7 +233,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
                         open={editingSection?.reqIndex === reqIndex && editingSection?.index === index}
                         onOpenChange={(open) => !open && setEditingSection(null)}
                         initialData={{ title: desc }}
-                        onSubmit={(data) => handleSaveSection(reqIndex, data, index)}
+                        onSubmit={(data) => handleSaveSectionLocal(reqIndex, data, index)}
                       />
                     </div>
                   </div>
@@ -236,7 +250,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
                     reqIndex={reqIndex}
                     open={true}
                     onOpenChange={(open) => !open && setAddingSectionReqIndex(null)}
-                    onSubmit={(data) => handleSaveSection(reqIndex, data)}
+                    onSubmit={(data) => handleSaveSectionLocal(reqIndex, data)}
                   />
                 )}
               </div>
@@ -245,12 +259,19 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
         );
       })}
 
+      {/* Save All Button */}
+      <div className="flex justify-end mt-4">
+        <Button variant={hasChanges ? "default" : "outline"} disabled={!hasChanges} onClick={handleSaveAllToBackend}>
+          Save All Changes
+        </Button>
+      </div>
+
       {/* Delete Modal */}
       <DeleteModal
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         itemName={deleteTarget?.type === "topic" ? "topic" : "section"}
-        onConfirm={() => deleteTarget && handleDelete(deleteTarget.type, deleteTarget.reqIndex, deleteTarget.index)}
+        onConfirm={() => deleteTarget && handleDeleteLocal(deleteTarget.type, deleteTarget.reqIndex, deleteTarget.index)}
       />
     </div>
   );
