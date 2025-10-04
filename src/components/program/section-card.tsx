@@ -102,7 +102,7 @@ export function SectionCards() {
 
   // Compute stats dynamically
   const totalProgram = masterPrograms.length;
-  const draftProgram = masterPrograms.filter((p) => p.status === "draft").length;
+  const draftProgram = masterPrograms.filter((p) => p.visibility === "PRIVATE").length;
   const shortCourses = masterPrograms.filter((p) => p.programType === "SHORT_COURSE").length;
   const scholarshipCourses = masterPrograms.filter((p) => p.programType === "SCHOLARSHIP").length;
 

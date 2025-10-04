@@ -27,9 +27,9 @@ import {
 import Image from "next/image";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { generateSlug } from "@/services/generate-slug";
-import { ThumbnailUploadField } from "../../master-program/create/ThumbnailUploadField";
-import { PosterUploadField } from "../../master-program/create/PosterUrl";
-import { QrCodeUploadField } from "../../master-program/create/qrCodeUrl";
+import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
+import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
+import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
 import { useCreateDocumentMutation } from "@/features/document/documentApi";
 
 // ------------------- SCHEMA -------------------
