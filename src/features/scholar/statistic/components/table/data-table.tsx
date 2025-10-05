@@ -18,18 +18,20 @@ import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
 import { Scholar } from "@/types/scholar";
+import { exportToExcel } from "@/services/export-to-excel";
+import ExportToExcelModal from "@/components/ExportToExcelModal";
 
-interface ScholarTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface ScholarTableProps<TValue> {
+  columns: ColumnDef<Scholar, TValue>[];
+  data: Scholar[];
   totalItems: number;
 }
 
-export function ScholarTable<TData, TValue>({
+export function ScholarTable<TValue>({
   columns,
   data,
   totalItems,
-}: ScholarTableProps<TData, TValue>) {
+}: ScholarTableProps<TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
     ? Number(searchParams.get("perPage"))
@@ -47,6 +49,15 @@ export function ScholarTable<TData, TValue>({
   });
 
   const [isAssignBadgeOpen, setIsAssignBadgeOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const handleExport = async (selectedFields: string[]) => {
+    await exportToExcel({
+      data,
+      selectedFields,
+      filename: "scholars.xlsx",
+    });
+  };
 
   return (
     <DataTable table={table}>
@@ -67,6 +78,9 @@ export function ScholarTable<TData, TValue>({
             <DropdownMenuItem onClick={() => setIsAssignBadgeOpen(true)}>
               Assign Badge
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsExportModalOpen(true)}>
+              Export to Excel
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </DataTableToolbar>
@@ -78,6 +92,14 @@ export function ScholarTable<TData, TValue>({
           scholars={table
             .getSelectedRowModel()
             .rows.map((row) => row.original as Scholar)}
+        />
+      )}
+      {isExportModalOpen && (
+        <ExportToExcelModal
+          data={data}
+          open={isExportModalOpen}
+          onOpenChange={setIsExportModalOpen}
+          onExport={handleExport}
         />
       )}
     </DataTable>
