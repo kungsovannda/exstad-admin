@@ -1,3 +1,5 @@
+import { Audit } from "..";
+
 export type openingProgramType = {
   programName: string;
   programUuid: string;
@@ -31,6 +33,7 @@ export type openingProgramType = {
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
+  // audit: Audit;
 };
 
 export type openingProgramCreate = {
@@ -56,6 +59,7 @@ export type openingProgramCreate = {
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
+  // audit: Audit;
 };
 
 export type ActivityType = {

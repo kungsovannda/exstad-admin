@@ -110,16 +110,16 @@ export default function OpeningProgramForm({
     },
   }) as ExtendedFormReturn;
 
-  const { watch, setValue } = form;
+  const { watch, setValue ,reset} = form;
   const originalFee = watch("originalFee") || 0;
   const scholarship = watch("scholarship") || 0;
   const title = watch("title");
-
+  
   // ------------------- FILTER MASTER PROGRAMS -------------------
   const filteredMasterPrograms = selectedProgramType
     ? masterPrograms.filter((p) => p.programType === selectedProgramType)
     : masterPrograms;
-
+    
   // ------------------- AUTO DISCOUNT -------------------
   useEffect(() => {
     const discount = originalFee - (originalFee * scholarship) / 100;
@@ -141,11 +141,12 @@ useEffect(() => {
 
 
   // ------------------- RESET MASTER PROGRAM ON TYPE CHANGE -------------------
+  // ✅ FIX: Reset form when initialValues change (this fixes your title reverting issue)
   useEffect(() => {
-    if (!initialValues) {
-      setValue("programUuid", "");
+    if (initialValues) {
+      reset(initialValues);
     }
-  }, [selectedProgramType, setValue, initialValues]);
+  }, [initialValues, reset]);
 
   // ------------------- SYNC PROGRAM TYPE WHEN EDITING -------------------
   useEffect(() => {
