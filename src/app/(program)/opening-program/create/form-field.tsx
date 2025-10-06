@@ -236,6 +236,7 @@ useEffect(() => {
           <Select
             onValueChange={setSelectedProgramType}
             value={selectedProgramType ?? ""}
+            disabled={!!initialValues}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Program Type" />
@@ -263,7 +264,10 @@ useEffect(() => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Master Program</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                value={field.value}
+                disabled={!!initialValues }>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Master Program" />
                 </SelectTrigger>
@@ -367,7 +371,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -385,7 +389,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -407,7 +411,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -425,7 +429,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />

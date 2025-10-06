@@ -1,6 +1,6 @@
 "use client";
 
-import OpeningProgramForm, { OpeningProgramFormValue } from "../../opening-program/create/form-field";
+import OpeningProgramForm, { OpeningProgramFormValue } from "../../create/form-field";
 import {
   useUpdateOpeningProgramMutation,
   useGetOpeningProgramBySlugQuery,

@@ -115,6 +115,14 @@ export type ClassCreate = {
   telegram: string;
 };
 
+
+export type ScholarClassType = {
+  uuid: string;
+  classUuid: string;
+  scholarUuid: string;
+  isPaid : boolean;
+  isReminded:boolean;
+}
 // export type RoadmapType = {
 
 // }
