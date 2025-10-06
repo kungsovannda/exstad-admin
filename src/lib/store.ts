@@ -23,6 +23,8 @@ import { documentAccessApi } from "@/features/document/documentAccessApi";
 import { scholarBadgeApi } from "@/features/scholar-badge/scholarBadgeApi";
 import { achievementApi } from "@/features/achievement/achievementApi";
 import { scholarAchievementApi } from "@/features/scholar-achievement/scholarAchievementApi";
+import { userApi } from "@/features/user/userApi";
+import { enrollmentApi } from "@/features/enrollment/enrollmentApi";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
@@ -47,6 +49,8 @@ const rootReducer = combineReducers({
   [scholarBadgeApi.reducerPath]: scholarBadgeApi.reducer,
   [achievementApi.reducerPath]: achievementApi.reducer,
   [scholarAchievementApi.reducerPath]: scholarAchievementApi.reducer,
+  [userApi.reducerPath]: userApi.reducer,
+  [enrollmentApi.reducerPath]: enrollmentApi.reducer,
 });
 
 const persistConfig = {
@@ -83,7 +87,9 @@ export const makeStore = () => {
         documentAccessApi.middleware,
         scholarBadgeApi.middleware,
         achievementApi.middleware,
-        scholarAchievementApi.middleware
+        scholarAchievementApi.middleware,
+        userApi.middleware,
+        enrollmentApi.middleware
       ),
   });
 

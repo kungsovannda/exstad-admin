@@ -2,6 +2,7 @@
 import { Heading } from "@/components/Heading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EnrollmentChart from "@/features/enrollment/components/statistic/EnrollmentChart";
+import EnrollmentGradeChart from "@/features/enrollment/components/statistic/EnrollmentGradeChart";
 import { EnrollmentStatisticCard } from "@/features/enrollment/components/statistic/EnrollmentStatisticCard";
 import EnrollmentListPage from "@/features/enrollment/components/table/enrollment-list-page";
 import { useGetMasterProgramBySlugQuery } from "@/features/master-program/masterProgramApi";
@@ -27,7 +28,7 @@ export default function PaidEnrollment() {
   openingPrograms.sort((a, b) => b.generation - a.generation);
 
   return (
-    <div className="space-y-6 min-h-screen h-fit">
+    <div className="p-6 space-y-6 min-h-screen h-fit">
       <Heading
         title={`${formatTitle(slug!)} Enrollment`}
         description="Overview of scholar enrollment distribution by program"
@@ -58,6 +59,7 @@ export default function PaidEnrollment() {
           >
             <EnrollmentStatisticCard />
             <EnrollmentChart />
+            <EnrollmentGradeChart />
             <EnrollmentListPage />
           </TabsContent>
         ))}

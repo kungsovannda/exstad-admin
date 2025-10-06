@@ -16,17 +16,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 
-interface AcceptedEnrollmentTableProps<TData, TValue> {
+interface InterviewedEnrollmentTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   totalItems: number;
 }
 
-export function AcceptedEnrollmentTable<TData, TValue>({
+export function InterviewedEnrollmentTable<TData, TValue>({
   columns,
   data,
   totalItems,
-}: AcceptedEnrollmentTableProps<TData, TValue>) {
+}: InterviewedEnrollmentTableProps<TData, TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
     ? Number(searchParams.get("perPage"))

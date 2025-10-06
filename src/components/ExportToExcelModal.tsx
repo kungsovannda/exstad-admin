@@ -107,12 +107,12 @@ export default function ExportToExcelModal<T extends Record<string, unknown>>({
         </DialogHeader>
 
         <div className="flex flex-col space-y-4 py-4">
-          <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4  overflow-hidden">
             <div className="flex-1 flex flex-col space-y-2">
               <label className="text-sm font-medium">
                 Selected Fields ({selectedFields.length})
               </label>
-              <div className="flex-1 min-h-[400px] border-2 border-dashed rounded-lg p-3 overflow-y-auto">
+              <div className="flex-1 h-full max-h-[400px] border-2 border-dashed rounded-lg p-3 overflow-y-auto">
                 {selectedFields.length === 0 ? (
                   <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
                     Select fields from the right to export

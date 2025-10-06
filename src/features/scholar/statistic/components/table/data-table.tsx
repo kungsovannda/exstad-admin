@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Printer } from "lucide-react";
 import { useState } from "react";
 import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
 import { Scholar } from "@/types/scholar";
@@ -62,6 +62,15 @@ export function ScholarTable<TValue>({
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
+        <Button
+          size={"sm"}
+          variant={"outline"}
+          disabled={table.getSelectedRowModel().rows.length === 0}
+          onClick={() => setIsExportModalOpen(true)}
+        >
+          <Printer />
+          Export
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -77,9 +86,6 @@ export function ScholarTable<TValue>({
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => setIsAssignBadgeOpen(true)}>
               Assign Badge
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setIsExportModalOpen(true)}>
-              Export to Excel
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
