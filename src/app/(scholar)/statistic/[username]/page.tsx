@@ -16,11 +16,9 @@ export default function ScholarDetails() {
   const param = useParams();
   const username = param.username as string;
   // const scholar = scholars.find((s) => s.username === param.username);
-  const {
-    data: scholar,
-    isLoading,
-    isError,
-  } = useGetScholarByUsernameQuery(username, { skip: !username });
+  const { data: scholar } = useGetScholarByUsernameQuery(username, {
+    skip: !username,
+  });
   const [updateScholar, setUpdateScholar] = useState<UpdateScholar | null>(
     null
   );
@@ -175,7 +173,7 @@ export default function ScholarDetails() {
         <AssignBadgeScholar
           open={isAssignBadgeModalOpen}
           onOpenChange={setIsAssignBadgeModalOpen}
-          scholar={scholar!}
+          scholars={[scholar!]}
         />
       )}
     </div>

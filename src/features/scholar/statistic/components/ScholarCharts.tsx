@@ -6,13 +6,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "../ui/chart";
+} from "@/components/ui/chart";
 import {
   Bar,
   BarChart,
@@ -24,7 +24,7 @@ import {
   YAxis,
 } from "recharts";
 import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
-import { ScholarGender } from "@/types/scholar";
+import { Gender } from "@/types/scholar";
 
 const chartData = [
   { level: "Pre-University", count: 15, fill: "var(--chart-1)" },
@@ -226,23 +226,19 @@ export default function ScholarCharts() {
   const [genderDataChart, setGenderDataChart] = useState<GenderChartData[]>([]);
   useEffect(() => {
     const totalFemale = Array.isArray(scholars)
-      ? scholars.filter((s) => s.gender === ScholarGender.FEMALE)
+      ? scholars.filter((s) => s.gender === Gender.FEMALE)
       : [];
     const totalMale = Array.isArray(scholars)
-      ? scholars?.filter((s) => s.gender === ScholarGender.MALE)
+      ? scholars.filter((s) => s.gender === Gender.MALE)
       : [];
+    const totalOther = Array.isArray(scholars)
+      ? scholars.length - totalFemale.length - totalMale.length
+      : 0;
+
     setGenderDataChart([
       { gender: "Female", count: totalFemale.length, fill: "var(--chart-1)" },
       { gender: "Male", count: totalMale.length, fill: "var(--chart-2)" },
-      {
-        gender: "Other",
-        count: Math.abs(
-          Array.isArray(scholars)
-            ? scholars.length
-            : 0 - totalFemale.length - totalMale.length
-        ),
-        fill: "var(--chart-3)",
-      },
+      { gender: "Other", count: totalOther, fill: "var(--chart-3)" },
     ]);
   }, [scholars]);
 

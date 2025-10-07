@@ -20,6 +20,12 @@ import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { requiementApi } from "@/features/master-program/components/course-requirement/requirementsApi";
 import { documentAccessApi } from "@/features/document/documentAccessApi";
+import { scholarBadgeApi } from "@/features/scholar-badge/scholarBadgeApi";
+import { achievementApi } from "@/features/achievement/achievementApi";
+import { scholarAchievementApi } from "@/features/scholar-achievement/scholarAchievementApi";
+import { userApi } from "@/features/user/userApi";
+import { enrollmentApi } from "@/features/enrollment/enrollmentApi";
+import { ScholarClassApi } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
@@ -41,6 +47,12 @@ const rootReducer = combineReducers({
   [activityApi.reducerPath]: activityApi.reducer,
   [TimelineApi.reducerPath]: TimelineApi.reducer,
   [documentAccessApi.reducerPath]: documentAccessApi.reducer,
+  [scholarBadgeApi.reducerPath]: scholarBadgeApi.reducer,
+  [achievementApi.reducerPath]: achievementApi.reducer,
+  [scholarAchievementApi.reducerPath]: scholarAchievementApi.reducer,
+  [userApi.reducerPath]: userApi.reducer,
+  [enrollmentApi.reducerPath]: enrollmentApi.reducer,
+  [ScholarClassApi.reducerPath]: ScholarClassApi.reducer,
 });
 
 const persistConfig = {
@@ -74,7 +86,13 @@ export const makeStore = () => {
         programOverviewsApi.middleware,
         activityApi.middleware,
         TimelineApi.middleware,
-        documentAccessApi.middleware
+        documentAccessApi.middleware,
+        scholarBadgeApi.middleware,
+        achievementApi.middleware,
+        scholarAchievementApi.middleware,
+        userApi.middleware,
+        enrollmentApi.middleware,
+        ScholarClassApi.middleware,
       ),
   });
 

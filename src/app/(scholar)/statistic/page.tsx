@@ -1,7 +1,7 @@
 "use client";
 import { Heading } from "@/components/Heading";
-import ScholarCharts from "@/components/scholar/ScholarCharts";
-import { StatisticCard } from "@/components/scholar/statistic-card";
+import ScholarCharts from "@/features/scholar/statistic/components/ScholarCharts";
+import { StatisticCard } from "@/features/scholar/statistic/components/StatisticCard";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { Button } from "@/components/ui/button";
 import {

@@ -79,7 +79,7 @@ export function ViewAndUpdateBadge({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>English name</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input placeholder="Pre-University" {...field} />
                   </FormControl>
@@ -92,7 +92,7 @@ export function ViewAndUpdateBadge({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Khmer name</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Input placeholder="The beginning of journey" {...field} />
                   </FormControl>
@@ -134,7 +134,7 @@ export function ViewAndUpdateBadge({
                 width={100}
                 height={100}
                 key={idx}
-                src={`http://localhost:3000${src}`}
+                src={`${src}`}
                 alt={`Preview ${idx + 1}`}
                 className="w-24 h-24 object-cover rounded border"
               />

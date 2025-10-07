@@ -1,13 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { certificateColumn } from "@/features/certificate/components/certificate-table/columns";
+import { useCertificateColumns } from "@/features/certificate/components/certificate-table/columns";
 import { Heading } from "@/components/Heading";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { CertificateTable } from "@/features/certificate/components/certificate-table/data-table";
-import { certificateForData } from "@/data/certificate";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTrigger,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
   Command,
@@ -30,13 +29,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
-// import { openingProgramData } from "@/data/openingProgramData";
-
-
 
 export default function Certificate() {
   const {
@@ -44,12 +39,12 @@ export default function Certificate() {
     isError,
     isLoading,
   } = useGetAllOpeningProgramsQuery();
-  
+
   const router = useRouter();
+  const certificateColumns = useCertificateColumns();
+
   const [selected, setSelected] = useState("");
   const [open, setOpen] = useState(false);
-
-  // const openingPrograms: openingProgramType[] = openingProgramData;
 
   const selectedProgram = openingPrograms?.find(
     (program) => program.slug === selected
@@ -59,6 +54,19 @@ export default function Certificate() {
     if (!selected) return;
     router.push(`/certificate/${selected}`);
   };
+
+  const certificateForData = useMemo(() => {
+    return (openingPrograms ?? [])
+      .filter(
+        (program) => program.templates?.[0] && program.templates[0] !== ""
+      )
+      .map((program) => ({
+        title: program.title,
+        certificateUrl: program.templates?.[0] || "",
+        generation: program.generation?.toString() || "",
+        slug: program.slug,
+      }));
+  }, [openingPrograms]);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading programs</div>;
@@ -82,7 +90,6 @@ export default function Certificate() {
                 </AlertDialogTitle>
                 <div className="flex flex-col gap-4">
                   <h3 className="text-md">Program</h3>
-
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -91,7 +98,6 @@ export default function Certificate() {
                         aria-expanded={open}
                         className="w-full justify-between"
                       >
-                        {/* Optimized: Use the selectedProgram variable */}
                         {selectedProgram
                           ? `${selectedProgram.title} - Generation ${selectedProgram.generation}`
                           : "Select a program..."}
@@ -146,14 +152,17 @@ export default function Certificate() {
             </AlertDialogContent>
           </AlertDialog>
           <Link href="certificate/verify">
-            <Button className="flex bg-green-600 items-center px-6 rounded-md">
+            <Button
+              className="flex bg-primary items-center px-6 rounded-md !py-4 text-sm hover:bg-primary/80"
+              size={"lg"}
+            >
               Verify
             </Button>
           </Link>
         </div>
       </div>
       <CertificateTable
-        columns={certificateColumn}
+        columns={certificateColumns}
         totalItems={certificateForData.length}
         data={certificateForData}
       />

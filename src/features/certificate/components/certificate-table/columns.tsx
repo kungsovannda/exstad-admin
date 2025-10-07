@@ -1,14 +1,22 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { CertificateData } from "@/types/certificate";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React from "react";
 
-export const certificateColumn: ColumnDef<CertificateData>[] = [
-  {
-    accessorKey: "certificateUrl",
-    header: "Certificate",
-    cell: ({ row }) => {
-      return (
-        <div className="relative h-16 w-24 overflow-hidden rounded-md">
+export const useCertificateColumns = () => {
+  const router = useRouter();
+
+  const columns: ColumnDef<CertificateData>[] = [
+    {
+      accessorKey: "certificateUrl",
+      header: "Certificate",
+      cell: ({ row }) => (
+        <button
+          className="relative h-16 w-24 overflow-hidden rounded-md bg-transparent border-none p-0 cursor-pointer"
+          onClick={() => router.push(`/certificate/${row.original.slug}`)}
+          aria-label="View Certificate"
+        >
           <Image
             src={row.getValue("certificateUrl")}
             alt={"Certificate Image"}
@@ -16,31 +24,26 @@ export const certificateColumn: ColumnDef<CertificateData>[] = [
             unoptimized
             className="rounded-lg"
           />
-        </div>
-      );
+        </button>
+      ),
     },
-  },
-  // {
-  //   accessorKey: "englishName",
-  //   header: "Scholar Name",
-  //   cell: ({ row }) => {
-  //     return (
-  //       <div className="h-8 flex justify-start items-center">
-  //         {row.getValue("englishName")}
-  //       </div>
-  //     );
-  //   },
-  // },
-  // {
-  //   accessorKey: "khmerName",
-  //   header: "Khmer Name",
-  // },
-  {
-    accessorKey: "title",
-    header: "Opening Program",
-  },
-  {
-    accessorKey: "generation",
-    header: "Generation",
-  },
-];
+    {
+      accessorKey: "title",
+      header: "Opening Program",
+      cell: ({ row }) => (
+        <button
+          className="cursor-pointer bg-transparent border-none p-0"
+          onClick={() => router.push(`/certificate/${row.original.slug}`)}
+        >
+          {row.getValue("title")}
+        </button>
+      ),
+    },
+    {
+      accessorKey: "generation",
+      header: "Generation",
+    },
+  ];
+
+  return columns;
+};

@@ -1,16 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { enrollments } from "@/data/enrollments";
-import { acceptedEnrollmentColumns } from "./accepted-enrollment/columns";
-import { AcceptedEnrollmentTable } from "./accepted-enrollment/data-table";
+import { useGetAllEnrollmentsQuery } from "../../enrollmentApi";
+import { interviewedEnrollmentColumns } from "./interviewed-enrollment/columns";
+import { InterviewedEnrollmentTable } from "./interviewed-enrollment/data-table";
 import { enrollmentColumns } from "./all-enrollment/columns";
 import { EnrollmentTable } from "./all-enrollment/data-table";
 import { paidEnrollmentColumns } from "./paid-enrollment/columns";
 import { PaidEnrollmentTable } from "./paid-enrollment/data-table";
 import { passedEnrollmentColumns } from "./passed-enrollment/columns";
 import { PassedEnrollmentTable } from "./passed-enrollment/data-table";
+import { useEffect, useState } from "react";
+import { Enrollment } from "@/types/enrollment";
 
 export default function EnrollmentListPage() {
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const { data, isLoading } = useGetAllEnrollmentsQuery();
+  useEffect(() => {
+    if (data) {
+      setEnrollments(data);
+    }
+  }, [data]);
+
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
       <Tabs defaultValue="all">
@@ -19,7 +29,7 @@ export default function EnrollmentListPage() {
             <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="paid">Paid</TabsTrigger>
-              <TabsTrigger value="accepted">Accepted</TabsTrigger>
+              <TabsTrigger value="interviewed">Interviewed</TabsTrigger>
               <TabsTrigger value="passed">Passed</TabsTrigger>
             </TabsList>
           </CardTitle>
@@ -39,10 +49,10 @@ export default function EnrollmentListPage() {
               totalItems={enrollments.length}
             />
           </TabsContent>
-          <TabsContent value="accepted">
-            <AcceptedEnrollmentTable
-              columns={acceptedEnrollmentColumns}
-              data={enrollments.filter((d) => d.isAccepted === true)}
+          <TabsContent value="interviewed">
+            <InterviewedEnrollmentTable
+              columns={interviewedEnrollmentColumns}
+              data={enrollments.filter((d) => d.isInterviewed === true)}
               totalItems={enrollments.length}
             />
           </TabsContent>

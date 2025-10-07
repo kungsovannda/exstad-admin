@@ -43,8 +43,6 @@ interface AddTopicDialogProps {
 }
 
 export default function AddTopicDialog({
-  programUuid,
-  reqIndex,
   trigger,
   onSubmit,
   initialData,

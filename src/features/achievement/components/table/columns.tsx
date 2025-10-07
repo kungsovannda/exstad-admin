@@ -2,6 +2,9 @@ import { Achievement } from "@/types/achievement";
 import { ColumnDef } from "@tanstack/react-table";
 import AchievementCellAction from "./cell-action";
 import { Checkbox } from "@/components/ui/checkbox";
+import Image from "next/image";
+import { formatTitle } from "@/utils/formatTitle";
+import { Badge } from "@/components/ui/badge";
 
 export const achievementColumns: ColumnDef<Achievement>[] = [
   {
@@ -35,7 +38,13 @@ export const achievementColumns: ColumnDef<Achievement>[] = [
       const icon = row.original.icon;
       return (
         <div className="flex border-1 border-primary/10 rounded-sm justify-center items-center aspect-square h-16">
-          <div className="text-3xl">{icon}</div>
+          <Image
+            src={icon}
+            alt="Achievement Icon"
+            width={44}
+            height={44}
+            unoptimized
+          />
         </div>
       );
     },
@@ -82,12 +91,16 @@ export const achievementColumns: ColumnDef<Achievement>[] = [
       variant: "select",
       label: "Achievement Type",
       options: [
-        { label: "Mini Project", value: "Mini Project" },
+        { label: "Mini Project", value: "MINI_PROJECT" },
         {
           label: "Final Project",
-          value: "Final Project",
+          value: "FINAL_PROJECT",
         },
       ],
+    },
+    cell: ({ row }) => {
+      const type = row.original.achievementType;
+      return <Badge>{formatTitle(type)}</Badge>;
     },
   },
   {

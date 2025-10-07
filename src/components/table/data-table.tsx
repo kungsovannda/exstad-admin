@@ -17,9 +17,11 @@ interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
   className?: string;
+  isPagination?: boolean;
 }
 
 export function DataTable<TData>({
+  isPagination = true,
   table,
   actionBar,
   children,
@@ -99,7 +101,7 @@ export function DataTable<TData>({
         </div>
       </div>
       <div className="flex flex-col gap-2.5">
-        <DataTablePagination table={table} />
+        {isPagination && <DataTablePagination table={table} />}
         {actionBar &&
           table.getFilteredSelectedRowModel().rows.length > 0 &&
           actionBar}

@@ -44,10 +44,6 @@ interface AddSectionDialogProps {
 }
 
 export default function AddSectionDialog({
-  programUuid,
-  reqIndex,
-  outcomeIndex,
-  curriculumIndex,
   trigger,
   onSubmit,
   initialData,

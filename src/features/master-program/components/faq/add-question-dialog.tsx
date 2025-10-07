@@ -52,14 +52,10 @@ interface AddQuestionDialogProps {
 };
 
 export function AddQuestionDialog({
-  programUuid,
-  faqIndex,
   initialData,
   onSubmit,
   open,
   onOpenChange,
-  onAddQuestion,
-  onUpdateQuestion,
   initialQuestion = "",
   initialAnswer = "",
   submitText = "Add Question",
@@ -71,7 +67,7 @@ export function AddQuestionDialog({
     defaultValues: { question: initialQuestion, answer: initialAnswer },
   });
 
-  const { handleSubmit, reset, clearErrors, getValues, trigger: triggerValidation } = form;
+  const { handleSubmit, reset, clearErrors, trigger: triggerValidation } = form;
 
   // Reset form when modal opens or initial values change
   useEffect(() => {

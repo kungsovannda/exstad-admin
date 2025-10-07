@@ -38,7 +38,7 @@ export default function ScholarCellAction({ data }: { data: Scholar }) {
         <AssignBadgeScholar
           open={isAssignBadgeModalOpen}
           onOpenChange={setIsAssignBadgeModalOpen}
-          scholar={data}
+          scholars={[data]}
         />
       )}
     </DropdownMenu>

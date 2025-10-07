@@ -161,9 +161,7 @@ const FlagComponent = ({ country, countryName }: RPNInput.FlagProps) => {
 
   return (
     <span className="flex justify-center items-center h-6 w-8 overflow-hidden object-fill rounded-[4px]">
-      {Flag && <Flag title={countryName}  
-      style={{ width: "100%", height: "auto" }} // add this cause Flag Require style
-      />}
+      {Flag && <Flag title={countryName} />}
     </span>
   );
 };

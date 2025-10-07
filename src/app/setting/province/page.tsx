@@ -23,8 +23,8 @@ export default function ProvincePage() {
           <DataTableSkeleton columnCount={3} />
         ) : (
           <ProvinceTable
-            totalItems={data!.length}
-            data={data!}
+            totalItems={data?.length ?? 0}
+            data={data ?? []}
             columns={provinceColumns}
           />
         )}

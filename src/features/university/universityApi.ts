@@ -20,7 +20,10 @@ export const universityApi = createApi({
       providesTags: (result) =>
         result?.length
           ? [
-              ...result.map(({ uuid }) => ({ type: "University" as const, id: uuid })),
+              ...result.map(({ uuid }) => ({
+                type: "University" as const,
+                id: uuid,
+              })),
               { type: "University", id: "LIST" },
             ]
           : [{ type: "University", id: "LIST" }],
@@ -52,7 +55,9 @@ export const universityApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result, error, { uuid }) => [{ type: "University", id: uuid }],
+      invalidatesTags: (result, error, { uuid }) => [
+        { type: "University", id: uuid },
+      ],
     }),
 
     // DELETE a university

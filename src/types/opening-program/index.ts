@@ -115,9 +115,31 @@ export type ClassCreate = {
   telegram: string;
 };
 
-
+export type ScholarClassPayload = {
+  classUuid: string;
+  scholarUuid: string;
+  isPaid : boolean;
+  isReminded:boolean;
+  
+}
 export type ScholarClassType = {
-  uuid: string;
+    uuid: string;
+    scholarUuid: string;
+    scholarName: string;  
+    classUuid: string;
+    room: string;         
+    isReminded: boolean;
+    isPaid: boolean;
+    audit?: {
+        createdBy: string;
+        updatedBy: string | null;
+        createdAt: string;
+        updatedAt: string | null;
+    }
+}
+
+
+export type SCholarClassCreate = {
   classUuid: string;
   scholarUuid: string;
   isPaid : boolean;

@@ -4,7 +4,7 @@ import EnrollmentCellAction from "./cell-action";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserProfileCell } from "../user-profile-cell";
 
-export const acceptedEnrollmentColumns: ColumnDef<Enrollment>[] = [
+export const interviewedEnrollmentColumns: ColumnDef<Enrollment>[] = [
   {
     id: "select",
     header: ({ table }) => (

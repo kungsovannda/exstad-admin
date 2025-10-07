@@ -13,7 +13,6 @@ import { MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
 import { useDeleteOpeningProgramMutation } from "../../openingProgramApi";
 import ModalDelete from "@/components/modal/ModalDelete";
 

@@ -79,8 +79,6 @@ export default function TimelineFormModal({
     handleSubmit,
     reset,
     clearErrors,
-    formState,
-    getValues,
     trigger: validateForm,
     control,
   } = form;

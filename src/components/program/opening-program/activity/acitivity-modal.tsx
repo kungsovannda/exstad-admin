@@ -16,7 +16,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 import { ActivityUploadField, ActivityFormWithFile } from "@/components/program/opening-program/activity/activity";
 
@@ -35,7 +40,10 @@ interface ActivityFormModalProps {
   onOpenChange: (open: boolean) => void;
   initialData?: Partial<ActivityFormValues> & { imageUrl?: string };
   trigger?: React.ReactNode;
-  onSubmitActivity?: (data: ActivityFormValues, file?: File) => Promise<void> | void;
+  onSubmitActivity?: (
+    data: ActivityFormValues,
+    file?: File
+  ) => Promise<void> | void;
   masterProgram: { uuid: string; slug: string };
   openingProgram: { uuid: string; generation: number };
 }
@@ -104,7 +112,9 @@ export default function ActivityFormModal({
         }}
       >
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Activity" : "Add New Activity"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Activity" : "Add New Activity"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>

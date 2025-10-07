@@ -1,15 +1,6 @@
 "use client";
-import { signOut } from "next-auth/react";
+import ComingSoon from "@/components/coming-soon";
 
 export default function Home() {
-  const handleLogout = () => {
-    signOut().catch((error) => console.log(error));
-  };
-
-  return (
-    <div>
-      Welcome
-      <button onClick={handleLogout}>Logout</button>
-    </div>
-  );
+  return <ComingSoon />;
 }
