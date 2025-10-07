@@ -59,7 +59,7 @@ export function EnrollmentTable<TData, TValue>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Paid</DropdownMenuItem>
+            <DropdownMenuItem>Mark as Paid</DropdownMenuItem>
             <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

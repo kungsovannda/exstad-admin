@@ -6,13 +6,29 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Enrollment } from "@/types/enrollment/index";
+import { Enrollment, UpdateEnrollment } from "@/types/enrollment/index";
 import { CircleUser, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import ViewEnrollmentProfile from "../../ViewEnrollmentProfile";
+import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
+import { toast } from "sonner";
 
 export default function EnrollmentCellAction({ data }: { data: Enrollment }) {
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const [updateEnrollment] = useUpdateEnrollmentMutation();
+  const handleEnrollmentUpdate = (body: UpdateEnrollment) => {
+    if (!data) return;
+
+    toast.promise(updateEnrollment({ uuid: data.uuid, body }).unwrap(), {
+      loading: "Updating...",
+      success: () => {
+        return `${data.englishName} has been updated`;
+      },
+      error: () => {
+        return `Cannot update ${data.englishName}`;
+      },
+    });
+  };
 
   return (
     <div className="flex ">
@@ -31,7 +47,11 @@ export default function EnrollmentCellAction({ data }: { data: Enrollment }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem>Paid</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handleEnrollmentUpdate({ isPaid: true })}
+          >
+            Mark Paid
+          </DropdownMenuItem>
           <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

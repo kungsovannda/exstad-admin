@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Card,
   CardContent,
@@ -13,39 +14,42 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { LabelList, Pie, PieChart } from "recharts";
+import { useGetAllEnrollmentsByProgramQuery } from "../../enrollmentApi";
+import { Enrollment } from "@/types/enrollment";
 
-const chartData = [
-  { level: "First Year", count: 14, fill: "var(--chart-1)" },
-  { level: "Second Year", count: 10, fill: "var(--chart-2)" },
-  { level: "Third Year", count: 12, fill: "var(--chart-3)" },
-  { level: "Fourth Year", count: 9, fill: "var(--chart-4)" },
-  { level: "Others", count: 6, fill: "var(--chart-5)" },
+type ChartDataItem = {
+  level: string;
+  count: number;
+  fill: string;
+};
+
+const chartColors = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--chart-6)",
+  "var(--chart-7)",
 ];
 
-const chartConfig = {
-  firstYear: {
-    label: "First Year",
-    color: "var(--chart-1)",
-  },
-  secondYear: {
-    label: "Second Year",
-    color: "var(--chart-2)",
-  },
-  thirdYear: {
-    label: "Third Year",
-    color: "var(--chart-3)",
-  },
-  fourthYear: {
-    label: "Fourth Year",
-    color: "var(--chart-4)",
-  },
-  others: {
-    label: "Others",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig;
+function QualificationLevelPieCard({
+  chartData,
+}: {
+  chartData: ChartDataItem[];
+}) {
+  const chartConfig: ChartConfig = React.useMemo(() => {
+    const config: ChartConfig = {};
+    chartData.forEach((item, index) => {
+      const key = item.level.toLowerCase().replace(/\s+/g, "");
+      config[key] = {
+        label: item.level,
+        color: chartColors[index % chartColors.length],
+      };
+    });
+    return config;
+  }, [chartData]);
 
-function QualificationLevelPieCard() {
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
@@ -103,61 +107,29 @@ function QualificationLevelPieCard() {
   );
 }
 
-const chartDataGrade = [
-  { level: "Grade A", count: 7, fill: "var(--chart-1)" },
-  { level: "Grade B", count: 12, fill: "var(--chart-2)" },
-  { level: "Grade C", count: 15, fill: "var(--chart-3)" },
-  { level: "Grade D", count: 9, fill: "var(--chart-4)" },
-  { level: "Grade E", count: 5, fill: "var(--chart-5)" },
-  { level: "Grade F", count: 3, fill: "var(--chart-6)" },
-  { level: "Others", count: 2, fill: "var(--chart-7)" },
-];
+function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
+  const chartConfig: ChartConfig = React.useMemo(() => {
+    const config: ChartConfig = {};
+    chartData.forEach((item, index) => {
+      const key = item.level.toLowerCase().replace(/\s+/g, "");
+      config[key] = {
+        label: item.level,
+        color: chartColors[index % chartColors.length],
+      };
+    });
+    return config;
+  }, [chartData]);
 
-const chartConfigGrade = {
-  gradeA: {
-    label: "Grade A",
-    color: "var(--chart-1)",
-  },
-  gradeB: {
-    label: "Grade B",
-    color: "var(--chart-2)",
-  },
-  gradeC: {
-    label: "Grade C",
-    color: "var(--chart-3)",
-  },
-  gradeD: {
-    label: "Grade D",
-    color: "var(--chart-4)",
-  },
-  gradeE: {
-    label: "Grade E",
-    color: "var(--chart-5)",
-  },
-  gradeF: {
-    label: "Grade F",
-    color: "var(--chart-6)",
-  },
-  others: {
-    label: "Others",
-    color: "var(--chart-7)",
-  },
-} satisfies ChartConfig;
-
-function GradePieCard() {
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
-        <CardTitle>Enrollments by BacII Grade</CardTitle>
+        <CardTitle>Enrollments by Class Shift</CardTitle>
         <CardDescription>
-          Distribution of scholars based on BacII results
+          Distribution of scholars based on class shifts
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-2">
-        <ChartContainer
-          config={chartConfigGrade}
-          className="mx-auto h-fit w-full"
-        >
+        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full">
           <PieChart>
             <ChartTooltip
               content={
@@ -169,7 +141,7 @@ function GradePieCard() {
               }
             />
             <Pie
-              data={chartDataGrade}
+              data={chartData}
               dataKey="count"
               nameKey="level"
               cx="50%"
@@ -197,7 +169,7 @@ function GradePieCard() {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground pt-4">
-        {chartDataGrade.map((item, index) => (
+        {chartData.map((item, index) => (
           <div key={index} className="flex items-center gap-1">
             <div
               className="h-2 w-2 rounded-full"
@@ -211,11 +183,59 @@ function GradePieCard() {
   );
 }
 
-export default function EnrollmentChart() {
+export default function EnrollmentChart({ data }: { data: Enrollment[] }) {
+  const qualificationChartData = React.useMemo(() => {
+    if (!data || !Array.isArray(data)) {
+      return [];
+    }
+
+    const qualificationCounts: Record<string, number> = {};
+
+    data.forEach((enrollment: Enrollment) => {
+      const qualification = enrollment.educationQualification?.trim();
+      if (qualification) {
+        qualificationCounts[qualification] =
+          (qualificationCounts[qualification] || 0) + 1;
+      }
+    });
+
+    return Object.entries(qualificationCounts)
+      .map(([level, count], index) => ({
+        level,
+        count,
+        fill: chartColors[index % chartColors.length],
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [data]);
+
+  // Process class shift data
+  const shiftChartData = React.useMemo(() => {
+    if (!data || !Array.isArray(data)) {
+      return [];
+    }
+
+    const shiftCounts: Record<string, number> = {};
+
+    data.forEach((enrollment: Enrollment) => {
+      const shift = enrollment._class?.shift?.trim();
+      if (shift) {
+        shiftCounts[shift] = (shiftCounts[shift] || 0) + 1;
+      }
+    });
+
+    return Object.entries(shiftCounts)
+      .map(([level, count], index) => ({
+        level,
+        count,
+        fill: chartColors[index % chartColors.length],
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [data]);
+
   return (
     <div className="grid grid-cols-2 gap-5 h-fit">
-      <QualificationLevelPieCard />
-      <GradePieCard />
+      <QualificationLevelPieCard chartData={qualificationChartData} />
+      <ShiftPieCard chartData={shiftChartData} />
     </div>
   );
 }
