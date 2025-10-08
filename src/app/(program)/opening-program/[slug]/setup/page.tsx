@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
   import { useState, useMemo } from "react";
   import { useParams } from "next/navigation";
@@ -28,94 +28,60 @@ import RoadmapEditor from "@/components/roadmap";
       "class" | "timeline" | "curriculum" | "roadmap" | "activities"
     >("class");
 
-    const params = useParams();
-    const programSlug = params.slug as string;
+  const params = useParams();
+  const programSlug = params.slug as string;
 
-    // Fetch opening program by slug
-    const { data: openingProgram, isLoading, error } = useGetOpeningProgramBySlugQuery(
-      { slug: programSlug }
-    );
+  // Fetch opening program by slug
+  const { data: openingProgram, isLoading, error } = useGetOpeningProgramBySlugQuery({ slug: programSlug });
 
-    // Fetch all master programs to find fallback
-    const { data: masterPrograms } = useGetAllMasterProgramsQuery();
+  // Fetch all master programs
+  const { data: masterPrograms } = useGetAllMasterProgramsQuery();
 
-    // Find matching master program by title (always call hook)
-    const masterProgram = useMemo(
-      () => {
-        // openingProgram may be undefined before loading
-        if (!masterPrograms || !openingProgram) return undefined;
-        return masterPrograms.find(p => p.title === openingProgram.programName);
-      },
-      [masterPrograms, openingProgram]
-    );
+  // Find the corresponding master program dynamically
+  const masterProgram = useMemo(() => {
+    if (!masterPrograms || !openingProgram) return undefined;
+    return masterPrograms.find(p => p.title === openingProgram.programName);
+  }, [masterPrograms, openingProgram]);
 
-    if (isLoading) return <div>Loading program...</div>;
-    if (error || !openingProgram) return <div className="text-destructive">Program not found</div>;
+  if (isLoading) return <div>Loading program...</div>;
+  if (error || !openingProgram) return <div className="text-destructive">Program not found</div>;
+  if (!masterProgram) {
+    console.warn("Master program not found for opening program:", openingProgram.programName);
+    return <div className="text-destructive">Master program not found!</div>;
+  }
 
-    // Opening program UUID
-    const openingProgramUuid = openingProgram.uuid;
+  return (
+    <div className="p-5">
+      <h1 className="text-2xl font-semibold mb-4">Program Setup - {openingProgram.title}</h1>
 
-    const masterProgramUuid = masterProgram?.uuid;
-
-    if (!masterProgramUuid) {
-      console.warn(
-        "Master program UUID not found for opening program:",
-        openingProgram.programName
-      );
-    }
-
-    return (
-      <div className="p-5">
-        <h1 className="text-2xl font-semibold mb-4">Program Setup - {openingProgram.title}</h1>
-
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit ">
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit">
+        {["class", "curriculum", "timeline", "roadmap", "activities"].map((t) => (
           <Button
-            className="cursor-pointer"
-            variant={tab === "class" ? "default" : "outline"}
-            onClick={() => setTab("class")}
-          >
-            Class
-          </Button>
-          <Button
-            variant={tab === "curriculum" ? "default" : "outline"}
-            onClick={() => setTab("curriculum")}
+            key={t}
+            variant={tab === t ? "default" : "outline"}
+            onClick={() => setTab(t as typeof tab)}
             className="cursor-pointer"
           >
-            Curriculum
+            {t.charAt(0).toUpperCase() + t.slice(1)}
           </Button>
-          <Button
-            variant={tab === "timeline" ? "default" : "outline"}
-            onClick={() => setTab("timeline")}
-            className="cursor-pointer"
-          >
-            Timeline
-          </Button>
-          <Button
-            variant={tab === "roadmap" ? "default" : "outline"}
-            onClick={() => setTab("roadmap")}
-            className="cursor-pointer"
-          >
-            Roadmap
-          </Button>
-          <Button
-            variant={tab === "activities" ? "default" : "outline"}
-            onClick={() => setTab("activities")}
-            className="cursor-pointer"
-          >
-            Activity
-          </Button>
-        </div>
+        ))}
+      </div>
 
-        {/* Tab Content */}
-        {tab === "class" && <ClassAdmin openingProgramTitle={openingProgram.title} openingProgramUuid={openingProgram.uuid}/>}
+      {/* Tab Content */}
+      {tab === "class" && (
+        <ClassAdmin
+          openingProgramTitle={openingProgram.title}
+          openingProgramUuid={openingProgram.uuid}
+        />
+      )}
 
-        {tab === "curriculum" && masterProgramUuid && (
-          <CurriculumAdmin
-            programUuid={masterProgramUuid}          // master program
-            openingProgramUuid={openingProgramUuid} // opening program
-          />
-        )}
+      {tab === "curriculum" && (
+        <CurriculumAdmin
+          programUuid={masterProgram.uuid}          // master program
+          openingProgramUuid={openingProgram.uuid} // opening program
+        />
+      )}
 
         {tab === "roadmap" &&<div className="rounded-2xl border-1"><RoadmapEditor onSave={handleSave} /></div>}
         {tab === "timeline" && <TimelinePage openingProgramUuid={openingProgramUuid} />}

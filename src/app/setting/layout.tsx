@@ -101,7 +101,7 @@ export default function SettingLayout({
           <SettingSidebar />
         </div>
         <ScrollArea className="h-content w-full overflow-x-hidden">
-          <main className="p-5 mb-10 h-fit">
+          <main className="p-6 mb-10 h-fit">
             <Suspense fallback={<Loader />}>{children}</Suspense>
           </main>
         </ScrollArea>

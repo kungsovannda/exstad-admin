@@ -76,7 +76,11 @@ export const enrollmentColumns: ColumnDef<Enrollment>[] = [
     header: "Payment Status",
     cell: ({ row }) => {
       const paid = row.original.isPaid;
-      return <Badge>{paid ? "Paid" : "Unpaid"}</Badge>;
+      return (
+        <Badge variant={paid ? "default" : "destructive"}>
+          {paid ? "Paid" : "Unpaid"}
+        </Badge>
+      );
     },
   },
   {

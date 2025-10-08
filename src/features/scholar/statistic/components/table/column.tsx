@@ -90,6 +90,7 @@ export const scholarColumns = (
     accessorKey: "university",
     header: "University",
     enableColumnFilter: true,
+    filterFn: "includesString",
     meta: {
       label: "University",
       placeholder: "Search universities...",

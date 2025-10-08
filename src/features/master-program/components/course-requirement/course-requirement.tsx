@@ -101,7 +101,6 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
       safeRequirements[reqIndex] = updatedReq;
 
       await updateRequirements({ programUuid, requirements: safeRequirements }).unwrap();
-      toast.success(sectionIndex !== undefined ? "Section updated!" : "Section added!");
     } catch (err: unknown) {
   const message = err instanceof Error ? err.message : String(err);
   toast.error(`Failed to save section: ${message}`);

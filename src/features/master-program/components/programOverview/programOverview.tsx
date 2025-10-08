@@ -81,9 +81,6 @@ export default function ProgramOverviewAdmin({ programUuid }: Props) {
         programUuid,
         programOverviews: payload,
       }).unwrap();
-      toast.success(
-        target ? "Program Overview updated!" : "Program Overview added!"
-      );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error(`Failed to save: ${message || err}`);

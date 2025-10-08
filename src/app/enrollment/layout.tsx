@@ -142,7 +142,7 @@ export default function EnrollmentLayout({
           scrollHideDelay={0}
           className="h-content w-full overflow-x-hidden "
         >
-          <main className="p-5 h-content">
+          <main className="h-content">
             <Suspense fallback={<Loader />}>{children}</Suspense>
           </main>
         </ScrollArea>

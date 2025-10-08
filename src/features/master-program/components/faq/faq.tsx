@@ -63,7 +63,6 @@ import { SectionSkeleton } from "../section-skeleton";
           ]
         }
         await updateFaqs({ programUuid, faq: newFaqs }).unwrap();
-        toast.success(targetIndex !== undefined ? "Topic updated!" : "Topic added!");
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         toast.error(`Failed to save topic: ${message || err}`);
