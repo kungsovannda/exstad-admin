@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import React from "react";
+import RoadmapEditor from "@/components/roadmap";
+
 
 import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
 import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
@@ -14,6 +17,15 @@ import ProgramOverviewAdmin from "@/features/master-program/components/programOv
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
 export default function ProgramSetup() {
+    interface Roadmap {
+      // Define the structure of the roadmap object as needed
+      [key: string]: unknown;
+    }
+
+    const handleSave = (roadmap: Roadmap): void => {
+      // Do something with the roadmap JSON, e.g., send to API or store in state
+      console.log("Saved roadmap:", roadmap);
+    };
   const [tab, setTab] = useState<
     | "highlight"
     | "program-overview"
@@ -68,7 +80,7 @@ export default function ProgramSetup() {
       {/* Tab Content */}
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
-      {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
+      {tab === "roadmap" &&<div className="rounded-2xl border-1"><RoadmapEditor onSave={handleSave} /></div>}
       {tab === "faq" && <Faq programUuid={programUuid} />}
       {tab === "learning-outcomes" && <LearningOutcomesAdmin programUuid={programUuid} />}
       {tab === "course-requirements" && <CourseRequirementsAdmin programUuid={programUuid} />}
