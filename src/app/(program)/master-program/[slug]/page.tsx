@@ -1,71 +1,56 @@
 "use client";
 
-import OpeningProgramForm, { OpeningProgramFormValue } from "../../opening-program/create/form-field";
+import MasterProgramForm, { MasterProgramFormValues } from "../create/form-field";
 import {
-  useUpdateOpeningProgramMutation,
-  useGetOpeningProgramBySlugQuery,
-} from "@/features/opening-program/openingProgramApi";
+  useUpdateMasterProgramMutation,
+  useGetMasterProgramBySlugQuery,
+} from "@/features/master-program/masterProgramApi";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
-import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
-import { useEffect, useState } from "react";
+import { generateSlug } from "@/services/generate-slug";
 
-function OpeningProgramEdit() {
+function MasterProgramEdit() {
   const params = useParams();
+  const programSlug = params.slug as string;
   const router = useRouter();
-  const programSlug = params?.slug as string;
 
-  const {
-    data: openingProgram,
-    isLoading,
-    error,
-    refetch, 
-  } = useGetOpeningProgramBySlugQuery(
+  const { data: program, isLoading, error } = useGetMasterProgramBySlugQuery(
     { slug: programSlug },
     { refetchOnMountOrArgChange: true }
   );
 
-  const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
-  const [updateOpeningProgram] = useUpdateOpeningProgramMutation();
-  const [formKey, setFormKey] = useState(0); // ✅ used to re-render form when data updates
+  const [updateMasterProgram, { isLoading: isUpdating }] =
+    useUpdateMasterProgramMutation();
 
   if (isLoading) return <div>Loading...</div>;
-  if (error || !openingProgram) return <div>Program not found</div>;
+  if (error || !program) return <div>Program not found</div>;
 
-  // Map programName from backend to UUID
-  const programUuid =
-    masterPrograms.find((p) => p.title === openingProgram.programName)?.uuid || "";
-
-  const initialValues: OpeningProgramFormValue = {
-    title: openingProgram.title || "",
-    telegramGroup: openingProgram.telegramGroup || "",
-    generation: openingProgram.generation || 0,
-    originalFee: openingProgram.originalFee || 0,
-    scholarship: openingProgram.scholarship || 0,
-    price: openingProgram.price || 0,
-    totalSlot: openingProgram.totalSlot || 0,
-    duration: openingProgram.duration || "",
-    deadline: openingProgram.deadline || "",
-    thumbnail: openingProgram.thumbnail || "",
-    posterUrl: openingProgram.posterUrl || "",
-    slug: openingProgram.slug || "",
-    status: openingProgram.status || "DRAFT",
-    qrCodeUrl: openingProgram.qrCodeUrl || "",
-    curriculumPdfUri: openingProgram.curriculumPdfUri || "",
-    programUuid,
+  const initialValues: MasterProgramFormValues = {
+    title: program.title || "",
+    slug: program.slug || "",
+    subtitle: program.subtitle || "",
+    description: program.description || "",
+    visibility: program.visibility || "PUBLIC",
+    programType: program.programType || "",
+    programLevel: program.programLevel || "",
+    thumbnailUrl: program.thumbnailUrl || "",
+    posterUrl: program.posterUrl || "",
+    bgColor:
+      program.bgColor ||
+      "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
   };
 
-  const handleSubmit = async (values: OpeningProgramFormValue) => {
+  const handleSubmit = async (values: MasterProgramFormValues) => {
     const payload = {
       ...values,
-      slug: values.slug,
-      status: values.status ?? "OPEN",
+      slug: generateSlug(values.title), // generate new slug
     };
+    console.log("🧾 Sending payload:", payload);
 
     try {
       await toast.promise(
-        updateOpeningProgram({
-          uuid: openingProgram.uuid,
+        updateMasterProgram({
+          uuid: program.uuid,
           body: payload,
         }).unwrap(),
         {
@@ -75,26 +60,18 @@ function OpeningProgramEdit() {
         }
       );
 
-      // ✅ After successful update, re-fetch new data
-      await refetch();
-
-      // ✅ Force re-render form with new data (to reflect new image URLs immediately)
-      setFormKey((prev) => prev + 1);
-
-      // ✅ Optional redirect
-      router.push("/opening-program");
-
-    } catch (err) {
-      console.error("Update failed:", err);
+      // ✅ Redirect to the master program list page
+      router.push("/master-program");
+    } catch (error) {
+      console.error("Update failed:", error);
     }
   };
 
   return (
-    <OpeningProgramForm
-      key={formKey} // ✅ important — ensures UI fully refreshes
+    <MasterProgramForm
       initialValues={initialValues}
       onSubmit={handleSubmit}
-      submitLabel="Update"
+      submitLabel={isUpdating ? "Updating..." : "Update"}
     />
   );
 }
@@ -102,9 +79,9 @@ function OpeningProgramEdit() {
 export default function Page() {
   return (
     <div className="p-5 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Edit Opening Program</h1>
+      <h1 className="text-2xl font-semibold">Edit Program</h1>
       <div className="w-[70%]">
-        <OpeningProgramEdit />
+        <MasterProgramEdit />
       </div>
     </div>
   );

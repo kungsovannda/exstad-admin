@@ -16,6 +16,7 @@ import {
 import { ScholarClassPayload, ScholarClassType } from "@/types/opening-program";
 import { useGetClassByUuidQuery } from "@/features/opening-program/components/class/classApi";
 import ScholarClassForm, { ScholarClassFormValue } from "@/features/opening-program/components/scholar-class.tsx/form-field";
+import { ScholarClassStatisticCard } from "@/features/opening-program/components/scholar-class.tsx/StatisticCard";
 
 interface SCholarClassProps {
   scholarUuid: string; 
@@ -107,6 +108,7 @@ const handleSubmitScholarClass = async (data: ScholarClassFormValue) => {
 
   return (
     <div className="space-y-4 p-5">
+            
           <div className="flex justify-between items-center gap-4">
           <h1 className="text-2xl font-bold">{classInfo?.classCode ?? "Class Detail"}</h1>
          <ScholarClassForm
@@ -122,6 +124,10 @@ const handleSubmitScholarClass = async (data: ScholarClassFormValue) => {
         />
 
         </div>
+          <ScholarClassStatisticCard
+          scholarClasses={scholarClasses}
+          isLoading={isLoading || isFetching}
+        />
 
         {scholarClasses.length === 0 ? (
           <p className="p-6 text-muted-foreground">

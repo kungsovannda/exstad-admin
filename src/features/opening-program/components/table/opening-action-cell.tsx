@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { openingProgramType } from "@/types/opening-program";
-import { MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-react";
+import { FileInput, MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -50,7 +50,7 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}` ) }><Settings2 size={16} className="text-primary-hover " />View</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}` ) }><FileInput size={16} className="text-primary-hover " />View</DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}/setup` ) }><Settings2 size={16} className="text-primary-hover " />Set Up  </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/opening-program/${openingprogram.slug}/edit`)}><SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer text-destructive " onClick={() => setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>      

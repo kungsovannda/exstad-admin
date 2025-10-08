@@ -51,12 +51,18 @@ export const ScholarClassColumns = (
         label: "Payment Status",
         options: paymentStatusOptions,
       },
-      cell: ({ row }) => mapPaidStatus(row.original.isPaid),
-      filterFn: (row, columnId, filterValue) => {
-        // Convert row boolean to string
-        return mapPaidStatus(row.getValue(columnId) as boolean) === filterValue;
+      cell: ({ row }) => {
+        const isPaid = row.original.isPaid;
+        const bgPaid = isPaid
+          ? "bg-[#E6F4EA] text-[#1E7D34]"
+          : "bg-[#FDECEC] text-[#B32121]";
+        return (
+          <span className={`${bgPaid} inline-flex items-center rounded-sm px-2 py-1 text-sm`}>
+        {mapPaidStatus(isPaid)}
+          </span>
+        )
+      }
       },
-    },
     {
       accessorKey: "isReminded",
       header: "Is Reminded",
