@@ -118,7 +118,6 @@ export const openingProgramColumns = (
             : status === "ACHIEVED"
             ? "bg-yellow-400 text-white"
             : "bg-[#E6F4EA] text-[#1E7D34]"; // Active
-
         return (
           <span
             className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}

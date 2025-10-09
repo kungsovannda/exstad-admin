@@ -52,7 +52,7 @@ export default function OpeningProgramCreate() {
         posterUrl: posterUrl,
         totalSlot,
         telegramGroup: values.telegramGroup || "",
-        status: "OPEN",
+        status: values.status!,
         qrCodeUrl: qrCodeUrl,
         deadline: values.deadline,
       };

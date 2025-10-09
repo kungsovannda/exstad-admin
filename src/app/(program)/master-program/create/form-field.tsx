@@ -5,16 +5,6 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
   Form,
   FormControl,
   FormField,
@@ -22,34 +12,27 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ColorPicker from "react-best-gradient-color-picker";
 import Image from "next/image";
 import { generateSlug } from "@/services/generate-slug";
-import { ThumbnailUploadField } from "./ThumbnailUploadField";
 
 export const programFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  programType: z
-    .union([z.enum(["SHORT_COURSE", "SCHOLARSHIP"]), z.undefined()])
-    .refine(val => val !== undefined, { message: "Program type is required" }),
-  programLevel: z
-    .union([z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]), z.undefined()])
-    .refine(val => val !== undefined, { message: "Program level is required" }),
-  visibility: z
-    .union([z.enum(["PUBLIC", "PRIVATE"]), z.undefined()])  
-    .refine(val => val !== undefined, { message: "Visibility is required" }),
+  programType: z.enum(["SHORT_COURSE", "SCHOLARSHIP"]),
+  programLevel: z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]),
+  visibility: z.enum(["PUBLIC", "PRIVATE"]),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   thumbnailUrl: z.string().min(1, { message: "Thumbnail is required" }),
   posterUrl: z.string().min(1, { message: "Poster is required" }),
   bgColor: z.string().min(1, { message: "Theme color is required" }),
   slug: z.string(),
-  isDeleted: z.boolean()
-
 });
 
 export type MasterProgramFormValues = z.infer<typeof programFormSchema>;
@@ -60,21 +43,24 @@ type Props = {
   submitLabel?: string;
 };
 
-export default function MasterProgramForm({ initialValues, onSubmit, submitLabel = "Submit" }: Props) {
+export default function MasterProgramForm({
+  initialValues,
+  onSubmit,
+  submitLabel = "Submit",
+}: Props) {
   const form = useForm<MasterProgramFormValues>({
     resolver: zodResolver(programFormSchema),
-    defaultValues: initialValues || {
+    defaultValues: {
       title: "",
-      programType: undefined,
-      programLevel: undefined,
-      visibility: undefined,
+      programType: "SHORT_COURSE",
+      programLevel: "BASIC",
+      visibility: "PUBLIC",
       subtitle: "",
       description: "",
       thumbnailUrl: "",
       posterUrl: "",
       bgColor: "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
       slug: "",
-      isDeleted:false,
     },
   });
 
@@ -84,18 +70,32 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
   const [bgColor, setbgColor] = useState(form.getValues("bgColor"));
   const [showDialog, setShowDialog] = useState(false);
 
+  // ✅ Reset when editing existing data
   useEffect(() => {
-    if (initialValues?.bgColor) {
-      setbgColor(initialValues.bgColor);
-      setInputValue(initialValues.bgColor);
+    if (initialValues) {
+      form.reset(initialValues);
+      if (initialValues.thumbnailUrl) setPreviewsThumbnail([initialValues.thumbnailUrl]);
+      if (initialValues.posterUrl) setPreviewsPoster([initialValues.posterUrl]);
+      if (initialValues.bgColor) {
+        setInputValue(initialValues.bgColor);
+        setbgColor(initialValues.bgColor);
+      }
     }
-    if (initialValues?.thumbnailUrl) {
-      setPreviewsThumbnail([initialValues.thumbnailUrl]);
-    }
-    if (initialValues?.posterUrl) {
-      setPreviewsPoster([initialValues.posterUrl]);
-    }
-  }, [initialValues]);
+  }, [initialValues, form]);
+
+  // ✅ Auto-generate slug when title changes (only if slug not manually changed)
+  useEffect(() => {
+    const subscription = form.watch((values, { name }) => {
+      if (name === "title" && values.title) {
+        const currentSlug = form.getValues("slug");
+        // Only update if slug is empty or matches the generated pattern (not manually changed)
+        if (!currentSlug || currentSlug === generateSlug(currentSlug)) {
+          form.setValue("slug", generateSlug(values.title), { shouldDirty: true });
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const handleChooseColor = () => {
     setInputValue(bgColor);
@@ -120,8 +120,9 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             </FormItem>
           )}
         />
-                {/* Slug */}
-          <FormField
+
+        {/* Slug */}
+        <FormField
           control={form.control}
           name="slug"
           render={({ field }) => (
@@ -129,9 +130,9 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
               <FormLabel>Slug</FormLabel>
               <FormControl>
                 <Input
-                  readOnly 
+                  readOnly
                   placeholder={generateSlug(form.watch("title") || "")}
-                  {...field} // Bind the form field to the input
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -147,7 +148,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             <FormItem>
               <FormLabel>Program Type</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
@@ -164,16 +165,14 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
 
         {/* Color Picker */}
         <div>
-          <Label htmlFor="color-input" className="text-sm font-semibold mb-2">Theme Color</Label>
+          <Label className="text-sm font-semibold mb-2">Theme Color</Label>
           <div className="space-y-4 rounded-lg border p-4">
             <div className="flex gap-2 items-start">
               <Textarea
-                id="color-input"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="No color selected..."
                 rows={2}
-                className="font-mono min-h-0 text-sm pr-12 resize-none"
+                className="font-mono text-sm resize-none"
               />
               <Dialog open={showDialog} onOpenChange={setShowDialog}>
                 <DialogTrigger asChild>
@@ -184,7 +183,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
                     <DialogTitle>Choose Color</DialogTitle>
                     <DialogDescription>Pick your desired color or gradient</DialogDescription>
                   </DialogHeader>
-                  <div className="flex-1 justify-center items-center overflow-y-auto py-4 space-y-4">
+                  <div className="flex-1 overflow-y-auto py-4 space-y-4">
                     <ColorPicker width={460} value={bgColor} onChange={setbgColor} />
                     <Label>Preview</Label>
                     <div className="w-full h-16 rounded-md border shadow-sm" style={{ background: bgColor }} />
@@ -214,7 +213,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
               <FormItem>
                 <FormLabel>Program Level</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
@@ -236,13 +235,13 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
               <FormItem>
                 <FormLabel>Visibility</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
                     <SelectContent>
-                    <SelectItem value="PUBLIC">PUBLIC</SelectItem>
-                    <SelectItem value="PRIVATE">PRIVATE</SelectItem>
+                      <SelectItem value="PUBLIC">PUBLIC</SelectItem>
+                      <SelectItem value="PRIVATE">PRIVATE</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -260,7 +259,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
             <FormItem>
               <FormLabel>Subtitle</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter subtitle"  {...field} />
+                <Textarea placeholder="Enter subtitle" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -307,14 +306,7 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
         {previewsThumbnail.length > 0 && (
           <div className="flex gap-2 mt-2 flex-wrap">
             {previewsThumbnail.map((src, idx) => (
-              <Image
-                key={idx}
-                src={src}
-                width={100}
-                height={100}
-                alt={`Thumbnail ${idx}`}
-                className="w-24 h-24 object-cover rounded border"
-              />
+              <Image key={idx} src={src} width={100} height={100} alt="Thumbnail" className="w-24 h-24 object-cover rounded border" />
             ))}
           </div>
         )}
@@ -346,17 +338,11 @@ export default function MasterProgramForm({ initialValues, onSubmit, submitLabel
         {previewsPoster.length > 0 && (
           <div className="flex gap-2 mt-2 flex-wrap">
             {previewsPoster.map((src, idx) => (
-              <Image
-                key={idx}
-                src={src}
-                width={100}
-                height={100}
-                alt={`Poster ${idx}`}
-                className="w-24 h-24 object-cover rounded border"
-              />
+              <Image key={idx} src={src} width={100} height={100} alt="Poster" className="w-24 h-24 object-cover rounded border" />
             ))}
           </div>
         )}
+
         <Button type="submit">{submitLabel}</Button>
       </form>
     </Form>

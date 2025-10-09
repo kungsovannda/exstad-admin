@@ -1,3 +1,5 @@
+import { Audit } from "..";
+
 export type openingProgramType = {
   programName: string;
   programUuid: string;
@@ -17,7 +19,7 @@ export type openingProgramType = {
   qrCodeUrl: string;
   // extra fields from backend
   telegramGroup: string;
-  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  status: "OPEN" | "CLOSED" | "ACHIEVED" |"PENDING";
   // image: string;
   // shortcourseimage:string;
   // template?: string[];
@@ -31,6 +33,7 @@ export type openingProgramType = {
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
+  // audit: Audit;
 };
 
 export type openingProgramCreate = {
@@ -49,13 +52,14 @@ export type openingProgramCreate = {
   totalSlot: number;
   qrCodeUrl: string;
   telegramGroup: string;
-  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  status: "OPEN" | "CLOSED" | "ACHIEVED" |"PENDING";
   programType?: string; // optional if backend allows
   visibility?: "public" | "private"; // optional
   activities?: ActivityType[];
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
+  // audit: Audit;
 };
 
 export type ActivityType = {
@@ -111,6 +115,36 @@ export type ClassCreate = {
   telegram: string;
 };
 
+export type ScholarClassPayload = {
+  classUuid: string;
+  scholarUuid: string;
+  isPaid : boolean;
+  isReminded:boolean;
+  
+}
+export type ScholarClassType = {
+    uuid: string;
+    scholarUuid: string;
+    scholarName: string;  
+    classUuid: string;
+    room: string;         
+    isReminded: boolean;
+    isPaid: boolean;
+    audit?: {
+        createdBy: string;
+        updatedBy: string | null;
+        createdAt: string;
+        updatedAt: string | null;
+    }
+}
+
+
+export type SCholarClassCreate = {
+  classUuid: string;
+  scholarUuid: string;
+  isPaid : boolean;
+  isReminded:boolean;
+}
 // export type RoadmapType = {
 
 // }

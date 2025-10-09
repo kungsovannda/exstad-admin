@@ -25,6 +25,7 @@ import { achievementApi } from "@/features/achievement/achievementApi";
 import { scholarAchievementApi } from "@/features/scholar-achievement/scholarAchievementApi";
 import { userApi } from "@/features/user/userApi";
 import { enrollmentApi } from "@/features/enrollment/enrollmentApi";
+import { ScholarClassApi } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
@@ -51,6 +52,7 @@ const rootReducer = combineReducers({
   [scholarAchievementApi.reducerPath]: scholarAchievementApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
   [enrollmentApi.reducerPath]: enrollmentApi.reducer,
+  [ScholarClassApi.reducerPath]: ScholarClassApi.reducer,
 });
 
 const persistConfig = {
@@ -89,7 +91,8 @@ export const makeStore = () => {
         achievementApi.middleware,
         scholarAchievementApi.middleware,
         userApi.middleware,
-        enrollmentApi.middleware
+        enrollmentApi.middleware,
+        ScholarClassApi.middleware,
       ),
   });
 

@@ -1,3 +1,4 @@
+import { Audit } from "..";
 import { openingProgramType } from "../opening-program";
 // shortCourseType.ts
 export type MasterProgramType = {
@@ -27,7 +28,7 @@ export type MasterProgramType = {
   curricula: CurriculumType[];
   visibility: visibility;
   status: "draft" | "active" | "archived";
-  isDeleted: boolean;
+  // audit: Audit;
 };
 
 export type MasterProgramCreate = {
@@ -57,7 +58,7 @@ export type MasterProgramCreate = {
   // curricula?: CurriculumDataType[];
   visibility?: visibility;
   status?: "draft" | "active" | "archived";
-  isDeleted: boolean;
+  // audit: Audit;
 };
 
 export type HighlightType = {
