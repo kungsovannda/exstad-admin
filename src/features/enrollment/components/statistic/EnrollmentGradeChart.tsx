@@ -11,10 +11,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { useGetAllEnrollmentsByProgramQuery } from "../../enrollmentApi";
-import React from "react";
 import { Enrollment } from "@/types/enrollment";
+import React from "react";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 type GradeChartData = { level: string; count: number; fill: string };
 

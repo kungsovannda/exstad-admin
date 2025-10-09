@@ -1,9 +1,8 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { Enrollment } from "@/types/enrollment/index";
 import { ColumnDef } from "@tanstack/react-table";
-import EnrollmentCellAction from "./cell-action";
-import { Checkbox } from "@/components/ui/checkbox";
 import { UserProfileCell } from "../user-profile-cell";
-import { Badge } from "@/components/ui/badge";
+import EnrollmentCellAction from "./cell-action";
 
 export const enrollmentColumns: ColumnDef<Enrollment>[] = [
   {
