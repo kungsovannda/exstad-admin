@@ -26,11 +26,11 @@ export default function DefaultStatisticCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          {isLoading ? "N/A" : total?.total}
+          {isLoading ? <Skeleton className="w-12 h-8" /> : total?.total}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Female: {isLoading ? "N/A" : total?.female}, Male:{" "}
-          {isLoading ? "N/A" : total?.male}
+        <p className="text-xs text-muted-foreground flex items-center">
+          Female: {isLoading ? <Skeleton className="w-5 h-3" /> : total?.female}
+          , Male: {isLoading ? <Skeleton className="w-5 h-3" /> : total?.male}
         </p>
       </CardContent>
     </Card>

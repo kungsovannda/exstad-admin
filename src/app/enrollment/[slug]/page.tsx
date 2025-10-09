@@ -12,6 +12,7 @@ import { openingProgramType } from "@/types/opening-program";
 import { formatTitle } from "@/utils/formatTitle";
 import { Package } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function PageEnrollment() {
@@ -35,16 +36,21 @@ export default function PageEnrollment() {
       skip: !currentGen?.uuid,
     }
   );
+  const router = useRouter();
 
   useEffect(() => {
     if (!data) return;
     const sortedPrograms = data.sort((a, b) => b.generation - a.generation);
     setOpeningPrograms(sortedPrograms);
-    // Set currentGen to the first item only if it's not already set
+    router.push(
+      `?type=${encodeURIComponent(
+        program?.programType.toLowerCase().replace("_", "-") ?? "short-course"
+      )}`
+    );
     if (!currentGen && sortedPrograms.length > 0) {
       setCurrentGen(sortedPrograms[0]);
     }
-  }, [data, currentGen]); // Remove openingPrograms from dependencies to avoid infinite loop
+  }, [data, currentGen, program?.programType, router]); // Remove openingPrograms from dependencies to avoid infinite loop
 
   if (openingPrograms?.length === 0 && data !== undefined)
     return (

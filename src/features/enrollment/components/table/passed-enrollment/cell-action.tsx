@@ -6,10 +6,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Enrollment } from "@/types/enrollment/index";
+import { Enrollment, UpdateEnrollment } from "@/types/enrollment/index";
 import { CircleUser, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import ViewEnrollmentProfile from "../../ViewEnrollmentProfile";
+import { toast } from "sonner";
+import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
 
 export default function PassedEnrollmentCellAction({
   data,
@@ -17,7 +19,26 @@ export default function PassedEnrollmentCellAction({
   data: Enrollment;
 }) {
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const [updateEnrollment] = useUpdateEnrollmentMutation();
+  const handleEnrollmentUpdate = ({
+    uuid,
+    body,
+  }: {
+    uuid: string;
+    body: UpdateEnrollment;
+  }) => {
+    if (!data) return;
 
+    toast.promise(updateEnrollment({ uuid, body }).unwrap(), {
+      loading: "Updating...",
+      success: () => {
+        return `${data.englishName} has been updated`;
+      },
+      error: () => {
+        return `Cannot update ${data.englishName}`;
+      },
+    });
+  };
   return (
     <div className="flex ">
       <Button
@@ -36,7 +57,17 @@ export default function PassedEnrollmentCellAction({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem>Scholar</DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() =>
+              handleEnrollmentUpdate({
+                uuid: data.uuid,
+                body: { isPassed: false },
+              })
+            }
+          >
+            Remove Pass
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {isViewProfileOpen && (

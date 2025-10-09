@@ -14,23 +14,93 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Printer } from "lucide-react";
+import { exportToExcel } from "@/services/export-to-excel";
+import { Enrollment, UpdateEnrollment } from "@/types/enrollment";
+import { useState } from "react";
+import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
+import ModalProcess from "@/components/modal/ModalProcess";
 
-interface EnrollmentTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface EnrollmentTableProps<TValue> {
+  columns: ColumnDef<Enrollment, TValue>[];
+  data: Enrollment[];
   totalItems: number;
 }
 
-export function EnrollmentTable<TData, TValue>({
+export function EnrollmentTable<TValue>({
   columns,
   data,
   totalItems,
-}: EnrollmentTableProps<TData, TValue>) {
+}: EnrollmentTableProps<TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
     ? Number(searchParams.get("perPage"))
     : 10;
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isMarkPaidModalOpen, setIsMarkPaidModalOpen] = useState(false);
+  const [stateProcess, setStateProcess] = useState<{
+    currentProgress: number;
+    successCount: number;
+    failureCount: number;
+  }>({
+    currentProgress: 0,
+    successCount: 0,
+    failureCount: 0,
+  });
+
+  const [updateEnrollment] = useUpdateEnrollmentMutation();
+
+  async function onMarkPaidHandle() {
+    setIsMarkPaidModalOpen(true);
+    setStateProcess({
+      currentProgress: 0,
+      successCount: 0,
+      failureCount: 0,
+    });
+
+    let success = 0;
+    let failure = 0;
+
+    const selectedEnroll = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original as Enrollment);
+
+    for (let i = 0; i < selectedEnroll.length; i++) {
+      try {
+        await updateEnrollment({
+          uuid: selectedEnroll[i].uuid,
+          body: {
+            isPaid: true,
+          },
+        }).unwrap();
+        success++;
+      } catch {
+        failure++;
+      }
+      setStateProcess({
+        currentProgress: Math.round(((i + 1) / selectedEnroll.length) * 100), // ✅ Fixed
+        successCount: success, // ✅ Fixed
+        failureCount: failure, // ✅ Fixed
+      });
+    }
+
+    if (success + failure === selectedEnroll.length) {
+      setTimeout(() => {
+        setIsMarkPaidModalOpen(false);
+      }, 3000);
+    }
+  }
+
+  const handleExport = async (selectedFields: string[]) => {
+    await exportToExcel({
+      data: table
+        .getSelectedRowModel()
+        .rows.map((row) => row.original as Enrollment),
+      selectedFields,
+      filename: "enrollments.xlsx",
+    });
+  };
 
   const { table } = useDataTable({
     data,
@@ -46,6 +116,15 @@ export function EnrollmentTable<TData, TValue>({
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
+        <Button
+          size={"sm"}
+          variant={"outline"}
+          disabled={table.getSelectedRowModel().rows.length === 0}
+          onClick={() => setIsExportModalOpen(true)}
+        >
+          <Printer />
+          Export
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -59,11 +138,36 @@ export function EnrollmentTable<TData, TValue>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Mark as Paid</DropdownMenuItem>
+            <DropdownMenuItem onClick={onMarkPaidHandle}>
+              Mark as Paid
+            </DropdownMenuItem>
             <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </DataTableToolbar>
+      {isExportModalOpen && (
+        <ExportToExcelModal
+          data={table
+            .getSelectedRowModel()
+            .rows.map((row) => row.original as Enrollment)}
+          open={isExportModalOpen}
+          onOpenChange={setIsExportModalOpen}
+          onExport={handleExport}
+        />
+      )}
+      {isMarkPaidModalOpen && (
+        <ModalProcess
+          {...stateProcess}
+          title="Please wait while we marking the enrollments. This process may take a few moments."
+          open={isMarkPaidModalOpen}
+          onOpenChange={setIsMarkPaidModalOpen}
+          beingGenerateMsg="Updating Enrollment..."
+          completeGenerateMsg="Updating Complete"
+          successMsg="enrollments marked"
+          failMsg="fail to mark enrollment"
+          total={table.getSelectedRowModel().rows.length}
+        />
+      )}
     </DataTable>
   );
 }
