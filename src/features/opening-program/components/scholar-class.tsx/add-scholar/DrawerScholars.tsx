@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -57,37 +56,37 @@ export default function DrawerScholars({
   const [isReminded, setIsReminded] = useState(false);
   const [selectedRows, setSelectedRows] = useState<ScholarRow[]>([]);
 
-  // Prefill switches if editing a scholar
   useEffect(() => {
     if (editScholar) {
       setIsPaid(editScholar.isPaid);
       setIsReminded(editScholar.isReminded);
-      setSelectedRows([{ 
-        uuid: editScholar.uuid, 
-        englishName: editScholar.englishName ,
-        email: editScholar.englishName, // Placeholder, replace with actual email if available
-      }]);
+      setSelectedRows([
+        {
+          uuid: editScholar.uuid,
+          englishName: editScholar.englishName,
+          email: editScholar.englishName,
+        },
+      ]);
     }
   }, [editScholar]);
 
-  const columns = addScholarClassCulumns(
-    (uuid) => {
-      if (onAddScholar) { 
-        onAddScholar(uuid, { isPaid, isReminded });
-      }
-    },
-    scholarsClass
-  );
+  const columns = addScholarClassCulumns((uuid) => {
+    if (onAddScholar) {
+      onAddScholar(uuid, { isPaid, isReminded });
+    }
+  }, scholarsClass);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="h-screen flex flex-col data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:sm:max-w-xl">
-        <DrawerHeader className="p-6 mt-8">
+        <DrawerHeader className="mt-8 flex flex-row items-center justify-between  ">
           <DrawerTitle className="text-2xl font-semibold">
             {editScholar ? "Edit Scholar" : "Add Scholars"}
-          </DrawerTitle>
-
-          <div className="flex items-center gap-8 mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Selected: {selectedRows.length}
+                </p>         
+                 </DrawerTitle>
+      <div className="flex items-center gap-8 mt-4">
             <div className="flex items-center gap-2">
               <Label htmlFor="isPaid">Mark as Paid</Label>
               <Switch id="isPaid" checked={isPaid} onCheckedChange={setIsPaid} />
@@ -101,19 +100,8 @@ export default function DrawerScholars({
                 onCheckedChange={setIsReminded}
               />
             </div>
-
-            {editScholar && (
-              <Button
-                onClick={() => {
-                  if (onAddScholar && selectedRows[0]) {
-                    onAddScholar(selectedRows[0].uuid, { isPaid, isReminded });
-                  }
-                }}
-              >
-                Save
-              </Button>
-            )}
           </div>
+          
         </DrawerHeader>
 
         <Separator />
@@ -123,32 +111,21 @@ export default function DrawerScholars({
             <DataTableSkeleton columnCount={columns.length} />
           ) : (
             <AddScholarClassTable
-              data={editScholar ? scholars.filter(s => s.uuid === editScholar.uuid) : scholars}
+              data={
+                editScholar
+                  ? scholars.filter((s) => s.uuid === editScholar.uuid)
+                  : scholars
+              }
               totalItems={editScholar ? 1 : scholars.length}
               columns={columns}
               onRowSelectionChange={setSelectedRows}
+              selectedRows={selectedRows}
+              isPaid={isPaid}
+              isReminded={isReminded}
+              onAddMultipleScholars={onAddMultipleScholars}
             />
           )}
         </div>
-
-        {!editScholar && onAddMultipleScholars && (
-          <>
-            <Separator />
-            <div className="p-5">
-              <Button
-                disabled={selectedRows.length === 0}
-                onClick={() =>
-                  onAddMultipleScholars(
-                    selectedRows.map((r) => r.uuid),
-                    { isPaid, isReminded }
-                  )
-                }
-              >
-                Add Selected
-              </Button>
-            </div>
-          </>
-        )}
       </DrawerContent>
     </Drawer>
   );
