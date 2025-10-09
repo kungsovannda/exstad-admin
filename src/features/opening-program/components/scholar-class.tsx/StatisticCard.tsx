@@ -17,6 +17,7 @@ export function ScholarClassStatisticCard({
 }: ScholarClassStatisticCardProps) {
   const [total, setTotal] = useState<State>({ total: 0, male: 0, female: 0 });
   const [paid, setPaid] = useState<State>({ total: 0, male: 0, female: 0 });
+  const [reminded, setReminded] = useState<State>({ total:0,male:0,female:0});
 
   useEffect(() => {
     if (scholarClasses && Array.isArray(scholarClasses)) {
@@ -24,9 +25,13 @@ export function ScholarClassStatisticCard({
       const paidScholars = getState(
         scholarClasses.filter((sc) => sc.isPaid === true)
       );
+      const remindedScholars = getState(
+        scholarClasses.filter((sc) => sc.isReminded === true)
+      );
 
       setTotal(totalScholars);
       setPaid(paidScholars);
+      setReminded(remindedScholars);
     }
   }, [scholarClasses]);
 
@@ -42,6 +47,12 @@ export function ScholarClassStatisticCard({
         title="Paid Scholars"
         icon={UserCheck2}
         total={paid}
+        isLoading={isLoading}
+      />
+      <DefaultStatisticCard
+        title="Reminded Scholars"
+        icon={UserCheck2}
+        total={reminded}
         isLoading={isLoading}
       />
     </div>
