@@ -11,18 +11,20 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Enrollment } from "@/types/enrollment";
+import React from "react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 type GradeChartData = { level: string; count: number; fill: string };
 
 const chartDataGrade: GradeChartData[] = [
-  { level: "Grade A", count: 7, fill: "var(--chart-1)" },
-  { level: "Grade B", count: 12, fill: "var(--chart-2)" },
-  { level: "Grade C", count: 15, fill: "var(--chart-3)" },
-  { level: "Grade D", count: 9, fill: "var(--chart-4)" },
-  { level: "Grade E", count: 5, fill: "var(--chart-5)" },
-  { level: "Grade F", count: 3, fill: "var(--chart-6)" },
-  { level: "Others", count: 2, fill: "var(--chart-7)" },
+  { level: "Grade A", count: 0, fill: "var(--chart-1)" },
+  { level: "Grade B", count: 0, fill: "var(--chart-2)" },
+  { level: "Grade C", count: 0, fill: "var(--chart-3)" },
+  { level: "Grade D", count: 0, fill: "var(--chart-4)" },
+  { level: "Grade E", count: 0, fill: "var(--chart-5)" },
+  { level: "Grade F", count: 0, fill: "var(--chart-6)" },
+  { level: "Others", count: 0, fill: "var(--chart-7)" },
 ];
 
 const chartConfigGrade = {
@@ -131,10 +133,84 @@ export function EnrollmentGradeCard({
   );
 }
 
-export default function EnrollmentGradeChart() {
+export default function EnrollmentGradeChart({ data }: { data: Enrollment[] }) {
+  const processedChartData = React.useMemo(() => {
+    if (!data || !Array.isArray(data)) {
+      return chartDataGrade;
+    }
+
+    const gradeCounts: Record<string, number> = {
+      "Grade A": 0,
+      "Grade B": 0,
+      "Grade C": 0,
+      "Grade D": 0,
+      "Grade E": 0,
+      "Grade F": 0,
+      Others: 0,
+    };
+
+    data.forEach((enrollment) => {
+      const grade = enrollment.extra.grade;
+
+      if (grade && typeof grade === "string") {
+        const normalizedGrade = grade.trim().toUpperCase();
+
+        if (normalizedGrade.includes("A") || normalizedGrade === "A") {
+          gradeCounts["Grade A"]++;
+        } else if (normalizedGrade.includes("B") || normalizedGrade === "B") {
+          gradeCounts["Grade B"]++;
+        } else if (normalizedGrade.includes("C") || normalizedGrade === "C") {
+          gradeCounts["Grade C"]++;
+        } else if (normalizedGrade.includes("D") || normalizedGrade === "D") {
+          gradeCounts["Grade D"]++;
+        } else if (normalizedGrade.includes("E") || normalizedGrade === "E") {
+          gradeCounts["Grade E"]++;
+        } else if (normalizedGrade.includes("F") || normalizedGrade === "F") {
+          gradeCounts["Grade F"]++;
+        } else {
+          gradeCounts["Others"]++;
+        }
+      }
+    });
+
+    return [
+      {
+        level: "Grade A",
+        count: gradeCounts["Grade A"],
+        fill: "var(--chart-1)",
+      },
+      {
+        level: "Grade B",
+        count: gradeCounts["Grade B"],
+        fill: "var(--chart-2)",
+      },
+      {
+        level: "Grade C",
+        count: gradeCounts["Grade C"],
+        fill: "var(--chart-3)",
+      },
+      {
+        level: "Grade D",
+        count: gradeCounts["Grade D"],
+        fill: "var(--chart-4)",
+      },
+      {
+        level: "Grade E",
+        count: gradeCounts["Grade E"],
+        fill: "var(--chart-5)",
+      },
+      {
+        level: "Grade F",
+        count: gradeCounts["Grade F"],
+        fill: "var(--chart-6)",
+      },
+      { level: "Others", count: gradeCounts["Others"], fill: "var(--chart-7)" },
+    ];
+  }, [data]);
+
   return (
     <div className="grid grid-cols-1 gap-5 h-fit">
-      <EnrollmentGradeCard chartDataGrade={chartDataGrade} />
+      <EnrollmentGradeCard chartDataGrade={processedChartData} />
     </div>
   );
 }

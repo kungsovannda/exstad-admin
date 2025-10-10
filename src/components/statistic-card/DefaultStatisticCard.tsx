@@ -7,15 +7,17 @@ interface DefaultStatisticCardProps {
   title: string;
   total?: {
     total: number;
-    male: number;
-    female: number;
+    male?: number;
+    female?: number;
   };
+  description?: string;
   isLoading?: boolean;
 }
 export default function DefaultStatisticCard({
   icon: Icon,
   title,
   total,
+  description,
   isLoading = false,
 }: DefaultStatisticCardProps) {
   return (
@@ -26,12 +28,19 @@ export default function DefaultStatisticCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          {isLoading ? "N/A" : total?.total}
+          {isLoading ? <Skeleton className="w-12 h-8" /> : total?.total}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Female: {isLoading ? "N/A" : total?.female}, Male:{" "}
-          {isLoading ? "N/A" : total?.male}
-        </p>
+        {total?.female ? (
+          <p className="text-xs text-muted-foreground flex items-center">
+            Female:{" "}
+            {isLoading ? <Skeleton className="w-5 h-3" /> : total?.female},
+            Male: {isLoading ? <Skeleton className="w-5 h-3" /> : total?.male}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground flex items-center">
+            {description}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

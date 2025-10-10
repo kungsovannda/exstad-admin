@@ -36,7 +36,7 @@ export function ScholarClassStatisticCard({
   }, [scholarClasses]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <DefaultStatisticCard
         title="Total Scholars"
         icon={Users}
@@ -59,8 +59,9 @@ export function ScholarClassStatisticCard({
   );
 }
 
-// Simple helper for counting totals
+
 const getState = (data: ScholarClassType[]): State => {
   const total = data.length;
-  return { total, male: 0, female: 0 }; // gender info not available yet
+  const totalFemale = data.filter(d=> d.scholar.gender === "Female").length;
+  return { total, male: total-totalFemale, female: totalFemale }; 
 };

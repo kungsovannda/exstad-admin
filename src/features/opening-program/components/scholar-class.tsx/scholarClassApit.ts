@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "@/services/base-query";
-import { SCholarClassCreate, ScholarClassType } from "@/types/opening-program";
+import { SCholarClassCreate, ScholarClassType, ScholarClassUpdate } from "@/types/opening-program";
 
 export const ScholarClassApi = createApi({
   reducerPath: "scholarClassApi",
@@ -45,7 +45,7 @@ export const ScholarClassApi = createApi({
     }),
 
     // UPDATE scholar class
-   updateScholarClass: builder.mutation<ScholarClassType, { uuid: string; body: SCholarClassCreate }>({
+   updateScholarClass: builder.mutation<ScholarClassType, { uuid: string; body: ScholarClassUpdate }>({
   query: ({ uuid, body }) => ({
     url: `/scholar-classes/${uuid}`,
     method: "PUT",
