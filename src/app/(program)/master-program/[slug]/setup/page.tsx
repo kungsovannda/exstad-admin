@@ -17,15 +17,7 @@ import ProgramOverviewAdmin from "@/features/master-program/components/programOv
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
 export default function ProgramSetup() {
-    interface Roadmap {
-      // Define the structure of the roadmap object as needed
-      [key: string]: unknown;
-    }
 
-    const handleSave = (roadmap: Roadmap): void => {
-      // Do something with the roadmap JSON, e.g., send to API or store in state
-      console.log("Saved roadmap:", roadmap);
-    };
   const [tab, setTab] = useState<
     | "highlight"
     | "program-overview"
@@ -53,7 +45,7 @@ export default function ProgramSetup() {
       <h1 className="text-2xl font-semibold mb-4">Program Setup - {programSlug}</h1>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit cursor-pointer">
+      <div className="flex gap-4 mb-6 bg-accent p-2 rounded-md w-fit cursor-pointer">
         <Button className="cursor-pointer" variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}>
           Highlight
         </Button>
@@ -80,7 +72,7 @@ export default function ProgramSetup() {
       {/* Tab Content */}
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
-      {tab === "roadmap" &&<div className="rounded-2xl border-1"><RoadmapEditor onSave={handleSave} /></div>}
+      {tab === "roadmap" &&<div className="rounded-md border-1"><RoadmapEditor /></div>}
       {tab === "faq" && <Faq programUuid={programUuid} />}
       {tab === "learning-outcomes" && <LearningOutcomesAdmin programUuid={programUuid} />}
       {tab === "course-requirements" && <CourseRequirementsAdmin programUuid={programUuid} />}

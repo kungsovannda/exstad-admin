@@ -1,32 +1,19 @@
 "use client";
 
-  import { useState, useMemo } from "react";
-  import { useParams } from "next/navigation";
-  import { Button } from "@/components/ui/button";
-  import React from "react";
-import RoadmapEditor from "@/components/roadmap";
+import { useState, useMemo } from "react";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
-  import ClassAdmin from "@/components/program/opening-program/class/class";
-  import TimelinePage from "@/components/program/opening-program/timeline/timeline";
-  import Activities from "@/components/program/opening-program/activity/activities";
-  import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
-  import {
-    useGetOpeningProgramBySlugQuery,
-  } from "@/features/opening-program/openingProgramApi";
-  import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
-  export default function OpeningProgramSetup() {
-     interface Roadmap {
-      // Define the structure of the roadmap object as needed
-      [key: string]: unknown;
-    }
+import ClassAdmin from "@/components/program/opening-program/class/class";
+import TimelinePage from "@/components/program/opening-program/timeline/timeline";
+import Activities from "@/components/program/opening-program/activity/activities";
+import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
+import { useGetOpeningProgramBySlugQuery } from "@/features/opening-program/openingProgramApi";
+import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
+import WorkNodeEditor from "@/components/roadmap";
 
-    const handleSave = (roadmap: Roadmap): void => {
-      // Do something with the roadmap JSON, e.g., send to API or store in state
-      console.log("Saved roadmap:", roadmap);
-    };
-    const [tab, setTab] = useState<
-      "class" | "timeline" | "curriculum" | "roadmap" | "activities"
-    >("class");
+export default function OpeningProgramSetup() {
+  const [tab, setTab] = useState<"class" | "timeline" | "curriculum" | "roadmap" | "activities">("class");
 
   const params = useParams();
   const programSlug = params.slug as string;
@@ -83,9 +70,14 @@ import RoadmapEditor from "@/components/roadmap";
         />
       )}
 
-        {tab === "roadmap" &&<div className="rounded-2xl border-1"><RoadmapEditor onSave={handleSave} /></div>}
-        {tab === "timeline" && <TimelinePage openingProgramUuid={openingProgramUuid} />}
-        {tab === "activities" && <Activities openingProgramUuid={openingProgramUuid} />}
-      </div>
-    );
-  }
+      {tab === "roadmap" &&<div className="border rounded-2xl"><WorkNodeEditor/></div> }
+      {tab === "timeline" && <TimelinePage openingProgramUuid={openingProgram.uuid} />}
+      {tab === "activities" && (
+        <Activities
+          openingProgram={openingProgram} // pass full object
+          masterProgram={masterProgram}   // pass full object
+        />
+      )}
+    </div>
+  );
+}

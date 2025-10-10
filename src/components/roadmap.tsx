@@ -1,260 +1,557 @@
-import React, { useCallback, useState, useMemo } from "react";
-import { applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange, NodeProps } from "reactflow";
+"use client"
+
+import type React from "react"
+
+import { useCallback, useState } from "react"
 import ReactFlow, {
+  type Node,
+  type Edge,
+  addEdge,
   Background,
   Controls,
-  MiniMap,
-  addEdge,
-  Node,
-  Edge,
-  Connection,
-} from "reactflow";
-import "reactflow/dist/style.css";
-import { Button } from "./ui/button";
+  type Connection,
+  useNodesState,
+  useEdgesState,
+  type NodeProps,
+  Handle,
+  Position,
+} from "reactflow"
+import "reactflow/dist/style.css"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Card } from "@/components/ui/card"
+import { Pencil, Trash2, Plus } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-// Node data type with title and list
-type NodeData = {
-  title: string;
-  list: string[];
-};
+type HandleType = "source" | "target"
 
-type RoadmapNode = {
-  id: string;
-  type?: string;
-  data: NodeData;
-  position: { x: number; y: number };
-};
+type HandleConfig = {
+  top: HandleType
+  right: HandleType
+  bottom: HandleType
+  left: HandleType
+}
 
-type RoadmapEdge = {
-  id: string;
-  source: string;
-  target: string;
-  animated?: boolean;
-};
+type WorkNodeData = {
+  title: string
+  tasks: string[]
+  handles: HandleConfig
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+}
 
-type RoadmapType = {
-  nodes: RoadmapNode[];
-  edges: RoadmapEdge[];
-};
+function CustomWorkNode({ data, id }: NodeProps<WorkNodeData>) {
+  const [isHovered, setIsHovered] = useState(false)
 
-// --- Move CustomNode OUTSIDE the main component ---
-type CustomNodeProps = NodeProps<NodeData> & {
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-};
-const CustomNode = ({ id, data, onEdit, onDelete }: CustomNodeProps) => (
-  <div className="rounded shadow p-2 min-w-[180px] bg-white">
-    <div className="font-bold">{data.title}</div>
-    <ul className="text-xs list-disc ml-4 mb-2">
-      {data.list.map((item, idx) => (
-        <li key={idx}>{item}</li>
-      ))}
-    </ul>
-    <div className="flex gap-1">
-      <Button size="sm" onClick={() => onEdit(id)}>Edit</Button>
-      <Button size="sm" variant="destructive" onClick={() => onDelete(id)}>Delete</Button>
-    </div>
-  </div>
-);
+  const renderHandle = (position: Position, positionKey: keyof HandleConfig) => {
+    const handleType = data.handles[positionKey]
+    const baseClassName = `!w-5 !h-5 !border-2 !border-white !rounded-full transition-all duration-200`
+    const hoverClassName = isHovered ? "!opacity-100 scale-110" : "!opacity-70"
 
-const initialNodes: Node<NodeData>[] = [
-  {
-    id: "1",
-    type: "custom",
-    data: { title: "Start Node", list: ["First step"] },
-    position: { x: 250, y: 5 },
-  },
-];
-const initialEdges: Edge[] = [];
+    const positionOffsets = {
+      [Position.Top]: "!-top-2.5",
+      [Position.Right]: "!-right-2.5",
+      [Position.Bottom]: "!-bottom-2.5",
+      [Position.Left]: "!-left-2.5",
+    }
 
-export default function RoadmapEditor({
-  onSave,
-}: {
-  onSave?: (roadmap: RoadmapType) => void;
-}) {
-  const [nodes, setNodes] = useState<Node<NodeData>[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  const [editingNode, setEditingNode] = useState<Node<NodeData> | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editList, setEditList] = useState<string[]>([]);
-  const [newListItem, setNewListItem] = useState("");
+    const colorClass = (type: "source" | "target") => (type === "source" ? "!bg-green-500" : "!bg-blue-500")
 
-  const onNodesChange = useCallback(
-    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    []
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    []
-  );
-  const onConnect = useCallback(
-    (params: Edge | Connection) =>
-      setEdges((eds) =>
-        addEdge({ ...params, id: `e${params.source}-${params.target}` }, eds)
-      ),
-    []
-  );
-
-  // Add a node
-  const addNode = useCallback(() => {
-    const id = (nodes.length + 1).toString();
-    setNodes((nds) => [
-      ...nds,
-      {
-        id,
-        type: "custom",
-        data: { title: `Node ${id}`, list: [] },
-        position: { x: 100 + nds.length * 50, y: 100 + nds.length * 50 },
-      },
-    ]);
-  }, [nodes.length]);
-
-  // Delete a node
-  const deleteNode = useCallback((id: string) => {
-    setNodes((nds) => nds.filter((n) => n.id !== id));
-    setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
-  }, []);
-
-  // Open edit modal
-  const openEdit = useCallback((id: string) => {
-    setEditingNode((prev) => {
-      const node = nodes.find((n) => n.id === id);
-      if (!node) return prev;
-      setEditTitle(node.data.title);
-      setEditList([...node.data.list]);
-      setNewListItem("");
-      return node;
-    });
-  }, [nodes]);
-
-  // Save node changes
-  const saveEdit = () => {
-    if (!editingNode) return;
-    setNodes((nds) =>
-      nds.map((n) =>
-        n.id === editingNode.id
-          ? { ...n, data: { title: editTitle, list: editList } }
-          : n
+    if (handleType === "source") {
+      return (
+        <Handle
+          type="source"
+          position={position}
+          id={`${positionKey}-source`}
+          className={`${baseClassName} ${colorClass("source")} ${hoverClassName} ${positionOffsets[position]}`}
+        />
       )
-    );
-    setEditingNode(null);
-  };
+    } else if (handleType === "target") {
+      return (
+        <Handle
+          type="target"
+          position={position}
+          id={`${positionKey}-target`}
+          className={`${baseClassName} ${colorClass("target")} ${hoverClassName} ${positionOffsets[position]}`}
+        />
+      )
+    }
+    return null
+  }
 
-  // Save as JSON (calls onSave prop)
-  const handleSave = () => {
-    const roadmap: RoadmapType = {
-      nodes: nodes.map((n) => ({
-        id: n.id,
-        type: n.type,
-        data: n.data,
-        position: n.position,
-      })),
-      edges: edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-        animated: e.animated,
-      })),
-    };
-    if (onSave) onSave(roadmap);
-    alert("Roadmap JSON:\n" + JSON.stringify(roadmap, null, 2));
-  };
+  return (
+    <Card
+      className="min-w-[280px] max-w-[320px] shadow-lg border-2 hover:shadow-xl transition-shadow"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {renderHandle(Position.Top, "top")}
+      {renderHandle(Position.Right, "right")}
+      {renderHandle(Position.Bottom, "bottom")}
+      {renderHandle(Position.Left, "left")}
 
-  // Memoize nodeTypes so handlers are always up-to-date
-  const nodeTypes = useMemo(
-    () => ({
-      custom: (props: NodeProps<NodeData>) => (
-        <CustomNode {...props} onEdit={openEdit} onDelete={deleteNode} />
-      ),
-    }),
-    [openEdit, deleteNode]
-  );
-
-  // Render edit modal
-  const renderEditModal = () =>
-    editingNode && (
-      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded shadow-lg min-w-[300px]">
-          <h2 className="font-bold mb-2">Edit Node</h2>
-          <label className="block mb-2">
-            Title:
-            <input
-              className="border p-1 w-full"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-            />
-          </label>
-          <label className="block mb-2">
-            List:
-            <ul>
-              {editList.map((item, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  {item}
-                  <button
-                    className="text-red-500"
-                    onClick={() =>
-                      setEditList((list) => list.filter((_, i) => i !== idx))
-                    }
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <div className="flex gap-2 mt-2">
-              <input
-                className="border p-1 flex-1"
-                value={newListItem}
-                onChange={(e) => setNewListItem(e.target.value)}
-                placeholder="Add item"
-              />
-              <Button
-                size="sm"
-                onClick={() => {
-                  if (newListItem.trim()) {
-                    setEditList((list) => [...list, newListItem.trim()]);
-                    setNewListItem("");
-                  }
-                }}
-              >
-                Add
-              </Button>
-            </div>
-          </label>
-          <div className="flex gap-2 mt-4">
-            <Button onClick={saveEdit}>Save</Button>
-            <Button variant="secondary" onClick={() => setEditingNode(null)}>
-              Cancel
+      <div className="p-4">
+        {/* Header with title and action buttons */}
+        <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b">
+          <h3 className="font-semibold text-lg flex-1 text-balance">{data.title}</h3>
+          <div className="flex gap-1 shrink-0">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 hover:bg-blue-100 hover:text-blue-600"
+              onClick={(e) => {
+                e.stopPropagation()
+                data.onEdit(id)
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 hover:bg-red-100 hover:text-red-600"
+              onClick={(e) => {
+                e.stopPropagation()
+                data.onDelete(id)
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
+        {/* Task list */}
+        <div className="space-y-2">
+          {data.tasks.map((task, index) => (
+            <div key={index} className="flex items-start gap-2 text-sm p-2 rounded bg-muted/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+              <span className="flex-1">{task}</span>
+            </div>
+          ))}
+          {data.tasks.length === 0 && <p className="text-sm text-muted-foreground italic">No tasks yet</p>}
+        </div>
       </div>
-    );
+    </Card>
+  )
+}
+
+const nodeTypes = {
+  workNode: CustomWorkNode,
+}
+
+const initialNodes: Node<WorkNodeData>[] = [
+  {
+    id: "1",
+    type: "workNode",
+    position: { x: 250, y: 100 },
+    data: {
+      title: "Planning Phase",
+      tasks: ["Define requirements", "Create timeline", "Assign resources"],
+      handles: {
+        top: "target",
+        right: "target",
+        bottom: "target",
+        left: "target",
+      },
+      onEdit: () => {},
+      onDelete: () => {},
+    },
+  },
+]
+
+const initialEdges: Edge[] = []
+
+export default function WorkNodeEditor() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingNode, setEditingNode] = useState<string | null>(null)
+  const [isAddingNode, setIsAddingNode] = useState(false)
+  const [editTitle, setEditTitle] = useState("")
+  const [editTasks, setEditTasks] = useState("")
+  const [editHandles, setEditHandles] = useState<HandleConfig>({
+    top: "target",
+    right: "target",
+    bottom: "target",
+    left: "target",
+  })
+  const [isEditEdgeModalOpen, setIsEditEdgeModalOpen] = useState(false)
+  const [editingEdge, setEditingEdge] = useState<string | null>(null)
+  const [editEdgeLabel, setEditEdgeLabel] = useState("")
+  const [savedData, setSavedData] = useState<{ nodes: Node[]; edges: Edge[] } | null>(null)
+  const [showJson, setShowJson] = useState(false)
+
+  const onConnect = useCallback(
+    (params: Connection) => {
+      console.log("[v0] Connection created:", params)
+      setEdges((eds) => addEdge(params, eds))
+    },
+    [setEdges],
+  )
+
+  const handleEdit = useCallback(
+    (nodeId: string) => {
+      const node = nodes.find((n) => n.id === nodeId)
+      if (node) {
+        setEditingNode(nodeId)
+        setEditTitle(node.data.title)
+        setEditTasks(node.data.tasks.join("\n"))
+        setEditHandles(node.data.handles)
+        setIsEditModalOpen(true)
+      }
+    },
+    [nodes],
+  )
+
+  const handleDelete = useCallback(
+    (nodeId: string) => {
+      setNodes((nds) => nds.filter((n) => n.id !== nodeId))
+      setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId))
+    },
+    [setNodes, setEdges],
+  )
+
+  const updateNodeCallbacks = useCallback(
+    (nodes: Node<WorkNodeData>[]) => {
+      return nodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          onEdit: handleEdit,
+          onDelete: handleDelete,
+        },
+      }))
+    },
+    [handleEdit, handleDelete],
+  )
+
+  const addNewNode = () => {
+    setIsAddingNode(true)
+    setEditingNode(null)
+    setEditTitle("New Work Node")
+    setEditTasks("")
+    setEditHandles({
+      top: "target",
+      right: "target",
+      bottom: "target",
+      left: "target",
+    })
+    setIsEditModalOpen(true)
+  }
+
+  const saveEditedNode = () => {
+    if (isAddingNode) {
+      const newNode: Node<WorkNodeData> = {
+        id: `${Date.now()}`,
+        type: "workNode",
+        position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
+        data: {
+          title: editTitle,
+          tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
+          handles: editHandles,
+          onEdit: handleEdit,
+          onDelete: handleDelete,
+        },
+      }
+      setNodes((nds) => [...nds, newNode])
+      setIsAddingNode(false)
+    } else if (editingNode) {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === editingNode
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  title: editTitle,
+                  tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
+                  handles: editHandles,
+                },
+              }
+            : node,
+        ),
+      )
+    }
+    setIsEditModalOpen(false)
+    setEditingNode(null)
+    setEditTitle("")
+    setEditTasks("")
+  }
+
+  const saveAsJson = () => {
+    const dataToSave = {
+      nodes: nodes.map(({ data, ...node }) => ({
+        ...node,
+        data: {
+          title: data.title,
+          tasks: data.tasks,
+          handles: data.handles,
+        },
+      })),
+      edges,
+    }
+    setSavedData(dataToSave)
+    setShowJson(true)
+  }
+
+  const onEdgeClick = useCallback((_event: React.MouseEvent, edge: Edge) => {
+    setEditingEdge(edge.id)
+    setEditEdgeLabel((edge.label as string) || "")
+    setIsEditEdgeModalOpen(true)
+  }, [])
+
+  const saveEditedEdge = () => {
+    if (editingEdge) {
+      setEdges((eds) =>
+        eds.map((edge) =>
+          edge.id === editingEdge
+            ? {
+                ...edge,
+                label: editEdgeLabel,
+                labelStyle: { fill: "#666", fontWeight: 500 },
+                labelBgStyle: { fill: "white", fillOpacity: 0.9 },
+              }
+            : edge,
+        ),
+      )
+    }
+    setIsEditEdgeModalOpen(false)
+    setEditingEdge(null)
+    setEditEdgeLabel("")
+  }
+
+  const deleteEditingEdge = () => {
+    if (editingEdge) {
+      setEdges((eds) => eds.filter((e) => e.id !== editingEdge))
+    }
+    setIsEditEdgeModalOpen(false)
+    setEditingEdge(null)
+    setEditEdgeLabel("")
+  }
 
   return (
-    <div className="relative" style={{ width: "100%", height: "80vh" }}>
-      {renderEditModal()}
-      <div className="absolute top-0 z-10 flex">
-        <Button onClick={addNode} style={{ margin: 8 }}>
-          Add Node
-        </Button>
-        <Button onClick={handleSave} style={{ margin: 8 }}>
-          Save Roadmap (JSON)
-        </Button>
+    <div className="h-screen w-full flex flex-col">
+      {/* Toolbar */}
+      <div className="border-b p-4 flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold">Work Node Editor</h1>
+        <div className="flex gap-2">
+          <Button onClick={addNewNode} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Node
+          </Button>
+          <Button onClick={saveAsJson} variant="outline">
+            Save as JSON
+          </Button>
+          {savedData && (
+            <Button onClick={() => setShowJson(!showJson)} variant="secondary">
+              {showJson ? "Hide" : "Show"} JSON Data
+            </Button>
+          )}
+        </div>
       </div>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        nodeTypes={nodeTypes}
-      >
-        <MiniMap />
-        <Controls />
-        <Background />
-      </ReactFlow>
+
+      {/* JSON Display */}
+      {showJson && savedData && (
+        <div className="bg-muted p-4 border-b max-h-[200px] overflow-auto">
+          <pre className="text-xs font-mono">{JSON.stringify(savedData, null, 2)}</pre>
+        </div>
+      )}
+
+      {/* ReactFlow Canvas */}
+      <div className="flex-1">
+        <ReactFlow
+          nodes={updateNodeCallbacks(nodes)}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          defaultEdgeOptions={{
+            type: "smoothstep",
+            animated: true,
+            style: { strokeWidth: 2, stroke: "#9333ea" },
+          }}
+          fitView
+          onEdgeClick={onEdgeClick}
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </div>
+
+      {/* Edit Node Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen} >
+        <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{isAddingNode ? "Add Work Node" : "Edit Work Node"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-8">
+              {/* Left Column - Form */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Title</label>
+                    <Input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      placeholder="Enter node title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Tasks (one per line)</label>
+                    <Textarea
+                      value={editTasks}
+                      onChange={(e) => setEditTasks(e.target.value)}
+                      placeholder="Enter tasks, one per line"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                {/* Connection Handles Configuration */}
+                <div className="space-y-3 border-t pt-4">
+                  <h3 className="text-sm font-semibold">Connection Handles</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Configure which sides can send (green) or receive (blue) connections
+                  </p>
+
+                  <div className="grid grid-cols-4 gap-3">
+                    {(["top", "right", "bottom", "left"] as const).map((position) => (
+                      <div key={position} className="space-y-2 p-3 border rounded-lg">
+                        <Label className="text-sm font-medium capitalize">{position}</Label>
+                        <RadioGroup
+                          value={editHandles[position]}
+                          onValueChange={(value) =>
+                            setEditHandles((prev) => ({ ...prev, [position]: value as HandleType }))
+                          }
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="source" id={`${position}-source`} />
+                            <Label htmlFor={`${position}-source`} className="text-xs font-normal cursor-pointer">
+                              Source
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="target" id={`${position}-target`} />
+                            <Label htmlFor={`${position}-target`} className="text-xs font-normal cursor-pointer">
+                              Target
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Preview */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Preview</label>
+                <div className="border rounded-lg p-6 bg-muted/30 flex items-center justify-center min-h-[300px] ">
+                  <div className="relative">
+                    <Card className="min-w-[280px] max-w-[320px] shadow-lg border-2">
+                      {/* Preview Handles */}
+                      {(["top", "right", "bottom", "left"] as const).map((position) => {
+                        const handleType = editHandles[position]
+                        const positions = {
+                          top: { top: "-10px", left: "50%", transform: "translateX(-50%)" },
+                          right: { right: "-10px", top: "50%", transform: "translateY(-50%)" },
+                          bottom: { bottom: "-10px", left: "50%", transform: "translateX(-50%)" },
+                          left: { left: "-10px", top: "50%", transform: "translateY(-50%)" },
+                        }
+
+                        return (
+                          <div key={position} className="absolute" style={positions[position]}>
+                            {handleType === "source" && (
+                              <div className="w-5 h-5 rounded-full bg-green-500 border-2 border-white" />
+                            )}
+                            {handleType === "target" && (
+                              <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white" />
+                            )}
+                          </div>
+                        )
+                      })}
+
+                      <div className="p-4">
+                        {/* Header with title */}
+                        <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b">
+                          <h3 className="font-semibold text-lg flex-1 text-balance">{editTitle || "Untitled Node"}</h3>
+                          <div className="flex gap-1 shrink-0">
+                            <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center">
+                              <Pencil className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                            <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center">
+                              <Trash2 className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Task list preview */}
+                        <div className="space-y-2">
+                          {editTasks
+                            .split("\n")
+                            .filter((t) => t.trim() !== "")
+                            .map((task, index) => (
+                              <div key={index} className="flex items-center gap-2 text-sm p-2 rounded bg-muted/50">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shrink-0" />
+                                <span className="flex-1">{task}</span>
+                              </div>
+                            ))}
+                          {editTasks.trim() === "" && (
+                            <p className="text-sm text-muted-foreground italic">No tasks yet</p>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveEditedNode}>{isAddingNode ? "Create Node" : "Save Changes"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Edge Modal */}
+      <Dialog open={isEditEdgeModalOpen} onOpenChange={setIsEditEdgeModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Connection</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Connection Label</label>
+              <Input
+                value={editEdgeLabel}
+                onChange={(e) => setEditEdgeLabel(e.target.value)}
+                placeholder="Enter connection label (optional)"
+              />
+              <p className="text-xs text-muted-foreground">Add a label to describe the relationship between nodes</p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="destructive" onClick={deleteEditingEdge}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Connection
+            </Button>
+            <Button variant="outline" onClick={() => setIsEditEdgeModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveEditedEdge}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
-  );
+  )
 }
