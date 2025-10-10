@@ -103,12 +103,9 @@ export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: 
         <DataTableSkeleton columnCount={7} />
       ) : (
         <>
-          {/* No classes message */}
-          {classes.length === 0 ? (
-            <p>No classes yet. Add one to get started!</p>
-          ) : (
+          
             <ClassDataTable data={classes} totalItems={classes.length} columns={columns} />
-          )}
+
         </>
       )}
 

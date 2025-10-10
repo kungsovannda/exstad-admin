@@ -7,14 +7,7 @@ import {
   SCholarClassCreate,
 } from "@/types/opening-program";
 import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { MoreHorizontal, SquarePen, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -79,32 +72,16 @@ export default function ScholarClassActionsCell({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => (onEdit ? onEdit(scholarClass) : setOpen(true))}
-          >
-            <SquarePen size={16} className="text-primary-hover mr-2" /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
+      <Button
+      size={"sm"}
+      variant={"ghost"}
             onClick={() =>
               onDelete ? onDelete(scholarClass) : setDeleteOpen(true)
             }
-            className="text-destructive"
+            className="text-destructive "
           >
-            <Trash size={16} className="text-destructive mr-2" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <Trash size={16} className="text-destructive" />
+          </Button>
 
       <ScholarClassForm
         open={open}
@@ -125,6 +102,25 @@ export default function ScholarClassActionsCell({
         itemName={scholarClass.scholar.englishName}
         onConfirm={handleDelete}
       />
+        {/* <ScholarClassForm
+  open={open}
+  onOpenChange={setOpen}
+  initialData={{
+    scholarName: scholarClass.scholar?.englishName ?? "",
+    scholarUuid: scholarClass.scholar?.uuid ?? "",
+    isPaid: scholarClass.isPaid,
+    isReminded: scholarClass.isReminded,
+  }}
+  existingScholars={existingScholars}
+  onSubmitScholarClass={handleUpdate}
+/> */}
+
+<DeleteModal
+  open={deleteOpen}
+  onOpenChange={setDeleteOpen}
+  itemName={scholarClass.scholar?.englishName ?? ""}
+  onConfirm={handleDelete}
+/>
     </>
   );
 }

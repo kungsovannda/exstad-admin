@@ -55,11 +55,7 @@ export default function Page() {
 
       {isLoading ? (
         <DataTableSkeleton columnCount={5} />
-      ) : error ? (
-        <p className="text-red-500">Error loading programs</p>
-      ) : programs.length === 0 ? (
-        <p>No programs found</p>
-      ) : (
+      )  : (
         <MasterProgramTable
           data={programs}
           totalItems={programs.length}

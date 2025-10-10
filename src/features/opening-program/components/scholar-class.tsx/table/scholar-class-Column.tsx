@@ -25,6 +25,7 @@ export const ScholarClassColumns = (
 
   return [
     {
+
       accessorKey: "scholar.englishName",
       header: "Scholar Name",
       enableColumnFilter: true,
@@ -84,8 +85,10 @@ export const ScholarClassColumns = (
         <ScholarClassActionsCell
           scholarClass={row.original}
           existingScholars={table
-            .getRowModel()
-            .rows.map((r) => r.original.scholar.uuid)}
+  .getRowModel()
+  .rows
+  .filter((r) => r.original.scholar && r.original.scholar.uuid)
+  .map((r) => r.original.scholar.uuid)}
           onEdit={actions?.onEdit}
           onDelete={actions?.onDelete}
         />

@@ -17,7 +17,7 @@ import {
 } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
 import { ScholarClassPayload, ScholarClassType } from "@/types/opening-program";
 import { useGetClassByUuidQuery } from "@/features/opening-program/components/class/classApi";
-import { ScholarClassStatisticCard } from "@/features/opening-program/components/scholar-class.tsx/StatisticCard";
+import { StatisticCard } from "@/features/opening-program/components/scholar-class.tsx/statistic-card";
 import DrawerScholars from "@/features/opening-program/components/scholar-class.tsx/add-scholar/DrawerScholars";
 import { Heading } from "@/components/Heading";
 import { Scholar } from "@/types/scholar";
@@ -190,7 +190,7 @@ export default function ScholarClassPage() {
         }}
       />
 
-      <ScholarClassStatisticCard
+      <StatisticCard
         scholarClasses={scholarClasses}
         isLoading={isLoading || isFetching}
       />
@@ -209,3 +209,4 @@ export default function ScholarClassPage() {
     </div>
   );
 }
+

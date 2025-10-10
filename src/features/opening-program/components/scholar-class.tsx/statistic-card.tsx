@@ -6,15 +6,15 @@ import { UserCheck2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScholarClassType } from "@/types/opening-program";
 
-interface ScholarClassStatisticCardProps {
+interface StatisticCardProps {
   scholarClasses: ScholarClassType[];
   isLoading?: boolean;
 }
 
-export function ScholarClassStatisticCard({
-  scholarClasses,
+export function StatisticCard({
+  scholarClasses, 
   isLoading = false,
-}: ScholarClassStatisticCardProps) {
+}: StatisticCardProps) {
   const [total, setTotal] = useState<State>({ total: 0, male: 0, female: 0 });
   const [paid, setPaid] = useState<State>({ total: 0, male: 0, female: 0 });
   const [reminded, setReminded] = useState<State>({ total:0,male:0,female:0});

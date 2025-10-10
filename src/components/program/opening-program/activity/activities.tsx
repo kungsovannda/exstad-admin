@@ -159,11 +159,7 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
 
       {isFetching ? (
         <DataTableSkeleton columnCount={4} />
-      ) : activitiesWithUid.length === 0 ? (
-        <div className="text-muted-foreground">
-          No activities yet. Add one to get started!
-        </div>
-      ) : (
+      )  : (
         <ActivityTable
           data={activitiesWithUid}
           totalItems={activities.length}

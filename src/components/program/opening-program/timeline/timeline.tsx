@@ -129,11 +129,6 @@ useEffect(() => {
       {/* Table */}
       {isFetching ? (
         <DataTableSkeleton columnCount={5} />
-      ):
-      localTimelines.length === 0 ? (
-        <div className="text-muted-foreground">
-          No timelines yet. Add one to get started!
-        </div>
       ) : (
         <TimelineTable
           data={localTimelines}

@@ -14,6 +14,8 @@ import { useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/s
 import { skip } from "node:test";
 import { useGetOpeningProgramBySlugQuery } from "@/features/opening-program/openingProgramApi";
 import { useGetScholarClassesByClassUuidQuery } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
+import { StatisticCard } from "@/features/opening-program/components/scholar-class.tsx/statistic-card";
+import { ClassStatisticCard } from "@/features/opening-program/components/scholar-class.tsx/scholar-class-statistic-card";
 
 function slugToProgramName(slug: string) {
   return slug
@@ -60,7 +62,6 @@ export default function ClassListPage() {
 
         {/* Statistics Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {/* Total Classes */}
           <DefaultStatisticCard
             icon={GraduationCap}
             title="Total Classes"
@@ -68,9 +69,8 @@ export default function ClassListPage() {
             isLoading={false}
           />
 
-          {/* Total Slots */}
           <DefaultStatisticCard
-            icon={ClipboardListIcon} // replace with a proper icon
+            icon={ClipboardListIcon} 
             title="Total Slots"
             total={{
               total: classes.reduce(
@@ -83,7 +83,6 @@ export default function ClassListPage() {
             isLoading={false}
           />
 
-          {/* Instructors */}
           <DefaultStatisticCard
             icon={UserIcon}
             title="Instructors"
@@ -95,9 +94,8 @@ export default function ClassListPage() {
             isLoading={false}
           />
 
-          {/* Another Metric (e.g., Students) */}
           <DefaultStatisticCard
-            icon={UsersIcon} // replace with a proper icon
+            icon={UsersIcon} 
             title="Total Scholars"
             total={{
               total: scholars?.length || 0,
@@ -107,6 +105,7 @@ export default function ClassListPage() {
             isLoading={false}
           />
         </div>
+       {/* <ClassStatisticCard Classes={classes} /> */}
         {/* Class Cards */}
         <div className="grid md:grid-cols-3 gap-6">
   {classes.map((cls) => (
