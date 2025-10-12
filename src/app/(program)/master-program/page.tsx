@@ -1,5 +1,5 @@
 "use client";
-import { MasterProgramStatisticCard } from "@/components/program/section-card";
+import { MasterProgramStatisticCard } from "@/features/master-program/components/section-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Heading } from "@/components/Heading";
@@ -9,12 +9,16 @@ import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterPr
 import { masterProgramColumns } from "@/features/master-program/components/table/column";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { MasterProgramType } from "@/types/program";
-import LevelPieCard from "@/components/program/master-chart";
+import LevelPieCard from "@/features/master-program/components/program-level-chart";
+import ProgramPieCard from "@/features/master-program/components/opening-program-chart";
+import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 
 export default function Page() {
   const { data:masterProgram= [], isLoading, error } = useGetAllMasterProgramsQuery(undefined, {
   refetchOnMountOrArgChange: true,
 });
+const { data: openingPrograms = [], isLoading: isLoadingOpening } = useGetAllOpeningProgramsQuery();
+
   const levelCounts = masterProgram.reduce(
     (acc, program) => {
       const level = program.programLevel?.toLowerCase();
@@ -25,10 +29,19 @@ export default function Page() {
     },
     { basic: 0, intermediate: 0, advanced: 0 }
   );
+  const openingCounts = masterProgram.map(mp => {
+  const count = openingPrograms.filter(
+    op => op.programName?.toLowerCase() === mp.title?.toLowerCase()
+  ).length;
 
+  return {
+    name: mp.title,
+    count,
+  };
+});
 
-  console.log("Raw API data:", masterProgram);
-
+console.log(openingPrograms)
+console.log(openingCounts)
   // Treat data as array directly
   const programs: MasterProgramType[] = masterProgram ?? [];
 
@@ -50,14 +63,14 @@ export default function Page() {
       <MasterProgramStatisticCard MasterProgram={masterProgram}         isLoading={isLoading} />
       <div className="grid grid-cols-2 gap-5 h-fit">
       <LevelPieCard levelCounts={levelCounts}/>
-      <LevelPieCard levelCounts={levelCounts}/>
+      <ProgramPieCard data={openingCounts} />
       </div>
 
       {isLoading ? (
         <DataTableSkeleton columnCount={5} />
       )  : (
         <MasterProgramTable
-          data={programs}
+          data={programs} 
           totalItems={programs.length}
           columns={columns}
         />

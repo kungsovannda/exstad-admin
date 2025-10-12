@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
-import { ActivityUploadField, ActivityFormWithFile } from "@/components/program/opening-program/activity/activity";
+import { ActivityUploadField, ActivityFormWithFile } from "@/features/opening-program/components/activity/ActivityUploadFile";
 
 // ----------------- Validation schema -----------------
 const formSchema = z.object({

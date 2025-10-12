@@ -1,6 +1,6 @@
 "use client";
 
-import MasterProgramForm, { MasterProgramFormValues } from "../create/form-field";
+import MasterProgramForm, { MasterProgramFormValues } from "../create/FormField";
 import {
   useUpdateMasterProgramMutation,
   useGetMasterProgramBySlugQuery,
@@ -34,7 +34,7 @@ function MasterProgramEdit() {
     programType: program.programType || "",
     programLevel: program.programLevel || "",
     thumbnailUrl: program.thumbnailUrl || "",
-    posterUrl: program.posterUrl || "",
+    logoUrl: program.logoUrl || "",
     bgColor:
       program.bgColor ||
       "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",

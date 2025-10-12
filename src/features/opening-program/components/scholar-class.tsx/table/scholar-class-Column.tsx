@@ -1,4 +1,4 @@
-import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
+import { buildUniqueOptions } from "@/components/utils/buildUniqueOptions";
 import {
   ScholarClassType
 } from "@/types/opening-program";

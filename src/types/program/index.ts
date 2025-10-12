@@ -10,7 +10,7 @@ export type MasterProgramType = {
   subtitle: string;
   description: string;
   programLevel: Level;
-  posterUrl: string;
+  logoUrl: string;
   thumbnailUrl: string;
   price: string;
   duration: string;
@@ -39,7 +39,7 @@ export type MasterProgramCreate = {
   subtitle?: string;
   description?: string;
   programLevel?: Level;
-  posterUrl: string;
+  logoUrl: string;
   // image?: string;
   thumbnailUrl?: string;
   price?: number;

@@ -3,8 +3,8 @@
   import React, { useState, useMemo, useEffect } from "react";
   import { FiPlus } from "react-icons/fi";
   import { Button } from "@/components/ui/button";
-  import HighlightsFormModal, { HighlightFormValues } from "./highlight-modal";
-  import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+  import HighlightsFormModal, { HighlightFormValues } from "./HighlightModal";
+  import DeleteModal from "@/features/master-program/components/delete-modal-component";
   import { toast } from "sonner";
   import { SquarePen, Trash } from "lucide-react";
   import {

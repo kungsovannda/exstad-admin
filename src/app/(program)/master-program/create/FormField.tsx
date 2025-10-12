@@ -30,9 +30,14 @@ export const programFormSchema = z.object({
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   thumbnailUrl: z.string().min(1, { message: "Thumbnail is required" }),
-  posterUrl: z.string().min(1, { message: "Poster is required" }),
+  logoUrl: z.string().min(1, { message: "Poster is required" }),
   bgColor: z.string().min(1, { message: "Theme color is required" }),
-  slug: z.string(),
+  slug: z
+    .string()
+    .max(100, { message: "Slug must not exceed 100 characters" })
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+      message: "Slug must be lowercase alphanumeric with hyphens",
+    }),
 });
 
 export type MasterProgramFormValues = z.infer<typeof programFormSchema>;
@@ -61,7 +66,7 @@ export default function MasterProgramForm({
       subtitle: "",
       description: "",
       thumbnailUrl: "",
-      posterUrl: "",
+      logoUrl: "",
       bgColor: "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
       slug: "",
     },
@@ -78,7 +83,7 @@ export default function MasterProgramForm({
     if (initialValues) {
       form.reset(initialValues);
       if (initialValues.thumbnailUrl) setPreviewsThumbnail([initialValues.thumbnailUrl]);
-      if (initialValues.posterUrl) setPreviewsPoster([initialValues.posterUrl]);
+      if (initialValues.logoUrl) setPreviewsPoster([initialValues.logoUrl]);
       if (initialValues.bgColor) {
         setInputValue(initialValues.bgColor);
         setbgColor(initialValues.bgColor);
@@ -317,7 +322,7 @@ useEffect(() => {
         {/* Poster */}
         <FormField
           control={form.control}
-          name="posterUrl"
+          name="logoUrl"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Poster</FormLabel>

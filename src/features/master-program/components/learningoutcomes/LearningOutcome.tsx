@@ -5,9 +5,9 @@ import { FiPlus } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import AddTopicDialog from "@/features/master-program/components/course-requirement/add-topic-dialog";
-import AddSectionDialog from "@/features/master-program/components/course-requirement/section-dialog";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import AddTopicDialog from "@/features/master-program/components/course-requirement/AddTopicDialog";
+import AddSectionDialog from "@/features/master-program/components/course-requirement/SectionDialog";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
 
 import {

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import TimelineModal, { TimelineFormValues } from "./timeline-modal";
-import TimelineTable from "@/features/opening-program/components/timeline/table/timeline-table";
+import TimelineModal, { TimelineFormValues } from "./TimelineModal";
+import TimelineTable from "@/features/opening-program/components/timeline/table/table";
 import {
   TimelinePayload,
   useGetAllTimelineQuery,
@@ -11,7 +11,7 @@ import {
 } from "@/features/opening-program/components/timeline/timelineApi";
 import { toast } from "sonner";
 import { TimelineType } from "@/types/opening-program";
-import { TimelineColumns } from "@/features/opening-program/components/timeline/table/timelineColumn";
+import { TimelineColumns } from "@/features/opening-program/components/timeline/table/column";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 
 type Props = { openingProgramUuid: string };

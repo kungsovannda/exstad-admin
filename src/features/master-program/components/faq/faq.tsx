@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { AddTopicFaq } from "./add-topic-dialog";
 import { AddQuestionDialog } from "./add-question-dialog";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
 import { useGetAllFaqQuery, useUpdateFaqsMutation } from "./faqApi";
 import { FaqItem } from "@/types/program";

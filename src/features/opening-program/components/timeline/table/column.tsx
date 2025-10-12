@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { TimelineActionsCell } from "./timeline-action-cell";
+import { TimelineActionsCell } from "./action-cell";
 import { TimelineType } from "@/types/opening-program";
 
 // -----------------

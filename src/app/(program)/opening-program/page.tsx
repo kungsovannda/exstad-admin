@@ -8,9 +8,9 @@ import { Heading } from "@/components/Heading";
 import OpeningProgramTable from "@/features/opening-program/components/table/opening-program-table";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { openingProgramType } from "@/types/opening-program";
-import { openingProgramColumns } from "@/features/opening-program/components/table/openingColumn";
+import { openingProgramColumns } from "@/features/opening-program/components/table/column";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
-import { OpeningProgramStatisticCard } from "@/features/opening-program/components/statistic-card";
+import { OpeningProgramStatisticCard } from "@/features/opening-program/components/StatisticCard";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
 // Flatten all openingprograms from all programs

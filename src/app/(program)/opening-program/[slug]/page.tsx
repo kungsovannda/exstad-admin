@@ -15,14 +15,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Heading } from "@/components/Heading";
 import { useGetClassesByOpeningProgramQuery } from "@/features/opening-program/components/class/classApi";
-import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { toast } from "sonner";
-import DefaultStatisticCard from "@/components/statistic-card/DefaultStatisticCard";
 import { useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/scholarApi";
-import { skip } from "node:test";
 import { useGetOpeningProgramBySlugQuery } from "@/features/opening-program/openingProgramApi";
-import { useGetScholarClassesByClassUuidQuery } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
-import { StatisticCard } from "@/features/opening-program/components/scholar-class.tsx/statistic-card";
 import { ClassStatisticCard } from "@/features/opening-program/components/scholar-class.tsx/scholar-class-statistic-card";
 
 function slugToProgramName(slug: string) {

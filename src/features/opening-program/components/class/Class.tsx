@@ -4,7 +4,7 @@
   import { toast } from "sonner";
   import { Button } from "@/components/ui/button";
   import ClassDataTable from "@/features/opening-program/components/class/table/class-data-table";
-  import ClassModal, { ClassFormValues } from "./class-modal";
+  import ClassModal, { ClassFormValues } from "./ClassModal";
   import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
   import { ClassColumns } from "@/features/opening-program/components/class/table/classColumn";
   import { ClassPayload, ClassType } from "@/types/opening-program";

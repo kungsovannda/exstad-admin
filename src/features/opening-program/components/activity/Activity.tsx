@@ -1,12 +1,8 @@
-
-// ============================================
-// FILE 3: activity-admin.tsx
-// ============================================
 "use client";
 
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import ActivityFormModal, { ActivityFormValues } from "./acitivity-modal";
+import ActivityFormModal, { ActivityFormValues } from "./AcitivityModal";
 import ActivityTable from "@/features/opening-program/components/activity/table/activity-table";
 import {
   ActivityPayload,

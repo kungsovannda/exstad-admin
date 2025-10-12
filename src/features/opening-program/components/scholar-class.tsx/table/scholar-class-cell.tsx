@@ -6,7 +6,7 @@ import {
   ScholarClassType,
   SCholarClassCreate,
 } from "@/types/opening-program";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 
 import { MoreHorizontal, SquarePen, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";

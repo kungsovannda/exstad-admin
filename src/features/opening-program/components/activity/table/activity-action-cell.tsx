@@ -10,7 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { toast } from "sonner";
 import { ActivityType } from "@/types/opening-program";
 import { useState } from "react";

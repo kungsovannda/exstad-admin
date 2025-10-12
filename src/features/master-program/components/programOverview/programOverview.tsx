@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { FiPlus } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
-import ProgramOverviewFormModal, { ProgramOverviewFormValue } from "./programOverview-modal";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import ProgramOverviewFormModal, { ProgramOverviewFormValue } from "./ProgramOverviewModal";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { toast } from "sonner";
 import { SquarePen, Trash } from "lucide-react";
 import { useGetAllProgramOverviewQuery, useUpdateProgramOverviewMutation } from "./programOverviewApi";

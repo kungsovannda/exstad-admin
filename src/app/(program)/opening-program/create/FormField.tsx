@@ -29,7 +29,7 @@ import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterPr
 import { generateSlug } from "@/services/generate-slug";
 import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
 import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
-import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
+import { QrCodeUploadField } from "@/features/opening-program/QrCodeUrl";
 import { useCreateDocumentMutation } from "@/features/document/documentApi";
 
 // ------------------- SCHEMA -------------------
@@ -37,19 +37,37 @@ export const openingProgramformSchema = z.object({
   programUuid: z.string().min(1, { message: "Master Program is required" }),
   title: z.string().min(1, { message: "Title is required" }),
   telegramGroup: z.string().min(1, { message: "Telegram Group is required" }),
-  generation: z.preprocess((val) => Number(val), z.number().min(1, { message: "Generation is required" })),
-  originalFee: z.preprocess((val) => Number(val), z.number().min(1, { message: "Original fee is required" })),
-  scholarship: z.preprocess((val) => Number(val), z.number().min(0, { message: "Scholarship is required" })),
+  generation: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, { message: "Generation is required" })
+  ),
+  originalFee: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, { message: "Original fee is required" })
+  ),
+  scholarship: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, { message: "Scholarship is required" })
+  ),
   price: z.preprocess((val) => Number(val), z.number()),
-  totalSlot: z.preprocess((val) => Number(val), z.number().min(1, { message: "Total Slot is required" })),
+  totalSlot: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, { message: "Total Slot is required" })
+  ),
   duration: z.string().min(1, { message: "Duration is required" }),
   deadline: z.string().min(1, { message: "Deadline is required" }),
   curriculumPdfUri: z.string().optional(),
   thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
   posterUrl: z.string().min(1, { message: "Poster is required" }),
-  slug: z.string(),
-  status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED","PENDING"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
-  qrCodeUrl: z.string().min(1,{ message: "Valid QR Code URL is required" }),
+  slug: z
+    .string()
+    .max(100, { message: "Slug must not exceed 100 characters" })
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+      message: "Slug must be lowercase alphanumeric with hyphens",
+    }),  status: z
+    .union([z.enum(["OPEN", "CLOSED", "ACHIEVED", "PENDING"]), z.undefined()])
+    .refine((val) => val !== undefined, { message: "Status is required" }),
+  qrCodeUrl: z.string().min(1, { message: "Valid QR Code URL is required" }),
   activity: z.string().optional(),
 });
 
@@ -66,8 +84,7 @@ type Props = {
   initialValues?: OpeningProgramFormValue;
   onSubmit: (data: OpeningProgramFormValue) => void;
   submitLabel?: string;
-  onSlugEdited?: () => void; 
-
+  onSlugEdited?: () => void;
 };
 
 // ------------------- COMPONENT -------------------
@@ -81,9 +98,12 @@ export default function OpeningProgramForm({
   const [createDocument] = useCreateDocumentMutation();
   const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedProgramType, setSelectedProgramType] = useState<string | undefined>(
+  const [selectedProgramType, setSelectedProgramType] = useState<
+    string | undefined
+  >(
     initialValues?.programUuid
-      ? masterPrograms.find(p => p.uuid === initialValues.programUuid)?.programType
+      ? masterPrograms.find((p) => p.uuid === initialValues.programUuid)
+          ?.programType
       : undefined
   );
 
@@ -106,23 +126,28 @@ export default function OpeningProgramForm({
       deadline: "",
       curriculumPdfUri: "",
       thumbnail: "",
-      posterUrl:"",
+      posterUrl: "",
       slug: "",
-      status: undefined as "OPEN" | "CLOSED" | "ACHIEVED" | "PENDING" | undefined,
+      status: undefined as
+        | "OPEN"
+        | "CLOSED"
+        | "ACHIEVED"
+        | "PENDING"
+        | undefined,
       qrCodeUrl: "",
     },
   }) as ExtendedFormReturn;
 
-  const { watch, setValue ,reset} = form;
+  const { watch, setValue, reset } = form;
   const originalFee = watch("originalFee") || 0;
   const scholarship = watch("scholarship") || 0;
   const title = watch("title");
-  
+
   // ------------------- FILTER MASTER PROGRAMS -------------------
   const filteredMasterPrograms = selectedProgramType
     ? masterPrograms.filter((p) => p.programType === selectedProgramType)
     : masterPrograms;
-    
+
   // ------------------- AUTO DISCOUNT -------------------
   useEffect(() => {
     const discount = originalFee - (originalFee * scholarship) / 100;
@@ -130,18 +155,16 @@ export default function OpeningProgramForm({
   }, [originalFee, scholarship, setValue]);
 
   const [isSlugEdited, setIsSlugEdited] = useState(false);
-// ------------------- AUTO SLUG (title + generation) -------------------
-const generation = watch("generation");
+  // ------------------- AUTO SLUG (title + generation) -------------------
+  const generation = watch("generation");
 
-useEffect(() => {
-  if (!title || isSlugEdited) return;
+  useEffect(() => {
+    if (!title || isSlugEdited) return;
 
-  const baseSlug = generateSlug(title);
-  const fullSlug = generation > 0 ? `${baseSlug}-${generation}` : baseSlug;
-  setValue("slug", fullSlug);
-}, [title, generation, isSlugEdited, setValue]);
-
-
+    const baseSlug = generateSlug(title);
+    const fullSlug = generation > 0 ? `${baseSlug}-${generation}` : baseSlug;
+    setValue("slug", fullSlug);
+  }, [title, generation, isSlugEdited, setValue]);
 
   // ------------------- RESET MASTER PROGRAM ON TYPE CHANGE -------------------
   // ✅ FIX: Reset form when initialValues change (this fixes your title reverting issue)
@@ -169,7 +192,9 @@ useEffect(() => {
     setIsUploading(true);
 
     try {
-      const selectedProgram = masterPrograms.find((p) => p.uuid === data.programUuid);
+      const selectedProgram = masterPrograms.find(
+        (p) => p.uuid === data.programUuid
+      );
       const programSlug = selectedProgram?.slug;
       const generation = data.generation;
 
@@ -246,11 +271,13 @@ useEffect(() => {
             </SelectTrigger>
             <SelectContent>
               {masterPrograms.length > 0 ? (
-                [...new Set(masterPrograms.map((p) => p.programType))].map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type.replace("_", " ")}
-                  </SelectItem>
-                ))
+                [...new Set(masterPrograms.map((p) => p.programType))].map(
+                  (type) => (
+                    <SelectItem key={type} value={type}>
+                      {type.replace("_", " ")}
+                    </SelectItem>
+                  )
+                )
               ) : (
                 <div className="px-3 py-2 text-sm text-gray-500">
                   Loading program types...
@@ -267,10 +294,11 @@ useEffect(() => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Master Program</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
+              <Select
+                onValueChange={field.onChange}
                 value={field.value}
-                disabled={!!initialValues }>
+                disabled={!!initialValues}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Master Program" />
                 </SelectTrigger>
@@ -309,28 +337,27 @@ useEffect(() => {
         />
 
         {/* Slug */}
-       <FormField
-  control={form.control}
-  name="slug"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Slug</FormLabel>
-      <FormControl>
-        <Input
-          placeholder={generateSlug(form.watch("title") || "")}
-          {...field}
-          onChange={(e) => {
-            field.onChange(e);
-            setIsSlugEdited(true); // mark slug as manually edited
-            if(onSlugEdited) onSlugEdited();
-          }}
+        <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder={generateSlug(form.watch("title") || "")}
+                  {...field}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    setIsSlugEdited(true); // mark slug as manually edited
+                    if (onSlugEdited) onSlugEdited();
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
 
         {/* Telegram */}
         <FormField
@@ -455,7 +482,12 @@ useEffect(() => {
               <FormItem>
                 <FormLabel>Discount Price ($)</FormLabel>
                 <FormControl>
-                  <Input type="number" disabled {...field} value={field.value ?? 0} />
+                  <Input
+                    type="number"
+                    disabled
+                    {...field}
+                    value={field.value ?? 0}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -499,7 +531,10 @@ useEffect(() => {
             <FormItem>
               <FormLabel>Curriculum PDF URL</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/curriculum.pdf" {...field} />
+                <Input
+                  placeholder="https://example.com/curriculum.pdf"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -609,4 +644,4 @@ useEffect(() => {
       </form>
     </Form>
   );
-} 
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import MasterProgramForm, { MasterProgramFormValues } from "./form-field";
+import MasterProgramForm, { MasterProgramFormValues } from "./FormField";
 import { useCreateMasterProgramMutation } from "@/features/master-program/masterProgramApi";
 import { generateSlug } from "@/services/generate-slug";
 import { useRouter } from "next/navigation";

@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, SquarePen, Trash } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { TimelineType } from "@/types/opening-program";
 
 interface TimelineActionsCellProps {

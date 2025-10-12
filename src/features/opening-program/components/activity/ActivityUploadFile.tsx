@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { CloudUpload, X, FileText } from "lucide-react";
 import { FileUploader, FileInput } from "@/components/ui/file-upload";
-import { ActivityFormValues } from "@/components/program/opening-program/activity/acitivity-modal";
+import { ActivityFormValues } from "@/features/opening-program/components/activity/AcitivityModal";
 // Extend form to store actual File
 export interface ActivityFormWithFile extends UseFormReturn<ActivityFormValues> {
   _activityFile?: File;
