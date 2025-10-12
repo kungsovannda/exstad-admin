@@ -109,7 +109,7 @@ export type ClassCreate = {
   instructor: string;
   startTime: string;
   endTime: string;
-  isWeekend: boolean;
+  isWeekend?: boolean;
   totalSlot: number;
   room: string;
   classCode: string;

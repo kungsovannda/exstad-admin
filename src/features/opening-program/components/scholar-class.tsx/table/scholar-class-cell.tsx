@@ -87,8 +87,8 @@ export default function ScholarClassActionsCell({
         open={open}
         onOpenChange={setOpen}
         initialData={{
-          scholarName: scholarClass.scholar.englishName,
-          scholarUuid: scholarClass.scholar.uuid,
+          scholarName: scholarClass.scholar?.englishName,
+          scholarUuid: scholarClass.scholar?.uuid,
           isPaid: scholarClass.isPaid,
           isReminded: scholarClass.isReminded,
         }}
@@ -99,7 +99,7 @@ export default function ScholarClassActionsCell({
       <DeleteModal
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={scholarClass.scholar.englishName}
+        itemName={scholarClass.scholar?.englishName}
         onConfirm={handleDelete}
       />
         {/* <ScholarClassForm

@@ -70,7 +70,10 @@ export const TimelineColumns = (
       cell: ({ row, table }) => table.getRowModel().rows.indexOf(row) + 1,
       size: 50,
     },
-    { accessorKey: "title", header: "Title", size: 200 },
+    { accessorKey: "title",
+       header: "Title", 
+       size: 200,
+    },
     {
       accessorKey: "startDate",
       header: "Start Date",

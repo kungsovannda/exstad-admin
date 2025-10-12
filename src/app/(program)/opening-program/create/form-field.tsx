@@ -66,6 +66,8 @@ type Props = {
   initialValues?: OpeningProgramFormValue;
   onSubmit: (data: OpeningProgramFormValue) => void;
   submitLabel?: string;
+  onSlugEdited?: () => void; 
+
 };
 
 // ------------------- COMPONENT -------------------
@@ -73,6 +75,7 @@ export default function OpeningProgramForm({
   initialValues,
   onSubmit,
   submitLabel = "Submit",
+  onSlugEdited,
 }: Props) {
   const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
   const [createDocument] = useCreateDocumentMutation();
@@ -126,18 +129,18 @@ export default function OpeningProgramForm({
     setValue("price", isNaN(discount) ? 0 : discount);
   }, [originalFee, scholarship, setValue]);
 
+  const [isSlugEdited, setIsSlugEdited] = useState(false);
 // ------------------- AUTO SLUG (title + generation) -------------------
 const generation = watch("generation");
 
 useEffect(() => {
-  if (!title) {
-    setValue("slug", "");
-    return;
-  }
+  if (!title || isSlugEdited) return;
+
   const baseSlug = generateSlug(title);
   const fullSlug = generation > 0 ? `${baseSlug}-${generation}` : baseSlug;
   setValue("slug", fullSlug);
-}, [title, generation, setValue]);
+}, [title, generation, isSlugEdited, setValue]);
+
 
 
   // ------------------- RESET MASTER PROGRAM ON TYPE CHANGE -------------------
@@ -306,19 +309,28 @@ useEffect(() => {
         />
 
         {/* Slug */}
-        <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Slug</FormLabel>
-              <FormControl>
-                <Input readOnly {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+       <FormField
+  control={form.control}
+  name="slug"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Slug</FormLabel>
+      <FormControl>
+        <Input
+          placeholder={generateSlug(form.watch("title") || "")}
+          {...field}
+          onChange={(e) => {
+            field.onChange(e);
+            setIsSlugEdited(true); // mark slug as manually edited
+            if(onSlugEdited) onSlugEdited();
+          }}
         />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
 
         {/* Telegram */}
         <FormField

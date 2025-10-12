@@ -44,7 +44,7 @@ const formSchema = z.object({
   totalSlot: z.preprocess((val) => Number(val), z.number().min(1, { message: "Total Slot is required" })),
   startTime: z.string().min(1, { message: "Start time is required" }),
   endTime: z.string().min(1, { message: "End time is required" }),
-  isWeekend: z.boolean(),
+  isWeekend: z.boolean().optional(),
 });
 
 export type ClassFormValues = z.infer<typeof formSchema>;
@@ -112,12 +112,8 @@ export default function ClassModal({
   const onSubmitForm: (data: ClassFormValues) => Promise<void> = async (data) => {
     try {
       await onSubmitClass?.(data);
-      toast.success(
-        initialData
-          ? `Class "${data.classCode}" updated successfully!`
-          : `Class "${data.classCode}" created successfully!`
-      );
       onOpenChange?.(false);
+      
       reset();
     } catch (error) {
       console.error("Form submission error", error);

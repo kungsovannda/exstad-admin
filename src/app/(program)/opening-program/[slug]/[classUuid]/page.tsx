@@ -52,7 +52,7 @@ export default function ScholarClassPage() {
 
   const handleAddScholar = async (scholar: Scholar) => {
     try {
-      if (scholarClasses.some((sc) => sc.scholar.uuid === scholar.uuid)) {
+      if (scholarClasses.some((sc) => sc.scholar?.uuid === scholar.uuid)) {
         toast.warning("This scholar is already added.");
         return;
       }
@@ -84,13 +84,7 @@ export default function ScholarClassPage() {
     );
   }
 
-  if (isClassLoading || isLoading || isFetching) {
-    return (
-      <div className="p-6">
-        <DataTableSkeleton columnCount={7} />
-      </div>
-    );
-  }
+
   const columns = ScholarClassColumns(scholarClasses, {
     onEdit: (row) => {
       setEditTarget(row);
@@ -129,7 +123,7 @@ export default function ScholarClassPage() {
           if (!val) setEditTarget(null);
         }}
         scholarsClass={scholarClasses.map((sc) => ({
-          scholarUuid: sc.scholar.uuid,
+          scholarUuid: sc.scholar?.uuid,
         }))}
         onAddScholar={async (scholarUuid, options) => {
           try {
@@ -144,7 +138,7 @@ export default function ScholarClassPage() {
               toast.success("Scholar updated successfully!");
             } else {
               if (
-                scholarClasses.some((sc) => sc.scholar.uuid === scholarUuid)
+                scholarClasses.some((sc) => sc.scholar?.uuid === scholarUuid)
               ) {
                 toast.warning("This scholar is already added.");
                 return;
@@ -167,7 +161,7 @@ export default function ScholarClassPage() {
         onAddMultipleScholars={async (scholarUuids, options) => {
           let addedCount = 0;
           for (const scholarUuid of scholarUuids) {
-            if (scholarClasses.some((sc) => sc.scholar.uuid === scholarUuid))
+            if (scholarClasses.some((sc) => sc.scholar?.uuid === scholarUuid))
               continue;
             try {
               await addScholar({
@@ -195,17 +189,16 @@ export default function ScholarClassPage() {
         isLoading={isLoading || isFetching}
       />
 
-      {scholarClasses.length === 0 ? (
-        <p className="p-6 text-muted-foreground">
-          No scholar classes available for this class.
-        </p>
-      ) : (
+        {isLoading ? (
+          <DataTableSkeleton columnCount={5}/>
+        ): (
         <ScholarClassDataTable
           data={scholarClasses}
           totalItems={scholarClasses.length}
           columns={columns}
         />
-      )}
+        )
+      }
     </div>
   );
 }

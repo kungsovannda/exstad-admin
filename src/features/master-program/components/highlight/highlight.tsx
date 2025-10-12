@@ -98,8 +98,19 @@
         toast.success("All highlights saved!");
         setHasChanges(false);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        toast.error(`Failed to save: ${message || err}`);
+        const backendErrors =
+              (err as {
+                data?: { error?: { description?: { reason: string; field?: string }[] } };
+              })?.data?.error?.description;
+        
+            if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+              backendErrors.forEach((e) => {
+                toast.error(`${e.reason}`);
+              });
+            } else {
+              const message = err instanceof Error ? err.message : String(err);
+              toast.error(`Failed to save: ${message}`);
+            }
       }
     };
 

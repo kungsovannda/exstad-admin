@@ -4,11 +4,14 @@ import OpeningProgramForm, { OpeningProgramFormValue } from "./form-field";
 import { useCreateOpeningProgramMutation } from "@/features/opening-program/openingProgramApi";
 import { generateSlug } from "@/services/generate-slug";
 import { openingProgramCreate } from "@/types/opening-program";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export default function OpeningProgramCreate() {
   const [createOpeningProgram] = useCreateOpeningProgramMutation();
-
+  const [isSlugEdited, setIsSlugEdited] = useState(false);
+  const router = useRouter();
   const handleSubmit = async (values: OpeningProgramFormValue) => {
     try {
       // Ensure numbers
@@ -16,6 +19,8 @@ export default function OpeningProgramCreate() {
       const totalSlot = Number(values.totalSlot || 0);
       const originalFee = Number(values.originalFee || 0);
       const scholarship = Number(values.scholarship || 0);
+      
+      
 
       // Calculate discounted price
       const price = originalFee - (originalFee * scholarship) / 100;
@@ -41,7 +46,7 @@ export default function OpeningProgramCreate() {
       const payload: openingProgramCreate = {
         programUuid: values.programUuid,
         title: values.title,
-        slug: generateSlug(values.title),
+        slug: isSlugEdited ? values.slug : generateSlug(values.title),
         generation,
         price,
         scholarship,
@@ -61,7 +66,10 @@ export default function OpeningProgramCreate() {
 
       await toast.promise(createOpeningProgram(payload).unwrap(), {
         loading: "Creating...",
-        success: "Created successfully!",
+        success: () => {
+        router.push("/opening-program");
+      return "Created successfully!";
+    },
         error: (err) => `Failed: ${err.message || err}`,
       });
     } catch (err: unknown) {
@@ -70,5 +78,5 @@ export default function OpeningProgramCreate() {
     }
   };
 
-  return <OpeningProgramForm onSubmit={handleSubmit} submitLabel="Create" />;
+  return <OpeningProgramForm onSubmit={handleSubmit} submitLabel="Create" onSlugEdited={() => setIsSlugEdited(true)} />;
 }

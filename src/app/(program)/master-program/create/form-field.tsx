@@ -41,12 +41,15 @@ type Props = {
   initialValues?: MasterProgramFormValues;
   onSubmit: (data: MasterProgramFormValues) => void;
   submitLabel?: string;
+  onSlugEdited?: () => void; 
+
 };
 
 export default function MasterProgramForm({
   initialValues,
   onSubmit,
   submitLabel = "Submit",
+  onSlugEdited,
 }: Props) {
   const form = useForm<MasterProgramFormValues>({
     resolver: zodResolver(programFormSchema),
@@ -84,19 +87,15 @@ export default function MasterProgramForm({
   }, [initialValues, form]);
 
   // ✅ Auto-generate slug when title changes (only if slug not manually changed)
-  useEffect(() => {
-    const subscription = form.watch((values, { name }) => {
-      if (name === "title" && values.title) {
-        const currentSlug = form.getValues("slug");
-        // Only update if slug is empty or matches the generated pattern (not manually changed)
-        if (!currentSlug || currentSlug === generateSlug(currentSlug)) {
-          form.setValue("slug", generateSlug(values.title), { shouldDirty: true });
-        }
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
-
+  const [isSlugEdited, setIsSlugEdited] = useState(false);
+useEffect(() => {
+  const subscription = form.watch((values, { name }) => {
+    if (name === "title" && values.title && !isSlugEdited) {
+      form.setValue("slug", generateSlug(values.title), { shouldDirty: true });
+    }
+  });
+  return () => subscription.unsubscribe();
+}, [form, isSlugEdited]);
   const handleChooseColor = () => {
     setInputValue(bgColor);
     form.setValue("bgColor", bgColor);
@@ -123,22 +122,26 @@ export default function MasterProgramForm({
 
         {/* Slug */}
         <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Slug</FormLabel>
-              <FormControl>
-                <Input
-                  readOnly
-                  placeholder={generateSlug(form.watch("title") || "")}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+  control={form.control}
+  name="slug"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Slug</FormLabel>
+      <FormControl>
+        <Input
+          placeholder={generateSlug(form.watch("title") || "")}
+          {...field}
+          onChange={(e) => {
+            field.onChange(e);        
+            setIsSlugEdited(true);
+            if (onSlugEdited) onSlugEdited();
+          }}
         />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
         {/* Program Type */}
         <FormField

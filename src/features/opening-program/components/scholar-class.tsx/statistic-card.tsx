@@ -62,6 +62,6 @@ export function StatisticCard({
 
 const getState = (data: ScholarClassType[]): State => {
   const total = data.length;
-  const totalFemale = data.filter(d=> d.scholar.gender === "Female").length;
+  const totalFemale = data.filter(d=> d.scholar?.gender === "Female").length;
   return { total, male: total-totalFemale, female: totalFemale }; 
 };

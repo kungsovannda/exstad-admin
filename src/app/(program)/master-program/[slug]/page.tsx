@@ -43,10 +43,7 @@ function MasterProgramEdit() {
   const handleSubmit = async (values: MasterProgramFormValues) => {
     const payload = {
       ...values,
-      slug: generateSlug(values.title), // generate new slug
     };
-    console.log("🧾 Sending payload:", payload);
-
     try {
       await toast.promise(
         updateMasterProgram({
