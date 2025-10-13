@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import {
   ScholarClassType,
-  SCholarClassCreate,
+  ScholarClassCreate,
 } from "@/types/opening-program";
 import DeleteModal from "@/features/master-program/components/delete-modal-component";
 
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import {
   useDeleteScholarClassMutation,
   useUpdateScholarClassMutation,
-} from "../scholarClassApit";
+} from "../scholarClassApi";
 import ScholarClassForm, {
   ScholarClassFormValue,
 } from "../form-field";
@@ -50,7 +50,7 @@ export default function ScholarClassActionsCell({
 
   const handleUpdate = async (data: ScholarClassFormValue) => {
     try {
-      const payload: SCholarClassCreate = {
+      const payload: ScholarClassCreate = {
         classUuid: scholarClass.classUuid,
         scholarUuid: scholarClass.scholar.uuid, // cannot change
         isPaid: data.isPaid ?? scholarClass.isPaid,

@@ -207,9 +207,9 @@ export default function ClassModal({
                         <SelectValue placeholder="Select a shift" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Morning">Morning</SelectItem>
-                        <SelectItem value="Afternoon">Afternoon</SelectItem>
-                        <SelectItem value="Evening">Evening</SelectItem>
+                        <SelectItem value="MORNING">Morning</SelectItem>
+                        <SelectItem value="AFTERNOON">Afternoon</SelectItem>
+                        <SelectItem value="EVENING">Evening</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

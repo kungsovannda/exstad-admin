@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -14,13 +14,31 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import ColorPicker from "react-best-gradient-color-picker";
-import Image from "next/image";
 import { generateSlug } from "@/services/generate-slug";
+import {
+  useCreateDocumentMutation,
+  useCreateLogoMutation,
+} from "@/features/document/documentApi";
+import { LogoUploadField } from "@/features/master-program/components/LogoUrl";
 
 export const programFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -29,7 +47,6 @@ export const programFormSchema = z.object({
   visibility: z.enum(["PUBLIC", "PRIVATE"]),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
-  thumbnailUrl: z.string().min(1, { message: "Thumbnail is required" }),
   logoUrl: z.string().min(1, { message: "Poster is required" }),
   bgColor: z.string().min(1, { message: "Theme color is required" }),
   slug: z
@@ -42,12 +59,15 @@ export const programFormSchema = z.object({
 
 export type MasterProgramFormValues = z.infer<typeof programFormSchema>;
 
+interface ExtendedFormReturn extends UseFormReturn<MasterProgramFormValues> {
+  _logoFile?: File;
+}
+
 type Props = {
   initialValues?: MasterProgramFormValues;
   onSubmit: (data: MasterProgramFormValues) => void;
   submitLabel?: string;
-  onSlugEdited?: () => void; 
-
+  onSlugEdited?: () => void;
 };
 
 export default function MasterProgramForm({
@@ -65,25 +85,22 @@ export default function MasterProgramForm({
       visibility: "PUBLIC",
       subtitle: "",
       description: "",
-      thumbnailUrl: "",
       logoUrl: "",
-      bgColor: "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
+      bgColor:
+        "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
       slug: "",
     },
-  });
-
-  const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
-  const [previewsPoster, setPreviewsPoster] = useState<string[]>([]);
+  }) as ExtendedFormReturn;
+  const [createLogo] = useCreateLogoMutation();
   const [inputValue, setInputValue] = useState(form.getValues("bgColor"));
   const [bgColor, setbgColor] = useState(form.getValues("bgColor"));
   const [showDialog, setShowDialog] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // ✅ Reset when editing existing data
   useEffect(() => {
     if (initialValues) {
       form.reset(initialValues);
-      if (initialValues.thumbnailUrl) setPreviewsThumbnail([initialValues.thumbnailUrl]);
-      if (initialValues.logoUrl) setPreviewsPoster([initialValues.logoUrl]);
       if (initialValues.bgColor) {
         setInputValue(initialValues.bgColor);
         setbgColor(initialValues.bgColor);
@@ -93,22 +110,55 @@ export default function MasterProgramForm({
 
   // ✅ Auto-generate slug when title changes (only if slug not manually changed)
   const [isSlugEdited, setIsSlugEdited] = useState(false);
-useEffect(() => {
-  const subscription = form.watch((values, { name }) => {
-    if (name === "title" && values.title && !isSlugEdited) {
-      form.setValue("slug", generateSlug(values.title), { shouldDirty: true });
-    }
-  });
-  return () => subscription.unsubscribe();
-}, [form, isSlugEdited]);
+  useEffect(() => {
+    const subscription = form.watch((values, { name }) => {
+      if (name === "title" && values.title && !isSlugEdited) {
+        form.setValue("slug", generateSlug(values.title), {
+          shouldDirty: true,
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, isSlugEdited]);
   const handleChooseColor = () => {
     setInputValue(bgColor);
     form.setValue("bgColor", bgColor);
     setShowDialog(false);
   };
 
+  const handleFormSubmit = async (data: MasterProgramFormValues) => {
+    setIsUploading(true);
+    try {
+      const programSlug = data.slug;
+      if (!programSlug) {
+        form.setError("root", {
+          message: "Slug is required",
+        });
+        setIsUploading(false);
+        return;
+      }
+
+      if (data.logoUrl.startsWith("blob:") && form._logoFile) {
+        const logoRes = await createLogo({
+          file: form._logoFile,
+          programSlug,
+          documentType: "logo",
+          filename: "",
+        }).unwrap();
+        data.logoUrl = logoRes.uri;
+      }
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      form.setError("root", { message: "Failed to upload files" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Form {...form}>
+                                      {/* should be handleFormSubmit waiting for api */}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* Title */}
         <FormField
@@ -116,7 +166,9 @@ useEffect(() => {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title <span className="text-destructive">*</span></FormLabel>
+              <FormLabel>
+                Title <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Enter your program title" {...field} />
               </FormControl>
@@ -127,26 +179,26 @@ useEffect(() => {
 
         {/* Slug */}
         <FormField
-  control={form.control}
-  name="slug"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Slug</FormLabel>
-      <FormControl>
-        <Input
-          placeholder={generateSlug(form.watch("title") || "")}
-          {...field}
-          onChange={(e) => {
-            field.onChange(e);        
-            setIsSlugEdited(true);
-            if (onSlugEdited) onSlugEdited();
-          }}
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder={generateSlug(form.watch("title") || "")}
+                  {...field}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    setIsSlugEdited(true);
+                    if (onSlugEdited) onSlugEdited();
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
 
         {/* Program Type */}
         <FormField
@@ -189,15 +241,29 @@ useEffect(() => {
                 <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
                   <DialogHeader>
                     <DialogTitle>Choose Color</DialogTitle>
-                    <DialogDescription>Pick your desired color or gradient</DialogDescription>
+                    <DialogDescription>
+                      Pick your desired color or gradient
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="flex-1 overflow-y-auto py-4 space-y-4">
-                    <ColorPicker width={460} value={bgColor} onChange={setbgColor} />
+                    <ColorPicker
+                      width={460}
+                      value={bgColor}
+                      onChange={setbgColor}
+                    />
                     <Label>Preview</Label>
-                    <div className="w-full h-16 rounded-md border shadow-sm" style={{ background: bgColor }} />
+                    <div
+                      className="w-full h-16 rounded-md border shadow-sm"
+                      style={{ background: bgColor }}
+                    />
                   </div>
                   <DialogFooter className="flex gap-2">
-                    <Button variant="outline" onClick={() => setShowDialog(false)}>Cancel</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowDialog(false)}
+                    >
+                      Cancel
+                    </Button>
                     <Button onClick={handleChooseColor}>Choose</Button>
                   </DialogFooter>
                 </DialogContent>
@@ -206,7 +272,10 @@ useEffect(() => {
             {inputValue && (
               <div className="space-y-2">
                 <Label>Preview</Label>
-                <div className="w-full h-14 rounded-md border shadow-sm" style={{ background: inputValue }} />
+                <div
+                  className="w-full h-14 rounded-md border shadow-sm"
+                  style={{ background: inputValue }}
+                />
               </div>
             )}
           </div>
@@ -287,71 +356,32 @@ useEffect(() => {
           )}
         />
 
-        {/* Thumbnail */}
-        <FormField
-          control={form.control}
-          name="thumbnailUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Thumbnail</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = URL.createObjectURL(file);
-                      field.onChange(url);
-                      setPreviewsThumbnail([url]);
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {previewsThumbnail.length > 0 && (
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {previewsThumbnail.map((src, idx) => (
-              <Image key={idx} src={src} width={100} height={100} alt="Thumbnail" className="w-24 h-24 object-cover rounded border" />
-            ))}
-          </div>
-        )}
 
-        {/* Poster */}
+        {/* Logo */}
         <FormField
           control={form.control}
           name="logoUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Poster</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = URL.createObjectURL(file);
-                      field.onChange(url);
-                      setPreviewsPoster([url]);
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={() => {
+            const slug = form.watch("slug");
+            return (
+              <FormItem>
+                <FormLabel>Logo *</FormLabel>
+                <FormControl>
+                  <div className="space-y-4 mt-2">
+                    <LogoUploadField
+                      form={form}
+                      masterProgram={{slug}}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
-        {previewsPoster.length > 0 && (
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {previewsPoster.map((src, idx) => (
-              <Image key={idx} src={src} width={100} height={100} alt="Poster" className="w-24 h-24 object-cover rounded border" />
-            ))}
-          </div>
-        )}
-
-        <Button type="submit">{submitLabel}</Button>
+        <Button type="submit" className="w-fit" disabled={isUploading}>
+          {isUploading ? "Uploading..." :submitLabel}
+          </Button>
       </form>
     </Form>
   );

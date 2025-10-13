@@ -7,7 +7,6 @@ import {
 } from "@/features/master-program/masterProgramApi";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
-import { generateSlug } from "@/services/generate-slug";
 
 function MasterProgramEdit() {
   const params = useParams();
@@ -33,7 +32,6 @@ function MasterProgramEdit() {
     visibility: program.visibility || "PUBLIC",
     programType: program.programType || "",
     programLevel: program.programLevel || "",
-    thumbnailUrl: program.thumbnailUrl || "",
     logoUrl: program.logoUrl || "",
     bgColor:
       program.bgColor ||
@@ -56,16 +54,17 @@ function MasterProgramEdit() {
           error: (err) => `Failed: ${err.message || err}`,
         }
       );
-
-      // ✅ Redirect to the master program list page
       router.push("/master-program");
     } catch (error) {
       console.error("Update failed:", error);
     }
   };
 
+  
+
   return (
     <MasterProgramForm
+      key={program.uuid} 
       initialValues={initialValues}
       onSubmit={handleSubmit}
       submitLabel={isUpdating ? "Updating..." : "Update"}

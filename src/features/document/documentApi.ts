@@ -1,5 +1,6 @@
 import { baseQuery } from "@/services/base-query";
 import { CreateDocument, Document } from "@/types/document";
+import { CreateLogo } from "@/types/document/create-document";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const documentApi = createApi({
@@ -14,6 +15,21 @@ export const documentApi = createApi({
         formData.append("file", body.file);
         return {
           url: `/documents/${body.programSlug}/${body.gen}/${
+            body.documentType
+          }${body.filename ? `?filename=${body.filename}` : ""}`,
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: [{ type: "Document", id: "LIST" }],
+    }),
+
+    createLogo: builder.mutation<Document, CreateLogo>({
+      query: (body) => {
+        const formData = new FormData();
+        formData.append("file", body.file);
+        return {
+          url: `/documents/${body.programSlug}/${
             body.documentType
           }${body.filename ? `?filename=${body.filename}` : ""}`,
           method: "POST",
@@ -74,4 +90,5 @@ export const {
   useGetAllDocumentsQuery,
   useGetDocumentByNameQuery,
   useUpdateDocumentMutation,
+  useCreateLogoMutation,
 } = documentApi;

@@ -139,7 +139,7 @@ export type ScholarClassType = {
 }
 
 
-export type SCholarClassCreate = {
+export type ScholarClassCreate = {
   classUuid: string;
   scholarUuid: string;
   isPaid : boolean;
@@ -151,4 +151,26 @@ export type SCholarClassCreate = {
 export type ScholarClassUpdate = {
   isReminded: boolean;
   isPaid: boolean
+}
+
+
+export type InstructorClassType = {
+    uuid:string;
+    instructorUuid: string,
+    instructorUsername: string,
+    classUuid: string,
+    audit?: {
+        createdBy: string;
+        updatedBy: string | null;
+        createdAt: string;
+        updatedAt: string | null;
+    }
+}
+export type InstructorClassCreate = {
+  instructorUuid: string;
+  scholarUuid: string;  
+}
+export type InstructorClassUpdate = {
+  instructorUuid: string;
+  scholarUuid: string;  
 }

@@ -14,7 +14,7 @@ import {
   useDeleteScholarClassMutation,
   useCreateScholarClassMutation,
   useUpdateScholarClassMutation,
-} from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
+} from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
 import { ScholarClassPayload, ScholarClassType } from "@/types/opening-program";
 import { useGetClassByUuidQuery } from "@/features/opening-program/components/class/classApi";
 import { StatisticCard } from "@/features/opening-program/components/scholar-class.tsx/statistic-card";

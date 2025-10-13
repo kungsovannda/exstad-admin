@@ -1,6 +1,6 @@
 import { ScholarClassType, ScholarClassUpdate } from "@/types/opening-program";
 import React from "react";
-import { useUpdateScholarClassMutation } from "../scholarClassApit";
+import { useUpdateScholarClassMutation } from "../scholarClassApi";
 import { toast } from "sonner";
 import {
   Select,

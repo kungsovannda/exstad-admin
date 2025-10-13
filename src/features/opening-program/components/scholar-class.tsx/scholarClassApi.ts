@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "@/services/base-query";
-import { SCholarClassCreate, ScholarClassType, ScholarClassUpdate } from "@/types/opening-program";
+import { ScholarClassCreate, ScholarClassType, ScholarClassUpdate } from "@/types/opening-program";
 
 export const ScholarClassApi = createApi({
   reducerPath: "scholarClassApi",
@@ -21,8 +21,9 @@ export const ScholarClassApi = createApi({
           : [{ type: "ScholarClass", id: "LIST" }],
     }),
 
+
     // GET all scholars by class UUID
-    getScholarClassesByClassUuid: builder.query<ScholarClassType[], string>({
+    getScholarByClassUuid: builder.query<ScholarClassType[], string>({
       query: (classUuid) => `/scholar-classes/classes/${classUuid}/scholars`,
       transformResponse: (response: ScholarClassType[]) => response,
       providesTags: (result) =>
@@ -34,8 +35,20 @@ export const ScholarClassApi = createApi({
           : [{ type: "ScholarClass", id: "LIST" }],
     }),
 
+    // GET all scholar class by class UUID
+       getScholarClassesByClassUuid: builder.query<ScholarClassType[], string>({
+      query: (classUuid) => `/scholar-classes/classes/${classUuid}/scholar-classes`,
+      transformResponse: (response: ScholarClassType[]) => response,
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({ type: "ScholarClass" as const, id: uuid })),
+              { type: "ScholarClass", id: "LIST" },
+            ]
+          : [{ type: "ScholarClass", id: "LIST" }],
+    }),
     // CREATE scholar class
-    createScholarClass: builder.mutation<ScholarClassType, SCholarClassCreate>({
+    createScholarClass: builder.mutation<ScholarClassType, ScholarClassCreate>({
       query: (body) => ({
         url: "/scholar-classes",
         method: "POST",
@@ -74,8 +87,10 @@ export const ScholarClassApi = createApi({
 // Export hooks
 export const {
   useGetAllScholarClassesQuery,
+  useGetScholarByClassUuidQuery,
   useGetScholarClassesByClassUuidQuery,
   useCreateScholarClassMutation,
   useUpdateScholarClassMutation,
   useDeleteScholarClassMutation,
+
 } = ScholarClassApi;

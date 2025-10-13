@@ -96,7 +96,6 @@ export default function OpeningProgramForm({
 }: Props) {
   const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
   const [createDocument] = useCreateDocumentMutation();
-  const [previewsThumbnail, setPreviewsThumbnail] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedProgramType, setSelectedProgramType] = useState<
     string | undefined
@@ -190,7 +189,6 @@ export default function OpeningProgramForm({
   // ------------------- HANDLE FORM SUBMISSION WITH FILE UPLOADS -------------------
   const handleFormSubmit = async (data: OpeningProgramFormValue) => {
     setIsUploading(true);
-
     try {
       const selectedProgram = masterPrograms.find(
         (p) => p.uuid === data.programUuid
@@ -568,21 +566,6 @@ export default function OpeningProgramForm({
             );
           }}
         />
-
-        {previewsThumbnail.length > 0 && (
-          <div className="flex gap-2 flex-wrap mt-2">
-            {previewsThumbnail.map((src, idx) => (
-              <Image
-                key={idx}
-                src={src}
-                width={100}
-                height={100}
-                alt={`Thumbnail ${idx + 1}`}
-                className="w-24 h-24 object-cover rounded border"
-              />
-            ))}
-          </div>
-        )}
 
         {/* Poster */}
         <FormField

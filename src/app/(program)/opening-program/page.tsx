@@ -1,6 +1,4 @@
 "use client";
-
-// import { OpeningSectionCards } from '@/components/program/opening-program/opening-section-card';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FiPlus } from "react-icons/fi";
@@ -12,9 +10,6 @@ import { openingProgramColumns } from "@/features/opening-program/components/tab
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { OpeningProgramStatisticCard } from "@/features/opening-program/components/StatisticCard";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
-
-// Flatten all openingprograms from all programs
-// const allOpeningPrograms = programData.flatMap(program => program.openingprogram || []);
 
 export default function OpeningProgramPage() {
   const { data :openingProgram=[], isLoading, error } = useGetAllOpeningProgramsQuery(undefined, {

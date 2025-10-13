@@ -25,7 +25,7 @@ import { achievementApi } from "@/features/achievement/achievementApi";
 import { scholarAchievementApi } from "@/features/scholar-achievement/scholarAchievementApi";
 import { userApi } from "@/features/user/userApi";
 import { enrollmentApi } from "@/features/enrollment/enrollmentApi";
-import { ScholarClassApi } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
+import { ScholarClassApi } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
