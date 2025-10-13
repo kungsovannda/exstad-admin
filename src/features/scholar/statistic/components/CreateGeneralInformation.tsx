@@ -210,6 +210,7 @@ export default function CreateGeneralInformation({
                       <Calendar
                         mode="single"
                         selected={field.value}
+                        captionLayout="dropdown"
                         onSelect={field.onChange}
                         initialFocus
                       />
