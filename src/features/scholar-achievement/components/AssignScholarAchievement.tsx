@@ -30,6 +30,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -219,32 +220,34 @@ export default function AssignScholarAchievement({
                                     }}
                                     className="cursor-pointer"
                                   >
-                                    <div className="flex h-12 items-center gap-3 w-full">
-                                      <Avatar className="h-10 w-10">
-                                        <AvatarImage
-                                          className="rounded-lg object-cover"
-                                          src={
-                                            option.icon || "/placeholder.svg"
-                                          }
-                                          alt={option.title}
-                                        />
-                                        <AvatarFallback>
-                                          {option.title
-                                            .split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .toUpperCase()}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <div className="flex flex-col items-start">
-                                        <span className="font-medium">
-                                          {option.title}
-                                        </span>
-                                        <span className="text-sm text-muted-foreground line-clamp-1">
-                                          {option.description}
-                                        </span>
+                                    <SelectItem value={option.uuid}>
+                                      <div className="flex h-12 items-center gap-3 w-full">
+                                        <Avatar className="h-10 w-10">
+                                          <AvatarImage
+                                            className="rounded-lg object-cover"
+                                            src={
+                                              option.icon || "/placeholder.svg"
+                                            }
+                                            alt={option.title}
+                                          />
+                                          <AvatarFallback>
+                                            {option.title
+                                              .split(" ")
+                                              .map((n) => n[0])
+                                              .join("")
+                                              .toUpperCase()}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex flex-col items-start">
+                                          <span className="font-medium">
+                                            {option.title}
+                                          </span>
+                                          <span className="text-sm text-muted-foreground line-clamp-1">
+                                            {option.description}
+                                          </span>
+                                        </div>
                                       </div>
-                                    </div>
+                                    </SelectItem>
                                   </CommandItem>
                                 ))}
                             </CommandGroup>
