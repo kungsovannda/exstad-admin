@@ -1,6 +1,11 @@
 import { Audit } from "..";
 import { openingProgramType } from "../opening-program";
-// shortCourseType.ts
+
+export type HighlightPayload = Omit<HighlightType, "id">;
+export type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
+export type visibility = "PUBLIC" | "PRIVATE";
+export type programType = "SHORT_COURSE" | "SCHOLARSHIP";
+export type status =  "draft" | "active" | "archived";
 export type MasterProgramType = {
   uuid: string;
   programType: programType;
@@ -10,7 +15,7 @@ export type MasterProgramType = {
   subtitle: string;
   description: string;
   programLevel: Level;
-  posterUrl: string;
+  logoUrl: string;
   thumbnailUrl: string;
   price: string;
   duration: string;
@@ -21,13 +26,13 @@ export type MasterProgramType = {
   programOverviews: programOverviewType[];
   learningOutcomes: LearningOutcomeType[];
   requirements: RequirementsType[];
-  highlights: HighlightType[]; // 👈 new
-  curriculum: CurriculumType[]; // 👈 new
-  openingprograms: openingProgramType[]; // 👈 new
+  highlights: HighlightType[]; 
+  curriculum: CurriculumType[]; 
+  openingprograms: openingProgramType[]; 
   faq: FaqItem[];
   curricula: CurriculumType[];
   visibility: visibility;
-  status: "draft" | "active" | "archived";
+  status: status;
   // audit: Audit;
 };
 
@@ -39,8 +44,7 @@ export type MasterProgramCreate = {
   subtitle?: string;
   description?: string;
   programLevel?: Level;
-  posterUrl: string;
-  // image?: string;
+  logoUrl: string;
   thumbnailUrl?: string;
   price?: number;
   duration?: string;
@@ -55,9 +59,8 @@ export type MasterProgramCreate = {
   curriculum?: CurriculumType[];
   openingprograms?: openingProgramType[];
   faq?: FaqItem[];
-  // curricula?: CurriculumDataType[];
   visibility?: visibility;
-  status?: "draft" | "active" | "archived";
+  status?: status;
   // audit: Audit;
 };
 
@@ -66,10 +69,6 @@ export type HighlightType = {
   value: string;
   desc: string;
 };
-export type HighlightPayload = Omit<HighlightType, "id">;
-type Level = "BASIC" | "INTERMEDIATE" | "ADVANCED";
-type visibility = "PUBLIC" | "PRIVATE";
-export type programType = "SHORT_COURSE" | "SCHOLARSHIP";
 
 export type programOverviewType = {
   title: string;
@@ -109,9 +108,4 @@ export type CurriculumType = {
   subtitle: string;
   description: string[];
 };
-
-// export  type CurriculumDataType = {
-//   id:number;
-//   title:string;
-//   curriculumType:CurriculumType[];
-// }
+  

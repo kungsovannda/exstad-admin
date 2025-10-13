@@ -4,10 +4,10 @@ import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-import ClassAdmin from "@/components/program/opening-program/class/class";
-import TimelinePage from "@/components/program/opening-program/timeline/timeline";
-import Activities from "@/components/program/opening-program/activity/activities";
-import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
+import ClassAdmin from "@/features/opening-program/components/class/Class";
+import TimelinePage from "@/features/opening-program/components/timeline/Timeline";
+import ActivityAdmin from "@/features/opening-program/components/activity/Activity";
+import CurriculumAdmin from "@/features/master-program/components/curriculum/Curriculum";
 import { useGetOpeningProgramBySlugQuery } from "@/features/opening-program/openingProgramApi";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
@@ -72,7 +72,7 @@ export default function OpeningProgramSetup() {
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
       {tab === "timeline" && <TimelinePage openingProgramUuid={openingProgram.uuid} />}
       {tab === "activities" && (
-        <Activities
+        <ActivityAdmin
           openingProgram={openingProgram} // pass full object
           masterProgram={masterProgram}   // pass full object
         />

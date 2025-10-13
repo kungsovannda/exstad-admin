@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-react";
 import { toast } from "sonner";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { MasterProgramType } from "@/types/program";
 import { useDeleteMasterProgramMutation } from "../../masterProgramApi";
 

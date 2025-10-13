@@ -1,5 +1,5 @@
 import { DefaultTableModel } from "@/components/table/default-table-model";
-import { openingProgramColumns } from "./openingColumn";
+import { openingProgramColumns } from "./column";
 import { openingProgramType } from "@/types/opening-program";
 
 // Flatten all openingprograms from all programs

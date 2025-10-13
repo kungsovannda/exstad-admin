@@ -5,9 +5,9 @@ import { FiPlus } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import AddTopicDialog from "../course-requirement/add-topic-dialog";
-import AddSectionDialog from "../course-requirement/section-dialog";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import AddTopicDialog from "../course-requirement/AddTopicDialog";
+import AddSectionDialog from "../course-requirement/SectionDialog";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { SquarePen, Trash } from "lucide-react";
 
 import {
@@ -171,20 +171,39 @@ const handleDeleteLocal = (
 };
 
 
-  const handleSaveAllToBackend = async () => {
-    try {
-      if (isOpening) {
-        await updateOpeningCurriculums({ openingProgramUuid: openingProgramUuid!, curriculums: localCurriculums }).unwrap();
-      } else {
-        await updateMasterCurriculums({ programUuid, curriculums: localCurriculums }).unwrap();
-      }
-      toast.success("All changes saved!");
-      setHasChanges(false);
-    } catch (err: unknown) {
+const handleSaveAllToBackend = async () => {
+  try {
+    if (isOpening) {
+      await updateOpeningCurriculums({
+        openingProgramUuid: openingProgramUuid!,
+        curriculums: localCurriculums,
+      }).unwrap();
+    } else {
+      await updateMasterCurriculums({
+        programUuid,
+        curriculums: localCurriculums,
+      }).unwrap();
+    }
+
+    toast.success("All changes saved!");
+    setHasChanges(false);
+  } catch (err: unknown) {
+    const backendErrors =
+      (err as {
+        data?: { error?: { description?: { reason: string; field?: string }[] } };
+      })?.data?.error?.description;
+
+    if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+      backendErrors.forEach((e) => {
+        toast.error(`${e.reason}`);
+      });
+    } else {
       const message = err instanceof Error ? err.message : String(err);
       toast.error(`Failed to save: ${message}`);
     }
-  };
+  }
+};
+
 
   // ======================
   // JSX

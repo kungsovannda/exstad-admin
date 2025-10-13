@@ -1,4 +1,5 @@
 import { Audit } from "..";
+import { Scholar } from "../scholar";
 
 export type openingProgramType = {
   programName: string;
@@ -108,7 +109,7 @@ export type ClassCreate = {
   instructor: string;
   startTime: string;
   endTime: string;
-  isWeekend: boolean;
+  isWeekend?: boolean;
   totalSlot: number;
   room: string;
   classCode: string;
@@ -124,10 +125,9 @@ export type ScholarClassPayload = {
 }
 export type ScholarClassType = {
     uuid: string;
-    scholarUuid: string;
-    scholarName: string;  
+    scholar: Scholar;
     classUuid: string;
-    room: string;         
+    room: string;          
     isReminded: boolean;
     isPaid: boolean;
     audit?: {
@@ -139,7 +139,7 @@ export type ScholarClassType = {
 }
 
 
-export type SCholarClassCreate = {
+export type ScholarClassCreate = {
   classUuid: string;
   scholarUuid: string;
   isPaid : boolean;
@@ -148,3 +148,29 @@ export type SCholarClassCreate = {
 // export type RoadmapType = {
 
 // }
+export type ScholarClassUpdate = {
+  isReminded: boolean;
+  isPaid: boolean
+}
+
+
+export type InstructorClassType = {
+    uuid:string;
+    instructorUuid: string,
+    instructorUsername: string,
+    classUuid: string,
+    audit?: {
+        createdBy: string;
+        updatedBy: string | null;
+        createdAt: string;
+        updatedAt: string | null;
+    }
+}
+export type InstructorClassCreate = {
+  instructorUuid: string;
+  scholarUuid: string;  
+}
+export type InstructorClassUpdate = {
+  instructorUuid: string;
+  scholarUuid: string;  
+}

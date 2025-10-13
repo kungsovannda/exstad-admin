@@ -3,8 +3,8 @@
   import React, { useState, useMemo, useEffect } from "react";
   import { FiPlus } from "react-icons/fi";
   import { Button } from "@/components/ui/button";
-  import HighlightsFormModal, { HighlightFormValues } from "./highlight-modal";
-  import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+  import HighlightsFormModal, { HighlightFormValues } from "./HighlightModal";
+  import DeleteModal from "@/features/master-program/components/delete-modal-component";
   import { toast } from "sonner";
   import { SquarePen, Trash } from "lucide-react";
   import {
@@ -98,8 +98,19 @@
         toast.success("All highlights saved!");
         setHasChanges(false);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        toast.error(`Failed to save: ${message || err}`);
+        const backendErrors =
+              (err as {
+                data?: { error?: { description?: { reason: string; field?: string }[] } };
+              })?.data?.error?.description;
+        
+            if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+              backendErrors.forEach((e) => {
+                toast.error(`${e.reason}`);
+              });
+            } else {
+              const message = err instanceof Error ? err.message : String(err);
+              toast.error(`Failed to save: ${message}`);
+            }
       }
     };
 

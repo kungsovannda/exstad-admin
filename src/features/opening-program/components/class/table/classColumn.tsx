@@ -3,7 +3,7 @@
 import { ClassType } from "@/types/opening-program";
 import { ColumnDef } from "@tanstack/react-table";
 import { ClassActionsCell } from "./class-action-cell";
-import { buildUniqueOptions } from "../../../../../components/program/utils/buildUniqueOptions";
+import { buildUniqueOptions } from "../../../../../components/utils/buildUniqueOptions";
 
 export const ClassColumns = (classes: ClassType[] , actions?: { onEdit?: (c: ClassType) => void; onDelete?: (c: ClassType) => void }
 ): ColumnDef<ClassType>[] => {

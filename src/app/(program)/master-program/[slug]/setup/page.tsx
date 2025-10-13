@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
-import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
-import Faq from "@/features/master-program/components/faq/faq";
-import LearningOutcomesAdmin from "@/features/master-program/components/learningoutcomes/learning-outcome";
-import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/course-requirement";
-import ProgramOverviewAdmin from "@/features/master-program/components/programOverview/programOverview";
+import HighlightsAdmin from "@/features/master-program/components/highlight/Highlight";
+import CurriculumAdmin from "@/features/master-program/components/curriculum/Curriculum";
+import Faq from "@/features/master-program/components/faq/Faq";
+import LearningOutcomesAdmin from "@/features/master-program/components/learningoutcomes/LearningOutcome";
+import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/CourseRequirement";
+import ProgramOverviewAdmin from "@/features/master-program/components/programOverview/ProgramOverview";
 
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 

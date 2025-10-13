@@ -14,7 +14,7 @@ import Image from "next/image";
 import { MasterProgramType } from "@/types/program";
 import { openingProgramType } from "@/types/opening-program";
 import { UseFormReturn } from "react-hook-form";
-import { OpeningProgramFormValue } from "@/app/(program)/opening-program/create/form-field";
+import { OpeningProgramFormValue } from "@/app/(program)/opening-program/create/FormField";
 
 // Extend form to include optional thumbnail File reference
 interface ThumbnailForm extends UseFormReturn<OpeningProgramFormValue> {
