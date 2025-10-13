@@ -1,4 +1,5 @@
 import ModalProcess from "@/components/modal/ModalProcess";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -29,7 +30,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -40,8 +40,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useCreateScholarAchievementMutation } from "../scholarAchievementApi";
-import { UserProfileCell } from "@/features/enrollment/components/table/user-profile-cell";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const schema = z.object({
   achievement: z.string(),
 });
