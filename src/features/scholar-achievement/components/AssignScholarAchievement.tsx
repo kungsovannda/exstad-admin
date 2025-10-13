@@ -195,7 +195,10 @@ export default function AssignScholarAchievement({
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="max-h-80 w-full overflow-hidden">
+                    <SelectContent
+                      style={{ width: "var(--radix-select-trigger-width)" }}
+                      className="max-h-80 overflow-hidden"
+                    >
                       <Command>
                         <CommandInput
                           placeholder="Search achievements..."
