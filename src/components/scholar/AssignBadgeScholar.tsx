@@ -215,8 +215,8 @@ export function AssignBadgeScholar({
             <AlertDialogHeader>
               <AlertDialogTitle className="text-center">
                 {currentProgress === 100 && successCount > 0
-                  ? "Generation Complete!"
-                  : "Generating Certificates"}
+                  ? "Assignation Complete!"
+                  : "Assigning Badges"}
               </AlertDialogTitle>
               <AlertDialogDescription>
                 Please wait while we assign badge to scholar. This process may

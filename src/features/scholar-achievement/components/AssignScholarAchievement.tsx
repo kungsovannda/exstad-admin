@@ -102,6 +102,11 @@ export default function AssignScholarAchievement({
         failureCount: failure, // ✅ Fixed
       });
     }
+    if (success + failure === scholars.length) {
+      setTimeout(() => {
+        setShowProgressDialog(false);
+      }, 3000);
+    }
   }
 
   return (
