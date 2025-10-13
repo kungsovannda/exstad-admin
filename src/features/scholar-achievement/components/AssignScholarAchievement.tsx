@@ -144,7 +144,10 @@ export default function AssignScholarAchievement({
                     value={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="h-fit min-h-[3rem]">
+                      <SelectTrigger
+                        style={{ width: "var(--radix-select-trigger-width)" }}
+                        className="h-fit overflow-hidden min-h-[3rem]"
+                      >
                         <SelectValue placeholder="Select an achievement">
                           {/* Custom display for selected value */}
                           {field.value &&
