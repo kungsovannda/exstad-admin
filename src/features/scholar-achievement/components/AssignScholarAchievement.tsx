@@ -195,7 +195,7 @@ export default function AssignScholarAchievement({
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="max-h-80">
+                    <SelectContent className="max-h-80 w-full overflow-hidden">
                       <Command>
                         <CommandInput
                           placeholder="Search achievements..."
