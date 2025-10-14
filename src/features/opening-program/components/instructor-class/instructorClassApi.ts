@@ -21,9 +21,9 @@ export const InstructorClassApi = createApi({
     }),
 
 
-    // GET all scholars by class UUID
-    getScholarByClassUuid: builder.query<InstructorClassType[], string>({
-      query: (classUuid) => `/instructor    -classes/classes/${classUuid}/scholars`,
+    // GET all instructor by class UUID
+    getAllInstructorByClassUuid: builder.query<InstructorClassType[], string>({
+      query: (classUuid) => `/instructor-classes/classes/${classUuid}/instructors`,
       transformResponse: (response: InstructorClassType[]) => response,
       providesTags: (result) =>
         result?.length
@@ -47,7 +47,7 @@ export const InstructorClassApi = createApi({
           : [{ type: "InstructorClass", id: "LIST" }],
     }),
     // CREATE scholar class
-    createScholarClass: builder.mutation<InstructorClassType, InstructorClassCreate>({
+    createInstructorClass: builder.mutation<InstructorClassType, InstructorClassCreate>({
       query: (body) => ({
         url: "/instructor-classes",
         method: "POST",
@@ -70,9 +70,9 @@ export const InstructorClassApi = createApi({
 }),
 
     // DELETE scholar class
-    deleteScholarClass: builder.mutation<{ success: boolean; uuid: string }, string>({
+    deleteInstructorClass: builder.mutation<{ success: boolean; uuid: string }, string>({
       query: (uuid) => ({
-        url: `/scholar-classes/${uuid}`,
+        url: `/instructor-classes/${uuid}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, uuid) => [
@@ -80,16 +80,30 @@ export const InstructorClassApi = createApi({
         { type: "InstructorClass", id: "LIST" },
       ],
     }),
+
+    // DELETE scholar class
+    removeInstructorFromClass: builder.mutation<{ success: boolean; uuid: string }, string>({
+      query: (uuid) => ({
+        url: `/instructor-classes/${uuid}/delete`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "InstructorClass", id: uuid },
+        { type: "InstructorClass", id: "LIST" },
+      ],
+    }),
+
   }),
 });
 
 // Export hooks
 export const {
   useGetAllScholarClassesQuery,
-  useGetScholarByClassUuidQuery,
+  useGetAllInstructorByClassUuidQuery,
   useGetScholarClassesByClassUuidQuery,
-  useCreateScholarClassMutation,
+  useCreateInstructorClassMutation,
   useUpdateScholarClassMutation,
-  useDeleteScholarClassMutation,
+  useDeleteInstructorClassMutation,
+  useRemoveInstructorFromClassMutation,
 
 } = InstructorClassApi;

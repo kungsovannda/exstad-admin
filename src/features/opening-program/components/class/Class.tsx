@@ -26,6 +26,7 @@
         skip: !openingProgramTitle,
         refetchOnMountOrArgChange: true,
       });
+      
     const [createClass] = useCreateClassMutation();
     const [updateClass] = useUpdateClassMutation();
     const [deleteClass] = useDeleteClassMutation();
@@ -56,7 +57,6 @@
           openingProgramUuid,
           openingProgramName: openingProgramTitle, 
           shift: data.shift.toUpperCase() as "MORNING" | "AFTERNOON" | "EVENING",
-          instructor: data.instructor,
           startTime: data.startTime,
           endTime: data.endTime,
           isWeekend: data.isWeekend ?? false,

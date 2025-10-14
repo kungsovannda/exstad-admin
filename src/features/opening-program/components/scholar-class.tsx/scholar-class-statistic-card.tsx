@@ -8,31 +8,33 @@ import { ClassType } from "@/types/opening-program";
 interface ClassStatisticCardProps {
   Classes: ClassType[];
   isLoading?: boolean;
-  scholarsCount?: number; // pass scholars?.length from parent
+  scholarsCount?: number; 
+  instructorCount?:number;
 }
 
 export function ClassStatisticCard({
   Classes,
   isLoading = false,
   scholarsCount = 0,
+  instructorCount = 0,
 }: ClassStatisticCardProps) {
   const [stats, setStats] = useState({
     totalClasses: 0,
     totalSlots: 0,
-    totalInstructors: 0,
     totalScholars: 0,
+    instructorCount:0,
   });
 
   useEffect(() => {
     if (Classes && Array.isArray(Classes)) {
       const totalClasses = Classes.length;
       const totalSlots = Classes.reduce((sum, c) => sum + (c.totalSlot || 0), 0);
-      const totalInstructors = new Set(Classes.map((c) => c.instructor).filter(Boolean)).size;
       const totalScholars = scholarsCount;
+      const totalInstructors = instructorCount;
 
-      setStats({ totalClasses, totalSlots, totalInstructors, totalScholars });
+      setStats({ totalClasses, totalSlots, totalScholars, instructorCount: totalInstructors });
     }
-  }, [Classes, scholarsCount]);
+  }, [Classes, scholarsCount,instructorCount]);
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -51,7 +53,7 @@ export function ClassStatisticCard({
       <DefaultStatisticCard
         icon={UserIcon}
         title="Instructors"
-        total={{ total: stats.totalInstructors, male: 200, female: 150 }}
+        total={{ total: stats.instructorCount, male: 200, female: 150 }}
         isLoading={isLoading}
       />
       <DefaultStatisticCard
