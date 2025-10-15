@@ -36,6 +36,7 @@ import { useGetCurrentAddressesQuery } from "@/features/current-address/currentA
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllScholarAchievementsQuery } from "@/features/scholar-achievement/scholarAchievementApi";
 import { useGetScholarByUsernameQuery } from "@/features/scholar/scholarApi";
+import ScholarCareerSetUp from "@/features/scholar/statistic/components/ScholarCareerSetUp";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
 import { UpdateScholar } from "@/types/scholar";
 import { dateFormatter } from "@/utils/dateFormatter";
@@ -349,6 +350,8 @@ export default function ScholarDetails() {
             >
               <Button disabled={updateScholar == null}>Save Changes</Button>
             </div>
+
+            <ScholarCareerSetUp />
 
             <div className="flex items-center mt-10 justify-between">
               <Heading

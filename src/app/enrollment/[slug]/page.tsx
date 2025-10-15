@@ -40,7 +40,7 @@ export default function PageEnrollment() {
 
   useEffect(() => {
     if (!data) return;
-    const sortedPrograms = data.sort((a, b) => b.generation - a.generation);
+    const sortedPrograms = data.toSorted((a, b) => b.generation - a.generation);
     setOpeningPrograms(sortedPrograms);
     router.push(
       `?type=${encodeURIComponent(
