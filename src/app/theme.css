@@ -36,6 +36,7 @@ body {
   --chart-5: oklch(0.269 0 0);
   --chart-6: oklch(0.6 0.05 0);
   --chart-7: oklch(0.5 0.05 0);
+  --chart-8: oklch(0.488 0.243 264.376);
 
   @variant dark {
     --primary: var(--color-neutral-500);
@@ -47,6 +48,7 @@ body {
     --chart-5: oklch(0.269 0 0);
     --chart-6: oklch(0.65 0.05 0);
     --chart-7: oklch(0.55 0.05 0);
+    --chart-8: oklch(0.6 0.118 184.704);
   }
 }
 

@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "@/services/base-query";
-import { InstructorClassCreate, InstructorClassType, InstructorClassUpdate } from "@/types/opening-program";
+import { InstructorClassCreate, InstructorClassType, InstructorClassUpdate, InstructorType } from "@/types/opening-program";
 export const InstructorClassApi = createApi({
   reducerPath: "instructorClassApi",
   baseQuery: baseQuery(),
@@ -22,9 +22,9 @@ export const InstructorClassApi = createApi({
 
 
     // GET all instructor by class UUID
-    getAllInstructorByClassUuid: builder.query<InstructorClassType[], string>({
+    getAllInstructorByClassUuid: builder.query<InstructorType[], string>({
       query: (classUuid) => `/instructor-classes/classes/${classUuid}/instructors`,
-      transformResponse: (response: InstructorClassType[]) => response,
+      transformResponse: (response: InstructorType[]) => response,
       providesTags: (result) =>
         result?.length
           ? [

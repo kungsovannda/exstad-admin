@@ -156,8 +156,21 @@ export type ScholarClassUpdate = {
 
 
 export type InstructorClassType = {
-  uuid: string;              // user uuid
-  username: string;          // from backend
+    uuid:string;
+    instructorUuid: string,
+    instructorUsername: string,
+    classUuid: string,
+    audit?: {
+        createdBy: string;
+        updatedBy: string | null;
+        createdAt: string;
+        updatedAt: string | null;
+    }
+}
+
+export type InstructorType = {
+  uuid: string;              
+  username: string;
   email: string;
   englishName: string;
   khmerName: string;
@@ -171,21 +184,6 @@ export type InstructorClassType = {
     updatedAt: string | null;
   };
 };
-
-export type InstructorClassRecordType = {
-  uuid: string;             // Instructor-Class record UUID
-  instructorUuid: string;   // actual user UUID
-  instructorUsername: string;
-  classUuid: string;
-  audit: {
-    createdBy: string;
-    updatedBy: string | null;
-    createdAt: string;
-    updatedAt: string | null;
-  };
-};
-
-
 export type InstructorClassCreate = {
   instructorUuid: string;
   classUuid: string;  
