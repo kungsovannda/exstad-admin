@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-import HighlightsAdmin from "@/features/master-program/components/highlight/Highlight";
-import CurriculumAdmin from "@/features/master-program/components/curriculum/Curriculum";
-import Faq from "@/features/master-program/components/faq/Faq";
+import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
+import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
+import FaqAdmin from "@/features/master-program/components/faq/faq";
 import LearningOutcomesAdmin from "@/features/master-program/components/learningoutcomes/LearningOutcome";
 import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/CourseRequirement";
-import ProgramOverviewAdmin from "@/features/master-program/components/programOverview/ProgramOverview";
+import ProgramOverviewAdmin from "@/features/master-program/components/programOverview/programOverview";
 
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
@@ -38,29 +38,59 @@ export default function ProgramSetup() {
 
   return (
     <div className="p-5">
-      <h1 className="text-2xl font-semibold mb-4">Program Setup - {programSlug}</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        Program Setup - {programSlug}
+      </h1>
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit cursor-pointer">
-        <Button className="cursor-pointer" variant={tab === "highlight" ? "default" : "outline"} onClick={() => setTab("highlight")}>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "highlight" ? "default" : "outline"}
+          onClick={() => setTab("highlight")}
+        >
           Highlight
         </Button>
-        <Button className="cursor-pointer" variant={tab === "program-overview" ? "default" : "outline"} onClick={() => setTab("program-overview")}>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "program-overview" ? "default" : "outline"}
+          onClick={() => setTab("program-overview")}
+        >
           Program Overview
         </Button>
-        <Button className="cursor-pointer" variant={tab === "learning-outcomes" ? "default" : "outline"} onClick={() => setTab("learning-outcomes")}>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "learning-outcomes" ? "default" : "outline"}
+          onClick={() => setTab("learning-outcomes")}
+        >
           Learning Outcomes
         </Button>
-        <Button className="cursor-pointer" variant={tab === "course-requirements" ? "default" : "outline"} onClick={() => setTab("course-requirements")}>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "course-requirements" ? "default" : "outline"}
+          onClick={() => setTab("course-requirements")}
+        >
           Course Requirements
         </Button>
-        <Button className="cursor-pointer" variant={tab === "curriculum" ? "default" : "outline"} onClick={() => setTab("curriculum")}>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "curriculum" ? "default" : "outline"}
+          onClick={() => setTab("curriculum")}
+        >
           Curriculum
         </Button>
-        <Button className="cursor-pointer" variant={tab === "roadmap" ? "default" : "outline"} onClick={() => setTab("roadmap")}>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "roadmap" ? "default" : "outline"}
+          onClick={() => setTab("roadmap")}
+        >
           Roadmap
         </Button>
-        <Button className="cursor-pointer" variant={tab === "faq" ? "default" : "outline"} onClick={() => setTab("faq")}>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "faq" ? "default" : "outline"}
+          onClick={() => setTab("faq")}
+        >
           FAQ
         </Button>
       </div>
@@ -69,10 +99,16 @@ export default function ProgramSetup() {
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
       {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
-      {tab === "faq" && <Faq programUuid={programUuid} />}
-      {tab === "learning-outcomes" && <LearningOutcomesAdmin programUuid={programUuid} />}
-      {tab === "course-requirements" && <CourseRequirementsAdmin programUuid={programUuid} />}
-      {tab === "program-overview" && <ProgramOverviewAdmin programUuid={programUuid} />}
+      {tab === "faq" && <FaqAdmin programUuid={programUuid} />}
+      {tab === "learning-outcomes" && (
+        <LearningOutcomesAdmin programUuid={programUuid} />
+      )}
+      {tab === "course-requirements" && (
+        <CourseRequirementsAdmin programUuid={programUuid} />
+      )}
+      {tab === "program-overview" && (
+        <ProgramOverviewAdmin programUuid={programUuid} />
+      )}
     </div>
   );
 }

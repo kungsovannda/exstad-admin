@@ -1,11 +1,11 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import type { Resolver } from "react-hook-form";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import type { Resolver } from "react-hook-form";
 
 import {
   Form,
@@ -24,13 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Image from "next/image";
-import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
-import { generateSlug } from "@/services/generate-slug";
-import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
-import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
-import { QrCodeUploadField } from "@/features/opening-program/QrCodeUrl";
 import { useCreateDocumentMutation } from "@/features/document/documentApi";
+import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
+import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
+import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
+import { generateSlug } from "@/services/generate-slug";
+import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -64,7 +63,8 @@ export const openingProgramformSchema = z.object({
     .max(100, { message: "Slug must not exceed 100 characters" })
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
       message: "Slug must be lowercase alphanumeric with hyphens",
-    }),  status: z
+    }),
+  status: z
     .union([z.enum(["OPEN", "CLOSED", "ACHIEVED", "PENDING"]), z.undefined()])
     .refine((val) => val !== undefined, { message: "Status is required" }),
   qrCodeUrl: z.string().min(1, { message: "Valid QR Code URL is required" }),

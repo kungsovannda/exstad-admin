@@ -14,9 +14,9 @@ export const scholarAchievementApi = createApi({
     // GET all achievements for a scholar
     getAllScholarAchievements: builder.query<
       ScholarAchievementForScholar[],
-      string
+      { scholarUuid: string }
     >({
-      query: (scholarUuid) => `/scholars/${scholarUuid}/achievements`,
+      query: ({ scholarUuid }) => `/scholars/${scholarUuid}/achievements`,
       providesTags: (result, error, scholarUuid) =>
         result
           ? [

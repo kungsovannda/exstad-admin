@@ -8,12 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { iso, z } from "zod";
+import {
+  FileInput,
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+} from "@/components/ui/file-upload";
 import {
   Form,
   FormControl,
@@ -22,16 +22,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  FileInput,
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "@/components/ui/file-upload";
-import { CloudUpload } from "lucide-react";
-import { useCreateBadgeMutation } from "../badgeApi";
+import { Input } from "@/components/ui/input";
 import { CreateBadge } from "@/types/badge";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CloudUpload } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+import { useCreateBadgeMutation } from "../badgeApi";
 const schema = z.object({
   title: z.string().min(2).max(100),
   description: z.string().min(2).max(100),

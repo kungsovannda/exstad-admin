@@ -173,6 +173,8 @@ export default function ClassListPage() {
                 setDrawerOpen(true);
               }}
               totalScholars={scholars.length}
+              totalInstructors={instructors.length}
+            
             />
           ))}
         </div>

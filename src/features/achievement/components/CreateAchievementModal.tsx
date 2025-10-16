@@ -41,6 +41,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { useCreateAchievementMutation } from "../achievementApi";
 import { CreateAchievement } from "@/types/achievement";
+import { useCreateDocumentMutation } from "@/features/document/documentApi";
 
 const formSchema = z.object({
   title: z.string().min(1),
@@ -49,7 +50,7 @@ const formSchema = z.object({
   tag: z.string().min(1),
   link: z.string().min(1),
   video: z.string().min(1),
-  icon: z.string().optional(),
+  icon: z.instanceof(File).optional(),
   description: z.string(),
 });
 
@@ -64,20 +65,34 @@ export default function CreateAchievementModal({
   const { data: openingPrograms } = useGetAllOpeningProgramsQuery();
 
   const dropZoneConfig = {
-    maxFiles: 5,
+    maxFiles: 1,
     maxSize: 1024 * 1024 * 4,
-    multiple: true,
+    multiple: false,
   };
   const [createAchievement] = useCreateAchievementMutation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const [createDocument] = useCreateDocumentMutation();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      if (!files || files.length === 0) {
+        toast.error("Please upload an icon");
+        return;
+      }
+      toast.loading("Uploading...");
+      const document = await createDocument({
+        file: files[0],
+        documentType: "achievement",
+        gen: 1,
+        programSlug: "full-stack-web-development",
+      }).unwrap();
+      toast.dismiss();
+
       const payload: CreateAchievement = {
         ...values,
-        icon: "https://example.com",
+        icon: document.uri,
       };
       toast.promise(createAchievement(payload).unwrap(), {
         loading: "Creating...",
