@@ -14,6 +14,7 @@
     useUpdateClassMutation,
     useDeleteClassMutation,
   } from "@/features/opening-program/components/class/classApi";
+import { sortByAudit } from "@/utils/sortByAudit";
 
   interface ClassAdminProps {
     openingProgramTitle: string; 
@@ -26,6 +27,8 @@
         skip: !openingProgramTitle,
         refetchOnMountOrArgChange: true,
       });
+
+    const sortedClasses: ClassType[] = sortByAudit(classes);
       
     const [createClass] = useCreateClassMutation();
     const [updateClass] = useUpdateClassMutation();
@@ -34,7 +37,7 @@
     const [open, setOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<ClassType | null>(null);
 
-    const columns = ClassColumns(classes, {
+    const columns = ClassColumns(sortedClasses, {
       onEdit: (classRow: ClassType) => {
         setEditTarget(classRow);
         setOpen(true);
@@ -82,7 +85,6 @@
       }
     };
     
-    
     return (
       <div className="space-y-6">
         {/* Header + Add Button (always visible) */}
@@ -106,7 +108,7 @@
         ) : (
           <>
             
-              <ClassDataTable data={classes} totalItems={classes.length} columns={columns} />
+              <ClassDataTable data={sortedClasses} totalItems={sortedClasses.length} columns={columns} />
 
           </>
         )}

@@ -12,12 +12,18 @@ import { MasterProgramType } from "@/types/program";
 import LevelPieCard from "@/features/master-program/components/program-level-chart";
 import ProgramPieCard from "@/features/master-program/components/opening-program-chart";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
+import { sortByAudit } from "@/utils/sortByAudit";
 
 export default function Page() {
-  const { data:masterProgram= [], isLoading, error } = useGetAllMasterProgramsQuery(undefined, {
-  refetchOnMountOrArgChange: true,
-});
-const { data: openingPrograms = [], isLoading: isLoadingOpening } = useGetAllOpeningProgramsQuery();
+  const {
+    data: masterProgram = [],
+    isLoading,
+    error,
+  } = useGetAllMasterProgramsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: openingPrograms = [], isLoading: isLoadingOpening } =
+    useGetAllOpeningProgramsQuery();
 
   const levelCounts = masterProgram.reduce(
     (acc, program) => {
@@ -29,24 +35,18 @@ const { data: openingPrograms = [], isLoading: isLoadingOpening } = useGetAllOpe
     },
     { basic: 0, intermediate: 0, advanced: 0 }
   );
-  const openingCounts = masterProgram.map(mp => {
-  const count = openingPrograms.filter(
-    op => op.programName?.toLowerCase() === mp.title?.toLowerCase()
-  ).length;
+  const openingCounts = masterProgram.map((mp) => {
+    const count = openingPrograms.filter(
+      (op) => op.programName?.toLowerCase() === mp.title?.toLowerCase()
+    ).length;
 
-  return {
-    name: mp.title,
-    count,
-  };
-});
+    return {
+      name: mp.title,
+      count,
+    };
+  });
 
-console.log(openingPrograms)
-console.log(openingCounts)
-  // Treat data as array directly
-  const programs: MasterProgramType[] = masterProgram ?? [];
-
-  console.log("Programs length:", programs.length);
-  console.log("Programs:", programs);
+  const programs: MasterProgramType[] = sortByAudit(masterProgram);
   const columns = masterProgramColumns(programs);
   return (
     <div className="p-6 space-y-6">
@@ -55,22 +55,27 @@ console.log(openingCounts)
         <Link href="/master-program/create">
           <Button variant="outline" className="flex items-center gap-2.5">
             <FiPlus className="text-[18px]" />
-            <span className="text-[14px] cursor-pointer">Create New Program</span>
+            <span className="text-[14px] cursor-pointer">
+              Create New Program
+            </span>
           </Button>
         </Link>
       </div>
 
-      <MasterProgramStatisticCard MasterProgram={masterProgram}         isLoading={isLoading} />
+      <MasterProgramStatisticCard
+        MasterProgram={masterProgram}
+        isLoading={isLoading}
+      />
       <div className="grid grid-cols-2 gap-5 h-fit">
-      <LevelPieCard levelCounts={levelCounts}/>
-      <ProgramPieCard data={openingCounts} />
+        <LevelPieCard levelCounts={levelCounts} />
+        <ProgramPieCard data={openingCounts} />
       </div>
 
       {isLoading ? (
         <DataTableSkeleton columnCount={5} />
-      )  : (
+      ) : (
         <MasterProgramTable
-          data={programs} 
+          data={programs}
           totalItems={programs.length}
           columns={columns}
         />
@@ -78,3 +83,4 @@ console.log(openingCounts)
     </div>
   );
 }
+  

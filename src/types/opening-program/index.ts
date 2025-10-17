@@ -35,7 +35,7 @@ export type openingProgramType = {
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
-  // audit: Audit;
+  audit: Audit;
 };
 
 export type openingProgramCreate = {
@@ -94,6 +94,7 @@ export type ClassPayload = {
 export type ClassType = {
   uuid: string;
   openingProgramUuid: string;
+  openingProgramName:string;
   shift: Shift;
   // instructor: string;
   startTime: string;
@@ -103,6 +104,7 @@ export type ClassType = {
   room: string;
   classCode: string;
   telegram: string;
+  audit:Audit;
 };
 export type ClassCreate = {
   // openingProgramUuid:string;
@@ -131,12 +133,7 @@ export type ScholarClassType = {
     room: string;          
     isReminded: boolean;
     isPaid: boolean;
-    audit?: {
-        createdBy: string;
-        updatedBy: string | null;
-        createdAt: string;
-        updatedAt: string | null;
-    }
+    audit:Audit;
 }
 
 

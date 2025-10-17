@@ -153,7 +153,7 @@ export function ClassCardItem({
         </Accordion>
 
         <Button
-          className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+          className="w-full mt-4 bg-primary   text-primary-foreground hover:bg-primary/90 font-medium"
           onClick={() =>
             router.push(`/opening-program/${programSlug}/${cls.uuid}`)
           }

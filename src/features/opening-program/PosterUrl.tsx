@@ -136,7 +136,6 @@ export function PosterUploadField({
               )}
             </div>
           </FormControl>
-          <FormMessage />
         </FormItem>
       )}
     />

@@ -10,6 +10,7 @@ import { openingProgramColumns } from "@/features/opening-program/components/tab
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { OpeningProgramStatisticCard } from "@/features/opening-program/components/StatisticCard";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
+import { sortByAudit } from "@/utils/sortByAudit";
 
 export default function OpeningProgramPage() {
   const { data :openingProgram=[], isLoading, error } = useGetAllOpeningProgramsQuery(undefined, {
@@ -18,11 +19,8 @@ export default function OpeningProgramPage() {
 
   const {data:masterProgram=[]} = useGetAllMasterProgramsQuery();
 
-  const openingPrograms: openingProgramType[] = openingProgram ?? [];
+  const openingPrograms: openingProgramType[] = sortByAudit(openingProgram);
   const columns = openingProgramColumns(openingPrograms);
-  console.log("Programs length:", openingPrograms.length);
-  console.log("Programs:", openingPrograms);
-
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center gap-10">

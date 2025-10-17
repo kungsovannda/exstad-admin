@@ -89,7 +89,7 @@ export const classApi = createApi({
 // ✅ Export hooks
 export const {
   useGetAllClassesQuery,
-  useGetClassesByOpeningProgramQuery, // <-- NEW
+  useGetClassesByOpeningProgramQuery,
   useGetClassByUuidQuery,
   useCreateClassMutation,
   useUpdateClassMutation,

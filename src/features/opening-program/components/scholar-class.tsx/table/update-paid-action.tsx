@@ -24,7 +24,8 @@ export default function UpdatePaidScholarClassAction({
     toast.promise(updateScholarClass({ uuid, body: body }).unwrap(), {
       loading: "Updating...",
       success: () => {
-        return `Scholar has been updated`;
+        const name = scholar.scholar?.englishName || "Unknown";
+        return `Scholar "${name}" has been updated`;
       },
       error: () => {
         return `Cannot update scholar`;
