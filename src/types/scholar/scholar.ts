@@ -1,6 +1,6 @@
 import { Audit } from "..";
 import { BadgeForScholar } from "../badge";
-import { ScholarGender, ScholarStatus } from ".";
+import { Gender, ScholarStatus } from ".";
 
 export type Scholar = {
   uuid: string;
@@ -8,7 +8,7 @@ export type Scholar = {
   email: string;
   englishName: string;
   khmerName: string;
-  gender: ScholarGender;
+  gender: Gender;
   status: ScholarStatus;
   dob: string;
   role: string;

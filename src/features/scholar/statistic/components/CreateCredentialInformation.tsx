@@ -16,11 +16,26 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+
 const formSchema = z.object({
   username: z.string().min(1),
   email: z.string(),
-  password: z.string(),
-  cfPassword: z.string(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters length")
+    .regex(
+      passwordRegex,
+      "At least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+  cfPassword: z
+    .string()
+    .min(8, "Password must be at least 8 characters length")
+    .regex(
+      passwordRegex,
+      "At least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
 });
 
 export default function CreateCredentialInformation({
@@ -43,18 +58,11 @@ export default function CreateCredentialInformation({
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    handleSubmit({ ...values });
-    try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+    if (values.cfPassword !== values.password) {
+      toast.error("Password did not match!");
+      return;
     }
+    handleSubmit({ ...values });
   }
 
   useEffect(() => {

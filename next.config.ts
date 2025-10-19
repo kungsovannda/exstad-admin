@@ -6,7 +6,9 @@ const nextConfig: NextConfig = {
       "d2vyhi5ouo1we3.cloudfront.net",
       "scontent.fpnh11-1.fna.fbcdn.net",
       "upload.wikimedia.org",
+      "exstad-api.daradev.me",
       "t4.ftcdn.net",
+      "example.com"
     ],
     remotePatterns: [
       {

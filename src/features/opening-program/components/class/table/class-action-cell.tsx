@@ -12,9 +12,9 @@ import {
 import { ClassType } from "@/types/opening-program";
 import { MoreHorizontal, SquarePen, Trash } from "lucide-react";
 import { useState } from "react";
-import ClassModal, { ClassFormValues } from "@/components/program/opening-program/class/class-modal";
+import ClassModal, { ClassFormValues } from "@/features/opening-program/components/class/ClassModal";
 import { toast } from "sonner";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { useDeleteClassMutation, useUpdateClassMutation } from "../classApi";
 
 interface ClassActionsCellProps {
@@ -61,7 +61,7 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
-        </DropdownMenuTrigger>
+        </DropdownMenuTrigger> 
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />

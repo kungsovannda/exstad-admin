@@ -6,10 +6,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Enrollment } from "@/types/enrollment/index";
+import { Enrollment, UpdateEnrollment } from "@/types/enrollment/index";
 import { CircleUser, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import ViewEnrollmentProfile from "../../ViewEnrollmentProfile";
+import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
+import { toast } from "sonner";
 
 export default function PaidEnrollmentCellAction({
   data,
@@ -17,7 +19,26 @@ export default function PaidEnrollmentCellAction({
   data: Enrollment;
 }) {
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const [updateEnrollment] = useUpdateEnrollmentMutation();
+  const handleEnrollmentUpdate = ({
+    uuid,
+    body,
+  }: {
+    uuid: string;
+    body: UpdateEnrollment;
+  }) => {
+    if (!data) return;
 
+    toast.promise(updateEnrollment({ uuid, body }).unwrap(), {
+      loading: "Updating...",
+      success: () => {
+        return `${data.englishName} has been updated`;
+      },
+      error: () => {
+        return `Cannot update ${data.englishName}`;
+      },
+    });
+  };
   return (
     <div className="flex ">
       <Button
@@ -35,9 +56,39 @@ export default function PaidEnrollmentCellAction({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem>Accept</DropdownMenuItem>
-          <DropdownMenuItem>Unpaid</DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={data.isInterviewed}
+            onClick={() =>
+              handleEnrollmentUpdate({
+                uuid: data.uuid,
+                body: { isInterviewed: true },
+              })
+            }
+          >
+            Mark as Interview
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={data.isPassed}
+            onClick={() =>
+              handleEnrollmentUpdate({
+                uuid: data.uuid,
+                body: { isInterviewed: true, isPassed: true },
+              })
+            }
+          >
+            Mark as Passed
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() =>
+              handleEnrollmentUpdate({
+                uuid: data.uuid,
+                body: { isPaid: false, isInterviewed: false, isPassed: false },
+              })
+            }
+          >
+            Mark as Unpaid
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {isViewProfileOpen && (

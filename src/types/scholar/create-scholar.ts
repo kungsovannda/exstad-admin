@@ -1,4 +1,4 @@
-import { ScholarGender } from ".";
+import { Gender } from ".";
 
 export type CreateScholar = {
   username: string;
@@ -8,7 +8,7 @@ export type CreateScholar = {
   phoneNumber: string;
   englishName: string;
   khmerName: string;
-  gender: ScholarGender;
+  gender: Gender;
   dob: string;
   university: string;
   province: string;

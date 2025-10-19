@@ -36,7 +36,6 @@ export function ScholarTable<TData, TValue>({
     enableRowSelection: true,
   });
 
-  
   const rowSelection = table.getState().rowSelection;
 
   const rowSelectionString = useMemo(
@@ -44,7 +43,6 @@ export function ScholarTable<TData, TValue>({
     [rowSelection]
   );
 
- 
   useEffect(() => {
     if (onSelectionChange) {
       const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -66,7 +64,9 @@ export function ScholarTable<TData, TValue>({
     }
   }, [rowSelectionString, onSelectionChange, table]);
 
-  return <DataTable table={table}>
-    <DataTableToolbar table={table} placeholder="Search scholars..." />
-  </DataTable>;
+  return (
+    <DataTable isPagination={false} table={table}>
+      <DataTableToolbar table={table} placeholder="Search scholars..." />
+    </DataTable>
+  );
 }

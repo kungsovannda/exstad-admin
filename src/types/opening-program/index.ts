@@ -1,21 +1,26 @@
+import { Audit } from "..";
+import { Scholar } from "../scholar";
+
 export type openingProgramType = {
   programName: string;
   programUuid: string;
   uuid: string;
   title: string;
   generation: number;
+  posterUrl:string;
   thumbnail: string;
   slug: string;
   originalFee: number;
   price: number;
   scholarship: number;
   duration: string;
+  deadline: string;
   curriculumPdfUri: string;
   totalSlot: number;
   qrCodeUrl: string;
   // extra fields from backend
   telegramGroup: string;
-  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  status: "OPEN" | "CLOSED" | "ACHIEVED" |"PENDING";
   // image: string;
   // shortcourseimage:string;
   // template?: string[];
@@ -29,6 +34,7 @@ export type openingProgramType = {
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
+  // audit: Audit;
 };
 
 export type openingProgramCreate = {
@@ -36,22 +42,25 @@ export type openingProgramCreate = {
   title: string;
   generation: number;
   thumbnail: string;
+  posterUrl:string;
   slug: string;
   originalFee: number;
   price: number;
   scholarship: number;
   duration: string;
+  deadline: string;
   curriculumPdfUri?: string; // optional if backend allows
   totalSlot: number;
   qrCodeUrl: string;
   telegramGroup: string;
-  status: "OPEN" | "CLOSED" | "ACHIEVED";
+  status: "OPEN" | "CLOSED" | "ACHIEVED" |"PENDING";
   programType?: string; // optional if backend allows
   visibility?: "public" | "private"; // optional
   activities?: ActivityType[];
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
+  // audit: Audit;
 };
 
 export type ActivityType = {
@@ -69,6 +78,7 @@ export type TimelineType = {
 
 export type ClassPayload = {
   openingProgramUuid: string;
+  openingProgramName:string;
   shift: "MORNING" | "AFTERNOON" | "EVENING";
   instructor: string;
   startTime: string; // HH:mm:ss
@@ -99,13 +109,68 @@ export type ClassCreate = {
   instructor: string;
   startTime: string;
   endTime: string;
-  isWeekend: boolean;
+  isWeekend?: boolean;
   totalSlot: number;
   room: string;
   classCode: string;
   telegram: string;
 };
 
+export type ScholarClassPayload = {
+  classUuid: string;
+  scholarUuid: string;
+  isPaid : boolean;
+  isReminded:boolean;
+  
+}
+export type ScholarClassType = {
+    uuid: string;
+    scholar: Scholar;
+    classUuid: string;
+    room: string;          
+    isReminded: boolean;
+    isPaid: boolean;
+    audit?: {
+        createdBy: string;
+        updatedBy: string | null;
+        createdAt: string;
+        updatedAt: string | null;
+    }
+}
+
+
+export type ScholarClassCreate = {
+  classUuid: string;
+  scholarUuid: string;
+  isPaid : boolean;
+  isReminded:boolean;
+}
 // export type RoadmapType = {
 
 // }
+export type ScholarClassUpdate = {
+  isReminded: boolean;
+  isPaid: boolean
+}
+
+
+export type InstructorClassType = {
+    uuid:string;
+    instructorUuid: string,
+    instructorUsername: string,
+    classUuid: string,
+    audit?: {
+        createdBy: string;
+        updatedBy: string | null;
+        createdAt: string;
+        updatedAt: string | null;
+    }
+}
+export type InstructorClassCreate = {
+  instructorUuid: string;
+  scholarUuid: string;  
+}
+export type InstructorClassUpdate = {
+  instructorUuid: string;
+  scholarUuid: string;  
+}

@@ -7,6 +7,6 @@ export type Audit = {
 
 export type State = {
   total: number;
-  male: number;
-  female: number;
+  male?: number;
+  female?: number;
 };

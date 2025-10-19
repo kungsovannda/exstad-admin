@@ -125,6 +125,12 @@
   }
 }
 
+@layer components {
+  .h-content {
+    @apply h-[calc(100vh-4rem)] transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100vh-3rem)];
+  }
+}
+
 *::-webkit-scrollbar {
   display: none;
 }

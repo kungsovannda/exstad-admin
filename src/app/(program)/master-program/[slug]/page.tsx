@@ -1,50 +1,75 @@
 "use client";
 
-import MasterProgramForm, { MasterProgramFormValues } from "../create/form-field";
-import { useUpdateMasterProgramMutation, useGetMasterProgramBySlugQuery } from "@/features/master-program/masterProgramApi";
+import MasterProgramForm, { MasterProgramFormValues } from "../create/FormField";
+import {
+  useUpdateMasterProgramMutation,
+  useGetMasterProgramBySlugQuery,
+} from "@/features/master-program/masterProgramApi";
 import { toast } from "sonner";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
- function MasterProgramEdit() {
+function MasterProgramEdit() {
   const params = useParams();
   const programSlug = params.slug as string;
+  const router = useRouter();
 
-  const { data: program, isLoading, error } =
-    useGetMasterProgramBySlugQuery({ slug: programSlug }, { refetchOnMountOrArgChange: true });
+  const { data: program, isLoading, error } = useGetMasterProgramBySlugQuery(
+    { slug: programSlug },
+    { refetchOnMountOrArgChange: true }
+  );
 
-  const [updateMasterProgram] = useUpdateMasterProgramMutation();
+  const [updateMasterProgram, { isLoading: isUpdating }] =
+    useUpdateMasterProgramMutation();
 
   if (isLoading) return <div>Loading...</div>;
   if (error || !program) return <div>Program not found</div>;
 
-  // Map API data to form values
   const initialValues: MasterProgramFormValues = {
-    ...program,
-    programType: program.programType!,   // assert defined
-    programLevel: program.programLevel!,
-    visibility: program.visibility!,
+    title: program.title || "",
+    slug: program.slug || "",
+    subtitle: program.subtitle || "",
+    description: program.description || "",
+    visibility: program.visibility || "PUBLIC",
+    programType: program.programType || "",
+    programLevel: program.programLevel || "",
+    logoUrl: program.logoUrl || "",
+    bgColor:
+      program.bgColor ||
+      "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
   };
 
-  const handleSubmit = (values: MasterProgramFormValues) => {
+  const handleSubmit = async (values: MasterProgramFormValues) => {
     const payload = {
       ...values,
-      slug: program.slug,
-      programType: values.programType!,
-      programLevel: values.programLevel!,
-      visibility: values.visibility!,
     };
-
-    toast.promise(
-      updateMasterProgram({ uuid: program.uuid, body: payload }).unwrap(),
-      {
-        loading: "Updating...",
-        success: "Updated successfully!",
-        error: (err) => `Failed: ${err.message || err}`,
-      }
-    );
+    try {
+      await toast.promise(
+        updateMasterProgram({
+          uuid: program.uuid,
+          body: payload,
+        }).unwrap(),
+        {
+          loading: "Updating...",
+          success: "Updated successfully!",
+          error: (err) => `Failed: ${err.message || err}`,
+        }
+      );
+      router.push("/master-program");
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
   };
 
-  return <MasterProgramForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Update" />;
+  
+
+  return (
+    <MasterProgramForm
+      key={program.uuid} 
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+      submitLabel={isUpdating ? "Updating..." : "Update"}
+    />
+  );
 }
 
 export default function Page() {

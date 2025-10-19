@@ -14,7 +14,7 @@ import {
   CreateScholar,
   ScholarCredentialInformation,
   ScholarGeneralInformation,
-  toScholarGender,
+  toGender,
 } from "@/types/scholar";
 import { useState } from "react";
 import CreateCredentialInformation from "./CreateCredentialInformation";
@@ -40,7 +40,6 @@ export default function AddScholar({
   const [createScholar] = useCreateScholarMutation();
 
   const handleNext = (data: ScholarGeneralInformation) => {
-    window.alert(data);
     setGeneralData(data);
     setInfo("credential");
   };
@@ -51,7 +50,7 @@ export default function AddScholar({
     const scholar: CreateScholar = {
       ...data,
       ...generalData,
-      gender: toScholarGender(generalData.gender.toLowerCase()),
+      gender: toGender(generalData.gender.toLowerCase()),
       isPublic: generalData.isPublic ?? true,
     };
     console.log(scholar);

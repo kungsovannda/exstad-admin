@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Drawer,
@@ -10,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Enrollment } from "@/types/enrollment";
-import Image from "next/image";
 
 export default function ViewEnrollmentProfile({
   open,
@@ -25,14 +25,28 @@ export default function ViewEnrollmentProfile({
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="h-screen flex flex-col max-w-2xl ml-auto">
         <DrawerHeader className="h-full flex flex-col space-y-3 items-center justify-center pt-6">
-          <Image
+          {/* <Image
             className="rounded-lg border"
             unoptimized
             width={150}
             height={150}
             src={enrollment.avatar}
             alt={`Avatar of ${enrollment.englishName}`}
-          />
+          /> */}
+          <Avatar className="rounded-lg border w-[150px] h-[150px]">
+            <AvatarImage
+              className="rounded-lg"
+              src={enrollment.avatar || "/placeholder.svg"}
+              alt={`Avatar of ${enrollment.englishName}`}
+            />
+            <AvatarFallback className="text-3xl">
+              {enrollment.englishName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           <div className="text-center">
             <DrawerTitle className="text-2xl">
               {enrollment.englishName}

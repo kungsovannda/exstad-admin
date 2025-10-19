@@ -12,12 +12,24 @@ import {
 import { Badge } from "@/types/badge";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
+import { useDeleteBadgeMutation } from "../../badgeApi";
+import { toast } from "sonner";
 
 export default function VerificationCellAction({ data }: { data: Badge }) {
   const [isDeleteModalShow, setIsDeleteModalShow] = useState(false);
+  const [deleteBadge] = useDeleteBadgeMutation();
   const [isViewAndUpdateModalShow, setIsViewAndUpdateModalShow] =
     useState(false);
   const onDelete = () => {
+    toast.promise(deleteBadge(data.uuid).unwrap(), {
+      loading: "Deleting...",
+      success: () => {
+        return "Badge deleted successfully!";
+      },
+      error: (error) => {
+        return `Failed to delete badge: ${error.message}`;
+      },
+    });
     setIsDeleteModalShow(false);
   };
   return (

@@ -1,26 +1,24 @@
 "use client";
-
-// import { OpeningSectionCards } from '@/components/program/opening-program/opening-section-card';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FiPlus } from "react-icons/fi";
 import { Heading } from "@/components/Heading";
-import { SectionCardsOpening } from "@/components/program/opening-program/section-card-opening";
 import OpeningProgramTable from "@/features/opening-program/components/table/opening-program-table";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { openingProgramType } from "@/types/opening-program";
-import { openingProgramColumns } from "@/features/opening-program/components/table/openingColumn";
+import { openingProgramColumns } from "@/features/opening-program/components/table/column";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
-
-// Flatten all openingprograms from all programs
-// const allOpeningPrograms = programData.flatMap(program => program.openingprogram || []);
+import { OpeningProgramStatisticCard } from "@/features/opening-program/components/StatisticCard";
+import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
 export default function OpeningProgramPage() {
-  const { data, isLoading, error } = useGetAllOpeningProgramsQuery(undefined, {
+  const { data :openingProgram=[], isLoading, error } = useGetAllOpeningProgramsQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
 
-  const openingPrograms: openingProgramType[] = data ?? [];
+  const {data:masterProgram=[]} = useGetAllMasterProgramsQuery();
+
+  const openingPrograms: openingProgramType[] = openingProgram ?? [];
   const columns = openingProgramColumns(openingPrograms);
   console.log("Programs length:", openingPrograms.length);
   console.log("Programs:", openingPrograms);
@@ -39,14 +37,11 @@ export default function OpeningProgramPage() {
           </Button>
         </Link>
       </div>
-      <SectionCardsOpening />
+      <OpeningProgramStatisticCard OpeningProgram={openingProgram} isLoading={isLoading}
+      MasterProgram={masterProgram}  />
       {isLoading ? (
         <DataTableSkeleton columnCount={5} />
-      ) : error ? (
-        <p className="text-red-500">Error loading opening Programs</p>
-      ) : openingPrograms.length === 0 ? (
-        <p>No openingprograms found</p>
-      ) : (
+      ):(
         <OpeningProgramTable
           data={openingPrograms}
           totalItems={openingPrograms.length}

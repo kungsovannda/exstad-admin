@@ -1,16 +1,18 @@
 "use client";
 import { Heading } from "@/components/Heading";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { achievements } from "@/data/achievements";
-import CreateAchievement from "@/features/achievement/components/CreateAchievement";
+import { useGetAllAchievementsQuery } from "@/features/achievement/achievementApi";
+import CreateAchievementModal from "@/features/achievement/components/CreateAchievementModal";
 import { achievementColumns } from "@/features/achievement/components/table/columns";
 import { AchievementTable } from "@/features/achievement/components/table/data-table";
 import { Plus } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function AchievementPage() {
   const [isCrateShow, setIsCreateShow] = useState(false);
+  const { data: achievements, isLoading } = useGetAllAchievementsQuery();
   return (
     <div className="p-6 flex flex-1 flex-col space-y-4">
       <div className="flex items-center justify-between">
@@ -24,13 +26,20 @@ export default function AchievementPage() {
         </Button>
       </div>
       <Separator />
-      <AchievementTable
-        data={achievements}
-        columns={achievementColumns}
-        totalItems={achievementColumns.length}
-      />
+      {isLoading ? (
+        <DataTableSkeleton columnCount={5} />
+      ) : (
+        <AchievementTable
+          data={Array.isArray(achievements) ? achievements : []}
+          columns={achievementColumns}
+          totalItems={Array.isArray(achievements) ? achievements.length : 0}
+        />
+      )}
       {isCrateShow && (
-        <CreateAchievement open={isCrateShow} onOpenChange={setIsCreateShow} />
+        <CreateAchievementModal
+          open={isCrateShow}
+          onOpenChange={setIsCreateShow}
+        />
       )}
     </div>
   );

@@ -8,6 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import AssignScholarAchievement from "@/features/scholar-achievement/components/AssignScholarAchievement";
 import { Scholar } from "@/types/scholar";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,6 +17,8 @@ import React, { useState } from "react";
 export default function ScholarCellAction({ data }: { data: Scholar }) {
   const router = useRouter();
   const [isAssignBadgeModalOpen, setIsAssignBadgeModalOpen] = useState(false);
+  const [isAssignAchievementModalOpen, setIsAssignAchievementModalOpen] =
+    useState(false);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -33,12 +36,22 @@ export default function ScholarCellAction({ data }: { data: Scholar }) {
         <DropdownMenuItem onClick={() => setIsAssignBadgeModalOpen(true)}>
           Assign Badge
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setIsAssignAchievementModalOpen(true)}>
+          Assign Achievement
+        </DropdownMenuItem>
       </DropdownMenuContent>
       {isAssignBadgeModalOpen && (
         <AssignBadgeScholar
           open={isAssignBadgeModalOpen}
           onOpenChange={setIsAssignBadgeModalOpen}
-          scholar={data}
+          scholars={[data]}
+        />
+      )}
+      {isAssignAchievementModalOpen && (
+        <AssignScholarAchievement
+          open={isAssignAchievementModalOpen}
+          onOpenChange={setIsAssignAchievementModalOpen}
+          scholars={[data]}
         />
       )}
     </DropdownMenu>

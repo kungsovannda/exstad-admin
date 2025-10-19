@@ -1,9 +1,8 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { Enrollment } from "@/types/enrollment/index";
 import { ColumnDef } from "@tanstack/react-table";
-import EnrollmentCellAction from "./cell-action";
-import { Checkbox } from "@/components/ui/checkbox";
 import { UserProfileCell } from "../user-profile-cell";
-import { Badge } from "@/components/ui/badge";
+import EnrollmentCellAction from "./cell-action";
 
 export const enrollmentColumns: ColumnDef<Enrollment>[] = [
   {
@@ -76,7 +75,15 @@ export const enrollmentColumns: ColumnDef<Enrollment>[] = [
     header: "Payment Status",
     cell: ({ row }) => {
       const paid = row.original.isPaid;
-      return <Badge>{paid ? "Paid" : "Unpaid"}</Badge>;
+      return (
+        <span
+          className={`inline-flex items-center rounded-sm px-2 py-1 text-sm ${
+            paid ? "bg-[#E6F4EA] text-[#1E7D34]" : "bg-[#FFF4E5]text-[#B25E00]"
+          }`}
+        >
+          {paid ? "Paid" : "Unpaid"}
+        </span>
+      );
     },
   },
   {
