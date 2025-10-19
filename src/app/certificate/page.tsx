@@ -117,7 +117,7 @@ export default function Certificate() {
                               <CommandItem
                                 key={program.uuid}
                                 value={program.slug}
-                                onSelect={(currentValue) => {
+                                onSelect={(currentValue : string) => {
                                   setSelected(
                                     currentValue === selected
                                       ? ""
