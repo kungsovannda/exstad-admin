@@ -41,25 +41,25 @@ export function ClassStatisticCard({
       <DefaultStatisticCard
         icon={GraduationCap}
         title="Total Classes"
-        total={{ total: stats.totalClasses, male: 800, female: 900 }}
+        total={{ total: stats.totalClasses, }}
         isLoading={isLoading}
       />
       <DefaultStatisticCard
         icon={ClipboardListIcon}
         title="Total Slots"
-        total={{ total: stats.totalSlots, male: 800, female: 900 }}
+        total={{ total: stats.totalSlots }}
         isLoading={isLoading}
       />
       <DefaultStatisticCard
         icon={UserIcon}
         title="Instructors"
-        total={{ total: stats.instructorCount, male: 200, female: 150 }}
+        total={{ total: stats.instructorCount }}
         isLoading={isLoading}
       />
       <DefaultStatisticCard
         icon={UsersIcon}
         title="Total Scholars"
-        total={{ total: stats.totalScholars, male: 800, female: 900 }}
+        total={{ total: stats.totalScholars }}
         isLoading={isLoading}
       />
     </div>

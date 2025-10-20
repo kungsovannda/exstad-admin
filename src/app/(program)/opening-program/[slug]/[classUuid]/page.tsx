@@ -1,12 +1,10 @@
-"use client";
-
+"use client"
 import React, { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FiPlus } from "react-icons/fi";
-
 import ScholarClassDataTable from "@/features/opening-program/components/scholar-class.tsx/table/scholar-class-table";
 import { ScholarClassColumns } from "@/features/opening-program/components/scholar-class.tsx/table/scholar-class-Column";
 import {
@@ -101,6 +99,9 @@ export default function ScholarClassPage() {
     ]
   );
 
+  // Check for classInfo and display class name (classCode)
+  const className = classInfo ? classInfo.classCode : "Unknown Class";
+
   // Early return if fetch failed
   if (isClassError || isError) {
     return (
@@ -112,7 +113,7 @@ export default function ScholarClassPage() {
     <div className="space-y-4 p-5">
       <div className="flex justify-between items-center gap-10">
         <Heading
-          title={classInfo?.classCode ?? "Class Detail"}
+          title={className}  // Display class name here
           description="View statistic and manage scholars"
         />
         <Button
