@@ -4,23 +4,16 @@ import { useState } from "react";
 import { toast } from "sonner";
 import {
   ScholarClassType,
-  SCholarClassCreate,
+  ScholarClassCreate,
 } from "@/types/opening-program";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
+
 import { MoreHorizontal, SquarePen, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   useDeleteScholarClassMutation,
   useUpdateScholarClassMutation,
-} from "../scholarClassApit";
+} from "../scholarClassApi";
 import ScholarClassForm, {
   ScholarClassFormValue,
 } from "../form-field";
@@ -47,7 +40,7 @@ export default function ScholarClassActionsCell({
   const handleDelete = async () => {
     try {
       await deleteScholarClass(scholarClass.uuid).unwrap();
-      toast.success(`Scholar "${scholarClass.scholarName}" removed from class!`);
+      toast.success(`Scholar "${scholarClass.scholar.englishName}" removed from class!`);
       setDeleteOpen(false);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -57,9 +50,9 @@ export default function ScholarClassActionsCell({
 
   const handleUpdate = async (data: ScholarClassFormValue) => {
     try {
-      const payload: SCholarClassCreate = {
+      const payload: ScholarClassCreate = {
         classUuid: scholarClass.classUuid,
-        scholarUuid: scholarClass.scholarUuid, // cannot change
+        scholarUuid: scholarClass.scholar.uuid, // cannot change
         isPaid: data.isPaid ?? scholarClass.isPaid,
         isReminded: data.isReminded ?? scholarClass.isReminded,
       };
@@ -79,39 +72,23 @@ export default function ScholarClassActionsCell({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => (onEdit ? onEdit(scholarClass) : setOpen(true))}
-          >
-            <SquarePen size={16} className="text-primary-hover mr-2" /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
+      <Button
+      size={"sm"}
+      variant={"ghost"}
             onClick={() =>
               onDelete ? onDelete(scholarClass) : setDeleteOpen(true)
             }
-            className="text-destructive"
+            className="text-destructive "
           >
-            <Trash size={16} className="text-destructive mr-2" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <Trash size={16} className="text-destructive" />
+          </Button>
 
       <ScholarClassForm
         open={open}
         onOpenChange={setOpen}
         initialData={{
-          scholarName: scholarClass.scholarName,
-          scholarUuid: scholarClass.scholarUuid,
+          scholarName: scholarClass.scholar?.englishName,
+          scholarUuid: scholarClass.scholar?.uuid,
           isPaid: scholarClass.isPaid,
           isReminded: scholarClass.isReminded,
         }}
@@ -122,9 +99,28 @@ export default function ScholarClassActionsCell({
       <DeleteModal
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={scholarClass.scholarName}
+        itemName={scholarClass.scholar?.englishName}
         onConfirm={handleDelete}
       />
+        {/* <ScholarClassForm
+  open={open}
+  onOpenChange={setOpen}
+  initialData={{
+    scholarName: scholarClass.scholar?.englishName ?? "",
+    scholarUuid: scholarClass.scholar?.uuid ?? "",
+    isPaid: scholarClass.isPaid,
+    isReminded: scholarClass.isReminded,
+  }}
+  existingScholars={existingScholars}
+  onSubmitScholarClass={handleUpdate}
+/> */}
+
+<DeleteModal
+  open={deleteOpen}
+  onOpenChange={setDeleteOpen}
+  itemName={scholarClass.scholar?.englishName ?? ""}
+  onConfirm={handleDelete}
+/>
     </>
   );
 }

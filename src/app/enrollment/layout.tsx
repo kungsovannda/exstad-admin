@@ -84,7 +84,7 @@ function EnrollmentSidebar() {
         .filter((p) => p.programType === "SCHOLARSHIP")
         .map((program) => ({
           title: program.title,
-          url: `/enrollment/${program.slug}`,
+          url: `/enrollment/${program.slug}?type=scholarship`,
           icon: Layers,
         }));
       const shortCourseGroupIndex = prevGroups.findIndex(
@@ -97,7 +97,7 @@ function EnrollmentSidebar() {
         .filter((p) => p.programType === "SHORT_COURSE")
         .map((program) => ({
           title: program.title,
-          url: `/enrollment/${program.slug}`,
+          url: `/enrollment/${program.slug}?type=short-course`,
           icon: Layers,
         }));
 

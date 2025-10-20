@@ -112,7 +112,12 @@ export function AssignBadgeScholar({
         onOpenChange(isOpen);
       }}
     >
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+        className="sm:max-w-[425px]"
+      >
         <DialogHeader>
           <DialogTitle>Assign Badge</DialogTitle>
           <DialogDescription>

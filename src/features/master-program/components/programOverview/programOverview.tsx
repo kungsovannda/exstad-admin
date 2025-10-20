@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { FiPlus } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
-import ProgramOverviewFormModal, { ProgramOverviewFormValue } from "./programOverview-modal";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+import ProgramOverviewFormModal, { ProgramOverviewFormValue } from "./ProgramOverviewModal";
+import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { toast } from "sonner";
 import { SquarePen, Trash } from "lucide-react";
 import { useGetAllProgramOverviewQuery, useUpdateProgramOverviewMutation } from "./programOverviewApi";
@@ -14,69 +14,83 @@ import { SectionSkeleton } from "../section-skeleton";
 type Props = { programUuid: string };
 
 export default function ProgramOverviewAdmin({ programUuid }: Props) {
-  const { data: programOverviews = [], isLoading, isError } =
+  const { data: programOverviewsRaw, isLoading, isError } =
     useGetAllProgramOverviewQuery(programUuid, { refetchOnMountOrArgChange: true });
 
   const [putProgramOverview] = useUpdateProgramOverviewMutation();
 
-  // ✅ Local state
+  // Local state
   const [localOverviews, setLocalOverviews] = useState<programOverviewType[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<programOverviewType | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<programOverviewType | null>(null);
 
-  // Load server data into local state
+  // Sync server -> local safely
   useEffect(() => {
-    setLocalOverviews(programOverviews);
+    if (programOverviewsRaw && Array.isArray(programOverviewsRaw)) {
+      setLocalOverviews(programOverviewsRaw);
+    } else {
+      setLocalOverviews([]);
+    }
     setHasChanges(false);
-  }, [programOverviews]);
+  }, [programOverviewsRaw]);
 
+  // Add a unique UID for rendering
   const overviewsWithUid = useMemo(
     () =>
-      (localOverviews ?? []).map(o => ({
-        ...o,
-        uid: crypto.randomUUID()
-      })),
+      Array.isArray(localOverviews)
+        ? localOverviews.map((o) => ({ ...o, uid: crypto.randomUUID() }))
+        : [],
     [localOverviews]
   );
 
   if (isLoading) return <SectionSkeleton count={4} />;
   if (isError) return <div className="text-destructive">Failed to load program overviews</div>;
 
-  // ✅ Local add/edit
+  // Local add/edit
   const handleSaveOverviewLocal = (data: ProgramOverviewFormValue, target?: programOverviewType) => {
-    const newOverviews = target
-      ? localOverviews.map(o =>
-          o.title === target.title && o.description === target.description ? { ...o, ...data } : o
-        )
-      : [...localOverviews, { ...data }];
-
-    setLocalOverviews(newOverviews);
+    setLocalOverviews((prev) => {
+      const safe = Array.isArray(prev) ? prev : [];
+      const newOverviews = target
+        ? safe.map(o => o.title === target.title && o.description === target.description ? { ...o, ...data } : o)
+        : [...safe, { ...data }];
+      return newOverviews;
+    });
     setHasChanges(true);
   };
 
-  // ✅ Local delete only
+  // Local delete
   const handleDeleteOverviewLocal = (target: programOverviewType) => {
-    const newOverviews = localOverviews.filter(
-      o => !(o.title === target.title && o.description === target.description)
-    );
-    setLocalOverviews(newOverviews);
+    setLocalOverviews((prev) => {
+      const safe = Array.isArray(prev) ? prev : [];
+      return safe.filter(o => !(o.title === target.title && o.description === target.description));
+    });
     setHasChanges(true);
-
-    toast.info(`Program Overviews "${target.title}" deleted!`);
+    toast.info(`Program Overview "${target.title}" deleted!`);
   };
 
-  // ✅ Save all to backend
+  // Save all to backend
   const handleSaveAll = async () => {
     try {
-      const payload: programOverviewsPayload[] = localOverviews.map(({ title, description }) => ({ title, description }));
+      const payload: programOverviewsPayload[] = (localOverviews ?? []).map(({ title, description }) => ({ title, description }));
       await putProgramOverview({ programUuid, programOverviews: payload }).unwrap();
       toast.success("All program overviews saved!");
       setHasChanges(false);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save: ${message || err}`);
+      const backendErrors =
+            (err as {
+              data?: { error?: { description?: { reason: string; field?: string }[] } };
+            })?.data?.error?.description;
+      
+          if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+            backendErrors.forEach((e) => {
+              toast.error(`${e.reason}`);
+            });
+          } else {
+            const message = err instanceof Error ? err.message : String(err);
+            toast.error(`Failed to save: ${message}`);
+          }
     }
   };
 
@@ -89,7 +103,7 @@ export default function ProgramOverviewAdmin({ programUuid }: Props) {
         <ProgramOverviewFormModal
           open={isCreateOpen}
           onOpenChange={setIsCreateOpen}
-          onSubmitProgramOverview={data => {
+          onSubmitProgramOverview={(data) => {
             handleSaveOverviewLocal(data);
             setIsCreateOpen(false);
           }}
@@ -103,10 +117,10 @@ export default function ProgramOverviewAdmin({ programUuid }: Props) {
       </div>
 
       {/* Overview List */}
-      {(overviewsWithUid ?? []).length === 0 ? (
+      {overviewsWithUid.length === 0 ? (
         <div className="text-muted-foreground">No program overviews yet. Add one to get started!</div>
       ) : (
-        overviewsWithUid.map(o => (
+        overviewsWithUid.map((o) => (
           <div key={o.uid} className="flex justify-between items-center bg-accent rounded-sm p-4">
             <div className="flex flex-col">
               <span className="text-[16px] font-semibold text-foreground">{o.title}</span>
@@ -120,9 +134,9 @@ export default function ProgramOverviewAdmin({ programUuid }: Props) {
               />
               <ProgramOverviewFormModal
                 open={!!editTarget && editTarget.title === o.title && editTarget.description === o.description}
-                onOpenChange={open => !open && setEditTarget(null)}
+                onOpenChange={(open) => !open && setEditTarget(null)}
                 initialData={editTarget || undefined}
-                onSubmitProgramOverview={data => {
+                onSubmitProgramOverview={(data) => {
                   if (editTarget) handleSaveOverviewLocal(data, editTarget);
                   setEditTarget(null);
                 }}
@@ -142,7 +156,7 @@ export default function ProgramOverviewAdmin({ programUuid }: Props) {
       {/* Delete Modal */}
       <DeleteModal
         open={!!deleteTarget}
-        onOpenChange={open => !open && setDeleteTarget(null)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
         itemName={deleteTarget?.title || ""}
         onConfirm={() => {
           if (deleteTarget) handleDeleteOverviewLocal(deleteTarget);

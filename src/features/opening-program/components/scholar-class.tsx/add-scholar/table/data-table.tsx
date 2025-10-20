@@ -2,8 +2,9 @@
 
 import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
+import { Button } from "@/components/ui/button";
 import { useDataTable } from "@/hooks/use-data-table";
-import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -11,21 +12,27 @@ interface AddScholarClassTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   totalItems: number;
-  onRowSelectionChange?: (selectedRows: TData[]) => void; // 👈 important
-   
+  onSelectionChange?: (selected: TData[]) => void; 
+  onAddSelected?: (selected: TData[]) => void; 
 }
 
-export default function AddScholarClassTable<TData extends { uuid: string }, TValue>({
+export default function AddScholarClassTable<
+  TData extends { uuid: string },
+  
+  TValue
+>({
   columns,
   data,
   totalItems,
-  onRowSelectionChange,
+  onSelectionChange,
+  onAddSelected,
+
 }: AddScholarClassTableProps<TData, TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
     ? Number(searchParams.get("perPage"))
     : 10;
-
+  
   const { table } = useDataTable({
     data,
     columns,
@@ -35,20 +42,28 @@ export default function AddScholarClassTable<TData extends { uuid: string }, TVa
     enableGlobalFilter: true,
     enableColumnFilters: true,
     enableSorting: true,
-    enableRowSelection: true, // 👈 enable row selection
+    enableRowSelection: true,
   });
-
-  // Forward selected rows to parent
-  useEffect(() => {
-    if (onRowSelectionChange) {
-      const selected = table.getSelectedRowModel().flatRows.map((row) => row.original);
-      onRowSelectionChange(selected);
-    }
-  }, [table.getSelectedRowModel().flatRows.map((r) => r.id).join(","), table, onRowSelectionChange]);
+    useEffect(() => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original);
+    onSelectionChange?.(selectedRows);
+  }, [table.getSelectedRowModel().rows.length]);
 
   return (
     <DataTable isPagination={false} table={table}>
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table}>
+        <Button
+          size={"sm"}
+          onClick={() => {
+            const selected = table.getSelectedRowModel().rows.map((r) => r.original);
+            onAddSelected?.(selected);
+          }}
+        >
+          Add Selected
+        </Button>
+      </DataTableToolbar>
     </DataTable>
   );
 }

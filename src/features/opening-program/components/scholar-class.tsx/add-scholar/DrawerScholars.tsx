@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -14,8 +13,9 @@ import {
 
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
-import { addScholarClassCulumns } from "./table/culumns";
+import { addScholarClassColumns } from "./table/culumns";
 import AddScholarClassTable from "./table/data-table";
+import { Scholar } from "@/types/scholar";
 
 type ScholarRow = {
   uuid: string;
@@ -55,42 +55,56 @@ export default function DrawerScholars({
   const { data: scholars = [], isLoading } = useGetAllScholarsQuery();
   const [isPaid, setIsPaid] = useState(false);
   const [isReminded, setIsReminded] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<ScholarRow[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Scholar[]>([]);
+  const columns = addScholarClassColumns(
+    (scholar) => {
+      if (onAddScholar) {
+        onAddScholar(scholar.uuid, { isPaid, isReminded });
+      }
+    },
+    false ,
+    scholarsClass // 👈 pass existing scholars
 
-  // Prefill switches if editing a scholar
+  );
+
   useEffect(() => {
     if (editScholar) {
       setIsPaid(editScholar.isPaid);
       setIsReminded(editScholar.isReminded);
-      setSelectedRows([{ 
-        uuid: editScholar.uuid, 
-        englishName: editScholar.englishName ,
-        email: editScholar.englishName, // Placeholder, replace with actual email if available
-      }]);
+      // setSelectedRows([
+      //   {
+      //     uuid: editScholar.uuid,
+      //     englishName: editScholar.englishName,
+      //     email: editScholar.englishName,
+      //   },
+      // ]);
     }
   }, [editScholar]);
 
-  const columns = addScholarClassCulumns(
-    (uuid) => {
-      if (onAddScholar) { 
-        onAddScholar(uuid, { isPaid, isReminded });
-      }
-    },
-    scholarsClass
-  );
+  // const columns = addScholarClassCulumns((uuid) => {
+  //   if (onAddScholar) {
+  //     onAddScholar(uuid, { isPaid, isReminded });
+  //   }
+  // }, scholarsClass);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="h-screen flex flex-col data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:sm:max-w-xl">
-        <DrawerHeader className="p-6 mt-8">
+        <DrawerHeader className="mt-8 flex flex-row items-center justify-between  ">
           <DrawerTitle className="text-2xl font-semibold">
             {editScholar ? "Edit Scholar" : "Add Scholars"}
+            <p className="text-sm text-muted-foreground">
+              Selected: {selectedRows.length}
+            </p>
           </DrawerTitle>
-
           <div className="flex items-center gap-8 mt-4">
             <div className="flex items-center gap-2">
               <Label htmlFor="isPaid">Mark as Paid</Label>
-              <Switch id="isPaid" checked={isPaid} onCheckedChange={setIsPaid} />
+              <Switch
+                id="isPaid"
+                checked={isPaid}
+                onCheckedChange={setIsPaid}
+              />
             </div>
 
             <div className="flex items-center gap-2">
@@ -101,18 +115,6 @@ export default function DrawerScholars({
                 onCheckedChange={setIsReminded}
               />
             </div>
-
-            {editScholar && (
-              <Button
-                onClick={() => {
-                  if (onAddScholar && selectedRows[0]) {
-                    onAddScholar(selectedRows[0].uuid, { isPaid, isReminded });
-                  }
-                }}
-              >
-                Save
-              </Button>
-            )}
           </div>
         </DrawerHeader>
 
@@ -120,35 +122,30 @@ export default function DrawerScholars({
 
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading ? (
-            <DataTableSkeleton columnCount={columns.length} />
+            <DataTableSkeleton columnCount={addScholarClassColumns.length} />
           ) : (
             <AddScholarClassTable
-              data={editScholar ? scholars.filter(s => s.uuid === editScholar.uuid) : scholars}
+              data={
+                editScholar
+                  ? scholars.filter((s) => s.uuid === editScholar.uuid)
+                  : scholars
+              }
               totalItems={editScholar ? 1 : scholars.length}
               columns={columns}
-              onRowSelectionChange={setSelectedRows}
+              onSelectionChange={(rows) => setSelectedRows(rows)} 
+              onAddSelected={(selected) => {
+                if (onAddMultipleScholars && selected.length > 0) {
+                  onAddMultipleScholars(
+                    selected.map((s) => s.uuid),
+                    { isPaid, isReminded }
+                  );
+                  onOpenChange(false); // ✅ close drawer after success
+                }
+              }}
+
             />
           )}
         </div>
-
-        {!editScholar && onAddMultipleScholars && (
-          <>
-            <Separator />
-            <div className="p-5">
-              <Button
-                disabled={selectedRows.length === 0}
-                onClick={() =>
-                  onAddMultipleScholars(
-                    selectedRows.map((r) => r.uuid),
-                    { isPaid, isReminded }
-                  )
-                }
-              >
-                Add Selected
-              </Button>
-            </div>
-          </>
-        )}
       </DrawerContent>
     </Drawer>
   );

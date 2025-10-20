@@ -1,10 +1,12 @@
-import { ScholarClassType } from "@/types/opening-program";
-import ScholarClassActionsCell from "./scholar-class-cell";
-import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
+import { buildUniqueOptions } from "@/components/utils/buildUniqueOptions";
+import {
+  ScholarClassType
+} from "@/types/opening-program";
 import { ColumnDef } from "@tanstack/react-table";
+import ScholarClassActionsCell from "./scholar-class-cell";
+import UpdatePaidScholarClassAction from "./update-paid-action";
+import UpdateRemindScholarAction from "./update-remind-action";
 
-// Utility to map boolean to string for filters
-const mapPaidStatus = (isPaid: boolean) => (isPaid ? "Paid" : "Unpaid");
 
 export const ScholarClassColumns = (
   scholarClasses: ScholarClassType[],
@@ -19,9 +21,12 @@ export const ScholarClassColumns = (
     { label: "Unpaid", value: "Unpaid" },
   ];
 
+
+
   return [
     {
-      accessorKey: "scholarName",
+
+      accessorKey: "scholar.englishName",
       header: "Scholar Name",
       enableColumnFilter: true,
       meta: {
@@ -42,27 +47,18 @@ export const ScholarClassColumns = (
       },
     },
     {
-      accessorKey: "isPaid",
-      header: "Payment Status",
-      enableColumnFilter: true,
-      meta: {
-        variant: "select",
-        placeholder: "Select payment status...",
-        label: "Payment Status",
-        options: paymentStatusOptions,
-      },
-      cell: ({ row }) => {
-        const isPaid = row.original.isPaid;
-        const bgPaid = isPaid
-          ? "bg-[#E6F4EA] text-[#1E7D34]"
-          : "bg-[#FDECEC] text-[#B32121]";
-        return (
-          <span className={`${bgPaid} inline-flex items-center rounded-sm px-2 py-1 text-sm`}>
-        {mapPaidStatus(isPaid)}
-          </span>
-        )
-      }
-      },
+  accessorKey: "isPaid",
+  header: "Payment Status",
+  enableColumnFilter: true,
+  filterFn: "equalsString",
+  meta: {
+    variant: "select",
+    placeholder: "Select payment status...",
+    label: "Payment Status",
+    options: paymentStatusOptions,
+  },
+  cell: ({ row }) => <UpdatePaidScholarClassAction scholar={row.original} />,
+},
     {
       accessorKey: "isReminded",
       header: "Is Reminded",
@@ -76,7 +72,8 @@ export const ScholarClassColumns = (
           { label: "No", value: "No" },
         ],
       },
-      cell: ({ row }) => (row.original.isReminded ? "Yes" : "No"),
+        cell: ({ row }) => <UpdateRemindScholarAction scholar={row.original} />,
+
       filterFn: (row, columnId, filterValue) => {
         return (row.getValue(columnId) ? "Yes" : "No") === filterValue;
       },
@@ -87,9 +84,11 @@ export const ScholarClassColumns = (
       cell: ({ row, table }) => (
         <ScholarClassActionsCell
           scholarClass={row.original}
-          existingScholars={table.getRowModel().rows.map(
-            (r) => r.original.scholarUuid
-          )}
+          existingScholars={table
+  .getRowModel()
+  .rows
+  .filter((r) => r.original.scholar && r.original.scholar.uuid)
+  .map((r) => r.original.scholar.uuid)}
           onEdit={actions?.onEdit}
           onDelete={actions?.onDelete}
         />

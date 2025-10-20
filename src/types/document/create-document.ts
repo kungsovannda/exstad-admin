@@ -5,3 +5,10 @@ export type CreateDocument = {
   filename?: string;
   file: File;
 };
+
+export type CreateLogo = {
+  programSlug: string;
+  documentType: string;
+  filename?: string;
+  file: File;
+};

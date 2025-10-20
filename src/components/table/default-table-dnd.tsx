@@ -30,7 +30,11 @@ import {
   TableCell,
   TableHead,
 } from "@/components/ui/table";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import { getCommonPinningStyles } from "@/services/data-table";
+import { DataTablePagination } from "@/components/table/data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DefaultTableDndProps<TData> {
   columns: ColumnDef<TData>[];
@@ -38,6 +42,7 @@ interface DefaultTableDndProps<TData> {
   totalItems: number;
   getRowId: (row: TData) => string | number;
   onReorder?: (newData: TData[]) => void; // callback to parent/backend
+  isPagination?: boolean;
 }
 
 function SortableRow({
@@ -49,6 +54,7 @@ function SortableRow({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
+
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -67,6 +73,7 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
   data,
   getRowId,
   onReorder,
+  isPagination = true,
 }: DefaultTableDndProps<TData>) {
   const [search, setSearch] = useState("");
   const [dragData, setDragData] = useState(data);
@@ -87,10 +94,7 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
 
     const newData = arrayMove(dragData, oldIndex, newIndex);
 
-    // 1️⃣ Update local UI instantly
     setDragData(newData);
-
-    // 2️⃣ Notify parent/backend
     onReorder?.(newData);
   };
 
@@ -114,13 +118,17 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col space-y-4 min-h-[560px]">
+      <div className="flex items-center justify-between">
       <Input
         placeholder="Search..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-52"
       />
+            <DataTableToolbar table={table} />
+      </div>
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -130,43 +138,71 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
           items={filteredData.map((row) => getRowId(row))}
           strategy={verticalListSortingStrategy}
         >
-          <div className="rounded-md border overflow-x-auto">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <SortableRow
-                    key={String(getRowId(row.original))}
-                    id={String(getRowId(row.original))}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+          <div className="relative flex-1 flex overflow-hidden rounded-lg border">
+            <ScrollArea className="h-full w-full">
+              <Table>
+                <TableHeader className="bg-muted sticky top-0 z-10">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead
+                          key={header.id}
+                          colSpan={header.colSpan}
+                          style={{
+                            ...getCommonPinningStyles({ column: header.column }),
+                          }}
+                        >
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+
+                <TableBody>
+                  {table.getRowModel().rows.length > 0 ? (
+                    table.getRowModel().rows.map((row, index) => (
+                      <SortableRow
+                        key={String(getRowId(row.original))}
+                        id={String(getRowId(row.original))}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell
+                            key={cell.id}
+                            style={{
+                              ...getCommonPinningStyles({ column: cell.column }),
+                            }}
+                            className={index % 2 === 0 ? "bg-primary/5" : "bg-primary/2"}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </SortableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                        No results found.
                       </TableCell>
-                    ))}
-                  </SortableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
           </div>
         </SortableContext>
       </DndContext>
+
+      {isPagination && <DataTablePagination table={table} />}
     </div>
   );
 }

@@ -14,20 +14,27 @@ import {
   useDeleteScholarClassMutation,
   useCreateScholarClassMutation,
   useUpdateScholarClassMutation,
-} from "@/features/opening-program/components/scholar-class.tsx/scholarClassApit";
+} from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
 import { ScholarClassPayload, ScholarClassType } from "@/types/opening-program";
 import { useGetClassByUuidQuery } from "@/features/opening-program/components/class/classApi";
-import { ScholarClassStatisticCard } from "@/features/opening-program/components/scholar-class.tsx/StatisticCard";
+import { StatisticCard } from "@/features/opening-program/components/scholar-class.tsx/statistic-card";
 import DrawerScholars from "@/features/opening-program/components/scholar-class.tsx/add-scholar/DrawerScholars";
 import { Heading } from "@/components/Heading";
+import { Scholar } from "@/types/scholar";
 
 export default function ScholarClassPage() {
   const params = useParams();
   const classUuid = params.classUuid as string;
 
   // Fetch class info
-  const { data: classInfo, isLoading: isClassLoading, isError: isClassError } =
-    useGetClassByUuidQuery({ uuid: classUuid }, { skip: !classUuid, refetchOnMountOrArgChange: true });
+  const {
+    data: classInfo,
+    isLoading: isClassLoading,
+    isError: isClassError,
+  } = useGetClassByUuidQuery(
+    { uuid: classUuid },
+    { skip: !classUuid, refetchOnMountOrArgChange: true }
+  );
 
   // Fetch scholar classes
   const {
@@ -41,7 +48,30 @@ export default function ScholarClassPage() {
     refetchOnMountOrArgChange: true,
   });
 
-  const [addScholar] = useCreateScholarClassMutation();
+  const [addScholar, { isLoading: isAdding }] = useCreateScholarClassMutation();
+
+  const handleAddScholar = async (scholar: Scholar) => {
+    try {
+      if (scholarClasses.some((sc) => sc.scholar?.uuid === scholar.uuid)) {
+        toast.warning("This scholar is already added.");
+        return;
+      }
+
+      await addScholar({
+        classUuid,
+        scholarUuid: scholar.uuid,
+        isPaid: false,
+        isReminded: false,
+      }).unwrap();
+
+      toast.success(`Scholar "${scholar.englishName}" added successfully!`);
+      await refetchScholarClasses();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to add scholar: ${message}`);
+    }
+  };
+
   const [updateScholar] = useUpdateScholarClassMutation();
   const [deleteScholarClass] = useDeleteScholarClassMutation();
 
@@ -49,27 +79,20 @@ export default function ScholarClassPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   if (isClassError || isError) {
-    return <div className="p-6 text-red-500">Failed to load class or scholars</div>;
+    return (
+      <div className="p-6 text-red-500">Failed to load class or scholars</div>
+    );
   }
 
-  if (isClassLoading || isLoading || isFetching) {
-    return <div className="p-6"><DataTableSkeleton columnCount={7} /></div>;
-  }
 
   const columns = ScholarClassColumns(scholarClasses, {
-    onEdit: (row: ScholarClassType) => {
-      setEditTarget(row);   // set edit target
-      setDrawerOpen(true);  // open drawer in edit mode
+    onEdit: (row) => {
+      setEditTarget(row);
+      setDrawerOpen(true);
     },
-    onDelete: async (row: ScholarClassType) => {
-      try {
-        await deleteScholarClass(row.uuid).unwrap();
-        toast.success(`Scholar "${row.scholarName}" removed from class!`);
-        await refetchScholarClasses();
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        toast.error(`Failed to delete scholar class: ${message}`);
-      }
+    onDelete: async (row) => {
+      await deleteScholarClass(row.uuid).unwrap();
+      await refetchScholarClasses();
     },
   });
 
@@ -82,7 +105,7 @@ export default function ScholarClassPage() {
         />
         <Button
           onClick={() => {
-            setEditTarget(null); // clear edit target for add mode
+            setEditTarget(null);
             setDrawerOpen(true);
           }}
           variant="outline"
@@ -99,30 +122,24 @@ export default function ScholarClassPage() {
           setDrawerOpen(val);
           if (!val) setEditTarget(null);
         }}
-        scholarsClass={scholarClasses}
-        editScholar={editTarget ? {
-          uuid: editTarget.scholarUuid,
-          englishName: editTarget.scholarName,
-          isPaid: editTarget.isPaid,
-          isReminded: editTarget.isReminded,
-        } : undefined}
+        scholarsClass={scholarClasses.map((sc) => ({
+          scholarUuid: sc.scholar?.uuid,
+        }))}
         onAddScholar={async (scholarUuid, options) => {
           try {
             if (editTarget) {
-              // Edit mode
               await updateScholar({
                 uuid: editTarget.uuid,
                 body: {
-                  classUuid,
-                  scholarUuid: editTarget.scholarUuid,
                   isPaid: options.isPaid,
                   isReminded: options.isReminded,
                 },
               }).unwrap();
               toast.success("Scholar updated successfully!");
             } else {
-              // Add mode single
-              if (scholarClasses.some((sc) => sc.scholarUuid === scholarUuid)) {
+              if (
+                scholarClasses.some((sc) => sc.scholar?.uuid === scholarUuid)
+              ) {
                 toast.warning("This scholar is already added.");
                 return;
               }
@@ -144,7 +161,8 @@ export default function ScholarClassPage() {
         onAddMultipleScholars={async (scholarUuids, options) => {
           let addedCount = 0;
           for (const scholarUuid of scholarUuids) {
-            if (scholarClasses.some((sc) => sc.scholarUuid === scholarUuid)) continue;
+            if (scholarClasses.some((sc) => sc.scholar?.uuid === scholarUuid))
+              continue;
             try {
               await addScholar({
                 classUuid,
@@ -166,22 +184,22 @@ export default function ScholarClassPage() {
         }}
       />
 
-      <ScholarClassStatisticCard
+      <StatisticCard
         scholarClasses={scholarClasses}
         isLoading={isLoading || isFetching}
       />
 
-      {scholarClasses.length === 0 ? (
-        <p className="p-6 text-muted-foreground">
-          No scholar classes available for this class.
-        </p>
-      ) : (
+        {isLoading ? (
+          <DataTableSkeleton columnCount={5}/>
+        ): (
         <ScholarClassDataTable
           data={scholarClasses}
           totalItems={scholarClasses.length}
           columns={columns}
         />
-      )}
+        )
+      }
     </div>
   );
 }
+

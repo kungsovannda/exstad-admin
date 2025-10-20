@@ -1,5 +1,5 @@
 "use client";
-import { SectionCards } from "@/components/program/section-card";
+import { MasterProgramStatisticCard } from "@/features/master-program/components/section-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Heading } from "@/components/Heading";
@@ -9,16 +9,41 @@ import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterPr
 import { masterProgramColumns } from "@/features/master-program/components/table/column";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { MasterProgramType } from "@/types/program";
+import LevelPieCard from "@/features/master-program/components/program-level-chart";
+import ProgramPieCard from "@/features/master-program/components/opening-program-chart";
+import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 
 export default function Page() {
-  const { data, isLoading, error } = useGetAllMasterProgramsQuery(undefined, {
+  const { data:masterProgram= [], isLoading, error } = useGetAllMasterProgramsQuery(undefined, {
   refetchOnMountOrArgChange: true,
 });
+const { data: openingPrograms = [], isLoading: isLoadingOpening } = useGetAllOpeningProgramsQuery();
 
-  console.log("Raw API data:", data);
+  const levelCounts = masterProgram.reduce(
+    (acc, program) => {
+      const level = program.programLevel?.toLowerCase();
+      if (level === "basic") acc.basic += 1;
+      else if (level === "intermediate") acc.intermediate += 1;
+      else if (level === "advanced") acc.advanced += 1;
+      return acc;
+    },
+    { basic: 0, intermediate: 0, advanced: 0 }
+  );
+  const openingCounts = masterProgram.map(mp => {
+  const count = openingPrograms.filter(
+    op => op.programName?.toLowerCase() === mp.title?.toLowerCase()
+  ).length;
 
+  return {
+    name: mp.title,
+    count,
+  };
+});
+
+console.log(openingPrograms)
+console.log(openingCounts)
   // Treat data as array directly
-  const programs: MasterProgramType[] = data ?? [];
+  const programs: MasterProgramType[] = masterProgram ?? [];
 
   console.log("Programs length:", programs.length);
   console.log("Programs:", programs);
@@ -35,17 +60,17 @@ export default function Page() {
         </Link>
       </div>
 
-      <SectionCards />
+      <MasterProgramStatisticCard MasterProgram={masterProgram}         isLoading={isLoading} />
+      <div className="grid grid-cols-2 gap-5 h-fit">
+      <LevelPieCard levelCounts={levelCounts}/>
+      <ProgramPieCard data={openingCounts} />
+      </div>
 
       {isLoading ? (
         <DataTableSkeleton columnCount={5} />
-      ) : error ? (
-        <p className="text-red-500">Error loading programs</p>
-      ) : programs.length === 0 ? (
-        <p>No programs found</p>
-      ) : (
+      )  : (
         <MasterProgramTable
-          data={programs}
+          data={programs} 
           totalItems={programs.length}
           columns={columns}
         />

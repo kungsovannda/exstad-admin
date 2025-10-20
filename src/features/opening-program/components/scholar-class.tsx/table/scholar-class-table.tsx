@@ -7,6 +7,7 @@ interface ScholarClassDataTableProps {
     data:ScholarClassType[];
     totalItems:number;
     columns:ReturnType<typeof ScholarClassColumns>;
+    
 }
 export default function ScholarClassDataTable({data,totalItems,columns}:ScholarClassDataTableProps) {
     return (
@@ -20,4 +21,4 @@ export default function ScholarClassDataTable({data,totalItems,columns}:ScholarC
         </div>
         </>
     )
-}
+} 

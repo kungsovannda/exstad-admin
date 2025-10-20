@@ -1,13 +1,12 @@
 "use client";
 
-import MasterProgramForm, { MasterProgramFormValues } from "../create/form-field";
+import MasterProgramForm, { MasterProgramFormValues } from "../create/FormField";
 import {
   useUpdateMasterProgramMutation,
   useGetMasterProgramBySlugQuery,
 } from "@/features/master-program/masterProgramApi";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
-import { generateSlug } from "@/services/generate-slug";
 
 function MasterProgramEdit() {
   const params = useParams();
@@ -33,8 +32,7 @@ function MasterProgramEdit() {
     visibility: program.visibility || "PUBLIC",
     programType: program.programType || "",
     programLevel: program.programLevel || "",
-    thumbnailUrl: program.thumbnailUrl || "",
-    posterUrl: program.posterUrl || "",
+    logoUrl: program.logoUrl || "",
     bgColor:
       program.bgColor ||
       "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
@@ -43,10 +41,7 @@ function MasterProgramEdit() {
   const handleSubmit = async (values: MasterProgramFormValues) => {
     const payload = {
       ...values,
-      slug: generateSlug(values.title), // generate new slug
     };
-    console.log("🧾 Sending payload:", payload);
-
     try {
       await toast.promise(
         updateMasterProgram({
@@ -59,16 +54,17 @@ function MasterProgramEdit() {
           error: (err) => `Failed: ${err.message || err}`,
         }
       );
-
-      // ✅ Redirect to the master program list page
       router.push("/master-program");
     } catch (error) {
       console.error("Update failed:", error);
     }
   };
 
+  
+
   return (
     <MasterProgramForm
+      key={program.uuid} 
       initialValues={initialValues}
       onSubmit={handleSubmit}
       submitLabel={isUpdating ? "Updating..." : "Update"}

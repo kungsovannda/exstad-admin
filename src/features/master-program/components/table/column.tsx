@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { MasterProgramType } from "@/types/program";
 import { ArrowUpDown } from "lucide-react";
 import { MasterActionsCell } from "./action-cell";
-import { buildUniqueOptions } from "@/components/program/utils/buildUniqueOptions";
+import { buildUniqueOptions } from "@/components/utils/buildUniqueOptions";
 
 
 export const masterProgramColumns = (

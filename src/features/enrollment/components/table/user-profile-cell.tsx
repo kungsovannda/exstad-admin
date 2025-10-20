@@ -13,7 +13,7 @@ export function UserProfileCell({
     <div className="flex h-12 items-center gap-3">
       <Avatar className="h-10 w-10">
         <AvatarImage
-          className="rounded-lg"
+          className="rounded-lg object-cover"
           src={avatar || "/placeholder.svg"}
           alt={name}
         />
