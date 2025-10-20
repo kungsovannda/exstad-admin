@@ -1,9 +1,11 @@
+import { ClassType } from "../opening-program";
 import { Gender } from "../scholar";
 
 export type Enrollment = {
   uuid: string;
   englishName: string;
   khmerName: string;
+  _class: ClassType;
   program: string;
   gender: "Male" | "Female" | "Other";
   dob: string;
@@ -15,6 +17,7 @@ export type Enrollment = {
   university: string;
   educationQualification: string;
   extra: Record<string, string>;
+  amount: number;
   isPaid: boolean;
   isInterviewed: boolean;
   isAchieved: boolean;

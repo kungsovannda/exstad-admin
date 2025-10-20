@@ -36,6 +36,25 @@ export const openingProgramApi = createApi({
             ]
           : [{ type: "OpeningProgram", id: "LIST" }],
     }),
+    getAllOpeningProgramsByProgramSlug: builder.query<
+      openingProgramType[],
+      { slug: string }
+    >({
+      query: ({ slug }) => `/opening-programs/program/${slug}`,
+      transformResponse: (response: {
+        "opening-programs"?: openingProgramType[];
+      }) => response["opening-programs"] ?? [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ programUuid }) => ({
+                type: "OpeningProgram" as const,
+                id: programUuid,
+              })),
+              { type: "OpeningProgram", id: "LIST" },
+            ]
+          : [{ type: "OpeningProgram", id: "LIST" }],
+    }),
 
     // GET single opening program by UUID
     getOpeningProgramByUuid: builder.query<
@@ -131,6 +150,7 @@ export const openingProgramApi = createApi({
 // Export hooks
 export const {
   useGetAllOpeningProgramsQuery,
+  useGetAllOpeningProgramsByProgramSlugQuery,
   useGetOpeningProgramByUuidQuery,
   useGetOpeningProgramBySlugQuery,
   useCreateOpeningProgramMutation,

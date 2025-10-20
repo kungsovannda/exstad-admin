@@ -43,21 +43,48 @@ export const enrollmentApi = createApi({
     getAllInterviewedEnrollments: builder.query<Enrollment[], void>({
       query: () => "/enrollments/interviewed",
       transformResponse: (response: Enrollment[]) => response ?? [],
-      providesTags: [{ type: "Enrollment", id: "LIST" }],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "Enrollment" as const,
+                id: uuid,
+              })),
+              { type: "Enrollment", id: "LIST" },
+            ]
+          : [{ type: "Enrollment", id: "LIST" }],
     }),
 
     // 🏅 GET all achieved enrollments
     getAllAchievedEnrollments: builder.query<Enrollment[], void>({
       query: () => "/enrollments/achieved",
       transformResponse: (response: Enrollment[]) => response ?? [],
-      providesTags: [{ type: "Enrollment", id: "LIST" }],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "Enrollment" as const,
+                id: uuid,
+              })),
+              { type: "Enrollment", id: "LIST" },
+            ]
+          : [{ type: "Enrollment", id: "LIST" }],
     }),
 
     // ✅ GET all passed enrollments
     getAllPassedEnrollments: builder.query<Enrollment[], void>({
       query: () => "/enrollments/passed",
       transformResponse: (response: Enrollment[]) => response ?? [],
-      providesTags: [{ type: "Enrollment", id: "LIST" }],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "Enrollment" as const,
+                id: uuid,
+              })),
+              { type: "Enrollment", id: "LIST" },
+            ]
+          : [{ type: "Enrollment", id: "LIST" }],
     }),
 
     // 🔍 GET enrollment by UUID
@@ -83,6 +110,68 @@ export const enrollmentApi = createApi({
         { type: "Enrollment", id: "LIST" },
       ],
     }),
+
+    // 🧭 GET enrollments by opening program
+    getAllEnrollmentsByProgram: builder.query<Enrollment[], string>({
+      query: (uuid) => `/enrollments/${uuid}/all`,
+      transformResponse: (response: { enrollments?: Enrollment[] }) =>
+        response.enrollments ?? [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "Enrollment" as const,
+                id: uuid,
+              })),
+              { type: "Enrollment", id: "LIST" },
+            ]
+          : [{ type: "Enrollment", id: "LIST" }],
+    }),
+
+    getAllInterviewedByProgram: builder.query<Enrollment[], string>({
+      query: (uuid) => `/enrollments/${uuid}/interviewed`,
+      transformResponse: (response: Enrollment[]) => response ?? [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "Enrollment" as const,
+                id: uuid,
+              })),
+              { type: "Enrollment", id: "LIST" },
+            ]
+          : [{ type: "Enrollment", id: "LIST" }],
+    }),
+
+    getAllAchievedByProgram: builder.query<Enrollment[], string>({
+      query: (uuid) => `/enrollments/${uuid}/achieved`,
+      transformResponse: (response: Enrollment[]) => response ?? [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "Enrollment" as const,
+                id: uuid,
+              })),
+              { type: "Enrollment", id: "LIST" },
+            ]
+          : [{ type: "Enrollment", id: "LIST" }],
+    }),
+
+    getAllPassedByProgram: builder.query<Enrollment[], string>({
+      query: (uuid) => `/enrollments/${uuid}/passed`,
+      transformResponse: (response: Enrollment[]) => response ?? [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "Enrollment" as const,
+                id: uuid,
+              })),
+              { type: "Enrollment", id: "LIST" },
+            ]
+          : [{ type: "Enrollment", id: "LIST" }],
+    }),
   }),
 });
 
@@ -94,4 +183,8 @@ export const {
   useGetAllPassedEnrollmentsQuery,
   useGetEnrollmentByUuidQuery,
   useUpdateEnrollmentMutation,
+  useGetAllEnrollmentsByProgramQuery,
+  useGetAllInterviewedByProgramQuery,
+  useGetAllAchievedByProgramQuery,
+  useGetAllPassedByProgramQuery,
 } = enrollmentApi;

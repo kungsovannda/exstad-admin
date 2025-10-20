@@ -1,161 +1,200 @@
-"use client";
+  "use client";
 
-import React, { useState, useMemo } from "react";
-import { FiPlus } from "react-icons/fi";
-import { Button } from "@/components/ui/button";
-import HighlightsFormModal, { HighlightFormValues } from "./highlight-modal";
-import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
-import { toast } from "sonner";
-import { SquarePen, Trash } from "lucide-react";
-import {
-  useGetAllHighlightQuery,
-  useUpdateHighlightsMutation,
-} from "./highlightApi";
-import { HighlightPayload, HighlightType } from "@/types/program";
-import { SectionSkeleton } from "../section-skeleton";
+  import React, { useState, useMemo, useEffect } from "react";
+  import { FiPlus } from "react-icons/fi";
+  import { Button } from "@/components/ui/button";
+  import HighlightsFormModal, { HighlightFormValues } from "./highlight-modal";
+  import DeleteModal from "@/components/program/opening-program/activity/delete-modal-component";
+  import { toast } from "sonner";
+  import { SquarePen, Trash } from "lucide-react";
+  import {
+    useGetAllHighlightQuery,
+    useUpdateHighlightsMutation,
+  } from "./highlightApi";
+  import { HighlightPayload, HighlightType } from "@/types/program";
+  import { SectionSkeleton } from "../section-skeleton";
 
-type Props = { programUuid: string };
+  type Props = { programUuid: string };
 
-export default function HighlightsAdmin({ programUuid }: Props) {
-  const { data: highlights = [], isLoading, isError } =
-    useGetAllHighlightQuery(programUuid, { refetchOnMountOrArgChange: true });
+  export default function HighlightsAdmin({ programUuid }: Props) {
+    const { data: highlights, isLoading, isError } = useGetAllHighlightQuery(
+      programUuid,
+      { refetchOnMountOrArgChange: true }
+    );
 
-  const [putHighlights] = useUpdateHighlightsMutation();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<HighlightType | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<HighlightType | null>(null);
+    const [putHighlights] = useUpdateHighlightsMutation();
 
-  const highlightsWithUid = useMemo(
-    () => (highlights ?? []).map((h) => ({ ...h, uid: crypto.randomUUID() })),
-    [highlights]
-  );
+    // ✅ Local state
+    const [localHighlights, setLocalHighlights] = useState<HighlightType[]>([]);
+    const [hasChanges, setHasChanges] = useState(false);
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState<HighlightType | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<HighlightType | null>(null);
 
-  if (isLoading) return <SectionSkeleton count={4}/>;
-  if (isError) return <div className="text-destructive">Failed to load highlights</div>;
+    // Normalize server data
+    useEffect(() => {
+      const safeHighlights = Array.isArray(highlights) ? highlights : [];
+      setLocalHighlights(safeHighlights);
+      setHasChanges(false);
+    }, [highlights]);
 
-  const handleSaveHighlight = async (data: HighlightFormValues, target?: HighlightType) => {
-    try {
-      const safeHighlights = highlights ?? [];
-      let newHighlights: HighlightType[];
+    // Add UID to each highlight for React keys
+    const highlightsWithUid = useMemo(
+      () =>
+        (localHighlights ?? []).map((h) => ({
+          ...h,
+          uid: crypto.randomUUID(),
+        })),
+      [localHighlights]
+    );
 
-      if (target) {
-        newHighlights = safeHighlights.map((h) =>
-          h.label === target.label && h.value === target.value && h.desc === target.desc
-            ? { ...h, ...data }
-            : h
-        );
-      } else {
-        newHighlights = [...safeHighlights, { ...data }];
-      }
+    if (isLoading) return <SectionSkeleton count={4} />;
+    if (isError)
+      return <div className="text-destructive">Failed to load highlights</div>;
 
-      const payload: HighlightPayload[] = newHighlights.map(({ label, value, desc }) => ({
-        label,
-        value,
-        desc,
-      }));
+    // ✅ Local add/edit
+    const handleSaveHighlightLocal = (
+      data: HighlightFormValues,
+      target?: HighlightType
+    ) => {
+      const newHighlights = target
+        ? localHighlights.map((h) =>
+            h.label === target.label &&
+            h.value === target.value &&
+            h.desc === target.desc
+              ? { ...h, ...data }
+              : h
+          )
+        : [...localHighlights, { ...data }];
 
-      await putHighlights({ programUuid, highlights: payload }).unwrap();
-      toast.success(target ? "Highlight updated!" : "Highlight added!");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to save: ${message || err}`);
-    }
-  };
+      setLocalHighlights(newHighlights);
+      setHasChanges(true);
+    };
 
-  const handleDeleteHighlight = async (target: HighlightType) => {
-    try {
-      const safeHighlights = highlights ?? [];
-      const newHighlights = safeHighlights.filter(
+    // ✅ Local delete only
+    const handleDeleteHighlightLocal = (target: HighlightType) => {
+      const newHighlights = localHighlights.filter(
         (h) =>
-          !(h.label === target.label && h.value === target.value && h.desc === target.desc)
+          !(
+            h.label === target.label &&
+            h.value === target.value &&
+            h.desc === target.desc
+          )
       );
 
-      const payload: HighlightPayload[] = newHighlights.map(({ label, value, desc }) => ({
-        label,
-        value,
-        desc,
-      }));
+      setLocalHighlights(newHighlights);
+      setHasChanges(true);
 
-      await putHighlights({ programUuid, highlights: payload }).unwrap();
-      toast.success(`Highlight "${target.label}" deleted!`);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Failed to delete: ${message || err}`);
-    }
-  };
+      toast.info(`Highlight "${target.label}" deleted!`);
+    };
 
-  return (
-    <div className="flex flex-col gap-5 w-full">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-[18px] font-bold text-foreground">Highlights</h2>
+    // ✅ Save all to backend
+    const handleSaveAll = async () => {
+      try {
+        const payload: HighlightPayload[] = localHighlights.map(
+          ({ label, value, desc }) => ({ label, value, desc })
+        );
+        await putHighlights({ programUuid, highlights: payload }).unwrap();
+        toast.success("All highlights saved!");
+        setHasChanges(false);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(`Failed to save: ${message || err}`);
+      }
+    };
 
-        <HighlightsFormModal
-          open={isCreateOpen}
-          onOpenChange={setIsCreateOpen}
-          onSubmitHighlight={async (data) => {
-            await handleSaveHighlight(data);
-            setIsCreateOpen(false); // close modal after save
-          }}
-          trigger={
-            <Button>
-              <FiPlus />
-              <span className="font-bold cursor-pointer">Add Highlight</span>
-            </Button>
-          }
-        />
-      </div>
+    return (
+      <div className="flex flex-col gap-5 w-full">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-[18px] font-bold text-foreground">Highlights</h2>
 
-      {/* Highlight List */}
-      {highlightsWithUid.length === 0 ? (
-        <div className="text-muted-foreground">
-          No highlights yet. Add one to get started!
+          <HighlightsFormModal
+            open={isCreateOpen}
+            onOpenChange={setIsCreateOpen}
+            onSubmitHighlight={(data) => {
+              handleSaveHighlightLocal(data);
+              setIsCreateOpen(false);
+            }}
+            trigger={
+              <Button>
+                <FiPlus />
+                <span className="font-bold cursor-pointer">Add Highlight</span>
+              </Button>
+            }
+          />
         </div>
-      ) : (
-        highlightsWithUid.map((h) => (
-          <div key={h.uid}  className="flex justify-between items-center bg-accent rounded-sm p-4">
-            <div className="flex flex-col">
-              <span className="text-[16px] font-semibold text-foreground">{h.label} - {h.value}</span>
-              <span className="text-[12px] text-muted-foreground">{h.desc}</span>
-            </div>
-            <div className="flex gap-2 items-center">
-              <Trash size={16} className="text-destructive cursor-pointer" onClick={() => setDeleteTarget(h)}/>
-              <HighlightsFormModal
-                open={
-                  !!editTarget &&
-                  editTarget.label === h.label &&
-                  editTarget.value === h.value &&
-                  editTarget.desc === h.desc
-                }
-                onOpenChange={(open) => !open && setEditTarget(null)}
-                initialData={editTarget || undefined}
-                onSubmitHighlight={async (data) => {
-                  if (editTarget) await handleSaveHighlight(data, editTarget);
-                  setEditTarget(null); // close modal after edit
-                }}
-                trigger={
-                  <SquarePen
-                    size={16}
-                    className="text-primary-hover cursor-pointer"
-                    onClick={() => setEditTarget(h)}
-                  />
-                }
-              />
-            </div>
-          </div>
-        ))
-      )}
 
-      {/* Delete Modal */}
-      <DeleteModal
-        open={!!deleteTarget}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
-        itemName={deleteTarget?.label || ""}
-        onConfirm={async () => {
-          if (deleteTarget) await handleDeleteHighlight(deleteTarget);
-          setDeleteTarget(null); // close after delete
-        }}
-      />
-    </div>
-  );
-}
+        {/* Highlight List */}
+        {highlightsWithUid.length === 0 ? (
+          <div className="text-muted-foreground">
+            No highlights yet. Add one to get started!
+          </div>
+        ) : (
+          highlightsWithUid.map((h) => (
+            <div
+              key={h.uid}
+              className="flex justify-between items-center bg-accent rounded-sm p-4"
+            >
+              <div className="flex flex-col">
+                <span className="text-[16px] font-semibold text-foreground">
+                  {h.label} - {h.value}
+                </span>
+                <span className="text-[12px] text-muted-foreground">{h.desc}</span>
+              </div>
+              <div className="flex gap-2 items-center">
+                <Trash
+                  size={16}
+                  className="text-destructive cursor-pointer"
+                  onClick={() => setDeleteTarget(h)}
+                />
+                <HighlightsFormModal
+                  open={
+                    !!editTarget &&
+                    editTarget.label === h.label &&
+                    editTarget.value === h.value &&
+                    editTarget.desc === h.desc
+                  }
+                  onOpenChange={(open) => !open && setEditTarget(null)}
+                  initialData={editTarget || undefined}
+                  onSubmitHighlight={(data) => {
+                    if (editTarget) handleSaveHighlightLocal(data, editTarget);
+                    setEditTarget(null);
+                  }}
+                  trigger={
+                    <SquarePen
+                      size={16}
+                      className="text-primary-hover cursor-pointer"
+                      onClick={() => setEditTarget(h)}
+                    />
+                  }
+                />
+              </div>
+            </div>
+          ))
+        )}
+
+        {/* Delete Modal */}
+        <DeleteModal
+          open={!!deleteTarget}
+          onOpenChange={(open) => !open && setDeleteTarget(null)}
+          itemName={deleteTarget?.label || ""}
+          onConfirm={() => {
+            if (deleteTarget) handleDeleteHighlightLocal(deleteTarget);
+            setDeleteTarget(null);
+          }}
+        />
+
+        {/* Save All Button */}
+        <div className="flex justify-end mt-4">
+          <Button
+            variant={hasChanges ? "default" : "outline"}
+            disabled={!hasChanges}
+            onClick={handleSaveAll}
+          >
+            Save All Highlights
+          </Button>
+        </div>
+      </div>
+    );
+  }

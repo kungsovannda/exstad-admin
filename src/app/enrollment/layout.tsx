@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
@@ -55,7 +56,11 @@ const groups = [
     ],
   },
   {
-    title: "Programs",
+    title: "Scholarship",
+    items: [],
+  },
+  {
+    title: "Short course",
     items: [],
   },
 ];
@@ -63,27 +68,47 @@ const groups = [
 function EnrollmentSidebar() {
   const pathname = usePathname();
   const [defaultGroup, setDefaultGroup] = useState(groups);
-  const { data: programs } = useGetAllMasterProgramsQuery();
+  const { data: programs, isLoading } = useGetAllMasterProgramsQuery();
 
   useEffect(() => {
     if (!programs) return;
 
     setDefaultGroup((prevGroups) => {
-      const programsGroupIndex = prevGroups.findIndex(
-        (group) => group.title === "Programs"
+      const scholarShipGroupIndex = prevGroups.findIndex(
+        (group) => group.title === "Scholarship"
       );
-      if (programsGroupIndex === -1) return prevGroups;
 
-      const programGroup = programs.map((program) => ({
-        title: program.title,
-        url: `/enrollment/${program.slug}`,
-        icon: Layers,
-      }));
+      if (scholarShipGroupIndex === -1) return prevGroups;
+
+      const scholarShipGroup = programs
+        .filter((p) => p.programType === "SCHOLARSHIP")
+        .map((program) => ({
+          title: program.title,
+          url: `/enrollment/${program.slug}`,
+          icon: Layers,
+        }));
+      const shortCourseGroupIndex = prevGroups.findIndex(
+        (group) => group.title === "Short course"
+      );
+
+      if (shortCourseGroupIndex === -1) return prevGroups;
+
+      const shortCourseGroup = programs
+        .filter((p) => p.programType === "SHORT_COURSE")
+        .map((program) => ({
+          title: program.title,
+          url: `/enrollment/${program.slug}`,
+          icon: Layers,
+        }));
 
       const updatedGroups = [...prevGroups];
-      updatedGroups[programsGroupIndex] = {
-        ...updatedGroups[programsGroupIndex],
-        items: programGroup,
+      updatedGroups[scholarShipGroupIndex] = {
+        ...updatedGroups[scholarShipGroupIndex],
+        items: scholarShipGroup,
+      };
+      updatedGroups[shortCourseGroupIndex] = {
+        ...updatedGroups[shortCourseGroupIndex],
+        items: shortCourseGroup,
       };
 
       return updatedGroups;
@@ -98,23 +123,38 @@ function EnrollmentSidebar() {
       <SidebarContent>
         {defaultGroup.map((group) => (
           <SidebarGroup key={group.title}>
-            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
-            <SidebarMenu>
-              {group.items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    isActive={pathname == item.url}
-                    asChild
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span className="line-clamp-1">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            {!isLoading && group.items.length === 0 ? (
+              ""
+            ) : (
+              <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+            )}
+            {["Scholarship", "Short course"].includes(group.title) &&
+            isLoading ? (
+              <SidebarMenu>
+                {[1, 2, 3].map((i) => (
+                  <SidebarMenuItem key={i}>
+                    <SidebarMenuSkeleton showIcon />
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            ) : (
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      isActive={pathname == item.url}
+                      asChild
+                    >
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span className="line-clamp-1">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            )}
           </SidebarGroup>
         ))}
       </SidebarContent>

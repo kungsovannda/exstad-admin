@@ -1,72 +1,61 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, UserCheck, UserPlus, Users, UserX } from "lucide-react";
+import DefaultStatisticCard from "@/components/statistic-card/DefaultStatisticCard";
+import { State } from "@/types";
+import { Enrollment } from "@/types/enrollment";
+import { DollarSign, UserCheck2, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
-export function EnrollmentStatisticCard() {
+export function EnrollmentStatisticCard({
+  data,
+  isLoading,
+}: {
+  data: Enrollment[];
+  isLoading: boolean;
+}) {
+  const [total, setTotal] = useState<State>();
+  const [paid, setPaid] = useState<State>();
+  const [amount, setAmount] = useState<State>();
+  useEffect(() => {
+    const totalFemale = data.filter((d) => d.gender === "Female");
+    setTotal({
+      total: data.length,
+      female: totalFemale.length,
+      male: data.length - totalFemale.length,
+    });
+    const totalPaid = data.filter((d) => d.isPaid);
+    const totalFemalePaid = totalPaid.filter((d) => d.gender === "Female");
+    setPaid({
+      total: totalPaid.length,
+      female: totalFemalePaid.length,
+      male: totalPaid.length - totalFemalePaid.length,
+    });
+    setAmount({
+      total: totalPaid.length * 5,
+      female: totalFemalePaid.length * 5,
+      male: (totalPaid.length - totalFemalePaid.length) * 5,
+    });
+  }, [data]);
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Total Enrollment
-          </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">12,847</div>
-          <p className="text-xs text-muted-foreground">
-            Male: 800, Female: 900
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Female</CardTitle>
-          <UserPlus className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">342</div>
-          <p className="text-xs text-muted-foreground">
-            +12.5% from last month
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Male</CardTitle>
-          <UserCheck className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">11,234</div>
-          <p className="text-xs text-muted-foreground">
-            87.4% of total customers
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Paid</CardTitle>
-          <UserX className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">89</div>
-          <p className="text-xs text-muted-foreground">-5.2% from last month</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Amount</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">89</div>
-          <p className="text-xs text-muted-foreground">-5.2% from last month</p>
-        </CardContent>
-      </Card>
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+      <DefaultStatisticCard
+        title="Total Enrollment"
+        icon={Users}
+        total={total}
+        isLoading={isLoading}
+      />
+      <DefaultStatisticCard
+        title="Total Paid"
+        icon={UserCheck2}
+        total={paid}
+        isLoading={isLoading}
+      />
+      <DefaultStatisticCard
+        title="Amount"
+        icon={DollarSign}
+        total={amount}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

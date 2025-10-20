@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import ClassDataTable from "@/features/opening-program/components/class/table/class-data";
+import ClassDataTable from "@/features/opening-program/components/class/table/class-data-table";
 import ClassModal, { ClassFormValues } from "./class-modal";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { ClassColumns } from "@/features/opening-program/components/class/table/classColumn";
@@ -26,6 +26,7 @@ export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: 
       skip: !openingProgramTitle,
       refetchOnMountOrArgChange: true,
     });
+    console.log(classes)
 
   const [createClass] = useCreateClassMutation();
   const [updateClass] = useUpdateClassMutation();

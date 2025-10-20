@@ -3,7 +3,8 @@
 import type React from "react"
 
 import { useCallback, useState } from "react"
-import ReactFlow, {
+import {
+  ReactFlow,
   type Node,
   type Edge,
   addEdge,
@@ -15,8 +16,8 @@ import ReactFlow, {
   type NodeProps,
   Handle,
   Position,
-} from "reactflow"
-import "reactflow/dist/style.css"
+} from "@xyflow/react"
+import "@xyflow/react/dist/style.css"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,6 +26,8 @@ import { Card } from "@/components/ui/card"
 import { Pencil, Trash2, Plus } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+
+
 
 type HandleType = "source" | "target"
 
@@ -35,15 +38,26 @@ type HandleConfig = {
   left: HandleType
 }
 
-type WorkNodeData = {
+type WorkNodeData = Node<{
   title: string
   tasks: string[]
   handles: HandleConfig
   onEdit: (id: string) => void
   onDelete: (id: string) => void
-}
+}>
 
-function CustomWorkNode({ data, id }: NodeProps<WorkNodeData>) {
+function CustomWorkNode({
+  data,
+  id,
+}: NodeProps<
+  Node<{
+    title: string
+    tasks: string[]
+    handles: HandleConfig
+    onEdit: (id: string) => void
+    onDelete: (id: string) => void
+  }>
+>) {
   const [isHovered, setIsHovered] = useState(false)
 
   const renderHandle = (position: Position, positionKey: keyof HandleConfig) => {
@@ -60,26 +74,24 @@ function CustomWorkNode({ data, id }: NodeProps<WorkNodeData>) {
 
     const colorClass = (type: "source" | "target") => (type === "source" ? "!bg-green-500" : "!bg-blue-500")
 
-    if (handleType === "source") {
-      return (
+    return (
+      <>
         <Handle
           type="source"
           position={position}
           id={`${positionKey}-source`}
           className={`${baseClassName} ${colorClass("source")} ${hoverClassName} ${positionOffsets[position]}`}
+          style={{ zIndex: handleType === "source" ? 10 : 1 }}
         />
-      )
-    } else if (handleType === "target") {
-      return (
         <Handle
           type="target"
           position={position}
           id={`${positionKey}-target`}
           className={`${baseClassName} ${colorClass("target")} ${hoverClassName} ${positionOffsets[position]}`}
+          style={{ zIndex: handleType === "target" ? 10 : 1 }}
         />
-      )
-    }
-    return null
+      </>
+    )
   }
 
   return (
@@ -127,7 +139,7 @@ function CustomWorkNode({ data, id }: NodeProps<WorkNodeData>) {
 
         {/* Task list */}
         <div className="space-y-2">
-          {data.tasks.map((task, index) => (
+          {data.tasks.map((task: string, index: number) => (
             <div key={index} className="flex items-start gap-2 text-sm p-2 rounded bg-muted/50">
               <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
               <span className="flex-1">{task}</span>
@@ -144,7 +156,13 @@ const nodeTypes = {
   workNode: CustomWorkNode,
 }
 
-const initialNodes: Node<WorkNodeData>[] = [
+const initialNodes: Node<{
+  title: string
+  tasks: string[]
+  handles: HandleConfig
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+}>[] = [
   {
     id: "1",
     type: "workNode",
@@ -183,7 +201,10 @@ export default function WorkNodeEditor() {
   const [isEditEdgeModalOpen, setIsEditEdgeModalOpen] = useState(false)
   const [editingEdge, setEditingEdge] = useState<string | null>(null)
   const [editEdgeLabel, setEditEdgeLabel] = useState("")
-  const [savedData, setSavedData] = useState<{ nodes: Node[]; edges: Edge[] } | null>(null)
+  const [savedData, setSavedData] = useState<Array<{
+    nodes: Array<{ type: string; data: { label: string; description: string }; position: { x: number; y: number } }>
+    edges: Array<{ id: string; source: string; target: string; animated: boolean }>
+  }> | null>(null)
   const [showJson, setShowJson] = useState(false)
 
   const onConnect = useCallback(
@@ -197,7 +218,7 @@ export default function WorkNodeEditor() {
   const handleEdit = useCallback(
     (nodeId: string) => {
       const node = nodes.find((n) => n.id === nodeId)
-      if (node) {
+      if (node && node.data) {
         setEditingNode(nodeId)
         setEditTitle(node.data.title)
         setEditTasks(node.data.tasks.join("\n"))
@@ -217,7 +238,15 @@ export default function WorkNodeEditor() {
   )
 
   const updateNodeCallbacks = useCallback(
-    (nodes: Node<WorkNodeData>[]) => {
+    (
+      nodes: Node<{
+        title: string
+        tasks: string[]
+        handles: HandleConfig
+        onEdit: (id: string) => void
+        onDelete: (id: string) => void
+      }>[],
+    ) => {
       return nodes.map((node) => ({
         ...node,
         data: {
@@ -246,7 +275,13 @@ export default function WorkNodeEditor() {
 
   const saveEditedNode = () => {
     if (isAddingNode) {
-      const newNode: Node<WorkNodeData> = {
+      const newNode: Node<{
+        title: string
+        tasks: string[]
+        handles: HandleConfig
+        onEdit: (id: string) => void
+        onDelete: (id: string) => void
+      }> = {
         id: `${Date.now()}`,
         type: "workNode",
         position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
@@ -284,17 +319,27 @@ export default function WorkNodeEditor() {
   }
 
   const saveAsJson = () => {
-    const dataToSave = {
-      nodes: nodes.map(({ data, ...node }) => ({
-        ...node,
-        data: {
-          title: data.title,
-          tasks: data.tasks,
-          handles: data.handles,
-        },
-      })),
-      edges,
-    }
+    const dataToSave = [
+      {
+        nodes: nodes.map((node) => ({
+          type: "course",
+          data: {
+            label: node.data.title,
+            description: node.data.tasks.join(", "),
+          },
+          position: {
+            x: node.position.x,
+            y: node.position.y,
+          },
+        })),
+        edges: edges.map((edge) => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          animated: true,
+        })),
+      },
+    ]
     setSavedData(dataToSave)
     setShowJson(true)
   }
@@ -337,7 +382,7 @@ export default function WorkNodeEditor() {
   return (
     <div className="h-screen w-full flex flex-col">
       {/* Toolbar */}
-      <div className="border-b p-4 flex items-center justify-between gap-4">
+      <div className="bg-background border-b p-4 flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Work Node Editor</h1>
         <div className="flex gap-2">
           <Button onClick={addNewNode} className="gap-2">
@@ -385,16 +430,16 @@ export default function WorkNodeEditor() {
       </div>
 
       {/* Edit Node Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen} >
-        <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isAddingNode ? "Add Work Node" : "Edit Work Node"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-[1.2fr_1fr] gap-8">
               {/* Left Column - Form */}
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Title</label>
                     <Input
@@ -453,7 +498,7 @@ export default function WorkNodeEditor() {
               {/* Right Column - Preview */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Preview</label>
-                <div className="border rounded-lg p-6 bg-muted/30 flex items-center justify-center min-h-[300px] ">
+                <div className="border rounded-lg p-6 bg-muted/30 flex items-center justify-center min-h-[300px]">
                   <div className="relative">
                     <Card className="min-w-[280px] max-w-[320px] shadow-lg border-2">
                       {/* Preview Handles */}
@@ -498,8 +543,8 @@ export default function WorkNodeEditor() {
                             .split("\n")
                             .filter((t) => t.trim() !== "")
                             .map((task, index) => (
-                              <div key={index} className="flex items-center gap-2 text-sm p-2 rounded bg-muted/50">
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shrink-0" />
+                              <div key={index} className="flex items-start gap-2 text-sm p-2 rounded bg-muted/50">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                                 <span className="flex-1">{task}</span>
                               </div>
                             ))}
@@ -525,7 +570,7 @@ export default function WorkNodeEditor() {
 
       {/* Edit Edge Modal */}
       <Dialog open={isEditEdgeModalOpen} onOpenChange={setIsEditEdgeModalOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Edit Connection</DialogTitle>
           </DialogHeader>
@@ -545,10 +590,10 @@ export default function WorkNodeEditor() {
               <Trash2 className="h-4 w-4 mr-2" />
               Delete Connection
             </Button>
-            <Button variant="outline" onClick={() => setIsEditEdgeModalOpen(false)}>
+            <Button onClick={saveEditedEdge}>Save Changes</Button>
+             <Button variant="outline" onClick={() => setIsEditEdgeModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={saveEditedEdge}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

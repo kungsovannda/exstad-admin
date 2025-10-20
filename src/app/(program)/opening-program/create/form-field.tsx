@@ -27,9 +27,9 @@ import {
 import Image from "next/image";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { generateSlug } from "@/services/generate-slug";
-import { ThumbnailUploadField } from "../../master-program/create/ThumbnailUploadField";
-import { PosterUploadField } from "../../master-program/create/PosterUrl";
-import { QrCodeUploadField } from "../../master-program/create/qrCodeUrl";
+import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
+import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
+import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
 import { useCreateDocumentMutation } from "@/features/document/documentApi";
 
 // ------------------- SCHEMA -------------------
@@ -48,7 +48,7 @@ export const openingProgramformSchema = z.object({
   thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
   posterUrl: z.string().min(1, { message: "Poster is required" }),
   slug: z.string(),
-  status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
+  status: z.union([z.enum(["OPEN", "CLOSED", "ACHIEVED","PENDING"]), z.undefined()]).refine((val) => val !== undefined, { message: "Status is required" }),
   qrCodeUrl: z.string().min(1,{ message: "Valid QR Code URL is required" }),
   activity: z.string().optional(),
 });
@@ -105,21 +105,21 @@ export default function OpeningProgramForm({
       thumbnail: "",
       posterUrl:"",
       slug: "",
-      status: undefined,
+      status: undefined as "OPEN" | "CLOSED" | "ACHIEVED" | "PENDING" | undefined,
       qrCodeUrl: "",
     },
   }) as ExtendedFormReturn;
 
-  const { watch, setValue } = form;
+  const { watch, setValue ,reset} = form;
   const originalFee = watch("originalFee") || 0;
   const scholarship = watch("scholarship") || 0;
   const title = watch("title");
-
+  
   // ------------------- FILTER MASTER PROGRAMS -------------------
   const filteredMasterPrograms = selectedProgramType
     ? masterPrograms.filter((p) => p.programType === selectedProgramType)
     : masterPrograms;
-
+    
   // ------------------- AUTO DISCOUNT -------------------
   useEffect(() => {
     const discount = originalFee - (originalFee * scholarship) / 100;
@@ -141,11 +141,12 @@ useEffect(() => {
 
 
   // ------------------- RESET MASTER PROGRAM ON TYPE CHANGE -------------------
+  // ✅ FIX: Reset form when initialValues change (this fixes your title reverting issue)
   useEffect(() => {
-    if (!initialValues) {
-      setValue("programUuid", "");
+    if (initialValues) {
+      reset(initialValues);
     }
-  }, [selectedProgramType, setValue, initialValues]);
+  }, [initialValues, reset]);
 
   // ------------------- SYNC PROGRAM TYPE WHEN EDITING -------------------
   useEffect(() => {
@@ -235,6 +236,7 @@ useEffect(() => {
           <Select
             onValueChange={setSelectedProgramType}
             value={selectedProgramType ?? ""}
+            disabled={!!initialValues}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Program Type" />
@@ -262,7 +264,10 @@ useEffect(() => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Master Program</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                value={field.value}
+                disabled={!!initialValues }>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Master Program" />
                 </SelectTrigger>
@@ -345,6 +350,7 @@ useEffect(() => {
                   <SelectItem value="OPEN">Open</SelectItem>
                   <SelectItem value="CLOSED">Closed</SelectItem>
                   <SelectItem value="ACHIEVED">Achieved</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -365,7 +371,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -383,7 +389,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -405,7 +411,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -423,7 +429,7 @@ useEffect(() => {
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
