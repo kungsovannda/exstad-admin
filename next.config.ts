@@ -8,7 +8,9 @@ const nextConfig: NextConfig = {
       "upload.wikimedia.org",
       "exstad-api.daradev.me",
       "t4.ftcdn.net",
-      "example.com"
+      "example.com",
+      "api.exstad.tech",
+      "www.keycdn.com",
     ],
     remotePatterns: [
       {
