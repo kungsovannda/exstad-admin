@@ -139,7 +139,6 @@ export function QrCodeUploadField({
               </div>
             )}
           </FormControl>
-          <FormMessage />
         </FormItem>
       )}
     />

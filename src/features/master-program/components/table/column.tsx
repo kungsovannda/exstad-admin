@@ -3,6 +3,7 @@ import { MasterProgramType } from "@/types/program";
 import { ArrowUpDown } from "lucide-react";
 import { MasterActionsCell } from "./action-cell";
 import { buildUniqueOptions } from "@/components/utils/buildUniqueOptions";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 export const masterProgramColumns = (
@@ -19,6 +20,30 @@ export const masterProgramColumns = (
   );
 
   return [
+     {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      enableResizing: false,
+      size: 30,
+    },
     {
       id: "title",
       accessorKey: "title",

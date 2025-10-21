@@ -23,5 +23,6 @@ export type Scholar = {
   isAbroad: boolean;
   quote: string;
   audit: Audit;
-  badges: BadgeForScholar[];
+  badges: BadgeForScholar[];  
+  completedCourses: string;
 };

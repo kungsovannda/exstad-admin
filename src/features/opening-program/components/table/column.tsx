@@ -2,6 +2,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { openingProgramType } from "@/types/opening-program";
 import { OpeningActionsCell } from "./opening-action-cell";
 import { buildUniqueOptions } from "@/components/utils/buildUniqueOptions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Option } from "@/types/data-table";
 
 export const openingProgramColumns = (
   openingPrograms: openingProgramType[]
@@ -24,6 +26,30 @@ export const openingProgramColumns = (
   )
   return [
     // { accessorKey: "uuid", header: "ID" },
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      enableResizing: false,
+      size: 30,
+    },
     {
       accessorKey: "title",
       header: "Opening Program Name",

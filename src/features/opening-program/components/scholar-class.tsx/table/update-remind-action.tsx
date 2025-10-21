@@ -24,11 +24,12 @@ export default function UpdateRemindScholarAction({
     toast.promise(updateScholarClass({ uuid, body: body }).unwrap(), {
       loading: "Updating...",
       success: () => {
-        return `Scholar has been updated`;
+        const name = scholar.scholar?.englishName || "Unknown";
+        return `Scholar "${name}" has been updated successfully!`;
       },
       error: () => {
         return `Cannot update scholar`;
-      },
+      },  
     });
   };
   const { isReminded, uuid } = scholar;

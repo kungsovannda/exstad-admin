@@ -4,6 +4,7 @@ import { Role } from "./role";
 
 export type User = {
   uuid: string;
+  avatar?:string; /// just
   username: string;
   englishName: string;
   khmerName: string;

@@ -142,7 +142,6 @@ export function ThumbnailUploadField({
               )}
             </div>
           </FormControl>
-          <FormMessage />
         </FormItem>
       )}
     />

@@ -3,12 +3,17 @@
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { TimelineActionsCell } from "./action-cell";
 import { TimelineType } from "@/types/opening-program";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // -----------------
 // DateCell component
@@ -19,7 +24,11 @@ interface DateCellProps {
   placeholder?: string;
 }
 
-export function DateCell({ value, onChange, placeholder = "Select" }: DateCellProps) {
+export function DateCell({
+  value,
+  onChange,
+  placeholder = "Select",
+}: DateCellProps) {
   const parsedDate = value ? new Date(value) : undefined;
 
   return (
@@ -42,7 +51,9 @@ export function DateCell({ value, onChange, placeholder = "Select" }: DateCellPr
         <Calendar
           mode="single"
           selected={parsedDate}
-          onSelect={(date) => date && onChange(date.toISOString().split("T")[0])} 
+          onSelect={(date) =>
+            date && onChange(date.toISOString().split("T")[0])
+          }
           // ✅ save back as string "YYYY-MM-DD"
           required={false}
           captionLayout="dropdown"
@@ -57,7 +68,11 @@ export function DateCell({ value, onChange, placeholder = "Select" }: DateCellPr
 // Columns
 // -----------------
 export const TimelineColumns = (
-  handleDateChange: (rowId: string, field: "startDate" | "endDate", date: string) => void,
+  handleDateChange: (
+    rowId: string,
+    field: "startDate" | "endDate",
+    date: string
+  ) => void,
   action?: {
     onEdit?: (t: TimelineType) => void;
     onDelete?: (t: TimelineType) => void;
@@ -65,22 +80,45 @@ export const TimelineColumns = (
 ): ColumnDef<TimelineType>[] => {
   return [
     {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      enableResizing: false,
+      size: 30,
+    },
+    {
       id: "order",
       header: "#",
       cell: ({ row, table }) => table.getRowModel().rows.indexOf(row) + 1,
       size: 50,
     },
-    { accessorKey: "title",
-       header: "Title", 
-       size: 200,
-    },
+    { accessorKey: "title", header: "Title", size: 200 },
     {
       accessorKey: "startDate",
       header: "Start Date",
       cell: ({ row }) => (
         <DateCell
           value={row.original.startDate}
-          onChange={(date) => handleDateChange(row.original._clientId, "startDate", date)}
+          onChange={(date) =>
+            handleDateChange(row.original._clientId, "startDate", date)
+          }
           placeholder="Start"
         />
       ),
@@ -91,7 +129,9 @@ export const TimelineColumns = (
       cell: ({ row }) => (
         <DateCell
           value={row.original.endDate}
-          onChange={(date) => handleDateChange(row.original._clientId, "endDate", date)}
+          onChange={(date) =>
+            handleDateChange(row.original._clientId, "endDate", date)
+          }
           placeholder="End"
         />
       ),

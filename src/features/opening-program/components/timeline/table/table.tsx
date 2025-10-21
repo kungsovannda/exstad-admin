@@ -1,7 +1,4 @@
-
-
 "use client";
-
 
 import { DefaultTableDnd } from "@/components/table/default-table-dnd";
 import { TimelineType } from "@/types/opening-program";
@@ -25,8 +22,8 @@ export default function TimelineTable({
       columns={columns}
       getRowId={(row) => String(row._clientId)}
       onReorder={onReorder} // 🔑 pass callback
+      enableExport
+      exportFilename="timeline.xlsx"
     />
   );
 }
-
-

@@ -54,7 +54,7 @@ export function OpeningProgramStatisticCard({
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <DefaultStatisticCard
-        title="Total Program"
+        title="Total Opening Program"
         icon={Users}
         total={total}
         isLoading={isLoading}

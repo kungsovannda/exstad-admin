@@ -1,24 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import {
-  Clock,
-  GraduationCap,
-  UsersIcon,
-  ClipboardListIcon,
-  UserIcon,
-  Users,
-  User,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Heading } from "@/components/Heading";
-import { useGetClassesByOpeningProgramQuery } from "@/features/opening-program/components/class/classApi";
+import { useParams } from "next/navigation";
 import { toast } from "sonner";
+import { Heading } from "@/components/Heading";
+
+import { useGetClassesByOpeningProgramQuery } from "@/features/opening-program/components/class/classApi";
 import { useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/scholarApi";
 import { useGetOpeningProgramBySlugQuery } from "@/features/opening-program/openingProgramApi";
 import { ClassStatisticCard } from "@/features/opening-program/components/scholar-class.tsx/scholar-class-statistic-card";
+import DrawerInstructors from "@/features/opening-program/components/instructor-class/add-instructor/DrawerInstructor";
+import {
+  useCreateInstructorClassMutation,
+  useGetAllInstructorByClassUuidQuery,
+} from "@/features/opening-program/components/instructor-class/instructorClassApi";
+import { ClassCardItem } from "@/features/opening-program/components/scholar-class.tsx/class-card";
+import { useGetNotScholarUsersQuery } from "@/features/user/userApi";
 
 function slugToProgramName(slug: string) {
   return slug
@@ -29,116 +26,157 @@ function slugToProgramName(slug: string) {
 
 export default function ClassListPage() {
   const params = useParams();
-  const router = useRouter();
-  const programTitle = slugToProgramName(params.slug as string);
+  const programSlug = params.slug as string;
+  const programTitle = slugToProgramName(programSlug);
 
   const { data: openingProgram } = useGetOpeningProgramBySlugQuery(
-    { slug: params.slug as string },
-    {
-      skip: !params.slug,
-    }
+    { slug: programSlug },
+    { skip: !programSlug }
   );
-  const { data: scholars } = useGetAllScholarsByOpeningProgramUuidQuery(
+
+  const { data: scholars = [] } = useGetAllScholarsByOpeningProgramUuidQuery(
     openingProgram?.uuid ?? "",
     {
       skip: !openingProgram?.uuid,
       refetchOnMountOrArgChange: true,
     }
   );
-  console.log("params.slug:", params.slug);
+
+
 
   const {
     data: classes = [],
     isLoading,
     isError,
-    isFetching,
   } = useGetClassesByOpeningProgramQuery(programTitle, {
     skip: !programTitle,
     refetchOnMountOrArgChange: true,
   });
+
+  const [selectedClassUuid, setSelectedClassUuid] = useState<string | null>(
+    null
+  );
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const { data: instructorsOfSelectedClass = [], refetch: refetchInstructors } =
+    useGetAllInstructorByClassUuidQuery(selectedClassUuid ?? "", {
+      skip: !selectedClassUuid,
+      refetchOnMountOrArgChange: true,
+    });
+  const { data: instructors = [] } = useGetNotScholarUsersQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const [addInstructor] = useCreateInstructorClassMutation();
 
   if (isError) toast.error("Failed to load classes");
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <Heading title="Class" description="Class Management" />
+        <div className="flex justify-between items-center gap-10">
+          <Heading title="Class" description="Class Management" />
+        </div>
+    
+        {/* Drawer for adding instructors */}
+        <DrawerInstructors
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          instructorsClass={instructorsOfSelectedClass.map((ins) => ({
+            instructorUuid: ins.uuid,
+          }))}
+          onAddInstructor={async (instructorUuid) => {
+            if (!selectedClassUuid) {
+              toast.error("No class selected.");
+              return;
+            }
 
-        {/* Statistics Cards */}
+            try {
+              // Prevent adding duplicate instructors
+              if (
+                instructorsOfSelectedClass.some(
+                  (ic) => ic.uuid === instructorUuid
+                )
+              ) {
+                toast.info("This instructor is already added.");
+                return;
+              }
+
+              await addInstructor({
+                instructorUuid,
+                classUuid: selectedClassUuid,
+              }).unwrap();
+              toast.success("Instructor added successfully!");
+              await refetchInstructors();
+              setDrawerOpen(false);
+            } catch {
+              toast.error("Failed to add instructor.");
+            }
+          }}
+          onAddMultipleInstructors={async (instructorUuids) => {
+            if (!selectedClassUuid) {
+              toast.error("No class selected.");
+              return;
+            }
+
+            let addedCount = 0;
+
+            for (const instructorUuid of instructorUuids) {
+              try {
+                // Skip if instructor already in class
+                if (
+                  instructorsOfSelectedClass.some(
+                    (ic) => ic.uuid === instructorUuid
+                  )
+                ) {
+                  console.info(`Instructor ${instructorUuid} already in class`);
+                  continue;
+                }
+
+                await addInstructor({
+                  instructorUuid,
+                  classUuid: selectedClassUuid,
+                }).unwrap();
+                addedCount++;
+              } catch (error) {
+                console.error(
+                  `Failed to add instructor ${instructorUuid}:`,
+                  error
+                );
+              }
+            }
+
+            if (addedCount > 0) {
+              toast.success(`${addedCount} instructor(s) added successfully!`);
+              await refetchInstructors();
+            } else {
+              toast.info("No new instructors were added.");
+            }
+          }}
+        />
+
+        {/* Statistics */}
         <ClassStatisticCard
           Classes={classes}
-          scholarsCount={scholars?.length || 0}
+          scholarsCount={scholars.length}
+          instructorCount={instructors.length}
           isLoading={isLoading}
         />
-        {/* Class Cards */}
+
+        {/* ✅ Class Cards */}
         <div className="grid md:grid-cols-3 gap-6">
           {classes.map((cls) => (
-            <Card
+            <ClassCardItem
               key={cls.uuid}
-              className="bg-card border border-border shadow-sm hover:shadow-md transition cursor-pointer rounded-xl"
-            >
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="text-lg font-semibold  flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  {cls.classCode}
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="pt-4 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <User className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Instructor</p>
-                    <p className="font-medium text-sm">{cls.instructor}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Clock className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Schedule</p>
-                    <p className="font-medium text-sm">
-                      {cls.startTime} - {cls.endTime}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Slots</p>
-                    <p className="font-medium text-sm">{cls.totalSlot}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Total Scholars
-                    </p>
-                    <p className="font-medium text-sm">{}</p>
-                  </div>
-                </div>
-
-                <Button
-                  className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
-                  onClick={() =>
-                    router.push(`/opening-program/${params.slug}/${cls.uuid}`)
-                  }
-                >
-                  View Scholars
-                </Button>
-              </CardContent>
-            </Card>
+              cls={cls}
+              programSlug={programSlug}
+              onAddInstructorClick={(uuid) => {
+                setSelectedClassUuid(uuid);
+                setDrawerOpen(true);
+              }}
+              totalScholars={scholars.length}
+              totalInstructors={instructors.length}
+            />
           ))}
         </div>
       </div>

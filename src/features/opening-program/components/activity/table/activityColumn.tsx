@@ -4,12 +4,37 @@ import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { ActivityActionsCell } from "./activity-action-cell";
 import { ActivityType } from "@/types/opening-program";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const ActivityColumns = (
   activities: ActivityType[],
   action?: { onEdit?: (a: ActivityType) => void; onDelete?: (a: ActivityType) => void }
 ): ColumnDef<ActivityType>[] => {
   return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      enableResizing: false,
+      size: 30,
+    },
     { 
       accessorKey: "title", 
       header: "Title" ,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ActivityFormModal, { ActivityFormValues } from "./AcitivityModal";
 import ActivityTable from "@/features/opening-program/components/activity/table/activity-table";
@@ -25,6 +25,7 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
     useGetAllActivityQuery(openingProgram.uuid, { refetchOnMountOrArgChange: true });
 
   const activities: ActivityType[] = Array.isArray(activitiesData) ? activitiesData : [];
+  const [localActivities, setLocalActivities] = useState<ActivityType[]>([]);
 
   const [putActivities] = useUpdateActivityMutation();
   const [createDocument] = useCreateDocumentMutation();
@@ -32,35 +33,25 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentActivity, setCurrentActivity] = useState<ActivityType | null>(null);
 
-  const activitiesWithUid = useMemo(
-    () =>
-      activities.map((a, index) => ({
-        ...a,
-        uid: `${a.title}-${index}`,
-      })),
-    [activities]
-  );
+  // Initialize localActivities when fetched
+useEffect(() => {
+  // Compare arrays by length or a simple shallow equality
+  if (activities.length !== localActivities.length) {
+    setLocalActivities(activities);
+  }
+}, [activities, localActivities]);
+
 
   if (isLoading) return <div>Loading activities...</div>;
   if (isError) return <div className="text-destructive">Failed to load activities</div>;
 
-  const toPayload = (a: ActivityType): ActivityPayload => ({
-    title: a.title,
-    description: a.description,
-    image: a.image,
-  });
-
   const handleSaveActivity = async (data: ActivityFormValues, file?: File, target?: ActivityType) => {
     try {
-      const safeActivities = Array.isArray(activities) ? activities : [];
-      let newActivities: ActivityType[];
-      
-      // Handle file upload if a new file was provided
       let imageUrl = data.image;
-      
+
+      // Handle file upload
       if (file) {
         const toastId = toast.loading("Uploading image...");
-        
         try {
           const uploadResult = await createDocument({
             file,
@@ -69,33 +60,35 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
             documentType: "activity",
             filename: file.name,
           }).unwrap();
-          
-          // Get the URI from the upload result
           imageUrl = uploadResult.uri;
-          
           toast.dismiss(toastId);
-        } catch (uploadError) {
+        } catch {
           toast.dismiss(toastId);
           throw new Error("Failed to upload image");
         }
       }
 
-      const activityData = { ...data, image: imageUrl };
+      const activityData: ActivityType = { ...data, image: imageUrl };
 
+      let newActivities: ActivityType[];
       if (target) {
-        newActivities = safeActivities.map((a) =>
-          a.title === target.title &&
-          a.description === target.description &&
-          a.image === target.image
-            ? { ...a, ...activityData }
-            : a
-        );
+        // Edit: replace and move to top
+        newActivities = [activityData, ...localActivities.filter(a => a !== target)];
       } else {
-        newActivities = [...safeActivities, activityData];
+        // New: add to top
+        newActivities = [activityData, ...localActivities];
       }
 
-      const payload = newActivities.map(toPayload);
+      // Save to backend
+      const payload: ActivityPayload[] = newActivities.map(a => ({
+        title: a.title,
+        description: a.description,
+        image: a.image,
+      }));
       await putActivities({ openingProgramUuid: openingProgram.uuid, activities: payload }).unwrap();
+
+      // Update local state
+      setLocalActivities(newActivities);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error(`Failed to save: ${message}`);
@@ -105,16 +98,14 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
 
   const handleDeleteActivity = async (target: ActivityType) => {
     try {
-      const safeActivities = Array.isArray(activities) ? activities : [];
-      const newActivities = safeActivities.filter(
-        (a) =>
-          !(a.title === target.title &&
-            a.description === target.description &&
-            a.image === target.image)
-      );
-
-      const payload = newActivities.map(toPayload);
+      const newActivities = localActivities.filter(a => a !== target);
+      const payload: ActivityPayload[] = newActivities.map(a => ({
+        title: a.title,
+        description: a.description,
+        image: a.image,
+      }));
       await putActivities({ openingProgramUuid: openingProgram.uuid, activities: payload }).unwrap();
+      setLocalActivities(newActivities);
       toast.success(`Activity "${target.title}" deleted!`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -122,12 +113,12 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
     }
   };
 
-  const columns = ActivityColumns(activities, {
-    onEdit: (activity: ActivityType) => {
+  const columns = ActivityColumns(localActivities, {
+    onEdit: (activity) => {
       setCurrentActivity(activity);
       setModalOpen(true);
     },
-    onDelete: async (activity: ActivityType) => await handleDeleteActivity(activity),
+    onDelete: async (activity) => await handleDeleteActivity(activity),
   });
 
   return (
@@ -139,9 +130,7 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
           open={modalOpen}
           onOpenChange={(open) => {
             setModalOpen(open);
-            if (!open) {
-              setCurrentActivity(null);
-            }
+            if (!open) setCurrentActivity(null);
           }}
           masterProgram={masterProgram}
           openingProgram={openingProgram}
@@ -155,10 +144,10 @@ export default function ActivityAdmin({ masterProgram, openingProgram }: Props) 
 
       {isFetching ? (
         <DataTableSkeleton columnCount={4} />
-      )  : (
+      ) : (
         <ActivityTable
-          data={activitiesWithUid}
-          totalItems={activities.length}
+          data={localActivities}
+          totalItems={localActivities.length}
           columns={columns}
         />
       )}
