@@ -19,9 +19,7 @@ import {
   FileUploaderContent,
   FileUploaderItem,
 } from "@/components/ui/file-upload";
-import {
-  useCreateDocumentMutation,
-} from "@/features/document/documentApi";
+import { useCreateDocumentMutation } from "@/features/document/documentApi";
 import {
   useGetOpeningProgramBySlugQuery,
   useSetUpTemplateMutation,
@@ -43,6 +41,7 @@ import { ScholarForCertificateType } from "@/types/certificate";
 import { Scholar } from "@/types/scholar";
 import { useDownloadZipMutation } from "@/features/document/documentAccessApi";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetMasterProgramByOpeningProgramUuidQuery } from "@/features/master-program/masterProgramApi";
 
 const formSchema = z.object({
   bgImage: z.string().optional(),
@@ -87,6 +86,14 @@ export default function CertificatePage() {
       }
     );
 
+  const { data: masterProgram } = useGetMasterProgramByOpeningProgramUuidQuery(
+    { openingProgramUuid: program?.uuid ?? "" },
+    {
+      skip: !program?.uuid,
+    }
+  );
+  console.log("Master Program Slug", masterProgram?.slug);
+
   const {
     data: scholars,
     isLoading: isLoadingScholars,
@@ -94,7 +101,10 @@ export default function CertificatePage() {
     error: scholarError,
   } = useGetAllScholarsByOpeningProgramUuidQuery(program?.uuid ?? "", {
     skip: !program?.uuid,
+    refetchOnMountOrArgChange: true,
   });
+  console.log("Opening Program UUID: ", program?.uuid);
+  console.log("Scholar: ", scholars);
 
   const scholarsForCertificate: ScholarForCertificateType[] = useMemo(() => {
     let scholarsArray: Scholar[] = [];
@@ -188,7 +198,7 @@ export default function CertificatePage() {
 
     const uploadData = {
       file: files[0],
-      programSlug: program?.slug ?? "",
+      programSlug: masterProgram?.slug || "",
       gen: program?.generation ?? 1,
       documentType: "certificate" as const,
       filename: "null",
@@ -271,7 +281,7 @@ export default function CertificatePage() {
 
       try {
         const result = await generateCertificate({
-          programSlug: program?.slug ?? "",
+          programSlug: masterProgram?.slug ?? "",
           scholarUuid,
           openingProgramUuid: program?.uuid ?? "",
           bgImage: selectedTemplate,
@@ -415,7 +425,7 @@ export default function CertificatePage() {
                   type="button"
                   onClick={handleFileUpload}
                   disabled={isLoading || isSettingUpTemplate}
-                  className="w-full"
+                  className="w-full cursor-pointer"
                 >
                   {isLoading
                     ? "Uploading..."
@@ -455,7 +465,7 @@ export default function CertificatePage() {
                         key={i}
                         type="button"
                         onClick={() => handleTemplateSelection(i)}
-                        className={`relative rounded-md overflow-hidden border-2 p-0 transition-all ${
+                        className={`relative rounded-md overflow-hidden cursor-pointer border-2 p-0 transition-all ${
                           selectedIndex === i
                             ? "border-primary border-4 scale-105"
                             : "border-transparent hover:border-gray-300"
@@ -510,7 +520,7 @@ export default function CertificatePage() {
 
           <div className="flex justify-end">
             <Button
-              className="bg-primary hover:bg-primary/90 transition-colors"
+              className="bg-primary hover:bg-primary/90 transition-colors cursor-pointer"
               type="submit"
               disabled={isGenerating || isDownloadingZip}
             >
@@ -536,7 +546,8 @@ export default function CertificatePage() {
                     : "Generating Certificates"}
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Please wait while we generate your certificates. This process may take a few moments.
+                  Please wait while we generate your certificates. This process
+                  may take a few moments.
                 </AlertDialogDescription>
               </AlertDialogHeader>
 

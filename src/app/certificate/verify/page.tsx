@@ -1,19 +1,12 @@
 "use client";
-import { Heading } from "@/components/Heading";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CloudUpload, Paperclip, X } from "lucide-react";
-import Image from "next/image";
-import React, { useCallback, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import React, { useCallback, useMemo, useState } from "react";
+import Image from "next/image";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Heading } from "@/components/Heading";
 import { Button } from "@/components/ui/button";
 import {
   FileInput,
@@ -38,19 +31,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  useGetCertificateByScholarAndOpeningProgramQuery,
-  useVerifyCertificateMutation,
-} from "@/features/certificate/certificateApi";
+import { CloudUpload, Paperclip, X } from "lucide-react";
 import { ScholarTable } from "@/features/certificate/components/data-table";
 import { scholarColumn } from "@/features/certificate/components/scholar-table/columns";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { useGetAllScholarsByOpeningProgramUuidQuery } from "@/features/scholar/scholarApi";
-import { ScholarForCertificateType } from "@/types/certificate";
+import {
+  useGetCertificateByScholarAndOpeningProgramQuery,
+  useVerifyCertificateMutation,
+} from "@/features/certificate/certificateApi";
+import { useGetMasterProgramByOpeningProgramUuidQuery } from "@/features/master-program/masterProgramApi";
 import { Scholar } from "@/types/scholar";
-import { toast } from "sonner";
+import { ScholarForCertificateType } from "@/types/certificate";
+import { PdfPreview } from "@/components/pdf/PdfPreview";
 
-// Define the API response interface locally
+// Helpers
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null;
+
+const getErrorMessage = (error: unknown): string => {
+  if (isRecord(error)) {
+    const data =
+      "data" in error && isRecord((error as Record<string, unknown>).data)
+        ? ((error as Record<string, unknown>).data as Record<string, unknown>)
+        : undefined;
+    if (data && typeof data.message === "string") return data.message;
+    const msg = (error as Record<string, unknown>).message;
+    if (typeof msg === "string") return msg;
+  }
+  return "Something went wrong. Please try again.";
+};
+
 interface ScholarApiResponse {
   "opening-program-scholars": Scholar[];
 }
@@ -60,7 +71,51 @@ const formSchema = z.object({
   scholarUuid: z.string().min(1, "Please select a scholar"),
 });
 
-export default function VerifiedPage() {
+// Simple modal (custom, no shadcn)
+function Modal({
+  open,
+  onClose,
+  children,
+  title,
+  description,
+  footer,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  title: string;
+  description?: string;
+  footer?: React.ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 p-6 flex">
+        {/* Smaller modal */}
+        <div className="m-auto bg-background rounded-lg shadow-xl w-[70vw] max-w-5xl h-[70vh] overflow-hidden flex flex-col">
+          <div className="px-6 py-4 border-b flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">{title}</h2>
+              {description ? (
+                <p className="text-base text-muted-foreground">{description}</p>
+              ) : null}
+            </div>
+            {/* <Button variant="outline" onClick={onClose}>
+              Close
+            </Button> */}
+          </div>
+          <div className="flex-1 overflow-y-auto">{children}</div>
+          {footer ? (
+            <div className="border-t bg-primary/5 p-6 ">{footer}</div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function VerifyPage() {
   const [selectedProgram, setSelectedProgram] = useState("");
   const [selectedScholar, setSelectedScholar] = useState("");
   const [files, setFiles] = useState<File[] | null>(null);
@@ -70,68 +125,64 @@ export default function VerifiedPage() {
 
   const dropZoneConfig = {
     maxFiles: 1,
-    maxSize: 1024 * 1024 * 10, // 10MB
+    maxSize: 10 * 1024 * 1024,
     multiple: false,
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      programSlug: "",
-      scholarUuid: "",
-    },
+    defaultValues: { programSlug: "", scholarUuid: "" },
   });
 
+  // Programs
   const {
     data: openingPrograms,
     isError: isProgramError,
     isLoading: isProgramLoading,
   } = useGetAllOpeningProgramsQuery();
 
-  const selectedProgramData = openingPrograms?.find(
-    (program) => program.slug === selectedProgram
+  const selectedProgramData =
+    openingPrograms?.find((p) => p.slug === selectedProgram) ?? undefined;
+
+  // Master Program by Opening Program UUID (use provided endpoint)
+  const {
+    data: masterProgram,
+    isLoading: isMasterLoading,
+    isError: isMasterError,
+  } = useGetMasterProgramByOpeningProgramUuidQuery(
+    { openingProgramUuid: selectedProgramData?.uuid ?? "" },
+    { skip: !selectedProgramData?.uuid }
   );
 
-  // Get scholars when program is selected
+  // Scholars for selected program
   const {
     data: scholars,
     isLoading: isLoadingScholars,
     isError: isErrorScholars,
   } = useGetAllScholarsByOpeningProgramUuidQuery(
     selectedProgramData?.uuid ?? "",
-    {
-      skip: !selectedProgramData?.uuid,
-    }
+    { skip: !selectedProgramData?.uuid }
   );
 
   const scholarsForCertificate: ScholarForCertificateType[] = useMemo(() => {
-    let scholarsArray: Scholar[] = [];
-
+    let arr: Scholar[] = [];
     if (scholars && typeof scholars === "object" && !Array.isArray(scholars)) {
-      const scholarsResponse = scholars as ScholarApiResponse;
-      if (
-        scholarsResponse["opening-program-scholars"] &&
-        Array.isArray(scholarsResponse["opening-program-scholars"])
-      ) {
-        scholarsArray = scholarsResponse["opening-program-scholars"];
+      const res = scholars as ScholarApiResponse;
+      if (Array.isArray(res["opening-program-scholars"])) {
+        arr = res["opening-program-scholars"];
       }
     } else if (Array.isArray(scholars)) {
-      scholarsArray = scholars as Scholar[];
+      arr = scholars as Scholar[];
     }
-
-    if (!Array.isArray(scholarsArray)) {
-      return [];
-    }
-
-    return scholarsArray.map((scholar: Scholar) => ({
-      uuid: scholar.uuid || "",
-      englishName: scholar.englishName || "",
-      khmerName: scholar.khmerName || "",
+    return arr.map((s) => ({
+      uuid: s.uuid || "",
+      englishName: s.englishName || "",
+      khmerName: s.khmerName || "",
       title: selectedProgramData?.title || "",
     }));
   }, [scholars, selectedProgramData?.title]);
 
-  // Get certificates when scholar and program are selected
+  // Certificates by scholar + opening program
   const {
     data: certificates,
     isLoading: isCertificatesLoading,
@@ -141,146 +192,103 @@ export default function VerifiedPage() {
       scholarUuid: selectedScholar,
       openingProgramUuid: selectedProgramData?.uuid || "",
     },
-    {
-      skip: !selectedScholar || !selectedProgramData?.uuid,
-    }
+    { skip: !selectedScholar || !selectedProgramData?.uuid }
   );
 
   const [verifyCertificate, { isLoading: isVerifying }] =
     useVerifyCertificateMutation();
 
-  // Handle file selection and preview
+  // File upload preview
   const handleFileChange = (newFiles: File[] | null) => {
     setFiles(newFiles);
-
-    if (newFiles && newFiles.length > 0) {
-      const file = newFiles[0];
-      const url = URL.createObjectURL(file);
+    if (newFiles?.[0]) {
+      const url = URL.createObjectURL(newFiles[0]);
       setPreviewUrl(url);
     } else {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
   };
 
   React.useEffect(() => {
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
   const removeFile = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
     setFiles(null);
   };
 
   // Enforce single scholar selection
   const handleScholarSelection = useCallback(
     (scholarUuids: string[]) => {
-      // Only allow one scholar to be selected - take the first one and ignore the rest
-      const scholarUuid = scholarUuids.length > 0 ? scholarUuids[0] : "";
-      setSelectedScholar(scholarUuid);
-      form.setValue("scholarUuid", scholarUuid);
+      const uuid = scholarUuids.length > 0 ? scholarUuids[0] : "";
+      setSelectedScholar(uuid);
+      form.setValue("scholarUuid", uuid);
     },
     [form]
   );
 
-  // Helper function to check if file is PDF
-  const isPDF = (url: string | undefined): boolean => {
-    if (!url) return false;
-    return (
-      url.toLowerCase().endsWith(".pdf") || url.includes("application/pdf")
-    );
-  };
+  const isPDF = (url: string | undefined): boolean =>
+    !!url &&
+    (url.toLowerCase().endsWith(".pdf") ||
+      url.toLowerCase().includes("application/pdf"));
 
+  // Step 1: find certificates
   const handleInitialVerify = async () => {
-    try {
-      if (!files || files.length === 0) {
-        toast.error("Please select a certificate file to verify");
-        return;
-      }
+    if (!files?.[0]) {
+      toast.error("Please select a certificate file to verify");
+      return;
+    }
+    if (!selectedProgram) {
+      toast.error("Please select a program");
+      return;
+    }
+    if (!selectedScholar) {
+      toast.error("Please select a scholar");
+      return;
+    }
 
-      if (!selectedProgram) {
-        toast.error("Please select a program");
-        return;
-      }
+    await refetchCertificates();
 
-      if (!selectedScholar) {
-        toast.error("Please select a scholar");
-        return;
-      }
-
-      // Refetch certificates to ensure we have the latest data
-      await refetchCertificates();
-
-      // Show the certificate selection dialog
-      if (certificates && certificates.length > 0) {
-        setShowCertificateDialog(true);
-      } else {
-        toast.error(
-          "No certificates found for the selected scholar and program"
-        );
-      }
-    } catch (error: unknown) {
-      console.log("Error fetching certificates:", error);
-      toast.error("An error occurred while fetching certificates");
+    if (certificates && certificates.length > 0) {
+      setShowCertificateDialog(true);
+    } else {
+      toast.error("No certificates found for the selected scholar and program");
     }
   };
 
-  // Handle final verification with selected certificate
+  // Step 2: verify against selected certificate
+  // CHANGE: programSlug must be masterProgram.slug fetched by opening program UUID
   const handleFinalVerify = async () => {
     try {
-      if (!files || !selectedCertificateUuid || !selectedProgram) {
+      if (!files?.[0] || !selectedCertificateUuid || !masterProgram?.slug) {
         toast.error("Missing required information");
         return;
       }
 
       const result = await verifyCertificate({
         file: files[0],
-        programSlug: selectedProgram,
+        programSlug: masterProgram.slug,
         certificateUuid: selectedCertificateUuid,
       }).unwrap();
 
       setShowCertificateDialog(false);
 
-      
       if (result.isVerified) {
-        toast.success(
-          <div className="space-y-2">
-            <p className="font-semibold">Certificate Verified Successfully!</p>
-          </div>
-        );
+        toast.success("Certificate Verified Successfully!");
       } else {
-        toast.error(
-          <div className="space-y-2">
-            <p className="font-semibold">Certificate Verification Failed</p>
-          </div>
-        );
+        toast.error("Certificate Verification Failed");
       }
 
-      // Reset form after verification
       setFiles(null);
       setPreviewUrl(null);
       setSelectedCertificateUuid("");
-    } catch (error: unknown) {
-      const errorMessage =
-        error &&
-        typeof error === "object" &&
-        "data" in error &&
-        error.data &&
-        typeof error.data === "object" &&
-        "message" in error.data
-          ? (error.data.message as string)
-          : "Failed to verify certificate. Please try again.";
-
-      toast.error(errorMessage);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
       setShowCertificateDialog(false);
     }
   };
@@ -289,7 +297,7 @@ export default function VerifiedPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
           <p>Loading programs...</p>
         </div>
       </div>
@@ -318,8 +326,8 @@ export default function VerifiedPage() {
         </div>
 
         <div className="flex gap-10 justify-between">
+          {/* Left: Program + File */}
           <div className="flex flex-col max-w-xl w-full gap-4">
-            {/* Program Selection */}
             <FormField
               control={form.control}
               name="programSlug"
@@ -331,10 +339,9 @@ export default function VerifiedPage() {
                   <FormControl>
                     <Select
                       value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        setSelectedProgram(value);
-                        // Reset scholar selection when program changes
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        setSelectedProgram(val);
                         setSelectedScholar("");
                         form.setValue("scholarUuid", "");
                       }}
@@ -359,7 +366,7 @@ export default function VerifiedPage() {
               )}
             />
 
-            {/* File Upload with PDF Preview */}
+            {/* File upload with live preview */}
             <div>
               <FormLabel>
                 Certificate File <span className="text-red-600">*</span>
@@ -388,14 +395,12 @@ export default function VerifiedPage() {
                       </div>
                     </FileInput>
                     <FileUploaderContent>
-                      {files &&
-                        files.length > 0 &&
-                        files.map((file, i) => (
-                          <FileUploaderItem key={i} index={i}>
-                            <Paperclip className="h-4 w-4 stroke-current" />
-                            <span>{file.name}</span>
-                          </FileUploaderItem>
-                        ))}
+                      {files?.map((file, i) => (
+                        <FileUploaderItem key={i} index={i}>
+                          <Paperclip className="h-4 w-4 stroke-current" />
+                          <span>{file.name}</span>
+                        </FileUploaderItem>
+                      ))}
                     </FileUploaderContent>
                   </FileUploader>
                 ) : (
@@ -411,20 +416,11 @@ export default function VerifiedPage() {
                     <div className="space-y-2">
                       <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
                         {files?.[0]?.type === "application/pdf" ? (
-                          
-                          <div className="w-full h-full relative">
-                            <object
-                              data={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-fit`}
-                              type="application/pdf"
-                              className="w-full h-full min-h-[384px]"
-                            >
-                              <embed
-                                src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-fit`}
-                                type="application/pdf"
-                                className="w-full h-full min-h-[384px]"
-                              />
-                            </object>
-                          </div>
+                          <object
+                            data={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-fit`}
+                            type="application/pdf"
+                            className="w-full h-full min-h-[384px]"
+                          />
                         ) : files?.[0]?.type.startsWith("image/") ? (
                           <Image
                             src={previewUrl}
@@ -440,8 +436,9 @@ export default function VerifiedPage() {
                                 {files?.[0]?.name}
                               </p>
                               <p className="text-xs text-gray-400">
-                                {files?.[0] &&
-                                  (files[0].size / 1024 / 1024).toFixed(2)}{" "}
+                                {files?.[0]
+                                  ? (files[0].size / 1024 / 1024).toFixed(2)
+                                  : "0"}{" "}
                                 MB
                               </p>
                             </div>
@@ -458,11 +455,12 @@ export default function VerifiedPage() {
             </div>
           </div>
 
+          {/* Right: Scholar selection */}
           <div className="flex flex-col flex-1 w-full gap-3">
             <FormField
               control={form.control}
               name="scholarUuid"
-              render={({}) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>
                     Choose Scholar
@@ -482,7 +480,7 @@ export default function VerifiedPage() {
                       </div>
                     ) : isLoadingScholars ? (
                       <div className="border rounded-lg p-8 text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
                         <p>Loading scholars...</p>
                       </div>
                     ) : isErrorScholars ? (
@@ -515,7 +513,7 @@ export default function VerifiedPage() {
         <div className="flex justify-end">
           <Button
             type="button"
-            className="bg-primary"
+            className="bg-primary cursor-pointer"
             disabled={
               isCertificatesLoading ||
               !files ||
@@ -533,149 +531,123 @@ export default function VerifiedPage() {
           </Button>
         </div>
 
-        {/* Enhanced Certificate Selection Dialog */}
-        <AlertDialog
+        {/* Certificate selection modal with inline preview (PDF via blob/proxy) */}
+        <Modal
           open={showCertificateDialog}
-          onOpenChange={setShowCertificateDialog}
-        >
-          <AlertDialogContent className="max-w-[95vw] max-h-[85vh] overflow-hidden w-[95vw] h-[85vh] p-0">
-            <div className="flex flex-col h-full">
-              <AlertDialogHeader className="px-6 py-4 border-b flex-shrink-0">
-                <AlertDialogTitle className="text-2xl">
-                  Select Certificate to Verify
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-base">
-                  Which certificate do you want to verify? Click on a
-                  certificate to select it.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-
-              {/* Updated certificate grid with no PDF embedding */}
-              <div className="flex-1 overflow-y-auto p-6">
-                {certificates && certificates.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-2">
-                    {certificates.map((certificate) => {
-                      const certificateUrl =
-                        certificate.tempCertificateUrl ||
-                        certificate.certificateUrl;
-                      const isPDFFile = isPDF(certificateUrl);
-
-                      return (
-                        <div
-                          key={certificate.uuid}
-                          className={`relative border-2 rounded-lg p-2 cursor-pointer transition-all hover:shadow-lg ${
-                            selectedCertificateUuid === certificate.uuid
-                              ? "border-primary border-2 scale-[1.02] shadow-xl"
-                              : "border-primary/10 hover:border-primary/2"
-                          }`}
-                          onClick={() =>
-                            setSelectedCertificateUuid(certificate.uuid)
-                          }
-                        >
-                          <div className="space-y-3">
-                            {/* Simplified Preview Area - No PDF embedding */}
-                            <div className="relative w-full h-32 bg-primary rounded-lg overflow-hidden border flex items-center justify-center">
-                              {certificateUrl ? (
-                                isPDFFile ? (
-                                  <div className="text-center p-4">
-                                    <a
-                                      href={certificateUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      Preview
-                                    </a>
-                                  </div>
-                                ) : (
-                                  <Image
-                                    src={certificateUrl}
-                                    alt={`Certificate ${
-                                      certificate.fileName || certificate.uuid
-                                    }`}
-                                    fill
-                                    className="object-contain p-2"
-                                    onError={(e) => {
-                                      e.currentTarget.src =
-                                        "/images/placeholder.png";
-                                    }}
-                                  />
-                                )
-                              ) : (
-                                // No URL available
-                                <div className="text-center">
-                                  <p className="text-sm text-accent-foreground/50">
-                                    No Preview Available
-                                  </p>
-                                  <p className="text-xs text-gray-400 mt-1">
-                                    {certificate.fileName ||
-                                      certificate.uuid.slice(0, 8)}
-                                    ...
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-64">
-                    <div className="text-center">
-                      <p className="text-accent-foreground/50 text-xl">
-                        No certificates found for the selected scholar and
-                        program.
-                      </p>
-                      <p className="text-accent-foreground/30 text-base mt-2">
-                        Try selecting a different scholar or program.
-                      </p>
-                    </div>
-                  </div>
-                )}
+          onClose={() => {
+            setShowCertificateDialog(false);
+            setSelectedCertificateUuid("");
+          }}
+          title="Select Certificate to Verify"
+          description="Which certificate do you want to verify? Click on a certificate to select it."
+          footer={
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-accent-foreground/50 cursor-pointer">
+                {selectedCertificateUuid && certificates?.length
+                  ? "1 certificate selected"
+                  : "Please select a certificate to verify"}
               </div>
-
-              <div className="flex justify-between items-center gap-4 p-6 border-t flex-shrink-0 bg-primary/5">
-                <div className="text-sm text-accent-foreground/50">
-                  {selectedCertificateUuid && certificates?.length ? (
-                    <span className="font-medium text-primary">
-                      1 certificate selected
-                    </span>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowCertificateDialog(false);
+                    setSelectedCertificateUuid("");
+                  }}
+                  className="px-6 py-2 cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleFinalVerify}
+                  disabled={
+                    !selectedCertificateUuid ||
+                    isVerifying ||
+                    isMasterLoading ||
+                    isMasterError ||
+                    !masterProgram?.slug
+                  }
+                  className="bg-primary px-6 py-2 cursor-pointer"
+                >
+                  {isVerifying ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 cursor-pointer border-white border-t-transparent rounded-full animate-spin" />
+                      Verifying...
+                    </div>
                   ) : (
-                    <span>Please select a certificate to verify</span>
+                    "Verify Certificate"
                   )}
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowCertificateDialog(false);
-                      setSelectedCertificateUuid("");
-                    }}
-                    className="px-6 py-2"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleFinalVerify}
-                    disabled={!selectedCertificateUuid || isVerifying}
-                    className="bg-primary px-6 py-2"
-                  >
-                    {isVerifying ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Verifying...
-                      </div>
-                    ) : (
-                      "Verify Certificate"
-                    )}
-                  </Button>
-                </div>
+                </Button>
               </div>
             </div>
-          </AlertDialogContent>
-        </AlertDialog>
+          }
+        >
+          <div className="p-6">
+            {certificates && certificates.length > 0 ? (
+              // 3-column responsive grid
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 cursor-pointer">
+                {certificates.map((certificate) => {
+                  const rawUrl =
+                    certificate.tempCertificateUrl ||
+                    certificate.certificateUrl;
+                  const pdf = isPDF(rawUrl);
+
+                  return (
+                    <button
+                      key={certificate.uuid}
+                      type="button"
+                      className={`group relative rounded-xl border p-3 text-left transition-all hover:shadow-md ${
+                        selectedCertificateUuid === certificate.uuid
+                          ? "border-primary ring-2 ring-primary/30"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                      onClick={() =>
+                        setSelectedCertificateUuid(certificate.uuid)
+                      }
+                    >
+                      {/* Uniform card size via aspect ratio */}
+                      <div className="relative w-full aspect-[4/3] bg-white rounded-lg overflow-hidden">
+                        {rawUrl ? (
+                          pdf ? (
+                            <PdfPreview
+                              src={rawUrl}
+                              className="absolute inset-0 w-full h-full pointer-events-none"
+                              toolbar={false}
+                            />
+                          ) : (
+                            <Image
+                              src={rawUrl}
+                              alt={`Certificate ${
+                                certificate.fileName || certificate.uuid
+                              }`}
+                              fill
+                              className="object-contain p-2"
+                            />
+                          )
+                        ) : (
+                          <div className="absolute inset-0 grid place-items-center text-xs text-muted-foreground">
+                            No Preview
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <p className="text-accent-foreground/50 text-xl">
+                    No certificates found for the selected scholar and program.
+                  </p>
+                  <p className="text-accent-foreground/30 text-base mt-2">
+                    Try selecting a different scholar or program.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
       </div>
     </Form>
   );
