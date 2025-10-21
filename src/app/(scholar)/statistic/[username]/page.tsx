@@ -36,7 +36,7 @@ import { useGetCurrentAddressesQuery } from "@/features/current-address/currentA
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllScholarAchievementsQuery } from "@/features/scholar-achievement/scholarAchievementApi";
 import { useGetScholarByUsernameQuery } from "@/features/scholar/scholarApi";
-import ScholarCareerSetUp from "@/features/scholar/statistic/components/ScholarCareerSetUp";
+import ScholarCareerSetUpComponent from "@/features/scholar/statistic/components/ScholarCareerSetUpComponent";
 import ScholarSpecialistSetUp from "@/features/scholar/statistic/components/ScholarSpecialistSetUp";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
 import { UpdateScholar } from "@/types/scholar";
@@ -352,7 +352,7 @@ export default function ScholarDetails() {
               <Button disabled={updateScholar == null}>Save Changes</Button>
             </div>
 
-            <ScholarCareerSetUp scholar={scholar ?? null} />
+            <ScholarCareerSetUpComponent scholar={scholar ?? null} />
             <ScholarSpecialistSetUp scholar={scholar ?? null} />
 
             <div className="flex items-center mt-10 justify-between">

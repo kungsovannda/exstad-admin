@@ -12,11 +12,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Scholar } from "@/types/scholar";
+import { Scholar, ScholarCareerSetUp } from "@/types/scholar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+  useAssignCareersMutation,
+  useMarkIsEmployedMutation,
+} from "../../scholarApi";
 
 const formSchema = z.object({
   isEmployed: z.boolean(),
@@ -27,22 +31,47 @@ const formSchema = z.object({
   interest: z.string(),
 });
 
-export default function ScholarCareerSetUp({
+export default function ScholarCareerSetUpComponent({
   scholar,
 }: {
   scholar: Scholar | null;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      isEmployed: scholar?.isEmployed ?? false,
+      company: scholar?.careers?.[0].company ?? "",
+      companyType: scholar?.careers?.[0].companyType ?? "",
+      position: scholar?.careers?.[0].position ?? "",
+      salary: scholar?.careers?.[0].salary ?? 0,
+      interest: scholar?.careers?.[0].interest ?? "",
+    },
   });
+
+  const [assignCareer] = useAssignCareersMutation();
+  const [markEmployed] = useMarkIsEmployedMutation();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
+      if (!values && !scholar) return;
+      const payload: ScholarCareerSetUp = { ...values };
+      toast.promise(markEmployed(scholar?.uuid ?? "").unwrap(), {
+        loading: "Marking...",
+      });
+      toast.promise(
+        assignCareer({
+          scholarUuid: scholar?.uuid ?? "",
+          careerSetups: [payload],
+        }).unwrap(),
+        {
+          loading: "Assigning...",
+          success: () => {
+            return "Career assigned successfully!";
+          },
+          error: (error) => {
+            return `Failed to assign scholar careers: ${error.message}`;
+          },
+        }
       );
     } catch (error) {
       console.error("Form submission error", error);
@@ -61,7 +90,6 @@ export default function ScholarCareerSetUp({
         <FormField
           control={form.control}
           name="isEmployed"
-          defaultValue={scholar.isEmployed}
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
@@ -73,7 +101,7 @@ export default function ScholarCareerSetUp({
               <div className="space-y-1 leading-none">
                 <FormLabel>Scholar Career</FormLabel>
                 <FormDescription>
-                  Enable this option to set up your scholar career.
+                  Enable this option to set up your scholar careers.
                 </FormDescription>
                 <FormMessage />
               </div>
@@ -149,7 +177,19 @@ export default function ScholarCareerSetUp({
                   <FormItem>
                     <FormLabel>Salary</FormLabel>
                     <FormControl>
-                      <Input placeholder="" type="number" {...field} />
+                      <Input
+                        placeholder=""
+                        type="number"
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === ""
+                              ? undefined
+                              : Number(e.target.value)
+                          )
+                        }
+                      />
                     </FormControl>
 
                     <FormMessage />
