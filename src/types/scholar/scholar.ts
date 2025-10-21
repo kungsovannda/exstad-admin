@@ -24,5 +24,6 @@ export type Scholar = {
   isEmployed: boolean;
   quote: string;
   audit: Audit;
-  badges: BadgeForScholar[];
+  badges: BadgeForScholar[];  
+  completedCourses: string;
 };

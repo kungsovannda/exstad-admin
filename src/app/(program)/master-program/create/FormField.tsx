@@ -47,7 +47,7 @@ export const programFormSchema = z.object({
   visibility: z.enum(["PUBLIC", "PRIVATE"]),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
-  logoUrl: z.string().min(1, { message: "Poster is required" }),
+  logoUrl: z.string().min(1, { message: "Logo is required" }),
   bgColor: z.string().min(1, { message: "Theme color is required" }),
   slug: z
     .string()

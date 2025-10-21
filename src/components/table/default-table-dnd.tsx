@@ -35,14 +35,20 @@ import { Input } from "@/components/ui/input";
 import { getCommonPinningStyles } from "@/services/data-table";
 import { DataTablePagination } from "@/components/table/data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
+import { exportToExcel } from "@/services/export-to-excel";
+import ExportToExcelModal from "@/components/ExportToExcelModal";
 
 interface DefaultTableDndProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   totalItems: number;
   getRowId: (row: TData) => string | number;
-  onReorder?: (newData: TData[]) => void; // callback to parent/backend
+  onReorder?: (newData: TData[]) => void;
   isPagination?: boolean;
+  enableExport?: boolean; // ✅ new prop
+  exportFilename?: string; // ✅ new prop
 }
 
 function SortableRow({
@@ -74,11 +80,13 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
   getRowId,
   onReorder,
   isPagination = true,
+  enableExport = false, // ✅ default off
+  exportFilename = "export.xlsx", // ✅ default filename
 }: DefaultTableDndProps<TData>) {
   const [search, setSearch] = useState("");
   const [dragData, setDragData] = useState(data);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
-  // Sync local dragData when parent data changes
   useEffect(() => {
     setDragData(data);
   }, [data]);
@@ -117,16 +125,37 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const handleExport = async (selectedFields: string[]) => {
+    await exportToExcel({
+      data,
+      selectedFields,
+      filename: exportFilename,
+    });
+  };
+
   return (
     <div className="flex flex-col space-y-4 min-h-[560px]">
       <div className="flex items-center justify-between">
-      <Input
-        placeholder="Search..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-52"
-      />
-            <DataTableToolbar table={table} />
+        <Input
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-8 w-40 lg:w-56"
+        />
+        <DataTableToolbar table={table}>
+          {enableExport && (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={table.getSelectedRowModel().rows.length === 0} 
+              onClick={() => setIsExportModalOpen(true)}
+              className="h-8" // match toolbar height
+            >
+              <Printer className="mr-1 h-4 w-4" />
+              Export
+            </Button>
+          )}
+        </DataTableToolbar>
       </div>
 
       <DndContext
@@ -149,7 +178,9 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
                           key={header.id}
                           colSpan={header.colSpan}
                           style={{
-                            ...getCommonPinningStyles({ column: header.column }),
+                            ...getCommonPinningStyles({
+                              column: header.column,
+                            }),
                           }}
                         >
                           {header.isPlaceholder
@@ -175,9 +206,13 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
                           <TableCell
                             key={cell.id}
                             style={{
-                              ...getCommonPinningStyles({ column: cell.column }),
+                              ...getCommonPinningStyles({
+                                column: cell.column,
+                              }),
                             }}
-                            className={index % 2 === 0 ? "bg-primary/5" : "bg-primary/2"}
+                            className={
+                              index % 2 === 0 ? "bg-primary/5" : "bg-primary/2"
+                            }
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
@@ -189,7 +224,10 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
                         No results found.
                       </TableCell>
                     </TableRow>
@@ -203,6 +241,15 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
       </DndContext>
 
       {isPagination && <DataTablePagination table={table} />}
+
+      {enableExport && isExportModalOpen && (
+        <ExportToExcelModal
+          data={filteredData}
+          open={isExportModalOpen}
+          onOpenChange={setIsExportModalOpen}
+          onExport={handleExport}
+        />
+      )}
     </div>
   );
 }

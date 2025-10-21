@@ -33,7 +33,7 @@ export type MasterProgramType = {
   curricula: CurriculumType[];
   visibility: visibility;
   status: status;
-  // audit: Audit;
+  audit: Audit;
 };
 
 export type MasterProgramCreate = {

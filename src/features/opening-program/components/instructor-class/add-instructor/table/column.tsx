@@ -1,17 +1,15 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserProfileCell } from "@/features/enrollment/components/table/user-profile-cell";
-import { Scholar } from "@/types/scholar";
 import { ColumnDef } from "@tanstack/react-table";
-import ScholarClassActionsCell from "./cell-action";
+import { User } from "@/types/user";
+import InstructorClassActionsCell from "./cell-action";
 
-export const addScholarClassColumns = (
-  handleAddScholar: (scholar: Scholar) => void,
+export const addInstructorClassColumns = (
+  handleAddInstructor: (instructor: User) => void,
   isAdding: boolean,
-  scholarsClass: { scholarUuid: string }[] = [] 
+  instructorClass: { instructorUuid: string }[] = [] 
 
-): ColumnDef<Scholar>[] => {
-  return [
-
+): ColumnDef<User>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -47,7 +45,7 @@ export const addScholarClassColumns = (
     size: 500,
     cell: ({ row }) => (
       <UserProfileCell
-        avatar={row.original.avatar}
+        avatar={row.original.avatar ?? ""}
         name={row.original.englishName}
         title={row.original.email}
       />
@@ -58,19 +56,18 @@ export const addScholarClassColumns = (
     header: "Actions",
     size: 100,
     cell: ({ row }) => {
-      const isAlreadyAdded = scholarsClass.some(
-        (sc) => sc.scholarUuid === row.original.uuid
+      const isAlreadyAdded = instructorClass.some(
+        (ic) => ic.instructorUuid === row.original.uuid
       );
 
       return (
-        <ScholarClassActionsCell
+        <InstructorClassActionsCell
           data={row.original}
-          onAddScholar={handleAddScholar}
+          onAddInstructors={handleAddInstructor}
           isLoading={isAdding}
           isAlreadyAdded={isAlreadyAdded} 
         />
       );
     },
   }
-]
-};
+];

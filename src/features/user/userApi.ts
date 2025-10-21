@@ -30,6 +30,22 @@ export const userApi = createApi({
       providesTags: [{ type: "User", id: "LIST" }],
     }),
 
+    // GET all Instructor 
+    getAllInstructors: builder.query<User[], void>({
+      query: () => "/users",
+      transformResponse: (response: { users?: User[] }) => response.users ?? [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map(({ uuid }) => ({
+                type: "User" as const,
+                id: uuid,
+              })),
+              { type: "User", id: "LIST" },
+            ]
+          : [{ type: "User", id: "LIST" }],
+    }),
+
     // 🔍 GET user by UUID
     getUserByUuid: builder.query<User, string>({
       query: (uuid) => `/users/${uuid}`,
@@ -67,6 +83,7 @@ export const userApi = createApi({
 export const {
   useGetAllUsersQuery,
   useGetNotScholarUsersQuery,
+  useGetAllInstructorsQuery,
   useGetUserByUuidQuery,
   useGetUserByEmailQuery,
   useGetCurrentUserQuery,

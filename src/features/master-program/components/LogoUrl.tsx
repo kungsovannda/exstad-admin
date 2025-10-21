@@ -133,7 +133,6 @@ export function LogoUploadField({
               )}
             </div>
           </FormControl>
-          <FormMessage />
         </FormItem>
       )}
     />

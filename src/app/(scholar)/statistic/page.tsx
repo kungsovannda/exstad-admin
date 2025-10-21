@@ -55,7 +55,6 @@ export default function StatisticPage() {
           <span>Add Scholar</span>
         </Button>
       </div>
-
       <StatisticCard />
       <ScholarCharts />
       <Card className="flex flex-col space-y-4 rounded-lg shadow-sm">
