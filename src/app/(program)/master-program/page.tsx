@@ -16,7 +16,7 @@ import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openin
 import { sortByAudit } from "@/utils/sortByAudit";
 import { Option } from "@/types/data-table";
 
-export default function Page() {
+export default function Page() { 
   const {
     data: masterProgram = [],
     isLoading,
