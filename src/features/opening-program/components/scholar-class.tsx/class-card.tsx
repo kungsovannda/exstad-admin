@@ -3,6 +3,7 @@
 import {
   useGetAllInstructorByClassUuidQuery,
   useDeleteInstructorClassMutation,
+  useGetAllInstructorClassesByClassUuidQuery,
 } from "../instructor-class/instructorClassApi";
 import { Button } from "@/components/ui/button";
 import { Clock, Users, Trash2, GraduationCap } from "lucide-react";
@@ -23,22 +24,23 @@ export function ClassCardItem({
   programSlug,
   onAddInstructorClick,
   totalScholars,
-  totalInstructors,
 }: {
   cls: ClassType;
   programSlug: string;
   onAddInstructorClick: (uuid: string) => void;
   totalScholars: number;
-  totalInstructors: number;
 }) {
   const {
     data: instructors = [],
     isLoading,
     refetch,
-  } = useGetAllInstructorByClassUuidQuery(cls.uuid);
+  } = useGetAllInstructorClassesByClassUuidQuery(cls.uuid);
   const [deleteInstructor] = useDeleteInstructorClassMutation();
-  const router = useRouter();
 
+// Compute totalInstructors
+const totalInstructors = instructors?.length ?? 0;
+
+  const router = useRouter();
   const handleDeleteInstructor = async (uuid: string) => {
     try {
       await deleteInstructor(uuid).unwrap();
@@ -135,7 +137,7 @@ export function ClassCardItem({
                       key={ins.uuid}
                         className="bg-primary/10 px-2 py-1 rounded-full text-xs flex items-center gap-1"
                     >
-                      {ins.username}
+                      {ins.instructorUsername}
                       <Trash2
                         className="h-3 w-3 cursor-pointer text-red-500"
                         onClick={() => handleDeleteInstructor(ins.uuid)}
@@ -155,7 +157,7 @@ export function ClassCardItem({
         <Button
           className="w-full mt-4 bg-primary   text-primary-foreground hover:bg-primary/90 font-medium"
           onClick={() =>
-            router.push(`/opening-program/${programSlug}/${cls.uuid}`)
+            router.push(`/opening-program/${programSlug}/${cls.classCode}`)
           }
         >
           View Scholars

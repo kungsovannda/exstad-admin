@@ -15,6 +15,7 @@ import ProgramPieCard from "@/features/master-program/components/opening-program
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { sortByAudit } from "@/utils/sortByAudit";
 import { Option } from "@/types/data-table";
+import ProgramBarCard from "@/features/master-program/components/opening-program-chart";
 
 export default function Page() { 
   const {
@@ -67,7 +68,7 @@ export default function Page() {
       />
       <div className="grid grid-cols-2 gap-5 h-fit">
         <LevelPieCard levelCounts={levelCounts} />
-        <ProgramPieCard data={openingCounts} />
+        <ProgramBarCard data={openingCounts} />
       </div>
 
       {isLoading ? (

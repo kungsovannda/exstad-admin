@@ -33,6 +33,18 @@ export const InstructorClassApi = createApi({
             ]
           : [{ type: "InstructorClass", id: "LIST" }],
     }),
+  getAllInstructorClassesByClassUuid: builder.query<InstructorClassType[], string>({
+    query: (classUuid) => `/instructor-classes/by-class-uuid/${classUuid}`,
+    transformResponse: (response: { "instructors-classes": InstructorClassType[] }) =>
+      response["instructors-classes"] ?? [],
+    providesTags: (result) =>
+      result?.length
+        ? [
+            ...result.map(({ uuid }) => ({ type: "InstructorClass" as const, id: uuid })),
+            { type: "InstructorClass", id: "LIST" },
+          ]
+        : [{ type: "InstructorClass", id: "LIST" }],
+  }),
 
     // GET all scholar class by class UUID
        getScholarClassesByClassUuid: builder.query<InstructorClassType[], string>({
@@ -100,6 +112,7 @@ export const InstructorClassApi = createApi({
 export const {
   useGetAllScholarClassesQuery,
   useGetAllInstructorByClassUuidQuery,
+  useGetAllInstructorClassesByClassUuidQuery,
   useGetScholarClassesByClassUuidQuery,
   useCreateInstructorClassMutation,
   useUpdateScholarClassMutation,

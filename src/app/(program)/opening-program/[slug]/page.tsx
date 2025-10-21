@@ -42,8 +42,6 @@ export default function ClassListPage() {
     }
   );
 
-
-
   const {
     data: classes = [],
     isLoading,
@@ -77,7 +75,7 @@ export default function ClassListPage() {
         <div className="flex justify-between items-center gap-10">
           <Heading title="Class" description="Class Management" />
         </div>
-    
+
         {/* Drawer for adding instructors */}
         <DrawerInstructors
           open={drawerOpen}
@@ -175,7 +173,6 @@ export default function ClassListPage() {
                 setDrawerOpen(true);
               }}
               totalScholars={scholars.length}
-              totalInstructors={instructors.length}
             />
           ))}
         </div>
