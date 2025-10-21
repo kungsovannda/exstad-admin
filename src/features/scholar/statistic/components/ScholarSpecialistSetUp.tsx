@@ -19,15 +19,15 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  isEmployed: z.boolean(),
-  company: z.string().min(1),
-  companyType: z.string().min(1),
-  position: z.string().min(1),
-  salary: z.number(),
-  interest: z.string(),
+  isAbroad: z.boolean(),
+  universityName: z.string().min(1),
+  degreeType: z.string().min(1),
+  country: z.string().min(1),
+  specialist: z.number(),
+  about: z.string(),
 });
 
-export default function ScholarCareerSetUp({
+export default function ScholarSpecialistSetUp({
   scholar,
 }: {
   scholar: Scholar | null;
@@ -60,8 +60,8 @@ export default function ScholarCareerSetUp({
       >
         <FormField
           control={form.control}
-          name="isEmployed"
-          defaultValue={scholar.isEmployed}
+          name="isAbroad"
+          defaultValue={scholar.isAbroad}
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
@@ -71,9 +71,9 @@ export default function ScholarCareerSetUp({
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Scholar Career</FormLabel>
+                <FormLabel>Scholar Abroad</FormLabel>
                 <FormDescription>
-                  Enable this option to set up your scholar career.
+                  Enable this option to set up scholar abroad
                 </FormDescription>
                 <FormMessage />
               </div>
@@ -81,19 +81,19 @@ export default function ScholarCareerSetUp({
           )}
         />
         <div
-          hidden={!form.watch("isEmployed")}
+          hidden={!form.watch("isAbroad")}
           className="flex flex-col space-y-3 mt-4"
         >
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="company"
+                name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company</FormLabel>
+                    <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Input placeholder="ISTAD" type="" {...field} />
+                      <Input placeholder="Korea" type="" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -105,12 +105,12 @@ export default function ScholarCareerSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="companyType"
+                name="universityName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company Type</FormLabel>
+                    <FormLabel>University</FormLabel>
                     <FormControl>
-                      <Input placeholder="Institute" type="" {...field} />
+                      <Input placeholder="ISTAD" type="" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,16 +123,12 @@ export default function ScholarCareerSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="position"
+                name="degreeType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Position</FormLabel>
+                    <FormLabel>Degree</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Software Developer"
-                        type=""
-                        {...field}
-                      />
+                      <Input placeholder="Master" type="" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -144,12 +140,12 @@ export default function ScholarCareerSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="salary"
+                name="specialist"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Salary</FormLabel>
+                    <FormLabel>Specialist</FormLabel>
                     <FormControl>
-                      <Input placeholder="" type="number" {...field} />
+                      <Input placeholder="AI" type="" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -161,20 +157,22 @@ export default function ScholarCareerSetUp({
 
           <FormField
             control={form.control}
-            name="interest"
+            name="about"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Interest</FormLabel>
+                <FormLabel>About</FormLabel>
                 <FormControl>
                   <Textarea placeholder="" className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>Their interest about ISTAD</FormDescription>
+                <FormDescription>
+                  Their stroy. e.g ITE Generation 1...
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <div className="flex justify-end" hidden={!form.formState.isDirty}>
-            <Button type="submit">Save Career</Button>
+            <Button type="submit">Save Abroad</Button>
           </div>
         </div>
       </form>
