@@ -1,4 +1,5 @@
 "use client";
+
 import { MasterProgramStatisticCard } from "@/features/master-program/components/section-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -13,17 +14,17 @@ import LevelPieCard from "@/features/master-program/components/program-level-cha
 import ProgramPieCard from "@/features/master-program/components/opening-program-chart";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { sortByAudit } from "@/utils/sortByAudit";
+import { Option } from "@/types/data-table";
 
 export default function Page() {
   const {
     data: masterProgram = [],
     isLoading,
-    error,
   } = useGetAllMasterProgramsQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
-  const { data: openingPrograms = [], isLoading: isLoadingOpening } =
-    useGetAllOpeningProgramsQuery();
+
+  const { data: openingPrograms = [] } = useGetAllOpeningProgramsQuery();
 
   const levelCounts = masterProgram.reduce(
     (acc, program) => {
@@ -35,19 +36,17 @@ export default function Page() {
     },
     { basic: 0, intermediate: 0, advanced: 0 }
   );
+
   const openingCounts = masterProgram.map((mp) => {
     const count = openingPrograms.filter(
       (op) => op.programName?.toLowerCase() === mp.title?.toLowerCase()
     ).length;
-
-    return {
-      name: mp.title,
-      count,
-    };
+    return { name: mp.title, count };
   });
 
   const programs: MasterProgramType[] = sortByAudit(masterProgram);
   const columns = masterProgramColumns(programs);
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center gap-10">
@@ -83,4 +82,3 @@ export default function Page() {
     </div>
   );
 }
-  

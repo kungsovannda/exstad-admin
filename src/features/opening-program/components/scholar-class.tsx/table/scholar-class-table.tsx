@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { useMarkCompletedCourseMutation } from "@/features/scholar/scholarApi";
 import { toast } from "sonner";
+import { exportToExcel } from "@/services/export-to-excel";
+import { Printer } from "lucide-react";
+import ExportToExcelModal from "@/components/ExportToExcelModal";
+
 
 interface ScholarClassDataTableProps {
   data: ScholarClassType[];
@@ -27,7 +31,6 @@ export default function ScholarClassDataTable({
 }: ScholarClassDataTableProps) {
   const [isMarkCompletedCourse, setIsMarkCompletedCourse] = useState(false);
   const [markCompletedCourse, { isLoading }] = useMarkCompletedCourseMutation();
-
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
     ? Number(searchParams.get("perPage"))
@@ -43,7 +46,14 @@ export default function ScholarClassDataTable({
     enableColumnFilters: true,
     enableSorting: true,
   });
-
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const handleExport = async (selectedFields: string[]) => {
+        await exportToExcel({
+          data,
+          selectedFields,
+          filename: "master-program.xlsx",
+        });
+      };
   const handleMarkCompleted = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
     if (selectedRows.length === 0) return;
@@ -109,7 +119,24 @@ export default function ScholarClassDataTable({
             ? "Completed"
             : "Mark Completed Course"}
         </Button>
+          <Button
+              size={"sm"}
+              variant={"outline"}
+              disabled={table.getSelectedRowModel().rows.length === 0}
+              onClick={() => setIsExportModalOpen(true)}
+            >
+              <Printer />
+              Export
+            </Button>
       </DataTableToolbar>
+       {isExportModalOpen && (
+                  <ExportToExcelModal
+                    data={data}
+                    open={isExportModalOpen}
+                    onOpenChange={setIsExportModalOpen}
+                    onExport={handleExport}
+                  />
+                )}
     </DataTable>
   );
 }

@@ -4,6 +4,7 @@
   import { ColumnDef } from "@tanstack/react-table";
   import { ClassActionsCell } from "./class-action-cell";
   import { buildUniqueOptions } from "../../../../../components/utils/buildUniqueOptions";
+import { Checkbox } from "@/components/ui/checkbox";
 
   export const ClassColumns = (
     classes: ClassType[],
@@ -14,6 +15,30 @@
   ): ColumnDef<ClassType>[] => {
     const shiftOptions = buildUniqueOptions(classes, (cls) => cls.shift);
     return [
+       {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      enableResizing: false,
+      size: 30,
+    },
       {
         accessorKey: "classCode",
         header: "Class Code",
