@@ -102,7 +102,7 @@ export default function ProgramSetup() {
       {/* Tab Content */}
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
-      {tab === "roadmap" &&<div className="border rounded-2xl"><WorkNodeEditor/></div> }
+      {tab === "roadmap" &&<div className="border rounded-2xl"><WorkNodeEditor programUuid={programUuid}/></div> }
       {tab === "faq" && <FaqAdmin programUuid={programUuid} />}
       {tab === "learning-outcomes" && (
         <LearningOutcomesAdmin programUuid={programUuid} />

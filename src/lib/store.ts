@@ -27,6 +27,7 @@ import { userApi } from "@/features/user/userApi";
 import { enrollmentApi } from "@/features/enrollment/enrollmentApi";
 import { ScholarClassApi } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
 import { InstructorClassApi } from "@/features/opening-program/components/instructor-class/instructorClassApi";
+import { roadmapApi } from "@/features/master-program/components/roadmap/save-roadmap-api";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
@@ -55,6 +56,7 @@ const rootReducer = combineReducers({
   [enrollmentApi.reducerPath]: enrollmentApi.reducer,
   [ScholarClassApi.reducerPath]: ScholarClassApi.reducer,
   [InstructorClassApi.reducerPath]: InstructorClassApi.reducer,
+  [roadmapApi.reducerPath]: roadmapApi.reducer,
 });
 
 const persistConfig = {
@@ -96,6 +98,7 @@ export const makeStore = () => {
         enrollmentApi.middleware,
         ScholarClassApi.middleware,
         InstructorClassApi.middleware,
+        roadmapApi.middleware
       ),
   });
 

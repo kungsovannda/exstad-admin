@@ -21,27 +21,15 @@
  */
 import { baseQuery } from "@/services/base-query"
 import { createApi } from "@reduxjs/toolkit/query/react"
+import type { RoadmapPayload, RoadmapResponse } from "@/types/roadmap/roadmap"
 
-// Type for backend payload
-export type RoadmapPayload = {
-  title: string
-  description: string
-  // Add other fields as needed
-}
-
-// Define the type for a Roadmap as returned by the backend
-export type RoadmapType = {
-  title: string
-  description: string
-  // Add other fields as needed to match the backend response
-}
 
 export const roadmapApi = createApi({
   reducerPath: "roadmapApi",
   baseQuery: baseQuery(),
   tagTypes: ["Roadmaps"],
   endpoints: (builder) => ({
-    getAllRoadmaps: builder.query<RoadmapType[], string>({
+    getAllRoadmaps: builder.query<RoadmapResponse, string>({
       query: (programUuid) => `/programs/${programUuid}/roadmaps`,
       providesTags: (result, error, uuid) =>
         result
@@ -55,7 +43,7 @@ export const roadmapApi = createApi({
           : [{ type: "Roadmaps", id: "LIST" }],
     }),
 
-    updateRoadmaps: builder.mutation<void, { programUuid: string; roadmaps: RoadmapPayload[] }>({
+    updateRoadmaps: builder.mutation<void, { programUuid: string; roadmaps: RoadmapPayload }>({
       query: ({ programUuid, roadmaps }) => ({
         url: `/programs/${programUuid}/roadmaps`,
         method: "PUT",

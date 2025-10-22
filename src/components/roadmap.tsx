@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-
-import { useCallback, useState } from "react"
+import { useCallback, useState, useEffect } from "react"
+import CustomWorkNode from "@/components/CustomWorkNode"
 import {
   ReactFlow,
   type Node,
@@ -13,9 +13,6 @@ import {
   type Connection,
   useNodesState,
   useEdgesState,
-  type NodeProps,
-  Handle,
-  Position,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 import { Button } from "@/components/ui/button"
@@ -26,136 +23,12 @@ import { Card } from "@/components/ui/card"
 import { Pencil, Trash2, Plus } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-
-
-
-type HandleType = "source" | "target"
-
-type HandleConfig = {
-  top: HandleType
-  right: HandleType
-  bottom: HandleType
-  left: HandleType
-}
-
-type WorkNodeData = Node<{
-  title: string
-  tasks: string[]
-  handles: HandleConfig
-  onEdit: (id: string) => void
-  onDelete: (id: string) => void
-}>
-
-function CustomWorkNode({
-  data,
-  id,
-}: NodeProps<
-  Node<{
-    title: string
-    tasks: string[]
-    handles: HandleConfig
-    onEdit: (id: string) => void
-    onDelete: (id: string) => void
-  }>
->) {
-  const [isHovered, setIsHovered] = useState(false)
-
-  const renderHandle = (position: Position, positionKey: keyof HandleConfig) => {
-    const handleType = data.handles[positionKey]
-    const baseClassName = `!w-5 !h-5 !border-2 !border-white !rounded-full transition-all duration-200`
-    const hoverClassName = isHovered ? "!opacity-100 scale-110" : "!opacity-70"
-
-    const positionOffsets = {
-      [Position.Top]: "!-top-2.5",
-      [Position.Right]: "!-right-2.5",
-      [Position.Bottom]: "!-bottom-2.5",
-      [Position.Left]: "!-left-2.5",
-    }
-
-    const colorClass = (type: "source" | "target") => (type === "source" ? "!bg-green-500" : "!bg-blue-500")
-
-    return (
-      <>
-        <Handle
-          type="source"
-          position={position}
-          id={`${positionKey}-source`}
-          className={`${baseClassName} ${colorClass("source")} ${hoverClassName} ${positionOffsets[position]}`}
-          style={{ zIndex: handleType === "source" ? 10 : 1 }}
-        />
-        <Handle
-          type="target"
-          position={position}
-          id={`${positionKey}-target`}
-          className={`${baseClassName} ${colorClass("target")} ${hoverClassName} ${positionOffsets[position]}`}
-          style={{ zIndex: handleType === "target" ? 10 : 1 }}
-        />
-      </>
-    )
-  }
-
-  return (
-    <Card
-      className="min-w-[280px] max-w-[320px] shadow-lg border-2 hover:shadow-xl transition-shadow"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {renderHandle(Position.Top, "top")}
-      {renderHandle(Position.Right, "right")}
-      {renderHandle(Position.Bottom, "bottom")}
-      {renderHandle(Position.Left, "left")}
-
-      <div className="p-4">
-        {/* Header with title and action buttons */}
-        <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b">
-          <h3 className="font-semibold text-lg flex-1 text-balance">{data.title}</h3>
-          <div className="flex gap-1 shrink-0">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 hover:bg-blue-100 hover:text-blue-600"
-              onClick={(e) => {
-                e.stopPropagation()
-                data.onEdit(id)
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 hover:bg-red-100 hover:text-red-600"
-              onClick={(e) => {
-                e.stopPropagation()
-                data.onDelete(id)
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Task list */}
-        <div className="space-y-2">
-          {data.tasks.map((task: string, index: number) => (
-            <div key={index} className="flex items-start gap-2 text-sm p-2 rounded bg-muted/50">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-              <span className="flex-1">{task}</span>
-            </div>
-          ))}
-          {data.tasks.length === 0 && <p className="text-sm text-muted-foreground italic">No tasks yet</p>}
-        </div>
-      </div>
-    </Card>
-  )
-}
+import { useGetAllRoadmapsQuery, useUpdateRoadmapsMutation } from "@/features/master-program/components/roadmap/save-roadmap-api"
+import type { RoadmapPayload, HandleConfig ,HandleType , WorkNodeData } from "@/types/roadmap/roadmap"
 
 const nodeTypes = {
   workNode: CustomWorkNode,
 }
-
 const initialNodes: Node<{
   title: string
   tasks: string[]
@@ -184,7 +57,14 @@ const initialNodes: Node<{
 
 const initialEdges: Edge[] = []
 
-export default function WorkNodeEditor() {
+export default function WorkNodeEditor({programUuid}: {programUuid: string}) {
+  const {
+    data: apiData,
+    isLoading,
+    error,
+  } = useGetAllRoadmapsQuery(programUuid || "", {
+    skip: !programUuid,
+  })
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -201,33 +81,24 @@ export default function WorkNodeEditor() {
   const [isEditEdgeModalOpen, setIsEditEdgeModalOpen] = useState(false)
   const [editingEdge, setEditingEdge] = useState<string | null>(null)
   const [editEdgeLabel, setEditEdgeLabel] = useState("")
-  const [savedData, setSavedData] = useState<Array<{
-    nodes: Array<{ type: string; data: { label: string; description: string }; position: { x: number; y: number } }>
-    edges: Array<{ id: string; source: string; target: string; animated: boolean }>
-  }> | null>(null)
+  const [savedData, setSavedData] = useState<RoadmapPayload | null>(null)
   const [showJson, setShowJson] = useState(false)
 
-  const onConnect = useCallback(
-    (params: Connection) => {
-      console.log("[v0] Connection created:", params)
-      setEdges((eds) => addEdge(params, eds))
-    },
-    [setEdges],
-  )
 
-  const handleEdit = useCallback(
-    (nodeId: string) => {
-      const node = nodes.find((n) => n.id === nodeId)
-      if (node && node.data) {
-        setEditingNode(nodeId)
-        setEditTitle(node.data.title)
-        setEditTasks(node.data.tasks.join("\n"))
-        setEditHandles(node.data.handles)
-        setIsEditModalOpen(true)
-      }
-    },
-    [nodes],
-  )
+
+const handleEdit = useCallback((nodeId: string) => {
+  setNodes((nds) => {
+    const node = nds.find((n) => n.id === nodeId)
+    if (node && node.data) {
+      setEditingNode(nodeId)
+      setEditTitle(node.data.title)
+      setEditTasks(node.data.tasks.join("\n"))
+      setEditHandles(node.data.handles)
+      setIsEditModalOpen(true)
+    }
+    return nds
+  })
+}, [])
 
   const handleDelete = useCallback(
     (nodeId: string) => {
@@ -237,27 +108,7 @@ export default function WorkNodeEditor() {
     [setNodes, setEdges],
   )
 
-  const updateNodeCallbacks = useCallback(
-    (
-      nodes: Node<{
-        title: string
-        tasks: string[]
-        handles: HandleConfig
-        onEdit: (id: string) => void
-        onDelete: (id: string) => void
-      }>[],
-    ) => {
-      return nodes.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          onEdit: handleEdit,
-          onDelete: handleDelete,
-        },
-      }))
-    },
-    [handleEdit, handleDelete],
-  )
+
 
   const addNewNode = () => {
     setIsAddingNode(true)
@@ -273,76 +124,89 @@ export default function WorkNodeEditor() {
     setIsEditModalOpen(true)
   }
 
-  const saveEditedNode = () => {
-    if (isAddingNode) {
-      const newNode: Node<{
-        title: string
-        tasks: string[]
-        handles: HandleConfig
-        onEdit: (id: string) => void
-        onDelete: (id: string) => void
-      }> = {
-        id: `${Date.now()}`,
-        type: "workNode",
-        position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
-        data: {
-          title: editTitle,
-          tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
-          handles: editHandles,
-          onEdit: handleEdit,
-          onDelete: handleDelete,
-        },
-      }
-      setNodes((nds) => [...nds, newNode])
-      setIsAddingNode(false)
-    } else if (editingNode) {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === editingNode
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  title: editTitle,
-                  tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
-                  handles: editHandles,
-                },
-              }
-            : node,
-        ),
+const saveEditedNode = () => {
+  if (isAddingNode) {
+    const newNode: Node<WorkNodeData> = {
+      id: `${Date.now()}`,
+      type: "workNode",
+      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
+      data: {
+        title: editTitle,
+        tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
+        handles: editHandles,
+        onEdit: handleEdit,     // attach callbacks here
+        onDelete: handleDelete, // attach callbacks here
+      },
+    };
+    setNodes((nds) => [...nds, newNode]);
+    setIsAddingNode(false);
+  } else if (editingNode) {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === editingNode
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                title: editTitle,
+                tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
+                handles: editHandles,
+              },
+            }
+          : node
       )
-    }
-    setIsEditModalOpen(false)
-    setEditingNode(null)
-    setEditTitle("")
-    setEditTasks("")
+    );
   }
 
-  const saveAsJson = () => {
-    const dataToSave = [
-      {
-        nodes: nodes.map((node) => ({
+  setIsEditModalOpen(false);
+  setEditingNode(null);
+  setEditTitle("");
+  setEditTasks("");
+};
+
+  const [updateRoadmaps] = useUpdateRoadmapsMutation();
+
+const positionOrder: (keyof HandleConfig)[] = ["top", "right", "bottom", "left"];
+
+const saveAsJson = () => {
+  const dataToSave: RoadmapPayload = [
+    {
+      nodes: nodes.map((node) => {
+        const handlesString = positionOrder
+          .map((pos) => node.data.handles[pos])
+          .join(", ");
+
+        return {
           type: "course",
           data: {
-            label: node.data.title,
+            label: `${node.data.title}, ${handlesString}`,
             description: node.data.tasks.join(", "),
           },
-          position: {
-            x: node.position.x,
-            y: node.position.y,
-          },
-        })),
-        edges: edges.map((edge) => ({
-          id: edge.id,
-          source: edge.source,
-          target: edge.target,
-          animated: true,
-        })),
-      },
-    ]
-    setSavedData(dataToSave)
-    setShowJson(true)
-  }
+          position: node.position,
+        };
+      }),
+      edges: edges.map((edge) => ({
+        id: edge.id,
+        // combine node id + handle only for API
+        source: `${edge.source},${edge.sourceHandle ?? ""}`,
+        target: `${edge.target},${edge.targetHandle ?? ""}`,
+        animated: edge.animated ?? true,
+      })),
+    },
+  ];
+
+  setSavedData(dataToSave);
+  setShowJson(true);
+
+  // Send to API
+  updateRoadmaps({ programUuid, roadmaps: dataToSave });
+
+  // ✅ No changes to React Flow state -> edges remain connected
+};
+
+
+
+
 
   const onEdgeClick = useCallback((_event: React.MouseEvent, edge: Edge) => {
     setEditingEdge(edge.id)
@@ -378,12 +242,101 @@ export default function WorkNodeEditor() {
     setEditingEdge(null)
     setEditEdgeLabel("")
   }
+  
+// Only update nodes once when they are loaded
+useEffect(() => {
+  if (!apiData || !apiData[0]) return;
+
+  const roadmapData = apiData[0];
+
+  // Load nodes
+  const loadedNodes: Node<WorkNodeData>[] = roadmapData.nodes.map((node, index) => {
+    const parts = node.data.label.split(",").map((p) => p.trim());
+    const title = parts[0];
+
+    const handles: HandleConfig = {
+      top: (parts[1] as HandleType) || "target",
+      right: (parts[2] as HandleType) || "target",
+      bottom: (parts[3] as HandleType) || "target",
+      left: (parts[4] as HandleType) || "target",
+    };
+
+    return {
+      id: `${index + 1}`,
+      type: "workNode",
+      position: node.position,
+      data: {
+        title,
+        tasks: node.data.description
+          ? node.data.description.split(", ").filter((t) => t.trim() !== "")
+          : [],
+        handles,
+        // Use **stable callbacks** (no dependency on `nodes`)
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+      },
+    };
+  });
+
+  // Load edges
+  const loadedEdges: Edge[] = roadmapData.edges.map((edge) => {
+    const [sourceId, sourceHandle] = edge.source.split(",").map((s) => s.trim());
+    const [targetId, targetHandle] = edge.target.split(",").map((s) => s.trim());
+
+    return {
+      id: edge.id,
+      source: sourceId,
+      sourceHandle: sourceHandle,
+      target: targetId,
+      targetHandle: targetHandle,
+      type: "smoothstep",
+      animated: edge.animated ?? true,
+      style: { strokeWidth: 2, stroke: "#9333ea" },
+    };
+  });
+
+  setNodes(loadedNodes);
+  setEdges(loadedEdges);
+}, [apiData, handleEdit, handleDelete]);
+
+const onConnect = useCallback(
+  (params: Connection) => {
+    // params contains source, sourceHandle, target, targetHandle
+    console.log("New connection created:", params);
+
+    // Add edge with all info
+    setEdges((eds) =>
+      addEdge(
+        {
+          id: `e${params.source}-${params.target}-${Date.now()}`,
+          source: params.source,           // node id
+          sourceHandle: params.sourceHandle, // handle id (top/right/bottom/left)
+          target: params.target,
+          targetHandle: params.targetHandle,
+          type: "smoothstep",
+          animated: true,                  // animation for visual
+        },
+        eds
+      )
+    );
+  },
+  [setEdges]
+);
+
+
 
   return (
     <div className="h-screen w-full flex flex-col">
       {/* Toolbar */}
       <div className="bg-background border-b p-4 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Work Node Editor</h1>
+         <div>
+          <h1 className="text-2xl font-bold">Work Node Editor</h1>
+          {isLoading && <p className="text-sm text-muted-foreground">Loading roadmap data...</p>}
+          {error && <p className="text-sm text-red-500">Error loading roadmap data</p>}
+          {programUuid && !isLoading && !error && apiData && (
+            <p className="text-sm text-muted-foreground">Loaded from API</p>
+          )}
+        </div>
         <div className="flex gap-2">
           <Button onClick={addNewNode} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -406,11 +359,10 @@ export default function WorkNodeEditor() {
           <pre className="text-xs font-mono">{JSON.stringify(savedData, null, 2)}</pre>
         </div>
       )}
-
       {/* ReactFlow Canvas */}
       <div className="flex-1">
         <ReactFlow
-          nodes={updateNodeCallbacks(nodes)}
+          nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
