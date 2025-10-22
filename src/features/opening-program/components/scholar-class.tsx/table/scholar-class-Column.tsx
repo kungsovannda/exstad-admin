@@ -5,6 +5,7 @@ import ScholarClassActionsCell from "./scholar-class-cell";
 import UpdatePaidScholarClassAction from "./update-paid-action";
 import UpdateRemindScholarAction from "./update-remind-action";
 import { Checkbox } from "@/components/ui/checkbox";
+import UpdateCompleteScholarClassAction from "./update-complete-action";
 
 export const ScholarClassColumns = (
   scholarClasses: ScholarClassType[],
@@ -102,21 +103,29 @@ export const ScholarClassColumns = (
     {
       accessorKey: "completedCourses",
       header: "Completed Course",
+      enableColumnFilter: true,
+      meta:{
+        variant:"select",
+        placeholder:"Select complete course...",
+        label:"Complete Course",
+        options:[
+          {label:"Completed",value:"Completed"},
+          {label:"Not Completed",value:"Not Completed"}
+        ]
+      },
       cell: ({ row }) => {
-        const programUuid = actions?.openingProgramUuid; 
-        const scholar = row.original.scholar;
-        const isCompleted =
-          typeof programUuid === "string" &&
-          !!scholar?.completedCourses?.includes(programUuid);
-        return (
-          <div className="flex items-center gap-2">
-            <Checkbox checked={isCompleted} disabled />
-            <span>{isCompleted ? "Completed" : "Not Completed"}</span>
-          </div>
-        );
+         const scholar = row.original.scholar;
+    const programUuid = actions?.openingProgramUuid;
+    if (!programUuid) return null;
+
+    return (
+      <UpdateCompleteScholarClassAction
+        scholar={scholar}
+        openingProgramUuid={programUuid}
+      />
+    );
       },
       enableSorting: true,
-      enableColumnFilter: false,
     },
     {
       id: "actions",

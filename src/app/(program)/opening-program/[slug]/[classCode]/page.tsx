@@ -30,7 +30,7 @@ export default function ScholarClassPage() {
 
   // 1️⃣ Fetch the class info first
   const { data: classInfo, isLoading: isLoadingClass } = useGetClassByCodeQuery(classCode!, {
-    skip: !classCode,
+    skip: !classCode,refetchOnMountOrArgChange:true
   });
 
   const classUuid = classInfo?.uuid;
@@ -42,7 +42,7 @@ export default function ScholarClassPage() {
     isFetching,
     isError: isScholarError,
     refetch: refetchScholarClasses,
-  } = useGetScholarClassesByClassUuidQuery(classUuid!, { skip: !classUuid });
+  } = useGetScholarClassesByClassUuidQuery(classUuid!, { skip: !classUuid,refetchOnMountOrArgChange:true });
 
   const { data: allOpeningPrograms = [] } = useGetAllOpeningProgramsQuery();
 
@@ -184,6 +184,7 @@ export default function ScholarClassPage() {
           totalItems={scholarClasses.length}
           columns={columns}
           openingProgramUuid={openingProgramUuid}
+          refetch={refetchScholarClasses}
         />
       )}
     </div>

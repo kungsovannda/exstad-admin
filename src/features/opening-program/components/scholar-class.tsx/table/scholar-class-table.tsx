@@ -8,19 +8,18 @@ import { useDataTable } from "@/hooks/use-data-table";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Printer } from "lucide-react";
 import { useMarkCompletedCourseMutation } from "@/features/scholar/scholarApi";
 import { toast } from "sonner";
 import { exportToExcel } from "@/services/export-to-excel";
-import { Printer } from "lucide-react";
 import ExportToExcelModal from "@/components/ExportToExcelModal";
-
 
 interface ScholarClassDataTableProps {
   data: ScholarClassType[];
   totalItems: number;
   columns: ReturnType<typeof ScholarClassColumns>;
   openingProgramUuid?: string;
+  refetch?: () => void;
 }
 
 export default function ScholarClassDataTable({
@@ -28,13 +27,11 @@ export default function ScholarClassDataTable({
   totalItems,
   columns,
   openingProgramUuid,
+  refetch,
 }: ScholarClassDataTableProps) {
-  const [isMarkCompletedCourse, setIsMarkCompletedCourse] = useState(false);
   const [markCompletedCourse, { isLoading }] = useMarkCompletedCourseMutation();
   const searchParams = useSearchParams();
-  const perPage = searchParams.get("perPage")
-    ? Number(searchParams.get("perPage"))
-    : 10;
+  const perPage = searchParams.get("perPage") ? Number(searchParams.get("perPage")) : 10;
 
   const { table } = useDataTable({
     data,
@@ -46,29 +43,35 @@ export default function ScholarClassDataTable({
     enableColumnFilters: true,
     enableSorting: true,
   });
+
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
   const handleExport = async (selectedFields: string[]) => {
-        await exportToExcel({
-          data,
-          selectedFields,
-          filename: "master-program.xlsx",
-        });
-      };
+    await exportToExcel({
+      data,
+      selectedFields,
+      filename: "master-program.xlsx",
+    });
+  };
+
   const handleMarkCompleted = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
     if (selectedRows.length === 0) return;
 
-    const alreadyCompleted: string[] = [];
-    const newlyMarked: string[] = [];
+    const skipped: string[] = [];
+    const marked: string[] = [];
 
     for (const row of selectedRows) {
       const scholar = row.original.scholar;
+      const completedCourses = Array.isArray(scholar.completedCourses)
+        ? scholar.completedCourses
+        : scholar.completedCourses
+        ? [scholar.completedCourses]
+        : [];
 
-      const hasCompleted =
-        scholar.completedCourses?.includes(openingProgramUuid!) ?? false;
-
-      if (hasCompleted) {
-        alreadyCompleted.push(scholar.englishName || scholar.username);
+      // ✅ Skip if already completed
+      if (completedCourses.includes(openingProgramUuid!)) {
+        skipped.push(scholar.englishName || scholar.username);
         continue;
       }
 
@@ -77,25 +80,23 @@ export default function ScholarClassDataTable({
           scholarUuid: scholar.uuid,
           openingProgramUuid: openingProgramUuid!,
         }).unwrap();
-
-        newlyMarked.push(scholar.englishName || scholar.username);
+        marked.push(scholar.englishName || scholar.username);
       } catch (error) {
         console.error(`❌ Failed to mark ${scholar.englishName}:`, error);
         toast.error(`Failed to mark ${scholar.englishName}`);
       }
     }
 
-    if (alreadyCompleted.length > 0) {
+    if (marked.length > 0) {
+      toast.success(`Marked completed: ${marked.join(", ")}`);
+      if (typeof refetch === "function") refetch(); // refresh table
+    }
+
+    if (skipped.length > 0) {
       toast.warning(
-        `These scholars were already completed:\n${alreadyCompleted.join(", ")}`
+        `Skipped already completed: ${skipped.join(", ")}`
       );
     }
-
-    if (newlyMarked.length > 0) {
-      toast.success(`Marked completed: ${newlyMarked.join(", ")}`);
-    }
-
-    setIsMarkCompletedCourse(true);
   };
 
   return (
@@ -103,40 +104,34 @@ export default function ScholarClassDataTable({
       <DataTableToolbar table={table}>
         <Button
           size="sm"
-          variant={isMarkCompletedCourse ? "secondary" : "outline"}
+          variant="outline"
           onClick={handleMarkCompleted}
           disabled={table.getSelectedRowModel().rows.length === 0 || isLoading}
           className="flex items-center gap-2"
         >
-          <CheckCircle
-            className={`h-4 w-4 ${
-              isMarkCompletedCourse ? "text-green-600" : "text-gray-600"
-            }`}
-          />
-          {isLoading
-            ? "Marking..."
-            : isMarkCompletedCourse
-            ? "Completed"
-            : "Mark Completed Course"}
+          <CheckCircle className="h-4 w-4 text-gray-600" />
+          {isLoading ? "Marking..." : "Mark Completed Course"}
         </Button>
-          <Button
-              size={"sm"}
-              variant={"outline"}
-              disabled={table.getSelectedRowModel().rows.length === 0}
-              onClick={() => setIsExportModalOpen(true)}
-            >
-              <Printer />
-              Export
-            </Button>
+
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={table.getSelectedRowModel().rows.length === 0}
+          onClick={() => setIsExportModalOpen(true)}
+        >
+          <Printer />
+          Export
+        </Button>
       </DataTableToolbar>
-       {isExportModalOpen && (
-                  <ExportToExcelModal
-                    data={data}
-                    open={isExportModalOpen}
-                    onOpenChange={setIsExportModalOpen}
-                    onExport={handleExport}
-                  />
-                )}
+
+      {isExportModalOpen && (
+        <ExportToExcelModal
+          data={data}
+          open={isExportModalOpen}
+          onOpenChange={setIsExportModalOpen}
+          onExport={handleExport}
+        />
+      )}
     </DataTable>
   );
 }
