@@ -42,9 +42,9 @@ import { LogoUploadField } from "@/features/master-program/components/LogoUrl";
 
 export const programFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  programType: z.enum(["SHORT_COURSE", "SCHOLARSHIP"]),
-  programLevel: z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]),
-  visibility: z.enum(["PUBLIC", "PRIVATE"]),
+  programType: z.enum(["SHORT_COURSE", "SCHOLARSHIP"]).optional(),
+  programLevel: z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]).optional(),
+  visibility: z.enum(["PUBLIC", "PRIVATE"]).optional(),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   logoUrl: z.string().min(1, { message: "Logo is required" }),
@@ -80,14 +80,13 @@ export default function MasterProgramForm({
     resolver: zodResolver(programFormSchema),
     defaultValues: {
       title: "",
-      programType: "SHORT_COURSE",
-      programLevel: "BASIC",
-      visibility: "PUBLIC",
+      programType: undefined,
+      programLevel: undefined,
+      visibility: undefined,
       subtitle: "",
       description: "",
       logoUrl: "",
-      bgColor:
-        "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
+      bgColor: "",
       slug: "",
     },
   }) as ExtendedFormReturn;
@@ -97,13 +96,16 @@ export default function MasterProgramForm({
   const [showDialog, setShowDialog] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // ✅ Reset when editing existing data
   useEffect(() => {
     if (initialValues) {
       form.reset(initialValues);
       if (initialValues.bgColor) {
         setInputValue(initialValues.bgColor);
         setbgColor(initialValues.bgColor);
+      }
+      // Mark slug as edited if it exists in initialValues
+      if (initialValues.slug) {
+        setIsSlugEdited(true);
       }
     }
   }, [initialValues, form]);
@@ -158,7 +160,7 @@ export default function MasterProgramForm({
 
   return (
     <Form {...form}>
-                                      {/* should be handleFormSubmit waiting for api */}
+      {/* should be handleFormSubmit waiting for api */}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* Title */}
         <FormField
@@ -208,7 +210,7 @@ export default function MasterProgramForm({
             <FormItem>
               <FormLabel>Program Type</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
@@ -290,7 +292,7 @@ export default function MasterProgramForm({
               <FormItem>
                 <FormLabel>Program Level</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
@@ -312,7 +314,7 @@ export default function MasterProgramForm({
               <FormItem>
                 <FormLabel>Visibility</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
@@ -356,7 +358,6 @@ export default function MasterProgramForm({
           )}
         />
 
-
         {/* Logo */}
         <FormField
           control={form.control}
@@ -368,10 +369,7 @@ export default function MasterProgramForm({
                 <FormLabel>Logo *</FormLabel>
                 <FormControl>
                   <div className="space-y-4 mt-2">
-                    <LogoUploadField
-                      form={form}
-                      masterProgram={{slug}}
-                    />
+                    <LogoUploadField form={form} masterProgram={{ slug }} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -380,8 +378,8 @@ export default function MasterProgramForm({
           }}
         />
         <Button type="submit" className="w-fit" disabled={isUploading}>
-          {isUploading ? "Uploading..." :submitLabel}
-          </Button>
+          {isUploading ? "Uploading..." : submitLabel}
+        </Button>
       </form>
     </Form>
   );

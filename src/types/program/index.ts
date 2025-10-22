@@ -14,7 +14,7 @@ export type MasterProgramType = {
   slug: string;
   subtitle: string;
   description: string;
-  programLevel: Level;
+  programLevel?: Level;
   logoUrl: string;
   thumbnailUrl: string;
   price: string;
@@ -31,14 +31,14 @@ export type MasterProgramType = {
   openingprograms: openingProgramType[]; 
   faq: FaqItem[];
   curricula: CurriculumType[];
-  visibility: visibility;
+  visibility?: visibility;
   status: status;
   audit: Audit;
 };
 
 export type MasterProgramCreate = {
   title: string;
-  programType: string;
+  programType?: programType;
   bgColor?: string;
   slug?: string;
   subtitle?: string;

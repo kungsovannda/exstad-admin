@@ -51,7 +51,7 @@ export default function ProgramBarCard({ data }: ProgramBarCardProps) {
       </CardHeader>
 
       <CardContent className="flex-1 pb-2">
-        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full">
+        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full h-80">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart
               data={chartData}

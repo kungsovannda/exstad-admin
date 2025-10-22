@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       "exstad-api.daradev.me",
       "t4.ftcdn.net",
       "example.com",
+      "api.exstad.tech",
     ],
     remotePatterns: [
       {

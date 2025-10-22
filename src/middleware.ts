@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { signOut } from "next-auth/react";
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({
@@ -17,8 +18,10 @@ export async function middleware(req: NextRequest) {
   const allowedRoles = ["ADMIN", "INSTRUCTOR1", "INSTRUCTOR2"];
   const roles = token?.user?.roles || [];
   const hasRole = roles.some((role) => allowedRoles.includes(role));
+  const url = "/unauthorized";
   if (!hasRole) {
-    return NextResponse.redirect(new URL("/unauthorized", req.url));
+    signOut();
+    return NextResponse.redirect(new URL(url, req.url));
   }
 
   return NextResponse.next();

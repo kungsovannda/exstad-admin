@@ -80,7 +80,7 @@ export default function Certificate() {
         />
         <div className="flex items-center gap-4">
           <AlertDialog>
-            <AlertDialogTrigger className="bg-accent py-2.5 text-sm px-4 rounded-md hover:bg-accent/70">
+            <AlertDialogTrigger className="bg-accent py-2.5 text-sm px-4 rounded-md hover:bg-accent/70 cursor-pointer">
               Generate
             </AlertDialogTrigger>
             <AlertDialogContent className="min-w-xl bg-accent">
@@ -96,7 +96,7 @@ export default function Certificate() {
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="w-full justify-between"
+                        className="w-full justify-between cursor-pointer"
                       >
                         {selectedProgram
                           ? `${selectedProgram.title} - Generation ${selectedProgram.generation}`
@@ -115,9 +115,10 @@ export default function Certificate() {
                           <CommandGroup>
                             {openingPrograms?.map((program) => (
                               <CommandItem
+                                className="cursor-pointer"
                                 key={program.uuid}
                                 value={program.slug}
-                                onSelect={(currentValue) => {
+                                onSelect={(currentValue: string) => {
                                   setSelected(
                                     currentValue === selected
                                       ? ""
@@ -145,15 +146,22 @@ export default function Certificate() {
                   </Popover>
                 </div>
               </AlertDialogHeader>
-              <AlertDialogFooter className="mt-8">
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleNext}>Next</AlertDialogAction>
+              <AlertDialogFooter className="mt-8 cursor-pointer">
+                <AlertDialogCancel className="cursor-pointer">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  className="cursor-pointer"
+                  onClick={handleNext}
+                >
+                  Next
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
           <Link href="certificate/verify">
             <Button
-              className="flex bg-primary items-center px-6 rounded-md !py-4 text-sm hover:bg-primary/80"
+              className="flex bg-primary items-center px-6 rounded-md !py-4 text-sm hover:bg-primary/80 cursor-pointer"
               size={"lg"}
             >
               Verify

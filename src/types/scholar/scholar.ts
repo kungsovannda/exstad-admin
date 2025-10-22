@@ -1,6 +1,8 @@
 import { Audit } from "..";
 import { BadgeForScholar } from "../badge";
 import { Gender, ScholarStatus } from ".";
+import { ScholarSpecialist } from ".";
+import { ScholarCareer } from ".";
 
 export type Scholar = {
   uuid: string;
@@ -21,8 +23,11 @@ export type Scholar = {
   phoneFamilyNumber: string;
   isPublic: boolean;
   isAbroad: boolean;
+  isEmployed: boolean;
+  specialist: ScholarSpecialist[];
+  careers: ScholarCareer[];
   quote: string;
   audit: Audit;
-  badges: BadgeForScholar[];  
+  badges: BadgeForScholar[];
   completedCourses: string;
 };

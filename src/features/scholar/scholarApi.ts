@@ -5,6 +5,8 @@ import {
   UpdateScholar,
   CreateScholarSocialLink,
   ScholarSocialLink,
+  ScholarCareerSetUp,
+  ScholarSpecialistSetUp,
 } from "@/types/scholar";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -15,7 +17,12 @@ export interface ScholarApiResponse {
 export const scholarApi = createApi({
   reducerPath: "scholarApi",
   baseQuery: baseQuery(),
-  tagTypes: ["Scholar", "ScholarSocialLink"],
+  tagTypes: [
+    "Scholar",
+    "ScholarSocialLink",
+    "ScholarCareer",
+    "ScholarSpecialist",
+  ],
   endpoints: (builder) => ({
     // GET all scholars
     getAllScholars: builder.query<Scholar[], void>({
@@ -214,27 +221,34 @@ export const scholarApi = createApi({
       query: (openingProgramUuid) => {
         return `/scholars/${openingProgramUuid}/opening-program`;
       },
-      transformResponse: (
-        response: ScholarApiResponse | Scholar[] | unknown
-      ): Scholar[] => {
+      transformResponse: (response: unknown): Scholar[] => {
+        // 1) If API returns { "opening-program-scholars": [...] }
         if (
           response &&
           typeof response === "object" &&
-          !Array.isArray(response)
+          !Array.isArray(response) &&
+          (response as Record<string, unknown>)["opening-program-scholars"]
         ) {
-          const apiResponse = response as ScholarApiResponse;
-          if (
-            apiResponse["opening-program-scholars"] &&
-            Array.isArray(apiResponse["opening-program-scholars"])
-          ) {
-            return apiResponse["opening-program-scholars"];
-          }
+          const arr = (response as Record<string, unknown>)[
+            "opening-program-scholars"
+          ];
+          if (Array.isArray(arr)) return arr as Scholar[];
         }
+
+        // 2) If API returns an array
         if (Array.isArray(response)) {
           return response as Scholar[];
         }
 
-        // Always return an array
+        // 3) If API returns a single scholar object
+        if (response && typeof response === "object") {
+          const obj = response as Partial<Scholar>;
+          if (typeof obj.uuid === "string") {
+            return [obj as Scholar];
+          }
+        }
+
+        // 4) Fallback
         return [];
       },
       providesTags: ["Scholar"],
@@ -242,7 +256,7 @@ export const scholarApi = createApi({
 
     // Mark a course as completed for a scholar
     markCompletedCourse: builder.mutation<
-      Scholar, 
+      Scholar,
       { scholarUuid: string; openingProgramUuid: string }
     >({
       query: ({ scholarUuid, openingProgramUuid }) => ({
@@ -251,7 +265,7 @@ export const scholarApi = createApi({
       }),
       invalidatesTags: (result, error, { scholarUuid }) => [
         { type: "Scholar", id: scholarUuid },
-        { type: "Scholar", id: "LIST" }, 
+        { type: "Scholar", id: "LIST" },
       ],
     }),
     // Mark a course as completed for a scholar
@@ -270,12 +284,103 @@ export const scholarApi = createApi({
       ],
     }),
 
+    // Assign careers to scholar
+    assignCareers: builder.mutation<
+      Scholar,
+      { scholarUuid: string; careerSetups: ScholarCareerSetUp[] }
+    >({
+      query: ({ scholarUuid, careerSetups }) => ({
+        url: `/scholars/assign-careers/${scholarUuid}`,
+        method: "PUT",
+        body: careerSetups,
+      }),
+      invalidatesTags: (result, error, { scholarUuid }) => [
+        { type: "Scholar", id: scholarUuid },
+        { type: "ScholarCareer", id: `scholar-${scholarUuid}` },
+      ],
+    }),
 
+    // Get careers by scholar uuid
+    getCareersByScholarUuid: builder.query<ScholarCareerSetUp[], string>({
+      query: (scholarUuid) => `/scholars/careers/${scholarUuid}`,
+      providesTags: (result, error, scholarUuid) => [
+        { type: "ScholarCareer", id: `scholar-${scholarUuid}` },
+      ],
+    }),
+
+    // Assign specialists to scholar
+    assignSpecialists: builder.mutation<
+      Scholar,
+      { scholarUuid: string; specialistSetups: ScholarSpecialistSetUp[] }
+    >({
+      query: ({ scholarUuid, specialistSetups }) => ({
+        url: `/scholars/assign-specialists/${scholarUuid}`,
+        method: "PUT",
+        body: specialistSetups,
+      }),
+      invalidatesTags: (result, error, { scholarUuid }) => [
+        { type: "Scholar", id: scholarUuid },
+        { type: "ScholarSpecialist", id: `scholar-${scholarUuid}` },
+      ],
+    }),
+
+    // Get specialists by scholar uuid
+    getSpecialistsByScholarUuid: builder.query<
+      ScholarSpecialistSetUp[],
+      string
+    >({
+      query: (scholarUuid) => `/scholars/specialists/${scholarUuid}`,
+      providesTags: (result, error, scholarUuid) => [
+        { type: "ScholarSpecialist", id: `scholar-${scholarUuid}` },
+      ],
+    }),
+    // GET all abroad scholars
+    getAllAbroadScholars: builder.query<Scholar[], void>({
+      query: () => "/scholars/abroad",
+      transformResponse: (response: { scholars: Scholar[] }) =>
+        response.scholars,
+      providesTags: [{ type: "Scholar", id: "LIST" }],
+    }),
+
+    // Mark scholar as employed
+    markIsEmployed: builder.mutation<Scholar, string>({
+      query: (uuid) => ({
+        url: `/scholars/${uuid}/is-employed`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "Scholar", id: uuid },
+        { type: "Scholar", id: "LIST" },
+      ],
+    }),
+
+    // GET scholars by classroom name
+    getAllScholarsByClassRoomName: builder.query<Scholar[], string>({
+      query: (classRoomName) => `/scholars/class-room/${classRoomName}`,
+      providesTags: [{ type: "Scholar", id: "LIST" }],
+    }),
+
+    // GET scholars by program uuid
+    getAllScholarsByProgramUuid: builder.query<Scholar[], string>({
+      query: (programUuid) => `/scholars/program/${programUuid}`,
+      providesTags: [{ type: "Scholar", id: "LIST" }],
+    }),
+
+    // GET all completed courses by scholar uuid
+    getAllCompletedCoursesByScholarUuid: builder.query<unknown[], string>({
+      query: (scholarUuid) => `/scholars/${scholarUuid}/completed-courses`,
+      transformResponse: (response: { "completed-courses": unknown[] }) =>
+        response["completed-courses"],
+      providesTags: (result, error, scholarUuid) => [
+        { type: "Scholar", id: scholarUuid },
+      ],
+    }),
   }),
 });
 
 export const {
   useGetAllScholarsQuery,
+  useGetAllAbroadScholarsQuery, // NEW
   useGetScholarsByStatusQuery,
   useGetScholarByUuidQuery,
   useGetScholarByUsernameQuery,
@@ -296,4 +401,12 @@ export const {
   useGetAllScholarsByOpeningProgramUuidQuery,
   useMarkCompletedCourseMutation,
   useRemoveCompletedCourseMutation,
+  useMarkIsEmployedMutation, // NEW
+  useGetAllScholarsByClassRoomNameQuery, // NEW
+  useGetAllScholarsByProgramUuidQuery, // NEW
+  useGetAllCompletedCoursesByScholarUuidQuery, // NEW
+  useAssignCareersMutation,
+  useGetCareersByScholarUuidQuery,
+  useAssignSpecialistsMutation,
+  useGetSpecialistsByScholarUuidQuery,
 } = scholarApi;

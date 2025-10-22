@@ -13,9 +13,12 @@ import DrawerInstructors from "@/features/opening-program/components/instructor-
 import {
   useCreateInstructorClassMutation,
   useGetAllInstructorByClassUuidQuery,
+  useGetAllInstructorClassesQuery,
 } from "@/features/opening-program/components/instructor-class/instructorClassApi";
 import { ClassCardItem } from "@/features/opening-program/components/scholar-class.tsx/class-card";
 import { useGetNotScholarUsersQuery } from "@/features/user/userApi";
+import { useGetScholarByClassUuidQuery } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
+import { Package } from "lucide-react";
 
 function slugToProgramName(slug: string) {
   return slug
@@ -41,6 +44,7 @@ export default function ClassListPage() {
       refetchOnMountOrArgChange: true,
     }
   );
+  
 
   const {
     data: classes = [],
@@ -50,6 +54,7 @@ export default function ClassListPage() {
     skip: !programTitle,
     refetchOnMountOrArgChange: true,
   });
+  
 
   const [selectedClassUuid, setSelectedClassUuid] = useState<string | null>(
     null
@@ -61,14 +66,37 @@ export default function ClassListPage() {
       skip: !selectedClassUuid,
       refetchOnMountOrArgChange: true,
     });
+    
+
   const { data: instructors = [] } = useGetNotScholarUsersQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
 
+  const { data: instructorClasses = [] } = useGetAllInstructorClassesQuery();
+
+  // ✅ Filter instructor-classes to only include classes in this program
+  const instructorClassesForProgram = instructorClasses.filter((ic) =>
+    classes.some((cls) => cls.uuid === ic.classUuid)
+  );
+
+  // ✅ Count unique instructors
+  const uniqueInstructorUuids = Array.from(
+    new Set(instructorClassesForProgram.map((ic) => ic.instructorUuid))
+  );
+  const totalInstructors = uniqueInstructorUuids.length;
+
+
   const [addInstructor] = useCreateInstructorClassMutation();
-
-  if (isError) toast.error("Failed to load classes");
-
+  if (isError){
+    return (
+          <div className="flex flex-col space-y-3 justify-center items-center min-h-screen h-fit">
+            <Package size={64} className="text-muted-foreground opacity-30" />
+            <span className="text-muted-foreground text-sm">
+              No Class Found
+            </span>
+          </div>
+        );
+  }
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -90,7 +118,6 @@ export default function ClassListPage() {
             }
 
             try {
-              // Prevent adding duplicate instructors
               if (
                 instructorsOfSelectedClass.some(
                   (ic) => ic.uuid === instructorUuid
@@ -118,10 +145,8 @@ export default function ClassListPage() {
             }
 
             let addedCount = 0;
-
             for (const instructorUuid of instructorUuids) {
               try {
-                // Skip if instructor already in class
                 if (
                   instructorsOfSelectedClass.some(
                     (ic) => ic.uuid === instructorUuid
@@ -130,7 +155,6 @@ export default function ClassListPage() {
                   console.info(`Instructor ${instructorUuid} already in class`);
                   continue;
                 }
-
                 await addInstructor({
                   instructorUuid,
                   classUuid: selectedClassUuid,
@@ -157,11 +181,11 @@ export default function ClassListPage() {
         <ClassStatisticCard
           Classes={classes}
           scholarsCount={scholars.length}
-          instructorCount={instructors.length}
+          instructorCount={totalInstructors} 
           isLoading={isLoading}
         />
 
-        {/* ✅ Class Cards */}
+        {/* Class Cards */}
         <div className="grid md:grid-cols-3 gap-6">
           {classes.map((cls) => (
             <ClassCardItem
@@ -172,7 +196,6 @@ export default function ClassListPage() {
                 setSelectedClassUuid(uuid);
                 setDrawerOpen(true);
               }}
-              totalScholars={scholars.length}
             />
           ))}
         </div>

@@ -42,10 +42,11 @@ export default function Home() {
         OpeningProgram={openingPrograms}
         isLoading={isLoading}
       />
-      <div className="grid grid-cols-2 gap-5 h-fit">
+      {/* <div className="grid grid-cols-2 gap-5 h-fit"> */}
+      
       <ChartBarComparison />
       <ProgramBarCard data={openingCounts} />
-      </div>
+
 
       <ComingSoon />
     </div>

@@ -331,14 +331,14 @@ export function ChartBarComparison() {
 
   // ✅ Updated modern UI (ProgramBarCard style)
   return (
-    <Card className="flex flex-col rounded-lg shadow-sm">
+    <Card className="flex flex-col rounded-lg shadow-sm ">
       <CardHeader className="items-center pb-2">
         <CardTitle>Scholars by Opening Program</CardTitle>
         <CardDescription>Compare total scholar enrollment</CardDescription>
       </CardHeader>
 
       <CardContent className="flex-1 pb-2">
-        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full">
+        <ChartContainer config={chartConfig} className="mx-auto h-80 w-full">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart
               data={chartData}

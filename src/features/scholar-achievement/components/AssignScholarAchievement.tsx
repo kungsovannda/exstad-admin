@@ -30,6 +30,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -101,6 +102,11 @@ export default function AssignScholarAchievement({
         failureCount: failure, // ✅ Fixed
       });
     }
+    if (success + failure === scholars.length) {
+      setTimeout(() => {
+        setShowProgressDialog(false);
+      }, 3000);
+    }
   }
 
   return (
@@ -143,7 +149,10 @@ export default function AssignScholarAchievement({
                     value={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="h-fit min-h-[3rem]">
+                      <SelectTrigger
+                        style={{ width: "var(--radix-select-trigger-width)" }}
+                        className="h-fit overflow-hidden min-h-[3rem]"
+                      >
                         <SelectValue placeholder="Select an achievement">
                           {/* Custom display for selected value */}
                           {field.value &&
@@ -195,7 +204,10 @@ export default function AssignScholarAchievement({
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="max-h-80">
+                    <SelectContent
+                      style={{ width: "var(--radix-select-trigger-width)" }}
+                      className="max-h-80 overflow-hidden"
+                    >
                       <Command>
                         <CommandInput
                           placeholder="Search achievements..."
@@ -216,32 +228,34 @@ export default function AssignScholarAchievement({
                                     }}
                                     className="cursor-pointer"
                                   >
-                                    <div className="flex h-12 items-center gap-3 w-full">
-                                      <Avatar className="h-10 w-10">
-                                        <AvatarImage
-                                          className="rounded-lg object-cover"
-                                          src={
-                                            option.icon || "/placeholder.svg"
-                                          }
-                                          alt={option.title}
-                                        />
-                                        <AvatarFallback>
-                                          {option.title
-                                            .split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .toUpperCase()}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <div className="flex flex-col items-start">
-                                        <span className="font-medium">
-                                          {option.title}
-                                        </span>
-                                        <span className="text-sm text-muted-foreground line-clamp-1">
-                                          {option.description}
-                                        </span>
+                                    <SelectItem value={option.uuid}>
+                                      <div className="flex h-12 items-center gap-3 w-full">
+                                        <Avatar className="h-10 w-10">
+                                          <AvatarImage
+                                            className="rounded-lg object-cover"
+                                            src={
+                                              option.icon || "/placeholder.svg"
+                                            }
+                                            alt={option.title}
+                                          />
+                                          <AvatarFallback>
+                                            {option.title
+                                              .split(" ")
+                                              .map((n) => n[0])
+                                              .join("")
+                                              .toUpperCase()}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex flex-col items-start">
+                                          <span className="font-medium">
+                                            {option.title}
+                                          </span>
+                                          <span className="text-sm text-muted-foreground line-clamp-1">
+                                            {option.description}
+                                          </span>
+                                        </div>
                                       </div>
-                                    </div>
+                                    </SelectItem>
                                   </CommandItem>
                                 ))}
                             </CommandGroup>

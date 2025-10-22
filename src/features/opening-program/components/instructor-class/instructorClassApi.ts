@@ -7,18 +7,19 @@ export const InstructorClassApi = createApi({
   tagTypes: ["InstructorClass"],
   endpoints: (builder) => ({
     // GET all instructor classes
-    getAllScholarClasses: builder.query<InstructorClassType[], void>({
-      query: () => "/instructor-classes",
-      transformResponse: (response: { classes?: InstructorClassType[] }) =>
-        response.classes ?? [],
-      providesTags: (result) =>
-        result?.length
-          ? [
-              ...result.map(({ uuid }) => ({ type: "InstructorClass" as const, id: uuid })),
-              { type: "InstructorClass", id: "LIST" },
-            ]
-          : [{ type: "InstructorClass", id: "LIST" }],
-    }),
+ // InstructorClassApi.ts
+getAllInstructorClasses: builder.query<InstructorClassType[], void>({
+  query: () => "/instructor-classes",
+  transformResponse: (response: { "instructors-classes": InstructorClassType[] }) =>
+    response["instructors-classes"] ?? [],
+  providesTags: (result) =>
+    result?.length
+      ? [
+          ...result.map(({ uuid }) => ({ type: "InstructorClass" as const, id: uuid })),
+          { type: "InstructorClass", id: "LIST" },
+        ]
+      : [{ type: "InstructorClass", id: "LIST" }],
+}),
 
 
     // GET all instructor by class UUID
@@ -110,7 +111,7 @@ export const InstructorClassApi = createApi({
 
 // Export hooks
 export const {
-  useGetAllScholarClassesQuery,
+  useGetAllInstructorClassesQuery,
   useGetAllInstructorByClassUuidQuery,
   useGetAllInstructorClassesByClassUuidQuery,
   useGetScholarClassesByClassUuidQuery,
