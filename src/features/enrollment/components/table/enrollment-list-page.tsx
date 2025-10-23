@@ -1,7 +1,10 @@
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetCurrentAddressesQuery } from "@/features/current-address/currentAddressApi";
 import { Enrollment } from "@/types/enrollment";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetAllEnrollmentsByProgramQuery } from "../../enrollmentApi";
 import { enrollmentColumns } from "./all-enrollment/columns";
 import { EnrollmentTable } from "./all-enrollment/data-table";
@@ -11,8 +14,6 @@ import { paidEnrollmentColumns } from "./paid-enrollment/columns";
 import { PaidEnrollmentTable } from "./paid-enrollment/data-table";
 import { passedEnrollmentColumns } from "./passed-enrollment/columns";
 import { PassedEnrollmentTable } from "./passed-enrollment/data-table";
-import { Badge } from "@/components/ui/badge";
-import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 
 export default function EnrollmentListPage({
   uuid,
@@ -41,6 +42,30 @@ export default function EnrollmentListPage({
       setPassedEnrollments(data.filter((d) => d.isPassed === true));
     }
   }, [data]);
+
+  const { data: currentAddresses } = useGetCurrentAddressesQuery();
+  const addressOptions = useMemo(
+    () =>
+      currentAddresses?.map((p) => ({
+        label: p.englishName ?? "",
+        value: p.englishName ?? "",
+      })) ?? [],
+    [currentAddresses]
+  );
+
+  const allEnrollmentColumns = useMemo(
+    () => enrollmentColumns(addressOptions),
+    [addressOptions]
+  );
+
+  const paidColumns = useMemo(
+    () => paidEnrollmentColumns(addressOptions),
+    [addressOptions]
+  );
+  const interviewColumns = useMemo(
+    () => interviewedEnrollmentColumns(addressOptions),
+    [addressOptions]
+  );
 
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
@@ -95,7 +120,7 @@ export default function EnrollmentListPage({
               <DataTableSkeleton columnCount={enrollmentColumns.length} />
             ) : (
               <EnrollmentTable
-                columns={enrollmentColumns}
+                columns={allEnrollmentColumns}
                 data={enrollments}
                 totalItems={enrollments.length}
               />
@@ -106,7 +131,7 @@ export default function EnrollmentListPage({
               <DataTableSkeleton columnCount={paidEnrollmentColumns.length} />
             ) : (
               <PaidEnrollmentTable
-                columns={paidEnrollmentColumns}
+                columns={paidColumns}
                 data={paidEnrollments}
                 totalItems={enrollments.length}
               />
@@ -119,7 +144,7 @@ export default function EnrollmentListPage({
               />
             ) : (
               <InterviewedEnrollmentTable
-                columns={interviewedEnrollmentColumns}
+                columns={interviewColumns}
                 data={interviewedEnrollments}
                 totalItems={enrollments.length}
               />

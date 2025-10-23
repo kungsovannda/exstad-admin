@@ -1,16 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   FormControl,
   FormField,
@@ -18,18 +24,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { SerializedEditorState } from "lexical";
-import { initialValue } from "@/app/editor-00/page";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 // -----------------
 // Validation schema
@@ -63,8 +65,6 @@ export default function TimelineFormModal({
     );
   }
 
-  const [editorState, setEditorState] = useState<SerializedEditorState>(initialValue);
-
   // -----------------
   // UseForm with onChange validation
   // -----------------
@@ -83,16 +83,15 @@ export default function TimelineFormModal({
     control,
   } = form;
 
-useEffect(() => {
-  if (!open) return; // only reset when modal opens
-  reset({
-    title: initialData?.title || "",
-    startDate: initialData?.startDate || "",
-    endDate: initialData?.endDate || "",
-  });
-  clearErrors();
-}, [open]); 
-
+  useEffect(() => {
+    if (!open) return; // only reset when modal opens
+    reset({
+      title: initialData?.title || "",
+      startDate: initialData?.startDate || "",
+      endDate: initialData?.endDate || "",
+    });
+    clearErrors();
+  }, [open]);
 
   // -----------------
   // Submit handler
@@ -107,7 +106,6 @@ useEffect(() => {
       );
       onOpenChange(false);
       reset();
-      setEditorState(initialValue);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error(`Failed to submit the timeline: ${message || err}`);
@@ -120,7 +118,9 @@ useEffect(() => {
   const handleFieldChange =
     (
       fieldName: keyof TimelineFormValues,
-      onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+      onChange: (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      ) => void
     ) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       clearErrors(fieldName);
@@ -134,28 +134,29 @@ useEffect(() => {
       onChange(date?.toISOString().split("T")[0] || "");
     };
 
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {!open && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent
         className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl"
-         onInteractOutside={(event) => {
-                  event.preventDefault();
-                  const values = form.getValues();
-                  const hasEmpty = Object.values(values).some(
-                    (v) => v === "" || v === undefined || v === null
-                  );
-        
-                  if (hasEmpty) {
-                    form.trigger();
-                    toast.error("Please fill all required fields before leaving.");
-                  }
-                }}
+        onInteractOutside={(event) => {
+          event.preventDefault();
+          const values = form.getValues();
+          const hasEmpty = Object.values(values).some(
+            (v) => v === "" || v === undefined || v === null
+          );
+
+          if (hasEmpty) {
+            form.trigger();
+            toast.error("Please fill all required fields before leaving.");
+          }
+        }}
       >
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Timeline" : "Add Timeline"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Timeline" : "Add Timeline"}
+          </DialogTitle>
         </DialogHeader>
 
         <FormProvider {...form}>
@@ -188,7 +189,10 @@ useEffect(() => {
                   <FormLabel>Start Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between text-left">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between text-left"
+                      >
                         <span>
                           {field.value
                             ? format(new Date(field.value), "PPP")
@@ -200,7 +204,9 @@ useEffect(() => {
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
                         onSelect={handleDateChange("startDate", field.onChange)}
                         captionLayout="dropdown"
                         className="rounded-md border"
@@ -221,7 +227,10 @@ useEffect(() => {
                   <FormLabel>End Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between text-left">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between text-left"
+                      >
                         <span>
                           {field.value
                             ? format(new Date(field.value), "PPP")
@@ -233,7 +242,9 @@ useEffect(() => {
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
                         onSelect={handleDateChange("endDate", field.onChange)}
                         captionLayout="dropdown"
                         className="rounded-md border"
@@ -254,7 +265,9 @@ useEffect(() => {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button className="cursor-pointer" type="submit">{initialData ? "Save Changes" : "Add Timeline"}</Button>
+              <Button className="cursor-pointer" type="submit">
+                {initialData ? "Save Changes" : "Add Timeline"}
+              </Button>
             </DialogFooter>
           </form>
         </FormProvider>

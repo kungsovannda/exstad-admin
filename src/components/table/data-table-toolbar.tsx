@@ -3,6 +3,7 @@
 import type { Column, Table } from "@tanstack/react-table";
 import * as React from "react";
 
+import { DataTableBooleanFilter } from "./data-table-boolean-filter";
 import { DataTableDateFilter } from "./data-table-date-filter";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { DataTableSliderFilter } from "./data-table-slider-filter";
@@ -136,6 +137,14 @@ function DataTableToolbarFilter<TData>({
               title={columnMeta.label ?? column.id}
               options={columnMeta.options ?? []}
               multiple={columnMeta.variant === "multiSelect"}
+            />
+          );
+
+        case "boolean":
+          return (
+            <DataTableBooleanFilter
+              column={column}
+              title={columnMeta.label ?? column.id}
             />
           );
 

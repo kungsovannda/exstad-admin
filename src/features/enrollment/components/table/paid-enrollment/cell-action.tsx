@@ -8,10 +8,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Enrollment, UpdateEnrollment } from "@/types/enrollment/index";
 import { CircleUser, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ViewEnrollmentProfile from "../../ViewEnrollmentProfile";
 import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 export default function PaidEnrollmentCellAction({
   data,
@@ -20,6 +21,13 @@ export default function PaidEnrollmentCellAction({
 }) {
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
   const [updateEnrollment] = useUpdateEnrollmentMutation();
+  const [isShortCourse, setIsShortCourse] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setIsShortCourse(searchParams.get("type") === "short-course");
+  }, [searchParams]);
+
   const handleEnrollmentUpdate = ({
     uuid,
     body,
@@ -39,6 +47,7 @@ export default function PaidEnrollmentCellAction({
       },
     });
   };
+
   return (
     <div className="flex ">
       <Button
@@ -56,28 +65,19 @@ export default function PaidEnrollmentCellAction({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            disabled={data.isInterviewed}
-            onClick={() =>
-              handleEnrollmentUpdate({
-                uuid: data.uuid,
-                body: { isInterviewed: true },
-              })
-            }
-          >
-            Mark as Interview
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={data.isPassed}
-            onClick={() =>
-              handleEnrollmentUpdate({
-                uuid: data.uuid,
-                body: { isInterviewed: true, isPassed: true },
-              })
-            }
-          >
-            Mark as Passed
-          </DropdownMenuItem>
+          {!isShortCourse && (
+            <DropdownMenuItem
+              disabled={data.isInterviewed}
+              onClick={() =>
+                handleEnrollmentUpdate({
+                  uuid: data.uuid,
+                  body: { isInterviewed: true },
+                })
+              }
+            >
+              Mark as Interview
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem
             variant="destructive"
             onClick={() =>

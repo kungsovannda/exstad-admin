@@ -2,7 +2,6 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -10,6 +9,7 @@ import {
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs";
 import { formatTitle } from "@/utils/formatTitle";
 import { IconSlash } from "@tabler/icons-react";
+import Link from "next/link";
 import { Fragment } from "react";
 
 export function Breadcrumbs() {
@@ -23,9 +23,7 @@ export function Breadcrumbs() {
           <Fragment key={item.title}>
             {index !== items.length - 1 && (
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href={item.link}>
-                  {formatTitle(item.title)}
-                </BreadcrumbLink>
+                <Link href={item.link}>{formatTitle(item.title)}</Link>
               </BreadcrumbItem>
             )}
             {index < items.length - 1 && (

@@ -13,13 +13,14 @@ import ViewEnrollmentProfile from "../../ViewEnrollmentProfile";
 import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
 import { toast } from "sonner";
 
-export default function AcceptedEnrollmentCellAction({
+export default function InterviewedEnrollmentCellAction({
   data,
 }: {
   data: Enrollment;
 }) {
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
   const [updateEnrollment] = useUpdateEnrollmentMutation();
+
   const handleEnrollmentUpdate = ({
     uuid,
     body,
@@ -39,6 +40,7 @@ export default function AcceptedEnrollmentCellAction({
       },
     });
   };
+
   return (
     <div className="flex ">
       <Button
@@ -76,7 +78,7 @@ export default function AcceptedEnrollmentCellAction({
               })
             }
           >
-            Remove interview
+            Remove Interview
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

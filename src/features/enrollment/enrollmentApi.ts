@@ -18,7 +18,6 @@ export const enrollmentApi = createApi({
         method: "POST",
         body,
       }),
-      transformResponse: (response: Enrollment) => response,
       invalidatesTags: [{ type: "Enrollment", id: "LIST" }],
     }),
 
@@ -28,7 +27,7 @@ export const enrollmentApi = createApi({
       transformResponse: (response: { enrollments?: Enrollment[] }) =>
         response.enrollments ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
@@ -44,7 +43,7 @@ export const enrollmentApi = createApi({
       query: () => "/enrollments/interviewed",
       transformResponse: (response: Enrollment[]) => response ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
@@ -60,7 +59,7 @@ export const enrollmentApi = createApi({
       query: () => "/enrollments/achieved",
       transformResponse: (response: Enrollment[]) => response ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
@@ -76,7 +75,7 @@ export const enrollmentApi = createApi({
       query: () => "/enrollments/passed",
       transformResponse: (response: Enrollment[]) => response ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
@@ -90,7 +89,6 @@ export const enrollmentApi = createApi({
     // 🔍 GET enrollment by UUID
     getEnrollmentByUuid: builder.query<Enrollment, string>({
       query: (uuid) => `/enrollments/${uuid}`,
-      transformResponse: (response: Enrollment) => response,
       providesTags: (result, error, uuid) => [{ type: "Enrollment", id: uuid }],
     }),
 
@@ -104,7 +102,7 @@ export const enrollmentApi = createApi({
         method: "PATCH",
         body,
       }),
-      transformResponse: (response: Enrollment) => response,
+      // Invalidate both the specific enrollment and all lists
       invalidatesTags: (result, error, { uuid }) => [
         { type: "Enrollment", id: uuid },
         { type: "Enrollment", id: "LIST" },
@@ -117,7 +115,7 @@ export const enrollmentApi = createApi({
       transformResponse: (response: { enrollments?: Enrollment[] }) =>
         response.enrollments ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
@@ -132,7 +130,7 @@ export const enrollmentApi = createApi({
       query: (uuid) => `/enrollments/${uuid}/interviewed`,
       transformResponse: (response: Enrollment[]) => response ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
@@ -147,7 +145,7 @@ export const enrollmentApi = createApi({
       query: (uuid) => `/enrollments/${uuid}/achieved`,
       transformResponse: (response: Enrollment[]) => response ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
@@ -162,7 +160,7 @@ export const enrollmentApi = createApi({
       query: (uuid) => `/enrollments/${uuid}/passed`,
       transformResponse: (response: Enrollment[]) => response ?? [],
       providesTags: (result) =>
-        result?.length
+        result
           ? [
               ...result.map(({ uuid }) => ({
                 type: "Enrollment" as const,
