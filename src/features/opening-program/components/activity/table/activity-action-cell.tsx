@@ -14,6 +14,7 @@ import DeleteModal from "@/features/master-program/components/delete-modal-compo
 import { toast } from "sonner";
 import { ActivityType } from "@/types/opening-program";
 import { useState } from "react";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ActivityActionsCellProps {
   activities: ActivityType;
@@ -42,11 +43,12 @@ export function ActivityActionsCell({ activities, onEdit, onDelete }: ActivityAc
       </DropdownMenu>
 
       {/* Delete Modal */}
-      <DeleteModal
+      <ModalDelete
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={activities.title}
-        onConfirm={async () => {
+        title={`Delete ${activities.title}?`}
+        description={`Are you sure you want to delete ${activities.title}? This action can not be undone `}
+        onDelete={async () => {
           try {
             if (onDelete) await onDelete(activities);
             setDeleteOpen(false);

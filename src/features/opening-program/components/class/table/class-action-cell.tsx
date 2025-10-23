@@ -16,6 +16,7 @@ import ClassModal, { ClassFormValues } from "@/features/opening-program/componen
 import { toast } from "sonner";
 import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { useDeleteClassMutation, useUpdateClassMutation } from "../classApi";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ClassActionsCellProps {
   classes: ClassType;
@@ -66,7 +67,7 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit ? onEdit(classes) :  setOpen(true)}> <SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>
-          <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() =>  onDelete ? onDelete(classes) :  setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>          
+          <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>          
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -79,11 +80,12 @@ export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellPr
       />
 
       {/* Delete Modal */}
-      <DeleteModal
+      <ModalDelete
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={classes.classCode}
-        onConfirm={handleDelete}
+        title={`Delete ${classes.classCode}?`}
+        description={`Are you sure you want to delete ${classes.classCode}? This action can not be undone `}
+        onDelete={handleDelete}
       />
     </>
   );

@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import AddTopicDialog from "../course-requirement/AddTopicDialog";
 import AddSectionDialog from "../course-requirement/SectionDialog";
-import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { SquarePen, Trash, GripVertical } from "lucide-react";
 
 import {
@@ -19,6 +18,7 @@ import {
 } from "./curriculumApi";
 import { CurriculumType } from "@/types/program";
 import { SectionSkeleton } from "../section-skeleton";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 type Props = {
   programUuid: string;
@@ -47,9 +47,13 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
   const [editingCurriculumIndex, setEditingCurriculumIndex] = useState<number | null>(null);
   const [editingSection, setEditingSection] = useState<{ curriculumIndex: number; index: number } | null>(null);
   const [addingSectionCurriculumIndex, setAddingSectionCurriculumIndex] = useState<number | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ type: "curriculum" | "section"; curriculumIndex?: number; index?: number } | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: "curriculum" | "section";
+    title: string;
+    curriculumIndex?: number;
+    index?: number;
+  } | null>(null);
   // Drag & Drop states - FIXED: Use index instead of ID
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -250,6 +254,7 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
               handleSaveCurriculumLocal(data);
               setIsCreateOpen(false);
             }}
+            submitButtonText={{ add: "Save Curriculum", edit: "Save Changes" }}
             trigger={
               <Button className="flex items-center gap-2.5">
                 <FiPlus />
@@ -306,7 +311,10 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
                     className="text-destructive cursor-pointer hover:text-destructive/80"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setDeleteTarget({ type: "curriculum", curriculumIndex: index });
+                      setDeleteTarget({ 
+                        type: "curriculum",
+                        curriculumIndex: index ,     
+                        title: curriculum.title, });
                     }}
                   />
                   <SquarePen
@@ -361,7 +369,8 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
                           size={16}
                           className="text-destructive cursor-pointer hover:text-destructive/80"
                           onClick={() =>
-                            setDeleteTarget({ type: "section", curriculumIndex: index, index: sectionIndex })
+                            setDeleteTarget({ type: "section", curriculumIndex: index, index: sectionIndex,
+                                        title: curriculum.description.join(", ") || `Curriculum #${index + 1}`,})
                           }
                         />
                         <SquarePen
@@ -424,11 +433,16 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
 
       {/* Delete Modal */}
       {canEdit && deleteTarget && (
-        <DeleteModal
+        <ModalDelete
           open={!!deleteTarget}
           onOpenChange={open => !open && setDeleteTarget(null)}
-          itemName={deleteTarget.type === "curriculum" ? "curriculum" : "section"}
-          onConfirm={() =>
+          title={deleteTarget ? `Delete ${deleteTarget?.title }?`: ""}
+          description={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`
+            : ""
+        }
+          onDelete={() =>
             deleteTarget && handleDeleteLocal(deleteTarget.type, deleteTarget.curriculumIndex, deleteTarget.index)
           }
         />

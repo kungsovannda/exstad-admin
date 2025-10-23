@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SerializedEditorState } from "lexical";
-import { initialValue } from "@/app/editor-00/page";
 
 // -----------------
 // Validation schema
@@ -63,7 +62,6 @@ export default function TimelineFormModal({
     );
   }
 
-  const [editorState, setEditorState] = useState<SerializedEditorState>(initialValue);
 
   // -----------------
   // UseForm with onChange validation
@@ -107,7 +105,6 @@ useEffect(() => {
       );
       onOpenChange(false);
       reset();
-      setEditorState(initialValue);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error(`Failed to submit the timeline: ${message || err}`);

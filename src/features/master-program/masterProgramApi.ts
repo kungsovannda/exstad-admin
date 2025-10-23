@@ -7,10 +7,11 @@ export const masterprogramApi = createApi({
   baseQuery: baseQuery(),
   tagTypes: ["MasterProgram"],
   endpoints: (builder) => ({
+
     getAllMasterPrograms: builder.query<MasterProgramType[], void>({
       query: () => "/programs",
       transformResponse: (response: { programs?: MasterProgramType[] }) =>
-        response.programs ?? [],
+        response["programs"] ?? [],
       providesTags: (result) =>
         result?.length
           ? [

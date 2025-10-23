@@ -17,6 +17,7 @@ import {
 import ScholarClassForm, {
   ScholarClassFormValue,
 } from "../form-field";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ScholarClassActionsCellProps {
   scholarClass: ScholarClassType;
@@ -24,7 +25,6 @@ interface ScholarClassActionsCellProps {
   onEdit?: (sc: ScholarClassType) => void;
   onDelete?: (sc: ScholarClassType) => void;
 }
-
 export default function ScholarClassActionsCell({
   scholarClass,
   existingScholars,
@@ -33,7 +33,6 @@ export default function ScholarClassActionsCell({
 }: ScholarClassActionsCellProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [open, setOpen] = useState(false);
-
   const [deleteScholarClass] = useDeleteScholarClassMutation();
   const [updateScholar] = useUpdateScholarClassMutation();
 
@@ -52,7 +51,7 @@ export default function ScholarClassActionsCell({
     try {
       const payload: ScholarClassCreate = {
         classUuid: scholarClass.classUuid,
-        scholarUuid: scholarClass.scholar.uuid, // cannot change
+        scholarUuid: scholarClass.scholar.uuid,
         isPaid: data.isPaid ?? scholarClass.isPaid,
         isReminded: data.isReminded ?? scholarClass.isReminded,
       };
@@ -73,15 +72,13 @@ export default function ScholarClassActionsCell({
   return (
     <>
       <Button
-      size={"sm"}
-      variant={"ghost"}
-            onClick={() =>
-              onDelete ? onDelete(scholarClass) : setDeleteOpen(true)
-            }
-            className="text-destructive "
-          >
-            <Trash size={16} className="text-destructive" />
-          </Button>
+        size={"sm"}
+        variant={"ghost"}
+        onClick={() => setDeleteOpen(true)} // ✅ Simplified - just open modal
+        className="text-destructive"
+      >
+        <Trash size={16} className="text-destructive" />
+      </Button>
 
       <ScholarClassForm
         open={open}
@@ -92,35 +89,18 @@ export default function ScholarClassActionsCell({
           isPaid: scholarClass.isPaid,
           isReminded: scholarClass.isReminded,
         }}
-        existingScholars={existingScholars} // pass array from parent
+        existingScholars={existingScholars}
         onSubmitScholarClass={handleUpdate}
       />
 
-      <DeleteModal
+      {/* ✅ Use only ModalDelete */}
+      <ModalDelete
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={scholarClass.scholar?.englishName}
-        onConfirm={handleDelete}
+        title="Delete Scholar Class"
+        description={`Are you sure you want to delete ${scholarClass.scholar?.englishName}? This action cannot be undone.`}
+        onDelete={handleDelete}
       />
-        {/* <ScholarClassForm
-  open={open}
-  onOpenChange={setOpen}
-  initialData={{
-    scholarName: scholarClass.scholar?.englishName ?? "",
-    scholarUuid: scholarClass.scholar?.uuid ?? "",
-    isPaid: scholarClass.isPaid,
-    isReminded: scholarClass.isReminded,
-  }}
-  existingScholars={existingScholars}
-  onSubmitScholarClass={handleUpdate}
-/> */}
-
-<DeleteModal
-  open={deleteOpen}
-  onOpenChange={setDeleteOpen}
-  itemName={scholarClass.scholar?.englishName ?? ""}
-  onConfirm={handleDelete}
-/>
     </>
   );
 }

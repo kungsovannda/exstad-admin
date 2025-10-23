@@ -16,6 +16,7 @@ import {
 } from "@/features/master-program/components/learningoutcomes/learningOutcomesApi";
 import { LearningOutcomeType } from "@/types/program";
 import { SectionSkeleton } from "../section-skeleton";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 type Props = { programUuid: string };
 
@@ -23,10 +24,13 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
   // ======================
   // Data fetching + mutation
   // ======================
-  const { data: outcomes = [], isLoading, isError } =
-    useGetAllLearningOutcomesQuery(programUuid, {
-      refetchOnMountOrArgChange: true,
-    });
+  const {
+    data: outcomes = [],
+    isLoading,
+    isError,
+  } = useGetAllLearningOutcomesQuery(programUuid, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const [updateOutcomes] = useUpdateLearningOutcomesMutation();
 
@@ -44,13 +48,16 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
     outcomeIndex: number;
     index: number;
   } | null>(null);
-  const [addingSectionOutcomeIndex, setAddingSectionOutcomeIndex] =
-    useState<number | null>(null);
+  const [addingSectionOutcomeIndex, setAddingSectionOutcomeIndex] = useState<
+    number | null
+  >(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "outcome" | "section";
+    title: string;
     outcomeIndex?: number;
     index?: number;
   } | null>(null);
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // sync server → local
@@ -80,45 +87,41 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
       <div className="text-destructive">Failed to load learning outcomes</div>
     );
 
-  // ======================
-  // Local Save Handlers
-  // ======================
+  const handleSaveOutcomeLocal = (
+    data: { title: string; subtitle: string },
+    targetIndex?: number
+  ) => {
+    let message = "";
+    setLocalOutcomes((prev) => {
+      const safe = prev ?? [];
+      let newOutcomes: LearningOutcomeType[];
 
-const handleSaveOutcomeLocal = (
-  data: { title: string; subtitle: string },
-  targetIndex?: number
-) => {
-  let message = "";
-  setLocalOutcomes((prev) => {
-    const safe = prev ?? [];
-    let newOutcomes: LearningOutcomeType[];
+      if (targetIndex !== undefined) {
+        newOutcomes = safe.map((o, i) =>
+          i === targetIndex
+            ? { ...o, title: data.title, subtitle: data.subtitle }
+            : o
+        );
+        message = `Learning Outcome "${data.title}" updated!`;
+      } else {
+        newOutcomes = [
+          ...safe,
+          {
+            id: crypto.randomUUID(),
+            title: data.title,
+            subtitle: data.subtitle || "",
+            description: [],
+          },
+        ];
+        message = `Learning Outcome "${data.title}" created!`;
+      }
 
-    if (targetIndex !== undefined) {
-      newOutcomes = safe.map((o, i) =>
-        i === targetIndex
-          ? { ...o, title: data.title, subtitle: data.subtitle }
-          : o
-      );
-      message = `Learning Outcome "${data.title}" updated!`;
-    } else {
-      newOutcomes = [
-        ...safe,
-        {
-          id: crypto.randomUUID(),
-          title: data.title,
-          subtitle: data.subtitle || "",
-          description: [],
-        },
-      ];
-      message = `Learning Outcome "${data.title}" created!`;
-    }
+      setHasChanges(true);
+      return newOutcomes;
+    });
 
-    setHasChanges(true);
-    return newOutcomes;
-  });
-
-  toast.success(message);
-};
+    toast.success(message);
+  };
 
   const handleSaveSectionLocal = (
     outcomeIndex: number,
@@ -153,43 +156,41 @@ const handleSaveOutcomeLocal = (
     });
   };
 
-  
-const handleDeleteLocal = (
-  type: "outcome" | "section",
-  outcomeIndex?: number,
-  index?: number
-) => {
-  let deletedName = "";
+  const handleDeleteLocal = (
+    type: "outcome" | "section",
+    outcomeIndex?: number,
+    index?: number
+  ) => {
+    let deletedName = "";
 
-  setLocalOutcomes((prev) => {
-    const safe = [...prev];
-    let newOutcomes: LearningOutcomeType[];
+    setLocalOutcomes((prev) => {
+      const safe = [...prev];
+      let newOutcomes: LearningOutcomeType[];
 
-    if (type === "outcome" && outcomeIndex !== undefined) {
-      deletedName = safe[outcomeIndex]?.title || `Outcome #${outcomeIndex + 1}`;
-      newOutcomes = safe.filter((_, i) => i !== outcomeIndex);
-    } else if (
-      type === "section" &&
-      outcomeIndex !== undefined &&
-      index !== undefined
-    ) {
-      const outcome = { ...safe[outcomeIndex] };
-      deletedName =
-        outcome.description?.[index] || `Section #${index + 1}`;
-      outcome.description = Array.isArray(outcome.description)
-        ? outcome.description.filter((_, i) => i !== index)
-        : [];
-      newOutcomes = safe.map((o, i) => (i === outcomeIndex ? outcome : o));
-    } else return prev;
+      if (type === "outcome" && outcomeIndex !== undefined) {
+        deletedName =
+          safe[outcomeIndex]?.title || `Outcome #${outcomeIndex + 1}`;
+        newOutcomes = safe.filter((_, i) => i !== outcomeIndex);
+      } else if (
+        type === "section" &&
+        outcomeIndex !== undefined &&
+        index !== undefined
+      ) {
+        const outcome = { ...safe[outcomeIndex] };
+        deletedName = outcome.description?.[index] || `Section #${index + 1}`;
+        outcome.description = Array.isArray(outcome.description)
+          ? outcome.description.filter((_, i) => i !== index)
+          : [];
+        newOutcomes = safe.map((o, i) => (i === outcomeIndex ? outcome : o));
+      } else return prev;
 
-    setHasChanges(true);
-    return newOutcomes;
-  });
+      setHasChanges(true);
+      return newOutcomes;
+    });
 
-  setDeleteTarget(null);
-  toast.info(`Learning Outcome "${deletedName}" deleted!`);
-};
-
+    setDeleteTarget(null);
+    toast.info(`Learning Outcome "${deletedName}" deleted!`);
+  };
 
   // ======================
   // Final Backend Save
@@ -204,19 +205,22 @@ const handleDeleteLocal = (
       toast.success("All learning outsomes saved!");
       setHasChanges(false);
     } catch (err: unknown) {
-      const backendErrors =
-            (err as {
-              data?: { error?: { description?: { reason: string; field?: string }[] } };
-            })?.data?.error?.description;
-      
-          if (Array.isArray(backendErrors) && backendErrors.length > 0) {
-            backendErrors.forEach((e) => {
-              toast.error(`${e.reason}`);
-            });
-          } else {
-            const message = err instanceof Error ? err.message : String(err);
-            toast.error(`Failed to save: ${message}`);
-          }
+      const backendErrors = (
+        err as {
+          data?: {
+            error?: { description?: { reason: string; field?: string }[] };
+          };
+        }
+      )?.data?.error?.description;
+
+      if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+        backendErrors.forEach((e) => {
+          toast.error(`${e.reason}`);
+        });
+      } else {
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(`Failed to save: ${message}`);
+      }
     }
   };
 
@@ -232,9 +236,14 @@ const handleDeleteLocal = (
         </h2>
 
         <AddTopicDialog
+          topicName="Learning Outcomes"
           open={isCreateOpen}
           onOpenChange={setIsCreateOpen}
           programUuid={programUuid}
+          submitButtonText={{
+            add: "Save Learning Outcomes",
+            edit: "Save Changes",
+          }}
           onSubmit={(data) => {
             handleSaveOutcomeLocal(data);
             setIsCreateOpen(false);
@@ -291,9 +300,15 @@ const handleDeleteLocal = (
                 <Trash
                   size={16}
                   className="text-destructive cursor-pointer"
-                  onClick={() =>
-                    setDeleteTarget({ type: "outcome", outcomeIndex })
-                  }
+                  onClick={() => {
+                    setDeleteTarget({
+                      type: "outcome",
+                      outcomeIndex,
+                      title:
+                        localOutcomes[outcomeIndex]?.title ||
+                        `Outcome #${outcomeIndex + 1}`,
+                    });
+                  }}
                 />
                 <SquarePen
                   size={16}
@@ -345,13 +360,17 @@ const handleDeleteLocal = (
                       <Trash
                         size={16}
                         className="text-destructive cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           setDeleteTarget({
                             type: "section",
                             outcomeIndex,
                             index,
-                          })
-                        }
+                            title:
+                              localOutcomes[outcomeIndex]?.description?.[
+                                index
+                              ] || `Section #${index + 1}`,
+                          });
+                        }}
                       />
                       <SquarePen
                         size={16}
@@ -421,11 +440,16 @@ const handleDeleteLocal = (
       </div>
 
       {/* Delete Modal */}
-      <DeleteModal
+      <ModalDelete
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        itemName={deleteTarget?.type === "outcome" ? "outcome" : "section"}
-        onConfirm={() =>
+        title={deleteTarget ? `Delete "${deleteTarget?.title}"?` : ""}
+        description={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`
+            : ""
+        }
+        onDelete={() =>
           deleteTarget &&
           handleDeleteLocal(
             deleteTarget.type,

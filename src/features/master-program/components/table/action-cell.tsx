@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { MasterProgramType } from "@/types/program";
 import { useDeleteMasterProgramMutation } from "../../masterProgramApi";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ActionsCellProps {
   program: MasterProgramType;
@@ -61,7 +62,12 @@ export function MasterActionsCell({ program }: ActionsCellProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DeleteModal open={deleteOpen} onOpenChange={setDeleteOpen} itemName={program.title} onConfirm={handleDelete} />
+      <ModalDelete 
+      open={deleteOpen} 
+      onOpenChange={setDeleteOpen} 
+      title={`Delete ${program.title}?`}
+      description={`Are you sure you want to delete ${program.title}? This action can not be undone `}
+      onDelete={handleDelete} />
     </>
   );
 }

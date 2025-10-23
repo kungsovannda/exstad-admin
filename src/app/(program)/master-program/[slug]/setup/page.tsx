@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+<<<<<<< HEAD
 import React from "react";
 import WorkNodeEditor from "@/components/roadmap";
+=======
+import { useParams } from "next/navigation";
+import { useState } from "react";
+>>>>>>> 223859dbc5e5ff4c1021afa5f7503ab4e726e2a9
 
-import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
+import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/CourseRequirement";
 import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
 import FaqAdmin from "@/features/master-program/components/faq/faq";
+import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
 import LearningOutcomesAdmin from "@/features/master-program/components/learningoutcomes/LearningOutcome";
-import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/CourseRequirement";
 import ProgramOverviewAdmin from "@/features/master-program/components/programOverview/programOverview";
 
-import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
+import Loader from "@/app/loading";
+import { useGetMasterProgramBySlugQuery } from "@/features/master-program/masterProgramApi";
 
 export default function ProgramSetup() {
   const [tab, setTab] = useState<
@@ -30,12 +34,11 @@ export default function ProgramSetup() {
   const programSlug = params.slug as string;
 
   // Fetch all programs to find the one by slug
-  const { data: programs, isLoading, error } = useGetAllMasterProgramsQuery();
-  const program = programs?.find((p) => p.slug === programSlug);
+  const { data: program, isLoading, error } = useGetMasterProgramBySlugQuery({slug: programSlug}, {skip: !programSlug});
 
-  if (isLoading) return <div>Loading program...</div>;
-  if (error || !program) return <div>Program not found</div>;
 
+  if(isLoading) return <Loader/>
+  if (error || !program) return <div className="flex items-center justify-center text-muted-foreground h-full w-full">Program not found</div>
   const programUuid = program.uuid;
 
   return (
