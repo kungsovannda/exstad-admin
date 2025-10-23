@@ -98,7 +98,7 @@ const handleEdit = useCallback((nodeId: string) => {
     }
     return nds
   })
-}, [])
+}, [setNodes])
 
   const handleDelete = useCallback(
     (nodeId: string) => {
@@ -297,7 +297,7 @@ useEffect(() => {
 
   setNodes(loadedNodes);
   setEdges(loadedEdges);
-}, [apiData, handleEdit, handleDelete]);
+}, [apiData, handleEdit, handleDelete, setNodes, setEdges]);
 
 const onConnect = useCallback(
   (params: Connection) => {
