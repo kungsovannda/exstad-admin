@@ -60,7 +60,7 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
       <ModalDelete
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title={"Delete Opening Program"}
+        title={`Delete ${openingprogram.programName}?`}
         description={`Are you sure you want to delete ${openingprogram.programName}? This action can not be undone `}
         onDelete={handleDelete}
       />

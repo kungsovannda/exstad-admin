@@ -39,12 +39,16 @@ import {
   useCreateLogoMutation,
 } from "@/features/document/documentApi";
 import { LogoUploadField } from "@/features/master-program/components/LogoUrl";
+import type { Resolver } from "react-hook-form";
 
-export const programFormSchema = z.object({
+export const MasterProgramFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  programType: z.enum(["SHORT_COURSE", "SCHOLARSHIP"]).optional(),
-  programLevel: z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]).optional(),
-  visibility: z.enum(["PUBLIC", "PRIVATE"]).optional(),
+  programType:  z.union([z.enum(["SHORT_COURSE", "SCHOLARSHIP"]), z.undefined()])
+    .refine((val) => val !== undefined, { message: "Status is required" }),
+  programLevel:  z.union([z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]), z.undefined()])
+    .refine((val) => val !== undefined, { message: "Status is required" }),
+  visibility:  z.union([z.enum(["PUBLIC", "PRIVATE"]), z.undefined()])
+    .refine((val) => val !== undefined, { message: "Status is required" }),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   logoUrl: z.string().min(1, { message: "Logo is required" }),
@@ -57,7 +61,7 @@ export const programFormSchema = z.object({
     }),
 });
 
-export type MasterProgramFormValues = z.infer<typeof programFormSchema>;
+export type MasterProgramFormValues = z.infer<typeof MasterProgramFormSchema>;
 
 interface ExtendedFormReturn extends UseFormReturn<MasterProgramFormValues> {
   _logoFile?: File;
@@ -76,13 +80,17 @@ export default function MasterProgramForm({
   submitLabel = "Submit",
   onSlugEdited,
 }: Props) {
+    const resolver: Resolver<MasterProgramFormValues> = zodResolver(
+      MasterProgramFormSchema
+    ) as unknown as Resolver<MasterProgramFormValues>;
+  
   const form = useForm<MasterProgramFormValues>({
-    resolver: zodResolver(programFormSchema),
-    defaultValues: {
+    resolver,
+    defaultValues: initialValues ||{
       title: "",
-      programType: undefined,
-      programLevel: undefined,
-      visibility: undefined,
+      programType: undefined as | "SHORT_COURSE" | "SCHOLARSHIP" |undefined,
+      programLevel: undefined as |"BASIC"| "INTERMEDIATE"| "ADVANCED"|undefined,
+      visibility: undefined as | "PUBLIC" | "PRIVATE" |undefined,
       subtitle: "",
       description: "",
       logoUrl: "",
@@ -210,9 +218,9 @@ export default function MasterProgramForm({
             <FormItem>
               <FormLabel>Program Type</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select..." />
+                    <SelectValue placeholder="Select Program Type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="SHORT_COURSE">SHORT_COURSE</SelectItem>

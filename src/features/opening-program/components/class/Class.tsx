@@ -29,7 +29,6 @@ export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: 
     isError,
     refetch,
   } = useGetClassesByOpeningProgramQuery(openingProgramTitle, {
-    skip: !openingProgramTitle,
     refetchOnMountOrArgChange: true,
   });
 

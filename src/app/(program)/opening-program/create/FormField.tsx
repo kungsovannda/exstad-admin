@@ -30,6 +30,7 @@ import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
 import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
 import { generateSlug } from "@/services/generate-slug";
 import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
+import generateFilename from "@/services/generate-filename";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -216,7 +217,11 @@ export default function OpeningProgramForm({
           programSlug,
           gen: generation,
           documentType: "thumbnail",
-          filename: "",
+          filename: generateFilename({
+                        type: "thumbnail",
+                        program: programSlug,
+                        generation: String(generation),
+                      }),
         }).unwrap();
         data.thumbnail = thumbnailRes.uri;
       }
@@ -228,7 +233,11 @@ export default function OpeningProgramForm({
           programSlug,
           gen: generation,
           documentType: "poster",
-          filename: "",
+          filename: generateFilename({
+                        type: "poster",
+                        program: programSlug,
+                        generation: String(generation),
+                      }),
         }).unwrap();
         data.posterUrl = posterRes.uri;
       }
@@ -240,7 +249,11 @@ export default function OpeningProgramForm({
           programSlug,
           gen: generation,
           documentType: "qr",
-          filename: "",
+          filename: generateFilename({
+                        type: "qr",
+                        program: programSlug,
+                        generation: String(generation),
+                      }),
         }).unwrap();
         data.qrCodeUrl = qrRes.uri;
       }

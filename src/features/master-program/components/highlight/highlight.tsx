@@ -13,6 +13,7 @@
   } from "./highlightApi";
   import { HighlightPayload, HighlightType } from "@/types/program";
   import { SectionSkeleton } from "../section-skeleton";
+import ModalDelete from "@/components/modal/ModalDelete";
 
   type Props = { programUuid: string };
 
@@ -157,7 +158,9 @@
                 <Trash
                   size={16}
                   className="text-destructive cursor-pointer"
-                  onClick={() => setDeleteTarget(h)}
+                  onClick={() => {
+                    setDeleteTarget(h);
+                  }}
                 />
                 <HighlightsFormModal
                   open={
@@ -186,11 +189,12 @@
         )}
 
         {/* Delete Modal */}
-        <DeleteModal
+        <ModalDelete
           open={!!deleteTarget}
           onOpenChange={(open) => !open && setDeleteTarget(null)}
-          itemName={deleteTarget?.label || ""}
-          onConfirm={() => {
+          title={deleteTarget ? `Delete ${deleteTarget?.label }?`: ""}
+          description={deleteTarget ? `Are you sure you want to delete ${deleteTarget?.label}? This action can not be undone `: ""}
+          onDelete={() => {
             if (deleteTarget) handleDeleteHighlightLocal(deleteTarget);
             setDeleteTarget(null);
           }}

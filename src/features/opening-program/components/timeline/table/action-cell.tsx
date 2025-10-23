@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { TimelineType } from "@/types/opening-program";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 interface TimelineActionsCellProps {
   timelines: TimelineType;
@@ -35,11 +36,12 @@ export function TimelineActionsCell({ timelines, onDelete ,onEdit}: TimelineActi
           <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => setDeleteOpen(true)}><Trash size={16} className="text-destructive "/>Delete</DropdownMenuItem>               
         </DropdownMenuContent>
       </DropdownMenu>
-      <DeleteModal
+      <ModalDelete
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={timelines.title}
-        onConfirm={async () => {
+        title={`Delete ${timelines.title}?`}
+        description={`Are you sure you want to delete ${timelines.title}? This action can not be undone `}
+        onDelete={async () => {
           try {
             if (onDelete) await onDelete(timelines);
             setDeleteOpen(false);

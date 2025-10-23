@@ -25,7 +25,9 @@ export default function ModalDelete({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex justify-center items-center flex-col w-sm gap-5">
+      <DialogContent className="flex justify-center items-center flex-col w-sm gap-5"onPointerDown={(e) => e.stopPropagation()}    onInteractOutside={(e) => {
+          e.preventDefault();
+        }}>
         <DialogHeader className="gap-5">
           <DialogTitle className="text-center">{title}</DialogTitle>
           <DialogDescription className="text-center">

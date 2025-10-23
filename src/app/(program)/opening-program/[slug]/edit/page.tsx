@@ -15,12 +15,7 @@ function OpeningProgramEdit() {
   const router = useRouter();
   const programSlug = params?.slug as string;
 
-  const {
-    data: openingProgram,
-    isLoading,
-    error,
-    refetch, 
-  } = useGetOpeningProgramBySlugQuery(
+  const { data: openingProgram, isLoading, error, refetch, } = useGetOpeningProgramBySlugQuery(
     { slug: programSlug },
     { refetchOnMountOrArgChange: true }
   );
@@ -61,6 +56,7 @@ function OpeningProgramEdit() {
       ...values,
       slug: values.slug,
       status: values.status ?? "OPEN",
+  
     };
 
     try {

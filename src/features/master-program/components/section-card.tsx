@@ -3,7 +3,7 @@
 
 import DefaultStatisticCard from "@/components/statistic-card/DefaultStatisticCard";
 import { State } from "@/types";
-import { UserCheck2, Users } from "lucide-react";
+import { Pencil, PencilOff, UserCheck2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MasterProgramType } from "@/types/program";
 
@@ -47,13 +47,13 @@ export function MasterProgramStatisticCard({
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <DefaultStatisticCard
         title="Total Program"
-        icon={Users}
+        icon={Pencil}
         total={total}
         isLoading={isLoading}
       />
       <DefaultStatisticCard
         title="Draft Program"
-        icon={UserCheck2}
+        icon={PencilOff }
         total={draft}
         isLoading={isLoading}
       />
