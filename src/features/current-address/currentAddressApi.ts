@@ -7,6 +7,7 @@ export const currentAddressApi = createApi({
   baseQuery: baseQuery(),
   tagTypes: ["CurrentAddress"],
   endpoints: (builder) => ({
+    // GET all current addresses
     getCurrentAddresses: builder.query<CurrentAddress[], void>({
       query: () => "/current-addresses",
       transformResponse: (response: { currentAddresses: CurrentAddress[] }) => {
@@ -24,6 +25,15 @@ export const currentAddressApi = createApi({
           : [{ type: "CurrentAddress", id: "LIST" }],
     }),
 
+    // GET current address by uuid
+    getCurrentAddress: builder.query<CurrentAddress, string>({
+      query: (uuid) => `/current-addresses/${uuid}`,
+      providesTags: (result, error, uuid) => [
+        { type: "CurrentAddress", id: uuid },
+      ],
+    }),
+
+    // POST create current address
     createCurrentAddress: builder.mutation<
       CurrentAddress,
       CreateCurrentAddress
@@ -36,22 +46,25 @@ export const currentAddressApi = createApi({
       invalidatesTags: [{ type: "CurrentAddress", id: "LIST" }],
     }),
 
-    deleteCurrentAddress: builder.mutation<void, string>({
+    // PUT soft delete current address
+    softDeleteCurrentAddress: builder.mutation<void, string>({
       query: (uuid) => ({
-        url: `/current-addresses/${uuid}`,
-        method: "DELETE",
+        url: `/current-addresses/${uuid}/soft-delete`,
+        method: "PUT",
       }),
       invalidatesTags: (result, error, uuid) => [
         { type: "CurrentAddress", id: uuid },
         { type: "CurrentAddress", id: "LIST" },
       ],
     }),
-    getCurrentAddress: builder.query<CurrentAddress, string>({
+
+    // DELETE hard delete current address
+    hardDeleteCurrentAddress: builder.mutation<void, string>({
       query: (uuid) => ({
         url: `/current-addresses/${uuid}`,
-        method: "GET",
+        method: "DELETE",
       }),
-      providesTags: (result, error, uuid) => [
+      invalidatesTags: (result, error, uuid) => [
         { type: "CurrentAddress", id: uuid },
         { type: "CurrentAddress", id: "LIST" },
       ],
@@ -63,5 +76,6 @@ export const {
   useGetCurrentAddressesQuery,
   useGetCurrentAddressQuery,
   useCreateCurrentAddressMutation,
-  useDeleteCurrentAddressMutation,
+  useSoftDeleteCurrentAddressMutation,
+  useHardDeleteCurrentAddressMutation,
 } = currentAddressApi;

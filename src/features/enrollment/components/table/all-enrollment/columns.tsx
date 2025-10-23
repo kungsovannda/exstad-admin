@@ -73,6 +73,12 @@ export const enrollmentColumns: ColumnDef<Enrollment>[] = [
   {
     accessorKey: "isPaid",
     header: "Payment Status",
+    enableColumnFilter: true,
+    meta: {
+      variant: "boolean",
+      label: "Paid",
+    },
+    filterFn: "equals",
     cell: ({ row }) => {
       const paid = row.original.isPaid;
       return (

@@ -6,6 +6,7 @@ import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
 import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 
 interface UniversityTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -23,6 +24,8 @@ export function UniversityTable<TData, TValue>({
     ? Number(searchParams.get("perPage"))
     : 10;
 
+  const [sorting, setSorting] = useState([{ id: "name", desc: false }]);
+
   const { table } = useDataTable({
     data,
     columns,
@@ -32,6 +35,7 @@ export function UniversityTable<TData, TValue>({
     enableGlobalFilter: true,
     enableColumnFilters: true,
     enableSorting: true,
+    onSortingChange: setSorting,
   });
 
   return (

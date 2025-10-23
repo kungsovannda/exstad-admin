@@ -58,9 +58,13 @@ export const scholarApi = createApi({
     // GET scholar by username
     getScholarByUsername: builder.query<Scholar, string>({
       query: (username) => `/scholars/username/${username}`,
-      providesTags: (result, error, username) => [
-        { type: "Scholar", id: `username-${username}` },
-      ],
+      providesTags: (result, error, username) =>
+        result
+          ? [
+              { type: "Scholar", id: result.uuid }, // Use the actual UUID from result
+              { type: "Scholar", id: "LIST" },
+            ]
+          : [{ type: "Scholar", id: "LIST" }],
     }),
 
     // Search scholars
@@ -282,6 +286,7 @@ export const scholarApi = createApi({
       invalidatesTags: (result, error, { scholarUuid }) => [
         { type: "Scholar", id: scholarUuid },
         { type: "ScholarCareer", id: `scholar-${scholarUuid}` },
+        { type: "Scholar", id: "LIST" },
       ],
     }),
 
@@ -306,6 +311,7 @@ export const scholarApi = createApi({
       invalidatesTags: (result, error, { scholarUuid }) => [
         { type: "Scholar", id: scholarUuid },
         { type: "ScholarSpecialist", id: `scholar-${scholarUuid}` },
+        { type: "Scholar", id: "LIST" },
       ],
     }),
 
@@ -331,6 +337,38 @@ export const scholarApi = createApi({
     markIsEmployed: builder.mutation<Scholar, string>({
       query: (uuid) => ({
         url: `/scholars/${uuid}/is-employed`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "Scholar", id: uuid },
+        { type: "Scholar", id: "LIST" },
+      ],
+    }),
+
+    unMarkIsEmployed: builder.mutation<Scholar, string>({
+      query: (uuid) => ({
+        url: `/scholars/${uuid}/is-unemployed`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "Scholar", id: uuid },
+        { type: "Scholar", id: "LIST" },
+      ],
+    }),
+    markIsAbroad: builder.mutation<Scholar, string>({
+      query: (uuid) => ({
+        url: `/scholars/${uuid}/is-abroad`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "Scholar", id: uuid },
+        { type: "Scholar", id: "LIST" },
+      ],
+    }),
+
+    unMarkIsAbroad: builder.mutation<Scholar, string>({
+      query: (uuid) => ({
+        url: `/scholars/${uuid}/is-not-abroad`,
         method: "PUT",
       }),
       invalidatesTags: (result, error, uuid) => [
@@ -386,6 +424,9 @@ export const {
   useGetAllScholarsByOpeningProgramUuidQuery,
   useMarkCompletedCourseMutation,
   useMarkIsEmployedMutation, // NEW
+  useUnMarkIsAbroadMutation,
+  useMarkIsAbroadMutation,
+  useUnMarkIsEmployedMutation,
   useGetAllScholarsByClassRoomNameQuery, // NEW
   useGetAllScholarsByProgramUuidQuery, // NEW
   useGetAllCompletedCoursesByScholarUuidQuery, // NEW

@@ -18,11 +18,6 @@ export const provinceColumns: ColumnDef<Province>[] = [
     header: "Khmer Name",
   },
   {
-    accessorKey: "scholars",
-    header: "Scholars",
-    enableSorting: true,
-  },
-  {
     accessorKey: "audit.createdBy",
     header: "Created By",
   },
