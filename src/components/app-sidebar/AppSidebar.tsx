@@ -75,11 +75,11 @@ const data = {
         },
       ],
     },
-    {
-      title: "Transcript",
-      url: "/transcript",
-      icon: FileText,
-    },
+    // {
+    //   title: "Transcript",
+    //   url: "/transcript",
+    //   icon: FileText,
+    // },
     {
       title: "Certificate",
       url: "/certificate",
