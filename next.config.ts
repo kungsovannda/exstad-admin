@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       "t4.ftcdn.net",
       "example.com",
       "api.exstad.tech",
+      "www.keycdn.com",
     ],
     remotePatterns: [
       {

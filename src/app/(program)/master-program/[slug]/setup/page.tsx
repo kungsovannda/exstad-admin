@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import React from "react";
+import WorkNodeEditor from "@/components/roadmap";
 
 import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
 import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
@@ -98,7 +100,11 @@ export default function ProgramSetup() {
       {/* Tab Content */}
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
-      {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
+      {tab === "roadmap" && (
+        <div className="border rounded-2xl overflow-hidden">
+          <WorkNodeEditor programUuid={programUuid} />
+        </div>
+      )}
       {tab === "faq" && <FaqAdmin programUuid={programUuid} />}
       {tab === "learning-outcomes" && (
         <LearningOutcomesAdmin programUuid={programUuid} />
