@@ -149,19 +149,8 @@ Short descriptions:
 
 A beautifully crafted admin experience can change how education is managed. Exstad Admin aims to take the friction out of administration so educators can focus on what matters most: designing meaningful learning experiences. We build tools that are thoughtful, fast, and reliable — designed for people who care about learning.
 
----
-
-## 👨‍💻 Author & Credits
-
-Crafted with care by Kung Sovannda — Full‑stack developer, designer, and educator.  
-Mission: empower institutions with elegant, human-centered admin tools that scale.
-
-Thanks to the open-source ecosystem (Next.js, Tailwind, Shadcn) and contributors who make projects like this possible.
-
----
-
 <p align="center">
-  <img src="https://raw.githubusercontent.com/kungsovannda/exstad-admin/main/public/preview.png" alt="Exstad Admin Preview" width="80%"/>
+  <img src="https://admin.exstad.tech/preview.png" alt="Exstad Admin Preview" width="80%"/>
 </p>
 
 ---
