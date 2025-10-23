@@ -101,17 +101,6 @@ export default function CreateGeneralInformation({
       ...otherValues,
     };
     handleOnSubmit(scholarInfo);
-    try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
-    }
   }
 
   const { data: universities } = useGetAllUniversitiesQuery();
@@ -221,6 +210,7 @@ export default function CreateGeneralInformation({
                       <Calendar
                         mode="single"
                         selected={field.value}
+                        captionLayout="dropdown"
                         onSelect={field.onChange}
                         initialFocus
                       />

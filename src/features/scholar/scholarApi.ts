@@ -214,27 +214,34 @@ export const scholarApi = createApi({
       query: (openingProgramUuid) => {
         return `/scholars/${openingProgramUuid}/opening-program`;
       },
-      transformResponse: (
-        response: ScholarApiResponse | Scholar[] | unknown
-      ): Scholar[] => {
+      transformResponse: (response: unknown): Scholar[] => {
+        // 1) If API returns { "opening-program-scholars": [...] }
         if (
           response &&
           typeof response === "object" &&
-          !Array.isArray(response)
+          !Array.isArray(response) &&
+          (response as Record<string, unknown>)["opening-program-scholars"]
         ) {
-          const apiResponse = response as ScholarApiResponse;
-          if (
-            apiResponse["opening-program-scholars"] &&
-            Array.isArray(apiResponse["opening-program-scholars"])
-          ) {
-            return apiResponse["opening-program-scholars"];
-          }
+          const arr = (response as Record<string, unknown>)[
+            "opening-program-scholars"
+          ];
+          if (Array.isArray(arr)) return arr as Scholar[];
         }
+
+        // 2) If API returns an array
         if (Array.isArray(response)) {
           return response as Scholar[];
         }
 
-        // Always return an array
+        // 3) If API returns a single scholar object
+        if (response && typeof response === "object") {
+          const obj = response as Partial<Scholar>;
+          if (typeof obj.uuid === "string") {
+            return [obj as Scholar];
+          }
+        }
+
+        // 4) Fallback
         return [];
       },
       providesTags: ["Scholar"],

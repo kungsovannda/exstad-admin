@@ -21,6 +21,7 @@ export type Scholar = {
   phoneFamilyNumber: string;
   isPublic: boolean;
   isAbroad: boolean;
+  isEmployed: boolean;
   quote: string;
   audit: Audit;
   badges: BadgeForScholar[];  

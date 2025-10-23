@@ -36,6 +36,8 @@ import { useGetCurrentAddressesQuery } from "@/features/current-address/currentA
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllScholarAchievementsQuery } from "@/features/scholar-achievement/scholarAchievementApi";
 import { useGetScholarByUsernameQuery } from "@/features/scholar/scholarApi";
+import ScholarCareerSetUp from "@/features/scholar/statistic/components/ScholarCareerSetUp";
+import ScholarSpecialistSetUp from "@/features/scholar/statistic/components/ScholarSpecialistSetUp";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
 import { UpdateScholar } from "@/types/scholar";
 import { dateFormatter } from "@/utils/dateFormatter";
@@ -65,7 +67,7 @@ export default function ScholarDetails() {
   const [isAssignBadgeModalOpen, setIsAssignBadgeModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   return (
-    <div className="pl-6 flex flex-col space-y-4">
+    <div className="pl-6 h-content max-h-content overflow-hidden flex flex-col space-y-4">
       <main className="grid grid-cols-[0.3fr_0.7fr] gap-4">
         {/* Left Content */}
         <div className="h-content max-h-content border-r-1 flex flex-col space-y-3 justify-start items-center pr-6 pb-6 pt-6">
@@ -349,6 +351,9 @@ export default function ScholarDetails() {
             >
               <Button disabled={updateScholar == null}>Save Changes</Button>
             </div>
+
+            <ScholarCareerSetUp scholar={scholar ?? null} />
+            <ScholarSpecialistSetUp scholar={scholar ?? null} />
 
             <div className="flex items-center mt-10 justify-between">
               <Heading

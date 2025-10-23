@@ -40,7 +40,6 @@ export default function AddScholar({
   const [createScholar] = useCreateScholarMutation();
 
   const handleNext = (data: ScholarGeneralInformation) => {
-    window.alert(data);
     setGeneralData(data);
     setInfo("credential");
   };
