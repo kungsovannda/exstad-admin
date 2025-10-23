@@ -16,14 +16,22 @@ import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openin
 import { sortByAudit } from "@/utils/sortByAudit";
 import { Option } from "@/types/data-table";
 import ProgramBarCard from "@/features/master-program/components/opening-program-chart";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export default function Page() { 
-  const {
-    data: masterProgram = [],
-    isLoading,
-  } = useGetAllMasterProgramsQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
+
+export default function MasterProgramPage() {
+  const { data: masterProgram = [], isLoading } = useGetAllMasterProgramsQuery(
+    undefined,
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const { data: openingPrograms = [] } = useGetAllOpeningProgramsQuery();
 
@@ -70,16 +78,25 @@ export default function Page() {
         <LevelPieCard levelCounts={levelCounts} />
         <ProgramBarCard data={openingCounts} />
       </div>
-
-      {isLoading ? (
-        <DataTableSkeleton columnCount={5} />
-      ) : (
-        <MasterProgramTable
-          data={programs}
-          totalItems={programs.length}
-          columns={columns}
-        />
-      )}
+      <Card className="flex flex-col space-y-4 rounded-lg shadow-sm">
+        <CardHeader className="items-center pb-2">
+          <CardTitle>Master Program Overview</CardTitle>
+          <CardDescription>
+            View and manage master program information
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <DataTableSkeleton columnCount={5} />
+          ) : (
+            <MasterProgramTable
+              data={programs}
+              totalItems={programs.length}
+              columns={columns}
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

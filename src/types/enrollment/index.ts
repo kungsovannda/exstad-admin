@@ -19,6 +19,7 @@ export type Enrollment = {
   extra: Record<string, string>;
   amount: number;
   isPaid: boolean;
+  isScholar: boolean;
   isInterviewed: boolean;
   isAchieved: boolean;
   isPassed: boolean;

@@ -10,12 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import CreateUserModal from "@/features/user/components/CreateUserModal";
 import { userColumns } from "@/features/user/components/table/column";
 import { useGetNotScholarUsersQuery } from "@/features/user/userApi";
+import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 
 export default function UserPage() {
   const { data: users, isLoading } = useGetNotScholarUsersQuery();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   return (
     <div className="p-6 space-y-6 min-h-screen h-fit">
       <div className="flex justify-between items-center  gap-10">
@@ -25,7 +28,7 @@ export default function UserPage() {
         />
         <Button variant="outline" className="flex items-center gap-2.5">
           <FiPlus />
-          <span>Add User</span>
+          <span onClick={() => setIsCreateOpen(true)}>Add User</span>
         </Button>
       </div>
       <Card className="flex flex-col space-y-4 rounded-lg shadow-sm">
@@ -45,6 +48,9 @@ export default function UserPage() {
           )}
         </CardContent>
       </Card>
+      {isCreateOpen && (
+        <CreateUserModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      )}
     </div>
   );
 }

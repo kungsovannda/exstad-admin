@@ -12,38 +12,75 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Scholar } from "@/types/scholar";
+import { Scholar, ScholarSpecialistSetUp } from "@/types/scholar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+  useAssignSpecialistsMutation,
+  useMarkIsAbroadMutation,
+  useUnMarkIsAbroadMutation,
+} from "../../scholarApi";
 
 const formSchema = z.object({
   isAbroad: z.boolean(),
   universityName: z.string().min(1),
   degreeType: z.string().min(1),
   country: z.string().min(1),
-  specialist: z.number(),
+  specialist: z.string(),
   about: z.string(),
 });
 
-export default function ScholarSpecialistSetUp({
+export default function ScholarSpecialistSetUpComponent({
   scholar,
 }: {
   scholar: Scholar | null;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      isAbroad: scholar?.isAbroad ?? false,
+      country: scholar?.specialist?.[0].country ?? "",
+      universityName: scholar?.specialist?.[0].universityName ?? "",
+      degreeType: scholar?.specialist?.[0].degreeType ?? "",
+      specialist: scholar?.specialist?.[0].specialist ?? "",
+      about: scholar?.specialist?.[0].about ?? "",
+    },
   });
+
+  const [assignSpecialist] = useAssignSpecialistsMutation();
+  const [markAbroad] = useMarkIsAbroadMutation();
+  const [UnMarkAbroad] = useUnMarkIsAbroadMutation();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      if (!values && !scholar) return;
+      const payload: ScholarSpecialistSetUp = { ...values };
+      if (values.isAbroad) {
+        toast.promise(markAbroad(scholar?.uuid ?? "").unwrap(), {
+          loading: "Marking...",
+        });
+        toast.promise(
+          assignSpecialist({
+            scholarUuid: scholar?.uuid ?? "",
+            specialistSetups: [payload],
+          }).unwrap(),
+          {
+            loading: "Assigning...",
+            success: () => {
+              return "Specialist assigned successfully!";
+            },
+            error: (error) => {
+              return `Failed to assign scholar specialist: ${error.message}`;
+            },
+          }
+        );
+      } else {
+        toast.promise(UnMarkAbroad(scholar?.uuid ?? "").unwrap(), {
+          loading: "Un marking...",
+        });
+      }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -61,7 +98,6 @@ export default function ScholarSpecialistSetUp({
         <FormField
           control={form.control}
           name="isAbroad"
-          defaultValue={scholar.isAbroad}
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
@@ -80,10 +116,7 @@ export default function ScholarSpecialistSetUp({
             </FormItem>
           )}
         />
-        <div
-          hidden={!form.watch("isAbroad")}
-          className="flex flex-col space-y-3 mt-4"
-        >
+        <div className="flex flex-col space-y-3 mt-4">
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-6">
               <FormField

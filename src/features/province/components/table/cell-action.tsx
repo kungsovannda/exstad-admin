@@ -8,10 +8,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Province } from "@/types/province";
 import { MoreHorizontal } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+import { ViewProvince } from "../ViewProvince";
 
 export default function ProvinceCellAction({ data }: { data: Province }) {
-  console.log(data);
+  const [isOpenView, setIsOpenView] = useState(false);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -21,8 +23,17 @@ export default function ProvinceCellAction({ data }: { data: Province }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem>View Details</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setIsOpenView(true)}>
+          View Details
+        </DropdownMenuItem>
       </DropdownMenuContent>
+      {isOpenView && (
+        <ViewProvince
+          onOpenChange={setIsOpenView}
+          open={isOpenView}
+          province={data}
+        />
+      )}
     </DropdownMenu>
   );
 }

@@ -11,6 +11,7 @@ import CurriculumAdmin from "@/features/master-program/components/curriculum/cur
 import { useGetOpeningProgramBySlugQuery } from "@/features/opening-program/openingProgramApi";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import Loader from "@/app/loading";
+import WorkNodeEditor from "@/components/roadmap";
 
 export default function OpeningProgramSetup() {
   const [tab, setTab] = useState<
@@ -84,7 +85,11 @@ export default function OpeningProgramSetup() {
         />
       )}
 
-      {tab === "roadmap" && <div>🚀 Roadmap Component</div>}
+      {tab === "roadmap" && (
+        <div className="border rounded-2xl overflow-hidden">
+          <WorkNodeEditor programUuid={openingProgram.uuid} />
+        </div>
+      )}
       {tab === "timeline" && (
         <TimelinePage openingProgramUuid={openingProgram.uuid} />
       )}

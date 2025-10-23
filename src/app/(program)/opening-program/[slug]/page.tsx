@@ -92,15 +92,15 @@ export default function ClassListPage() {
       </div>
     );
   }
-  const loading =
+const loading =
   isLoading ||
   !openingProgram?.uuid ||
-  scholars.length === 0 ||
-  instructorClasses.length === 0;
+  scholars === undefined ||
+  instructorClasses === undefined;
 
-if (loading) {
-  return <Loader/>;
-}
+
+if (!openingProgram?.uuid) return <Loader />;
+if (isLoading) return <Loader />;
 
   return (
     <div className="min-h-screen bg-background p-6">

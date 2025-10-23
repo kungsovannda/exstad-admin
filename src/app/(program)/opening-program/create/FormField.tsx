@@ -43,7 +43,7 @@ export const openingProgramformSchema = z.object({
   ),
   originalFee: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, { message: "Original fee is required" })
+    z.number().min(0, { message: "Original fee is required" })
   ),
   scholarship: z.preprocess(
     (val) => Number(val),
@@ -52,11 +52,11 @@ export const openingProgramformSchema = z.object({
   price: z.preprocess((val) => Number(val), z.number()),
   totalSlot: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, { message: "Total Slot is required" })
+    z.number().min(0, { message: "Total Slot is required" })
   ),
   registerFee: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, { message: "Register Fee is required" })
+    z.number().min(0, { message: "Register Fee is required" })
   ),
   duration: z.string().min(1, { message: "Duration is required" }),
   deadline: z.string().min(1, { message: "Deadline is required" }),

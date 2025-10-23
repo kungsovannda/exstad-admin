@@ -30,7 +30,7 @@ export default function DefaultStatisticCard({
         <div className="text-2xl font-bold">
           {isLoading ? <Skeleton className="w-12 h-8" /> : total?.total}
         </div>
-        {total?.female ? (
+        {total?.female !== undefined ? (
           <p className="text-xs text-muted-foreground flex items-center">
             Female:{" "}
             {isLoading ? <Skeleton className="w-5 h-3" /> : total?.female},

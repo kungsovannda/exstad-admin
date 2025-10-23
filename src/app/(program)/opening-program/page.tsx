@@ -11,6 +11,13 @@ import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { OpeningProgramStatisticCard } from "@/features/opening-program/components/StatisticCard";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { sortByAudit } from "@/utils/sortByAudit";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function OpeningProgramPage() {
   const { data :openingProgram=[], isLoading, error } = useGetAllOpeningProgramsQuery(undefined, {
@@ -37,6 +44,14 @@ export default function OpeningProgramPage() {
       </div>
       <OpeningProgramStatisticCard OpeningProgram={openingProgram} isLoading={isLoading}
       MasterProgram={masterProgram}  />
+      <Card className="flex flex-col space-y-4 rounded-lg shadow-sm">
+        <CardHeader className="items-center pb-2">
+          <CardTitle>Opening Program Overview</CardTitle>
+          <CardDescription>
+            View and manage opening program information
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
       {isLoading ? (
         <DataTableSkeleton columnCount={5} />
       ):(
@@ -46,6 +61,8 @@ export default function OpeningProgramPage() {
           columns={columns}
         />
       )}
+      </CardContent>
+        </Card>
     </div>
   );
 }

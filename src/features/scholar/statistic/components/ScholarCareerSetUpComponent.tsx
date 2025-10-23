@@ -20,7 +20,9 @@ import { z } from "zod";
 import {
   useAssignCareersMutation,
   useMarkIsEmployedMutation,
+  useUnMarkIsEmployedMutation,
 } from "../../scholarApi";
+import { useState } from "react";
 
 const formSchema = z.object({
   isEmployed: z.boolean(),
@@ -50,29 +52,36 @@ export default function ScholarCareerSetUpComponent({
 
   const [assignCareer] = useAssignCareersMutation();
   const [markEmployed] = useMarkIsEmployedMutation();
+  const [markUnEmployed] = useUnMarkIsEmployedMutation();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (!values && !scholar) return;
       const payload: ScholarCareerSetUp = { ...values };
-      toast.promise(markEmployed(scholar?.uuid ?? "").unwrap(), {
-        loading: "Marking...",
-      });
-      toast.promise(
-        assignCareer({
-          scholarUuid: scholar?.uuid ?? "",
-          careerSetups: [payload],
-        }).unwrap(),
-        {
-          loading: "Assigning...",
-          success: () => {
-            return "Career assigned successfully!";
-          },
-          error: (error) => {
-            return `Failed to assign scholar careers: ${error.message}`;
-          },
-        }
-      );
+      if (values.isEmployed) {
+        toast.promise(markEmployed(scholar?.uuid ?? "").unwrap(), {
+          loading: "Marking...",
+        });
+        toast.promise(
+          assignCareer({
+            scholarUuid: scholar?.uuid ?? "",
+            careerSetups: [payload],
+          }).unwrap(),
+          {
+            loading: "Assigning...",
+            success: () => {
+              return "Career assigned successfully!";
+            },
+            error: (error) => {
+              return `Failed to assign scholar careers: ${error.message}`;
+            },
+          }
+        );
+      } else {
+        toast.promise(markUnEmployed(scholar?.uuid ?? "").unwrap(), {
+          loading: "Un marking...",
+        });
+      }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -108,10 +117,7 @@ export default function ScholarCareerSetUpComponent({
             </FormItem>
           )}
         />
-        <div
-          hidden={!form.watch("isEmployed")}
-          className="flex flex-col space-y-3 mt-4"
-        >
+        <div className="flex flex-col space-y-3 mt-4">
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-6">
               <FormField
