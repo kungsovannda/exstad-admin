@@ -12,38 +12,75 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Scholar } from "@/types/scholar";
+import { Scholar, ScholarSpecialistSetUp } from "@/types/scholar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+  useAssignSpecialistsMutation,
+  useMarkIsAbroadMutation,
+  useUnMarkIsAbroadMutation,
+} from "../../scholarApi";
 
 const formSchema = z.object({
-  isEmployed: z.boolean(),
-  company: z.string().min(1),
-  companyType: z.string().min(1),
-  position: z.string().min(1),
-  salary: z.number(),
-  interest: z.string(),
+  isAbroad: z.boolean(),
+  universityName: z.string().min(1),
+  degreeType: z.string().min(1),
+  country: z.string().min(1),
+  specialist: z.string(),
+  about: z.string(),
 });
 
-export default function ScholarCareerSetUp({
+export default function ScholarSpecialistSetUpComponent({
   scholar,
 }: {
   scholar: Scholar | null;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      isAbroad: scholar?.isAbroad ?? false,
+      country: scholar?.specialist?.[0].country ?? "",
+      universityName: scholar?.specialist?.[0].universityName ?? "",
+      degreeType: scholar?.specialist?.[0].degreeType ?? "",
+      specialist: scholar?.specialist?.[0].specialist ?? "",
+      about: scholar?.specialist?.[0].about ?? "",
+    },
   });
+
+  const [assignSpecialist] = useAssignSpecialistsMutation();
+  const [markAbroad] = useMarkIsAbroadMutation();
+  const [UnMarkAbroad] = useUnMarkIsAbroadMutation();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      if (!values && !scholar) return;
+      const payload: ScholarSpecialistSetUp = { ...values };
+      if (values.isAbroad) {
+        toast.promise(markAbroad(scholar?.uuid ?? "").unwrap(), {
+          loading: "Marking...",
+        });
+        toast.promise(
+          assignSpecialist({
+            scholarUuid: scholar?.uuid ?? "",
+            specialistSetups: [payload],
+          }).unwrap(),
+          {
+            loading: "Assigning...",
+            success: () => {
+              return "Specialist assigned successfully!";
+            },
+            error: (error) => {
+              return `Failed to assign scholar specialist: ${error.message}`;
+            },
+          }
+        );
+      } else {
+        toast.promise(UnMarkAbroad(scholar?.uuid ?? "").unwrap(), {
+          loading: "Un marking...",
+        });
+      }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -60,8 +97,7 @@ export default function ScholarCareerSetUp({
       >
         <FormField
           control={form.control}
-          name="isEmployed"
-          defaultValue={scholar.isEmployed}
+          name="isAbroad"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
@@ -71,29 +107,26 @@ export default function ScholarCareerSetUp({
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Scholar Career</FormLabel>
+                <FormLabel>Scholar Abroad</FormLabel>
                 <FormDescription>
-                  Enable this option to set up your scholar career.
+                  Enable this option to set up scholar abroad
                 </FormDescription>
                 <FormMessage />
               </div>
             </FormItem>
           )}
         />
-        <div
-          hidden={!form.watch("isEmployed")}
-          className="flex flex-col space-y-3 mt-4"
-        >
+        <div className="flex flex-col space-y-3 mt-4">
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="company"
+                name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company</FormLabel>
+                    <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Input placeholder="ISTAD" type="" {...field} />
+                      <Input placeholder="Korea" type="" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -105,12 +138,12 @@ export default function ScholarCareerSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="companyType"
+                name="universityName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company Type</FormLabel>
+                    <FormLabel>University</FormLabel>
                     <FormControl>
-                      <Input placeholder="Institute" type="" {...field} />
+                      <Input placeholder="ISTAD" type="" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,16 +156,12 @@ export default function ScholarCareerSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="position"
+                name="degreeType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Position</FormLabel>
+                    <FormLabel>Degree</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Software Developer"
-                        type=""
-                        {...field}
-                      />
+                      <Input placeholder="Master" type="" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -144,12 +173,12 @@ export default function ScholarCareerSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="salary"
+                name="specialist"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Salary</FormLabel>
+                    <FormLabel>Specialist</FormLabel>
                     <FormControl>
-                      <Input placeholder="" type="number" {...field} />
+                      <Input placeholder="AI" type="" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -161,20 +190,22 @@ export default function ScholarCareerSetUp({
 
           <FormField
             control={form.control}
-            name="interest"
+            name="about"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Interest</FormLabel>
+                <FormLabel>About</FormLabel>
                 <FormControl>
                   <Textarea placeholder="" className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>Their interest about ISTAD</FormDescription>
+                <FormDescription>
+                  Their stroy. e.g ITE Generation 1...
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <div className="flex justify-end" hidden={!form.formState.isDirty}>
-            <Button type="submit">Save Career</Button>
+            <Button type="submit">Save Abroad</Button>
           </div>
         </div>
       </form>

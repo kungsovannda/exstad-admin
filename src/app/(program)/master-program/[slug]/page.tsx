@@ -29,9 +29,9 @@ function MasterProgramEdit() {
     slug: program.slug || "",
     subtitle: program.subtitle || "",
     description: program.description || "",
-    visibility: program.visibility || "PUBLIC",
-    programType: program.programType || "",
-    programLevel: program.programLevel || "",
+    visibility: program.visibility ,
+    programType: program.programType ,
+    programLevel: program.programLevel ,
     logoUrl: program.logoUrl || "",
     bgColor:
       program.bgColor ||

@@ -19,24 +19,33 @@ import { z } from "zod";
 const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
 
-const formSchema = z.object({
-  username: z.string().min(1),
-  email: z.string(),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters length")
-    .regex(
-      passwordRegex,
-      "At least one uppercase letter, one lowercase letter, one number, and one special character"
-    ),
-  cfPassword: z
-    .string()
-    .min(8, "Password must be at least 8 characters length")
-    .regex(
-      passwordRegex,
-      "At least one uppercase letter, one lowercase letter, one number, and one special character"
-    ),
-});
+const formSchema = z
+  .object({
+    username: z.string({ error: "Username is required" }).min(1, {
+      message: "Username must be at least 1 character",
+    }),
+    email: z.string({ error: "Email is required" }).email({
+      message: "Please enter a valid email address",
+    }),
+    password: z
+      .string({ error: "Password is required" })
+      .min(8, { message: "Password must be at least 8 characters length" })
+      .regex(
+        passwordRegex,
+        "At least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
+    cfPassword: z
+      .string({ error: "Confirm password is required" })
+      .min(8, { message: "Password must be at least 8 characters length" })
+      .regex(
+        passwordRegex,
+        "At least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
+  })
+  .refine((data) => data.password === data.cfPassword, {
+    message: "Passwords do not match",
+    path: ["cfPassword"],
+  });
 
 export default function CreateCredentialInformation({
   data,

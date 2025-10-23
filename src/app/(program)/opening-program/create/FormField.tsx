@@ -53,6 +53,10 @@ export const openingProgramformSchema = z.object({
     (val) => Number(val),
     z.number().min(1, { message: "Total Slot is required" })
   ),
+  registerFee: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, { message: "Register Fee is required" })
+  ),
   duration: z.string().min(1, { message: "Duration is required" }),
   deadline: z.string().min(1, { message: "Deadline is required" }),
   curriculumPdfUri: z.string().optional(),
@@ -134,6 +138,7 @@ export default function OpeningProgramForm({
         | "PENDING"
         | undefined,
       qrCodeUrl: "",
+      registerFee:0,
     },
   }) as ExtendedFormReturn;
 
@@ -396,7 +401,7 @@ export default function OpeningProgramForm({
         />
 
         {/* Generation & Total Slot */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             control={form.control}
             name="generation"
@@ -421,6 +426,24 @@ export default function OpeningProgramForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Total Slot</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="registerFee"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Register Fee</FormLabel>
                 <FormControl>
                   <Input
                     type="number"

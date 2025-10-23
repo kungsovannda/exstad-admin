@@ -1,10 +1,11 @@
-"use client"
+"use client";
 import React, { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FiPlus } from "react-icons/fi";
+
 import ScholarClassDataTable from "@/features/opening-program/components/scholar-class.tsx/table/scholar-class-table";
 import { ScholarClassColumns } from "@/features/opening-program/components/scholar-class.tsx/table/scholar-class-Column";
 import {
@@ -14,60 +15,52 @@ import {
   useUpdateScholarClassMutation,
 } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
 import { ScholarClassType } from "@/types/opening-program";
-import { useGetClassByUuidQuery } from "@/features/opening-program/components/class/classApi";
 import { StatisticCard } from "@/features/opening-program/components/scholar-class.tsx/statistic-card";
 import DrawerScholars from "@/features/opening-program/components/scholar-class.tsx/add-scholar/DrawerScholars";
 import { Heading } from "@/components/Heading";
-import { Scholar } from "@/types/scholar";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
+import { useGetClassByCodeQuery } from "@/features/opening-program/components/class/classApi";
 import { sortByAudit } from "@/utils/sortByAudit";
 
 export default function ScholarClassPage() {
   const params = useParams();
-  const classUuid = params.classUuid as string;
-
+  const classCode = params.classCode as string;
   const [editTarget, setEditTarget] = useState<ScholarClassType | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Fetch class info
-  const { data: classInfo, isError: isClassError } = useGetClassByUuidQuery(
-    { uuid: classUuid },
-    { skip: !classUuid }
-  );
-
-  // Fetch scholar classes
-  const {
-    data = [],
-    isLoading,
-    isFetching,
-    isError,
-    refetch: refetchScholarClasses,
-  } = useGetScholarClassesByClassUuidQuery(classUuid, {
-    skip: !classUuid,
+  // 1️⃣ Fetch the class info first
+  const { data: classInfo, isLoading: isLoadingClass } = useGetClassByCodeQuery(classCode!, {
+    skip: !classCode,refetchOnMountOrArgChange:true
   });
 
-  // Fetch all opening programs
+  const classUuid = classInfo?.uuid;
+
+  // 2️⃣ Fetch scholar classes using classUuid
+  const {
+    data: scholarData = [],
+    isLoading: isLoadingScholar,
+    isFetching,
+    isError: isScholarError,
+    refetch: refetchScholarClasses,
+  } = useGetScholarClassesByClassUuidQuery(classUuid!, { skip: !classUuid,refetchOnMountOrArgChange:true });
+
   const { data: allOpeningPrograms = [] } = useGetAllOpeningProgramsQuery();
 
   const [addScholar] = useCreateScholarClassMutation();
   const [updateScholar] = useUpdateScholarClassMutation();
   const [deleteScholarClass] = useDeleteScholarClassMutation();
 
-  // Memoized sorted scholar classes
   const scholarClasses: ScholarClassType[] = useMemo(
-    () => sortByAudit(data),
-    [data]
+    () => sortByAudit(scholarData),
+    [scholarData]
   );
 
-  // Memoized openingProgramUuid
   const openingProgramUuid = useMemo(
     () =>
-      allOpeningPrograms.find((p) => p.title === classInfo?.openingProgramName)
-        ?.uuid,
-    [allOpeningPrograms, classInfo?.openingProgramName]
+      allOpeningPrograms.find((p) => p.title === classInfo?.openingProgramName)?.uuid,
+    [allOpeningPrograms, classInfo]
   );
 
-  // Memoized table columns
   const columns = useMemo(
     () =>
       ScholarClassColumns(scholarClasses, {
@@ -81,39 +74,29 @@ export default function ScholarClassPage() {
             await deleteScholarClass(row.uuid).unwrap();
             await refetchScholarClasses();
             toast.success(
-              `Scholar "${
-                row.scholar?.englishName || "Unknown"
-              }" deleted successfully!`
+              `Scholar "${row.scholar?.englishName || "Unknown"}" deleted successfully!`
             );
           } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            toast.error(`Failed to delete scholar: ${message}`);
+            toast.error(
+              `Failed to delete scholar: ${
+                err instanceof Error ? err.message : String(err)
+              }`
+            );
           }
         },
       }),
-    [
-      scholarClasses,
-      openingProgramUuid,
-      deleteScholarClass,
-      refetchScholarClasses,
-    ]
+    [scholarClasses, openingProgramUuid, deleteScholarClass, refetchScholarClasses]
   );
 
-  // Check for classInfo and display class name (classCode)
-  const className = classInfo ? classInfo.classCode : "Unknown Class";
-
-  // Early return if fetch failed
-  if (isClassError || isError) {
-    return (
-      <div className="p-6 text-red-500">Failed to load class or scholars</div>
-    );
+  if (isScholarError) {
+    return <div className="p-6 text-red-500">Failed to load scholars</div>;
   }
 
   return (
     <div className="space-y-4 p-5">
       <div className="flex justify-between items-center gap-10">
         <Heading
-          title={className}  // Display class name here
+          title={classCode || "Unknown Class"}
           description="View statistic and manage scholars"
         />
         <Button
@@ -135,9 +118,7 @@ export default function ScholarClassPage() {
           setDrawerOpen(val);
           if (!val) setEditTarget(null);
         }}
-        scholarsClass={scholarClasses.map((sc) => ({
-          scholarUuid: sc.scholar?.uuid,
-        }))}
+        scholarsClass={scholarClasses.map((sc) => ({ scholarUuid: sc.scholar?.uuid }))}
         onAddScholar={async (scholarUuid, options) => {
           try {
             if (editTarget) {
@@ -151,39 +132,27 @@ export default function ScholarClassPage() {
               toast.success("Scholar updated successfully!");
             } else {
               await addScholar({
-                classUuid,
+                classUuid: classUuid!,
                 scholarUuid,
                 isPaid: options.isPaid,
                 isReminded: options.isReminded,
               }).unwrap();
-
-              // Refetch first
-              const updated = await refetchScholarClasses();
-              const addedScholar = updated.data?.find(
-                (sc) => sc.scholar?.uuid === scholarUuid
-              );
-
-              toast.success(
-                `Scholar "${
-                  addedScholar?.scholar?.englishName || "Unknown"
-                }" added successfully!`
-              );
+              await refetchScholarClasses();
+              toast.success("Scholar added successfully!");
             }
-
             setDrawerOpen(false);
             setEditTarget(null);
           } catch {
-            toast.error("Failed to save scholar class.");
+            toast.error("Failed to add scholar into class.");
           }
         }}
         onAddMultipleScholars={async (scholarUuids, options) => {
           let addedCount = 0;
           for (const scholarUuid of scholarUuids) {
-            if (scholarClasses.some((sc) => sc.scholar?.uuid === scholarUuid))
-              continue;
+            if (scholarClasses.some((sc) => sc.scholar?.uuid === scholarUuid)) continue;
             try {
               await addScholar({
-                classUuid,
+                classUuid: classUuid!,
                 scholarUuid,
                 isPaid: options.isPaid,
                 isReminded: options.isReminded,
@@ -204,10 +173,10 @@ export default function ScholarClassPage() {
 
       <StatisticCard
         scholarClasses={scholarClasses}
-        isLoading={isLoading || isFetching}
+        isLoading={isLoadingScholar || isFetching || isLoadingClass}
       />
 
-      {isLoading ? (
+      {isLoadingScholar || isLoadingClass ? (
         <DataTableSkeleton columnCount={5} />
       ) : (
         <ScholarClassDataTable
@@ -215,6 +184,7 @@ export default function ScholarClassPage() {
           totalItems={scholarClasses.length}
           columns={columns}
           openingProgramUuid={openingProgramUuid}
+          refetch={refetchScholarClasses}
         />
       )}
     </div>

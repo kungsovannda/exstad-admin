@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import WorkNodeEditor from "@/components/roadmap";
 
-
 import HighlightsAdmin from "@/features/master-program/components/highlight/highlight";
 import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
 import FaqAdmin from "@/features/master-program/components/faq/faq";
@@ -17,7 +16,6 @@ import ProgramOverviewAdmin from "@/features/master-program/components/programOv
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 
 export default function ProgramSetup() {
-
   const [tab, setTab] = useState<
     | "highlight"
     | "program-overview"
@@ -102,7 +100,11 @@ export default function ProgramSetup() {
       {/* Tab Content */}
       {tab === "highlight" && <HighlightsAdmin programUuid={programUuid} />}
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
-      {tab === "roadmap" &&<div className="border rounded-2xl"><WorkNodeEditor programUuid={programUuid}/></div> }
+      {tab === "roadmap" && (
+        <div className="border rounded-2xl overflow-hidden">
+          <WorkNodeEditor programUuid={programUuid} />
+        </div>
+      )}
       {tab === "faq" && <FaqAdmin programUuid={programUuid} />}
       {tab === "learning-outcomes" && (
         <LearningOutcomesAdmin programUuid={programUuid} />

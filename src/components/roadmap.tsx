@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useCallback, useState, useEffect } from "react"
-import CustomWorkNode from "@/components/CustomWorkNode"
+import type React from "react";
+import { useCallback, useState, useEffect } from "react";
+import CustomWorkNode from "@/components/CustomWorkNode";
 import {
   ReactFlow,
   type Node,
@@ -13,28 +13,43 @@ import {
   type Connection,
   useNodesState,
   useEdgesState,
-} from "@xyflow/react"
-import "@xyflow/react/dist/style.css"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Card } from "@/components/ui/card"
-import { Pencil, Trash2, Plus } from "lucide-react"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useGetAllRoadmapsQuery, useUpdateRoadmapsMutation } from "@/features/master-program/components/roadmap/save-roadmap-api"
-import type { RoadmapPayload, HandleConfig ,HandleType , WorkNodeData } from "@/types/roadmap/roadmap"
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { Pencil, Trash2, Plus } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  useGetAllRoadmapsQuery,
+  useUpdateRoadmapsMutation,
+} from "@/features/master-program/components/roadmap/save-roadmap-api";
+import type {
+  RoadmapPayload,
+  HandleConfig,
+  HandleType,
+  WorkNodeData,
+} from "@/types/roadmap/roadmap";
+import { toast } from "sonner";
 
 const nodeTypes = {
   workNode: CustomWorkNode,
-}
+};
 const initialNodes: Node<{
-  title: string
-  tasks: string[]
-  handles: HandleConfig
-  onEdit: (id: string) => void
-  onDelete: (id: string) => void
+  title: string;
+  tasks: string[];
+  handles: HandleConfig;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }>[] = [
   {
     id: "1",
@@ -53,36 +68,40 @@ const initialNodes: Node<{
       onDelete: () => {},
     },
   },
-]
+];
 
-const initialEdges: Edge[] = []
+const initialEdges: Edge[] = [];
 
-export default function WorkNodeEditor({programUuid}: {programUuid: string}) {
+export default function WorkNodeEditor({
+  programUuid,
+}: {
+  programUuid: string;
+}) {
   const {
     data: apiData,
     isLoading,
     error,
   } = useGetAllRoadmapsQuery(programUuid || "", {
     skip: !programUuid,
-  })
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingNode, setEditingNode] = useState<string | null>(null)
-  const [isAddingNode, setIsAddingNode] = useState(false)
-  const [editTitle, setEditTitle] = useState("")
-  const [editTasks, setEditTasks] = useState("")
+  });
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingNode, setEditingNode] = useState<string | null>(null);
+  const [isAddingNode, setIsAddingNode] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editTasks, setEditTasks] = useState("");
   const [editHandles, setEditHandles] = useState<HandleConfig>({
     top: "target",
     right: "target",
     bottom: "target",
     left: "target",
-  })
-  const [isEditEdgeModalOpen, setIsEditEdgeModalOpen] = useState(false)
-  const [editingEdge, setEditingEdge] = useState<string | null>(null)
-  const [editEdgeLabel, setEditEdgeLabel] = useState("")
-  const [savedData, setSavedData] = useState<RoadmapPayload | null>(null)
-  const [showJson, setShowJson] = useState(false)
+  });
+  const [isEditEdgeModalOpen, setIsEditEdgeModalOpen] = useState(false);
+  const [editingEdge, setEditingEdge] = useState<string | null>(null);
+  const [editEdgeLabel, setEditEdgeLabel] = useState("");
+  const [savedData, setSavedData] = useState<RoadmapPayload | null>(null);
+  // const [showJson, setShowJson] = useState(false);
 
 
 
@@ -102,117 +121,128 @@ const handleEdit = useCallback((nodeId: string) => {
 
   const handleDelete = useCallback(
     (nodeId: string) => {
-      setNodes((nds) => nds.filter((n) => n.id !== nodeId))
-      setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId))
+      setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+      setEdges((eds) =>
+        eds.filter((e) => e.source !== nodeId && e.target !== nodeId)
+      );
     },
-    [setNodes, setEdges],
-  )
-
-
+    [setNodes, setEdges]
+  );
 
   const addNewNode = () => {
-    setIsAddingNode(true)
-    setEditingNode(null)
-    setEditTitle("New Work Node")
-    setEditTasks("")
+    setIsAddingNode(true);
+    setEditingNode(null);
+    setEditTitle("New Work Node");
+    setEditTasks("");
     setEditHandles({
       top: "target",
       right: "target",
       bottom: "target",
       left: "target",
-    })
-    setIsEditModalOpen(true)
-  }
+    });
+    setIsEditModalOpen(true);
+  };
 
-const saveEditedNode = () => {
-  if (isAddingNode) {
-    const newNode: Node<WorkNodeData> = {
-      id: `${Date.now()}`,
-      type: "workNode",
-      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
-      data: {
-        title: editTitle,
-        tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
-        handles: editHandles,
-        onEdit: handleEdit,     // attach callbacks here
-        onDelete: handleDelete, // attach callbacks here
-      },
-    };
-    setNodes((nds) => [...nds, newNode]);
-    setIsAddingNode(false);
-  } else if (editingNode) {
-    setNodes((nds) =>
-      nds.map((node) =>
-        node.id === editingNode
-          ? {
-              ...node,
-              data: {
-                ...node.data,
-                title: editTitle,
-                tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
-                handles: editHandles,
-              },
-            }
-          : node
-      )
-    );
-  }
+  const saveEditedNode = () => {
+    if (isAddingNode) {
+      const newNode: Node<WorkNodeData> = {
+        id: `${Date.now()}`,
+        type: "workNode",
+        position: {
+          x: Math.random() * 400 + 100,
+          y: Math.random() * 400 + 100,
+        },
+        data: {
+          title: editTitle,
+          tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
+          handles: editHandles,
+          onEdit: handleEdit, // attach callbacks here
+          onDelete: handleDelete, // attach callbacks here
+        },
+      };
+      setNodes((nds) => [...nds, newNode]);
+      setIsAddingNode(false);
+    } else if (editingNode) {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === editingNode
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  title: editTitle,
+                  tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
+                  handles: editHandles,
+                },
+              }
+            : node
+        )
+      );
+    }
 
-  setIsEditModalOpen(false);
-  setEditingNode(null);
-  setEditTitle("");
-  setEditTasks("");
-};
+    setIsEditModalOpen(false);
+    setEditingNode(null);
+    setEditTitle("");
+    setEditTasks("");
+  };
 
   const [updateRoadmaps] = useUpdateRoadmapsMutation();
 
-const positionOrder: (keyof HandleConfig)[] = ["top", "right", "bottom", "left"];
-
-const saveAsJson = () => {
-  const dataToSave: RoadmapPayload = [
-    {
-      nodes: nodes.map((node) => {
-        const handlesString = positionOrder
-          .map((pos) => node.data.handles[pos])
-          .join(", ");
-
-        return {
-          type: "course",
-          data: {
-            label: `${node.data.title}, ${handlesString}`,
-            description: node.data.tasks.join(", "),
-          },
-          position: node.position,
-        };
-      }),
-      edges: edges.map((edge) => ({
-        id: edge.id,
-        // combine node id + handle only for API
-        source: `${edge.source},${edge.sourceHandle ?? ""}`,
-        target: `${edge.target},${edge.targetHandle ?? ""}`,
-        animated: edge.animated ?? true,
-      })),
-    },
+  const positionOrder: (keyof HandleConfig)[] = [
+    "top",
+    "right",
+    "bottom",
+    "left",
   ];
 
-  setSavedData(dataToSave);
-  setShowJson(true);
+  const saveAsJson = () => {
+    const dataToSave: RoadmapPayload = [
+      {
+        nodes: nodes.map((node) => {
+          const handlesString = positionOrder
+            .map((pos) => node.data.handles[pos])
+            .join(", ");
 
-  // Send to API
-  updateRoadmaps({ programUuid, roadmaps: dataToSave });
+          return {
+            type: "course",
+            data: {
+              label: `${node.data.title}, ${handlesString}`,
+              description: node.data.tasks.join(", "),
+            },
+            position: node.position,
+          };
+        }),
+        edges: edges.map((edge) => ({
+          id: edge.id,
+          // combine node id + handle only for API
+          source: `${edge.source},${edge.sourceHandle ?? ""}`,
+          target: `${edge.target},${edge.targetHandle ?? ""}`,
+          animated: edge.animated ?? true,
+        })),
+      },
+    ];
 
-  // ✅ No changes to React Flow state -> edges remain connected
-};
+    setSavedData(dataToSave);
+    // setShowJson(true);
 
+    // Send to API
+    toast.promise(
+      updateRoadmaps({ programUuid, roadmaps: dataToSave }).unwrap(),
+      {
+        loading: "Saving...",
+        success: () => "Roadmap has been saved successfully",
+        error: "Fail to save roadmap",
+      }
+    );
 
-
-
+    // ✅ No changes to React Flow state -> edges remain connected
+  };
 
   const onEdgeClick = useCallback((_event: React.MouseEvent, edge: Edge) => {
-    setEditingEdge(edge.id)
-    setEditEdgeLabel((edge.label as string) || "")
-    setIsEditEdgeModalOpen(true)
-  }, [])
+    setEditingEdge(edge.id);
+    setEditEdgeLabel((edge.label as string) || "");
+    setIsEditEdgeModalOpen(true);
+  }, []);
 
   const saveEditedEdge = () => {
     if (editingEdge) {
@@ -225,140 +255,152 @@ const saveAsJson = () => {
                 labelStyle: { fill: "#666", fontWeight: 500 },
                 labelBgStyle: { fill: "white", fillOpacity: 0.9 },
               }
-            : edge,
-        ),
-      )
+            : edge
+        )
+      );
     }
-    setIsEditEdgeModalOpen(false)
-    setEditingEdge(null)
-    setEditEdgeLabel("")
-  }
+    setIsEditEdgeModalOpen(false);
+    setEditingEdge(null);
+    setEditEdgeLabel("");
+  };
 
   const deleteEditingEdge = () => {
     if (editingEdge) {
-      setEdges((eds) => eds.filter((e) => e.id !== editingEdge))
+      setEdges((eds) => eds.filter((e) => e.id !== editingEdge));
     }
-    setIsEditEdgeModalOpen(false)
-    setEditingEdge(null)
-    setEditEdgeLabel("")
-  }
-  
-// Only update nodes once when they are loaded
-useEffect(() => {
-  if (!apiData || !apiData[0]) return;
+    setIsEditEdgeModalOpen(false);
+    setEditingEdge(null);
+    setEditEdgeLabel("");
+  };
 
-  const roadmapData = apiData[0];
+  // Only update nodes once when they are loaded
+  useEffect(() => {
+    if (!apiData || !apiData[0]) return;
 
-  // Load nodes
-  const loadedNodes: Node<WorkNodeData>[] = roadmapData.nodes.map((node, index) => {
-    const parts = node.data.label.split(",").map((p) => p.trim());
-    const title = parts[0];
+    const roadmapData = apiData[0];
 
-    const handles: HandleConfig = {
-      top: (parts[1] as HandleType) || "target",
-      right: (parts[2] as HandleType) || "target",
-      bottom: (parts[3] as HandleType) || "target",
-      left: (parts[4] as HandleType) || "target",
-    };
+    // Load nodes
+    const loadedNodes: Node<WorkNodeData>[] = roadmapData.nodes.map(
+      (node, index) => {
+        const parts = node.data.label.split(",").map((p) => p.trim());
+        const title = parts[0];
 
-    return {
-      id: `${index + 1}`,
-      type: "workNode",
-      position: node.position,
-      data: {
-        title,
-        tasks: node.data.description
-          ? node.data.description.split(", ").filter((t) => t.trim() !== "")
-          : [],
-        handles,
-        // Use **stable callbacks** (no dependency on `nodes`)
-        onEdit: handleEdit,
-        onDelete: handleDelete,
-      },
-    };
-  });
+        const handles: HandleConfig = {
+          top: (parts[1] as HandleType) || "target",
+          right: (parts[2] as HandleType) || "target",
+          bottom: (parts[3] as HandleType) || "target",
+          left: (parts[4] as HandleType) || "target",
+        };
 
-  // Load edges
-  const loadedEdges: Edge[] = roadmapData.edges.map((edge) => {
-    const [sourceId, sourceHandle] = edge.source.split(",").map((s) => s.trim());
-    const [targetId, targetHandle] = edge.target.split(",").map((s) => s.trim());
-
-    return {
-      id: edge.id,
-      source: sourceId,
-      sourceHandle: sourceHandle,
-      target: targetId,
-      targetHandle: targetHandle,
-      type: "smoothstep",
-      animated: edge.animated ?? true,
-      style: { strokeWidth: 2, stroke: "#9333ea" },
-    };
-  });
-
-  setNodes(loadedNodes);
-  setEdges(loadedEdges);
-}, [apiData, handleEdit, handleDelete, setNodes, setEdges]);
-
-const onConnect = useCallback(
-  (params: Connection) => {
-    // params contains source, sourceHandle, target, targetHandle
-    console.log("New connection created:", params);
-
-    // Add edge with all info
-    setEdges((eds) =>
-      addEdge(
-        {
-          id: `e${params.source}-${params.target}-${Date.now()}`,
-          source: params.source,           // node id
-          sourceHandle: params.sourceHandle, // handle id (top/right/bottom/left)
-          target: params.target,
-          targetHandle: params.targetHandle,
-          type: "smoothstep",
-          animated: true,                  // animation for visual
-        },
-        eds
-      )
+        return {
+          id: `${index + 1}`,
+          type: "workNode",
+          position: node.position,
+          data: {
+            title,
+            tasks: node.data.description
+              ? node.data.description.split(", ").filter((t) => t.trim() !== "")
+              : [],
+            handles,
+            // Use **stable callbacks** (no dependency on `nodes`)
+            onEdit: handleEdit,
+            onDelete: handleDelete,
+          },
+        };
+      }
     );
-  },
-  [setEdges]
-);
 
+    // Load edges
+    const loadedEdges: Edge[] = roadmapData.edges.map((edge) => {
+      const [sourceId, sourceHandle] = edge.source
+        .split(",")
+        .map((s) => s.trim());
+      const [targetId, targetHandle] = edge.target
+        .split(",")
+        .map((s) => s.trim());
 
+      return {
+        id: edge.id,
+        source: sourceId,
+        sourceHandle: sourceHandle,
+        target: targetId,
+        targetHandle: targetHandle,
+        type: "smoothstep",
+        animated: edge.animated ?? true,
+        style: { strokeWidth: 2, stroke: "#9333ea" },
+      };
+    });
+
+    setNodes(loadedNodes);
+    setEdges(loadedEdges);
+  }, [apiData, handleEdit, handleDelete, setEdges, setNodes]);
+
+  const onConnect = useCallback(
+    (params: Connection) => {
+      // params contains source, sourceHandle, target, targetHandle
+      console.log("New connection created:", params);
+
+      // Add edge with all info
+      setEdges((eds) =>
+        addEdge(
+          {
+            id: `e${params.source}-${params.target}-${Date.now()}`,
+            source: params.source, // node id
+            sourceHandle: params.sourceHandle, // handle id (top/right/bottom/left)
+            target: params.target,
+            targetHandle: params.targetHandle,
+            type: "smoothstep",
+            animated: true, // animation for visual
+          },
+          eds
+        )
+      );
+    },
+    [setEdges]
+  );
 
   return (
     <div className="h-screen w-full flex flex-col">
       {/* Toolbar */}
       <div className="bg-background border-b p-4 flex items-center justify-between gap-4">
-         <div>
+        <div>
           <h1 className="text-2xl font-bold">Work Node Editor</h1>
-          {isLoading && <p className="text-sm text-muted-foreground">Loading roadmap data...</p>}
-          {error && <p className="text-sm text-red-500">Error loading roadmap data</p>}
+          {isLoading && (
+            <p className="text-sm text-muted-foreground">
+              Loading roadmap data...
+            </p>
+          )}
+          {error && (
+            <p className="text-sm text-red-500">Error loading roadmap data</p>
+          )}
           {programUuid && !isLoading && !error && apiData && (
             <p className="text-sm text-muted-foreground">Loaded from API</p>
           )}
         </div>
         <div className="flex gap-2">
-          <Button onClick={addNewNode} className="gap-2">
+          <Button onClick={addNewNode}>
             <Plus className="h-4 w-4" />
             Add Node
           </Button>
           <Button onClick={saveAsJson} variant="outline">
-            Save as JSON
+            Save
           </Button>
-          {savedData && (
+          {/* {savedData && (
             <Button onClick={() => setShowJson(!showJson)} variant="secondary">
               {showJson ? "Hide" : "Show"} JSON Data
             </Button>
-          )}
+          )} */}
         </div>
       </div>
 
-      {/* JSON Display */}
+      {/* JSON Display
       {showJson && savedData && (
         <div className="bg-muted p-4 border-b max-h-[200px] overflow-auto">
-          <pre className="text-xs font-mono">{JSON.stringify(savedData, null, 2)}</pre>
+          <pre className="text-xs font-mono">
+            {JSON.stringify(savedData, null, 2)}
+          </pre>
         </div>
-      )}
+      )} */}
       {/* ReactFlow Canvas */}
       <div className="flex-1">
         <ReactFlow
@@ -385,7 +427,9 @@ const onConnect = useCallback(
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isAddingNode ? "Add Work Node" : "Edit Work Node"}</DialogTitle>
+            <DialogTitle>
+              {isAddingNode ? "Add Work Node" : "Edit Work Node"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-[1.2fr_1fr] gap-8">
@@ -401,7 +445,9 @@ const onConnect = useCallback(
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Tasks (one per line)</label>
+                    <label className="text-sm font-medium">
+                      Tasks (one per line)
+                    </label>
                     <Textarea
                       value={editTasks}
                       onChange={(e) => setEditTasks(e.target.value)}
@@ -415,34 +461,57 @@ const onConnect = useCallback(
                 <div className="space-y-3 border-t pt-4">
                   <h3 className="text-sm font-semibold">Connection Handles</h3>
                   <p className="text-xs text-muted-foreground">
-                    Configure which sides can send (green) or receive (blue) connections
+                    Configure which sides can send (green) or receive (blue)
+                    connections
                   </p>
 
                   <div className="grid grid-cols-4 gap-3">
-                    {(["top", "right", "bottom", "left"] as const).map((position) => (
-                      <div key={position} className="space-y-2 p-3 border rounded-lg">
-                        <Label className="text-sm font-medium capitalize">{position}</Label>
-                        <RadioGroup
-                          value={editHandles[position]}
-                          onValueChange={(value) =>
-                            setEditHandles((prev) => ({ ...prev, [position]: value as HandleType }))
-                          }
+                    {(["top", "right", "bottom", "left"] as const).map(
+                      (position) => (
+                        <div
+                          key={position}
+                          className="space-y-2 p-3 border rounded-lg"
                         >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="source" id={`${position}-source`} />
-                            <Label htmlFor={`${position}-source`} className="text-xs font-normal cursor-pointer">
-                              Source
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="target" id={`${position}-target`} />
-                            <Label htmlFor={`${position}-target`} className="text-xs font-normal cursor-pointer">
-                              Target
-                            </Label>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                    ))}
+                          <Label className="text-sm font-medium capitalize">
+                            {position}
+                          </Label>
+                          <RadioGroup
+                            value={editHandles[position]}
+                            onValueChange={(value) =>
+                              setEditHandles((prev) => ({
+                                ...prev,
+                                [position]: value as HandleType,
+                              }))
+                            }
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem
+                                value="source"
+                                id={`${position}-source`}
+                              />
+                              <Label
+                                htmlFor={`${position}-source`}
+                                className="text-xs font-normal cursor-pointer"
+                              >
+                                Source
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem
+                                value="target"
+                                id={`${position}-target`}
+                              />
+                              <Label
+                                htmlFor={`${position}-target`}
+                                className="text-xs font-normal cursor-pointer"
+                              >
+                                Target
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -454,31 +523,55 @@ const onConnect = useCallback(
                   <div className="relative">
                     <Card className="min-w-[280px] max-w-[320px] shadow-lg border-2">
                       {/* Preview Handles */}
-                      {(["top", "right", "bottom", "left"] as const).map((position) => {
-                        const handleType = editHandles[position]
-                        const positions = {
-                          top: { top: "-10px", left: "50%", transform: "translateX(-50%)" },
-                          right: { right: "-10px", top: "50%", transform: "translateY(-50%)" },
-                          bottom: { bottom: "-10px", left: "50%", transform: "translateX(-50%)" },
-                          left: { left: "-10px", top: "50%", transform: "translateY(-50%)" },
-                        }
+                      {(["top", "right", "bottom", "left"] as const).map(
+                        (position) => {
+                          const handleType = editHandles[position];
+                          const positions = {
+                            top: {
+                              top: "-10px",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                            },
+                            right: {
+                              right: "-10px",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                            },
+                            bottom: {
+                              bottom: "-10px",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                            },
+                            left: {
+                              left: "-10px",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                            },
+                          };
 
-                        return (
-                          <div key={position} className="absolute" style={positions[position]}>
-                            {handleType === "source" && (
-                              <div className="w-5 h-5 rounded-full bg-green-500 border-2 border-white" />
-                            )}
-                            {handleType === "target" && (
-                              <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white" />
-                            )}
-                          </div>
-                        )
-                      })}
+                          return (
+                            <div
+                              key={position}
+                              className="absolute"
+                              style={positions[position]}
+                            >
+                              {handleType === "source" && (
+                                <div className="w-5 h-5 rounded-full bg-green-500 border-2 border-white" />
+                              )}
+                              {handleType === "target" && (
+                                <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white" />
+                              )}
+                            </div>
+                          );
+                        }
+                      )}
 
                       <div className="p-4">
                         {/* Header with title */}
                         <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b">
-                          <h3 className="font-semibold text-lg flex-1 text-balance">{editTitle || "Untitled Node"}</h3>
+                          <h3 className="font-semibold text-lg flex-1 text-balance">
+                            {editTitle || "Untitled Node"}
+                          </h3>
                           <div className="flex gap-1 shrink-0">
                             <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center">
                               <Pencil className="h-4 w-4 text-muted-foreground" />
@@ -495,13 +588,18 @@ const onConnect = useCallback(
                             .split("\n")
                             .filter((t) => t.trim() !== "")
                             .map((task, index) => (
-                              <div key={index} className="flex items-start gap-2 text-sm p-2 rounded bg-muted/50">
+                              <div
+                                key={index}
+                                className="flex items-start gap-2 text-sm p-2 rounded bg-muted/50"
+                              >
                                 <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                                 <span className="flex-1">{task}</span>
                               </div>
                             ))}
                           {editTasks.trim() === "" && (
-                            <p className="text-sm text-muted-foreground italic">No tasks yet</p>
+                            <p className="text-sm text-muted-foreground italic">
+                              No tasks yet
+                            </p>
                           )}
                         </div>
                       </div>
@@ -515,7 +613,9 @@ const onConnect = useCallback(
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={saveEditedNode}>{isAddingNode ? "Create Node" : "Save Changes"}</Button>
+            <Button onClick={saveEditedNode}>
+              {isAddingNode ? "Create Node" : "Save Changes"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -534,7 +634,9 @@ const onConnect = useCallback(
                 onChange={(e) => setEditEdgeLabel(e.target.value)}
                 placeholder="Enter connection label (optional)"
               />
-              <p className="text-xs text-muted-foreground">Add a label to describe the relationship between nodes</p>
+              <p className="text-xs text-muted-foreground">
+                Add a label to describe the relationship between nodes
+              </p>
             </div>
           </div>
           <DialogFooter className="gap-2">
@@ -543,12 +645,15 @@ const onConnect = useCallback(
               Delete Connection
             </Button>
             <Button onClick={saveEditedEdge}>Save Changes</Button>
-             <Button variant="outline" onClick={() => setIsEditEdgeModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditEdgeModalOpen(false)}
+            >
               Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

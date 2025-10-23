@@ -35,7 +35,7 @@ export default function ViewEnrollmentProfile({
           /> */}
           <Avatar className="rounded-lg border w-[150px] h-[150px]">
             <AvatarImage
-              className="rounded-lg"
+              className="rounded-lg object-cover"
               src={enrollment.avatar || "/placeholder.svg"}
               alt={`Avatar of ${enrollment.englishName}`}
             />

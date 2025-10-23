@@ -55,15 +55,25 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  englishName: z.string().min(1).min(5).max(100),
-  khmerName: z.string().min(1).min(5).max(100),
-  gender: z.string(),
-  dob: z.date(),
-  phoneNumber: z.string(),
-  phoneFamilyNumber: z.string(),
-  university: z.string(),
-  province: z.string(),
-  currentAddress: z.string(),
+  englishName: z
+    .string({ error: "English name is required" })
+    .min(5, { message: "English name must be at least 5 characters." })
+    .max(100, { message: "English name must be at most 100 characters." }),
+
+  khmerName: z
+    .string({ error: "Khmer name is required" })
+    .min(5, { message: "Khmer name must be at least 5 characters." })
+    .max(100, { message: "Khmer name must be at most 100 characters." }),
+
+  gender: z.string({ error: "Please select a gender" }),
+
+  dob: z.date({ error: "Date of birth is required" }),
+
+  phoneNumber: z.string({ error: "Phone number is required" }),
+  phoneFamilyNumber: z.string({ error: "Family phone number is required" }),
+  university: z.string({ error: "Please select a university" }),
+  province: z.string({ error: "Please select a province" }),
+  currentAddress: z.string({ error: "Please select a current address" }),
   isPublic: z.boolean().optional(),
   avatar: z.string().optional(),
 });

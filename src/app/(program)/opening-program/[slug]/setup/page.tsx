@@ -84,8 +84,14 @@ export default function OpeningProgramSetup() {
         />
       )}
 
-      {tab === "roadmap" &&<div className="border rounded-2xl"><WorkNodeEditor programUuid={masterProgram.uuid}/></div> }
-      {tab === "timeline" && <TimelinePage openingProgramUuid={openingProgram.uuid} />}
+      {tab === "roadmap" && (
+        <div className="border rounded-2xl overflow-hidden">
+          <WorkNodeEditor programUuid={openingProgram.uuid} />
+        </div>
+      )}
+      {tab === "timeline" && (
+        <TimelinePage openingProgramUuid={openingProgram.uuid} />
+      )}
       {tab === "activities" && (
         <ActivityAdmin
           openingProgram={openingProgram} // pass full object

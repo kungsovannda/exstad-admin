@@ -12,38 +12,76 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Scholar } from "@/types/scholar";
+import { Scholar, ScholarCareerSetUp } from "@/types/scholar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+  useAssignCareersMutation,
+  useMarkIsEmployedMutation,
+  useUnMarkIsEmployedMutation,
+} from "../../scholarApi";
+import { useState } from "react";
 
 const formSchema = z.object({
-  isAbroad: z.boolean(),
-  universityName: z.string().min(1),
-  degreeType: z.string().min(1),
-  country: z.string().min(1),
-  specialist: z.number(),
-  about: z.string(),
+  isEmployed: z.boolean(),
+  company: z.string().min(1),
+  companyType: z.string().min(1),
+  position: z.string().min(1),
+  salary: z.number(),
+  interest: z.string(),
 });
 
-export default function ScholarSpecialistSetUp({
+export default function ScholarCareerSetUpComponent({
   scholar,
 }: {
   scholar: Scholar | null;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      isEmployed: scholar?.isEmployed ?? false,
+      company: scholar?.careers?.[0].company ?? "",
+      companyType: scholar?.careers?.[0].companyType ?? "",
+      position: scholar?.careers?.[0].position ?? "",
+      salary: scholar?.careers?.[0].salary ?? 0,
+      interest: scholar?.careers?.[0].interest ?? "",
+    },
   });
+
+  const [assignCareer] = useAssignCareersMutation();
+  const [markEmployed] = useMarkIsEmployedMutation();
+  const [markUnEmployed] = useUnMarkIsEmployedMutation();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      if (!values && !scholar) return;
+      const payload: ScholarCareerSetUp = { ...values };
+      if (values.isEmployed) {
+        toast.promise(markEmployed(scholar?.uuid ?? "").unwrap(), {
+          loading: "Marking...",
+        });
+        toast.promise(
+          assignCareer({
+            scholarUuid: scholar?.uuid ?? "",
+            careerSetups: [payload],
+          }).unwrap(),
+          {
+            loading: "Assigning...",
+            success: () => {
+              return "Career assigned successfully!";
+            },
+            error: (error) => {
+              return `Failed to assign scholar careers: ${error.message}`;
+            },
+          }
+        );
+      } else {
+        toast.promise(markUnEmployed(scholar?.uuid ?? "").unwrap(), {
+          loading: "Un marking...",
+        });
+      }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -60,8 +98,7 @@ export default function ScholarSpecialistSetUp({
       >
         <FormField
           control={form.control}
-          name="isAbroad"
-          defaultValue={scholar.isAbroad}
+          name="isEmployed"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
@@ -71,29 +108,26 @@ export default function ScholarSpecialistSetUp({
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Scholar Abroad</FormLabel>
+                <FormLabel>Scholar Career</FormLabel>
                 <FormDescription>
-                  Enable this option to set up scholar abroad
+                  Enable this option to set up your scholar careers.
                 </FormDescription>
                 <FormMessage />
               </div>
             </FormItem>
           )}
         />
-        <div
-          hidden={!form.watch("isAbroad")}
-          className="flex flex-col space-y-3 mt-4"
-        >
+        <div className="flex flex-col space-y-3 mt-4">
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="country"
+                name="company"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>Company</FormLabel>
                     <FormControl>
-                      <Input placeholder="Korea" type="" {...field} />
+                      <Input placeholder="ISTAD" type="" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -105,12 +139,12 @@ export default function ScholarSpecialistSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="universityName"
+                name="companyType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>University</FormLabel>
+                    <FormLabel>Company Type</FormLabel>
                     <FormControl>
-                      <Input placeholder="ISTAD" type="" {...field} />
+                      <Input placeholder="Institute" type="" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,12 +157,16 @@ export default function ScholarSpecialistSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="degreeType"
+                name="position"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Degree</FormLabel>
+                    <FormLabel>Position</FormLabel>
                     <FormControl>
-                      <Input placeholder="Master" type="" {...field} />
+                      <Input
+                        placeholder="Software Developer"
+                        type=""
+                        {...field}
+                      />
                     </FormControl>
 
                     <FormMessage />
@@ -140,12 +178,24 @@ export default function ScholarSpecialistSetUp({
             <div className="col-span-6">
               <FormField
                 control={form.control}
-                name="specialist"
+                name="salary"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Specialist</FormLabel>
+                    <FormLabel>Salary</FormLabel>
                     <FormControl>
-                      <Input placeholder="AI" type="" {...field} />
+                      <Input
+                        placeholder=""
+                        type="number"
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === ""
+                              ? undefined
+                              : Number(e.target.value)
+                          )
+                        }
+                      />
                     </FormControl>
 
                     <FormMessage />
@@ -157,22 +207,20 @@ export default function ScholarSpecialistSetUp({
 
           <FormField
             control={form.control}
-            name="about"
+            name="interest"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>About</FormLabel>
+                <FormLabel>Interest</FormLabel>
                 <FormControl>
                   <Textarea placeholder="" className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>
-                  Their stroy. e.g ITE Generation 1...
-                </FormDescription>
+                <FormDescription>Their interest about ISTAD</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <div className="flex justify-end" hidden={!form.formState.isDirty}>
-            <Button type="submit">Save Abroad</Button>
+            <Button type="submit">Save Career</Button>
           </div>
         </div>
       </form>

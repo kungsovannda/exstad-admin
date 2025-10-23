@@ -18,13 +18,24 @@ export const universityColumns: ColumnDef<University>[] = [
     header: "Khmer Name",
   },
   {
-    accessorKey: "scholars",
-    header: "Scholars",
-    enableSorting: true,
-  },
-  {
     accessorKey: "shortName",
     header: "Short Name",
+    enableColumnFilter: true,
+    meta: {
+      label: "Shortname",
+      placeholder: "Filter short name",
+      variant: "text",
+    },
+    enableSorting: true,
+    sortingFn: (rowA, rowB) => {
+      const a = rowA.original.shortName;
+      const b = rowB.original.shortName;
+
+      if (a === "ISTAD") return -1;
+      if (b === "ISTAD") return 1;
+
+      return a.localeCompare(b);
+    },
   },
   {
     header: "Action",

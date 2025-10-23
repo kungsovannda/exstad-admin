@@ -1,2 +1,2 @@
 export type { User, CreateUser } from "./user";
-export { Role } from "./role";
+export { Role, toRole } from "./role";

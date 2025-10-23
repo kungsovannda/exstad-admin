@@ -36,6 +36,7 @@ export type openingProgramType = {
   classes?: ClassType[];
   templates?: string[];
   audit: Audit;
+  registerFee:number;
 };
 
 export type openingProgramCreate = {
@@ -60,6 +61,7 @@ export type openingProgramCreate = {
   timeline?: TimelineType[];
   classes?: ClassType[];
   templates?: string[];
+  registerFee:number;
   // audit: Audit;
 };
 
