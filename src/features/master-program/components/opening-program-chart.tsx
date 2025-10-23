@@ -47,11 +47,11 @@ export default function ProgramBarCard({ data }: ProgramBarCardProps) {
     <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
         <CardTitle>Opening Programs</CardTitle>
-        <CardDescription>Bar chart by Master Program</CardDescription>
+        <CardDescription>Bar chart by Master Progr  am</CardDescription>
       </CardHeader>
 
       <CardContent className="flex-1 pb-2">
-        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full">
+        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full h-80">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart
               data={chartData}

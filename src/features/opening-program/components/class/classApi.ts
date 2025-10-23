@@ -83,6 +83,14 @@ export const classApi = createApi({
         { type: "Class", id: "LIST" },
       ],
     }),
+
+    getClassByCode: builder.query<ClassType, string>({
+  query: (classCode) => `/classes/code/${classCode}`,
+  transformResponse: (response: ClassType) => response,
+  providesTags: (result) =>
+    result ? [{ type: "Class", id: result.uuid }] : [{ type: "Class", id: "LIST" }],
+}),
+
   }),
 });
 
@@ -94,4 +102,5 @@ export const {
   useCreateClassMutation,
   useUpdateClassMutation,
   useDeleteClassMutation,
+  useGetClassByCodeQuery,
 } = classApi;

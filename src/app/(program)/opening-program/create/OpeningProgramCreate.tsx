@@ -19,9 +19,7 @@ export default function OpeningProgramCreate() {
       const totalSlot = Number(values.totalSlot || 0);
       const originalFee = Number(values.originalFee || 0);
       const scholarship = Number(values.scholarship || 0);
-      
-      
-
+      const registerFee = Number(values.registerFee || 0);
       // Calculate discounted price
       const price = originalFee - (originalFee * scholarship) / 100;
 
@@ -60,6 +58,7 @@ export default function OpeningProgramCreate() {
         status: values.status!,
         qrCodeUrl: qrCodeUrl,
         deadline: values.deadline,
+        registerFee,
       };
 
       console.log("Submitting payload:", payload);

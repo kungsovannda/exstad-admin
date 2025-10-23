@@ -3,6 +3,7 @@
 import {
   useGetAllInstructorByClassUuidQuery,
   useDeleteInstructorClassMutation,
+  useGetAllInstructorClassesByClassUuidQuery,
 } from "../instructor-class/instructorClassApi";
 import { Button } from "@/components/ui/button";
 import { Clock, Users, Trash2, GraduationCap } from "lucide-react";
@@ -17,33 +18,46 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useGetScholarByClassUuidQuery } from "../scholar-class.tsx/scholarClassApi"; 
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ClassCardItem({
   cls,
   programSlug,
   onAddInstructorClick,
-  totalScholars,
-  totalInstructors,
 }: {
   cls: ClassType;
   programSlug: string;
   onAddInstructorClick: (uuid: string) => void;
-  totalScholars: number;
-  totalInstructors: number;
 }) {
+  const router = useRouter();
+
+
   const {
     data: instructors = [],
-    isLoading,
+    isLoading: isInstructorLoading,
     refetch,
-  } = useGetAllInstructorByClassUuidQuery(cls.uuid);
+  } = useGetAllInstructorClassesByClassUuidQuery(cls.uuid);
+
+
+  const {
+    data: scholarsInClass = [],
+    isLoading: isScholarLoading,
+  } = useGetScholarByClassUuidQuery(cls.uuid, {
+    skip: !cls.uuid,
+    refetchOnMountOrArgChange: true,
+  });
+
   const [deleteInstructor] = useDeleteInstructorClassMutation();
-  const router = useRouter();
+
+  const totalInstructors = instructors?.length ?? 0;
+  const totalScholars = scholarsInClass?.length ?? 0;
 
   const handleDeleteInstructor = async (uuid: string) => {
     try {
       await deleteInstructor(uuid).unwrap();
       toast.success("Instructor removed successfully!");
-      refetch(); // update the list
+      refetch();
     } catch (error) {
       toast.error("Failed to remove instructor.");
       console.error(error);
@@ -74,8 +88,8 @@ export function ClassCardItem({
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Schedule</p>
-            <p className="font-medium text-sm">
-              {cls.startTime} - {cls.endTime}
+            <p className="font-medium text-sm flex items-center gap-">
+              {isScholarLoading ?  <Skeleton className="w-10 h-6" /> :cls.startTime} - {isScholarLoading ?  <Skeleton className="w-10 h-6" /> :cls.endTime}
             </p>
           </div>
         </div>
@@ -87,7 +101,7 @@ export function ClassCardItem({
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Slots</p>
-            <p className="font-medium text-sm">{cls.totalSlot}</p>
+            <p className="font-medium text-sm">{isScholarLoading ?  <Skeleton className="w-10 h-6" /> : cls.totalSlot}</p>
           </div>
         </div>
 
@@ -98,64 +112,62 @@ export function ClassCardItem({
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Total Scholars</p>
-            <p className="font-medium text-sm">{totalScholars}</p>
+            <p className="font-medium text-sm">
+              {isScholarLoading ? <Skeleton className="w-10 h-6" /> : totalScholars}
+            </p>
           </div>
         </div>
+
         {/* Instructors */}
-        <Accordion
-          type="single"
-          collapsible
-          className="border-b-1 "
-        >
-          <AccordionItem value="item-1">
-            <AccordionTrigger className="py-0 mb-2">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4 ">
-                <div className="p-2  rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Users className="h-5 w-5 text-primary " />
-                </div>
-                <div className="flex flex-col flex-1">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Instructors
-                  </p>
-                  <p className="font-medium text-sm text-start">
-                    {totalInstructors || 0}
-                  </p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-4 text-balance">
-              <div className="flex flex-wrap gap-2 max-w-full">
-                {isLoading ? (
-                  <p className="text-xs text-muted-foreground">
-                    Loading instructors...
-                  </p>
-                ) : instructors.length > 0 ? (
-                  instructors.map((ins) => (
-                    <span
-                      key={ins.uuid}
-                        className="bg-primary/10 px-2 py-1 rounded-full text-xs flex items-center gap-1"
-                    >
-                      {ins.username}
-                      <Trash2
-                        className="h-3 w-3 cursor-pointer text-red-500"
-                        onClick={() => handleDeleteInstructor(ins.uuid)}
-                      />
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    No instructors yet
-                  </p>
-                )}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <Accordion type="single" collapsible className="border-b">
+  <AccordionItem value="item-1">
+    <AccordionTrigger className="py-0 mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+        <div className="p-2 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <Users className="h-5 w-5 text-primary" />
+        </div>
+        <div className="flex flex-col flex-1">
+          <p className="text-xs text-muted-foreground mb-1">Instructors</p>
+          <p className="font-medium text-sm text-start">
+            {isInstructorLoading ?  <Skeleton className="w-10 h-6" /> : totalInstructors}
+          </p>
+        </div>
+      </div>
+    </AccordionTrigger>
+
+    <AccordionContent className="w-full col-span-full">
+      {/* ✅ Changed layout to 1 instructor per row */}
+      <div className="flex flex-col gap-2 w-full">
+        {isInstructorLoading ? (
+          <p className="text-xs text-muted-foreground">
+            Loading instructors...
+          </p>
+        ) : instructors.length > 0 ? (
+          instructors.map((ins) => (
+            <div
+              key={ins.uuid}
+              className="bg-primary/10 px-3 py-2 rounded-md text-xs flex items-center justify-between"
+            >
+              <span>{ins.instructorUsername}</span>
+              <Trash2
+                className="h-3.5 w-3.5 cursor-pointer text-red-500"
+                onClick={() => handleDeleteInstructor(ins.uuid)}
+              />
+            </div>
+          ))
+        ) : (
+          <p className="text-xs text-muted-foreground">No instructors yet</p>
+        )}
+      </div>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
 
         <Button
-          className="w-full mt-4 bg-primary   text-primary-foreground hover:bg-primary/90 font-medium"
+          className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
           onClick={() =>
-            router.push(`/opening-program/${programSlug}/${cls.uuid}`)
+            router.push(`/opening-program/${programSlug}/${cls.classCode}`)
           }
         >
           View Scholars

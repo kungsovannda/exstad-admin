@@ -68,7 +68,7 @@ export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: 
       const payload: ClassPayload = {
         openingProgramUuid,
         openingProgramName: openingProgramTitle,
-        shift: data.shift.toUpperCase() as "MORNING" | "AFTERNOON" | "EVENING",
+        shift: data.shift!.toUpperCase() as "MORNING" | "AFTERNOON" | "EVENING",
         startTime: data.startTime,
         endTime: data.endTime,
         isWeekend: data.isWeekend ?? false,

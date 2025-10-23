@@ -272,6 +272,21 @@ export const scholarApi = createApi({
         { type: "Scholar", id: "LIST" },
       ],
     }),
+    // Mark a course as completed for a scholar
+    removeCompletedCourse: builder.mutation<
+      Scholar, 
+      { scholarUuid: string; openingProgramUuid: string }
+    >({
+      query: ({ scholarUuid, openingProgramUuid }) => ({
+        url: `/scholars/${scholarUuid}/remove-completed-course/${openingProgramUuid}`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, { scholarUuid }) => [
+        { type: "Scholar", id: scholarUuid },
+        { type: "Scholar", id: "LIST" }, 
+        
+      ],
+    }),
 
     // Assign careers to scholar
     assignCareers: builder.mutation<
@@ -423,6 +438,7 @@ export const {
   useHardDeleteScholarMutation,
   useGetAllScholarsByOpeningProgramUuidQuery,
   useMarkCompletedCourseMutation,
+  useRemoveCompletedCourseMutation,
   useMarkIsEmployedMutation, // NEW
   useUnMarkIsAbroadMutation,
   useMarkIsAbroadMutation,

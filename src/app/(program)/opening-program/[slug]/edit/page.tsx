@@ -53,6 +53,7 @@ function OpeningProgramEdit() {
     qrCodeUrl: openingProgram.qrCodeUrl || "",
     curriculumPdfUri: openingProgram.curriculumPdfUri || "",
     programUuid,
+    registerFee:openingProgram.registerFee || 0,
   };
 
   const handleSubmit = async (values: OpeningProgramFormValue) => {

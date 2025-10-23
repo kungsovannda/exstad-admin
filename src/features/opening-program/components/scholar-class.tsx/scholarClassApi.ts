@@ -8,18 +8,18 @@ export const ScholarClassApi = createApi({
   tagTypes: ["ScholarClass"],
   endpoints: (builder) => ({
     // GET all scholar classes
-    getAllScholarClasses: builder.query<ScholarClassType[], void>({
-      query: () => "/scholar-classes",
-      transformResponse: (response: { classes?: ScholarClassType[] }) =>
-        response.classes ?? [],
-      providesTags: (result) =>
-        result?.length
-          ? [
-              ...result.map(({ uuid }) => ({ type: "ScholarClass" as const, id: uuid })),
-              { type: "ScholarClass", id: "LIST" },
-            ]
-          : [{ type: "ScholarClass", id: "LIST" }],
-    }),
+   getAllScholarClasses: builder.query<ScholarClassType[], void>({
+  query: () => "/scholar-classes",
+  transformResponse: (response: { "scholar-classes"?: ScholarClassType[] }) =>
+    response["scholar-classes"] ?? [],
+  providesTags: (result) =>
+    result?.length
+      ? [
+          ...result.map(({ uuid }) => ({ type: "ScholarClass" as const, id: uuid })),
+          { type: "ScholarClass", id: "LIST" },
+        ]
+      : [{ type: "ScholarClass", id: "LIST" }],
+}),
 
 
     // GET all scholars by class UUID
@@ -47,6 +47,20 @@ export const ScholarClassApi = createApi({
             ]
           : [{ type: "ScholarClass", id: "LIST" }],
     }),
+
+  getScholarClassesByClassCode: builder.query<ScholarClassType[], string>({
+  query: (classCode) => `/scholar-classes/by-class-code/${classCode}`,
+  transformResponse: (response: { "scholar-classes": ScholarClassType[] }) =>
+    response["scholar-classes"] || [],
+  providesTags: (result) =>
+    result?.length
+      ? [
+          ...result.map(({ uuid }) => ({ type: "ScholarClass" as const, id: uuid })),
+          { type: "ScholarClass", id: "LIST" },
+        ]
+      : [{ type: "ScholarClass", id: "LIST" }],
+}),
+
     // CREATE scholar class
     createScholarClass: builder.mutation<ScholarClassType, ScholarClassCreate>({
       query: (body) => ({
@@ -81,6 +95,8 @@ export const ScholarClassApi = createApi({
         { type: "ScholarClass", id: "LIST" },
       ],
     }),
+
+    
   }),
 });
 
@@ -89,6 +105,7 @@ export const {
   useGetAllScholarClassesQuery,
   useGetScholarByClassUuidQuery,
   useGetScholarClassesByClassUuidQuery,
+  useGetScholarClassesByClassCodeQuery,
   useCreateScholarClassMutation,
   useUpdateScholarClassMutation,
   useDeleteScholarClassMutation,
