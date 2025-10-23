@@ -30,6 +30,7 @@ import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
 import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
 import { generateSlug } from "@/services/generate-slug";
 import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
+import generateFilename from "@/services/generate-filename";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -42,7 +43,7 @@ export const openingProgramformSchema = z.object({
   ),
   originalFee: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, { message: "Original fee is required" })
+    z.number().min(0, { message: "Original fee is required" })
   ),
   scholarship: z.preprocess(
     (val) => Number(val),
@@ -51,11 +52,11 @@ export const openingProgramformSchema = z.object({
   price: z.preprocess((val) => Number(val), z.number()),
   totalSlot: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, { message: "Total Slot is required" })
+    z.number().min(0, { message: "Total Slot is required" })
   ),
   registerFee: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, { message: "Register Fee is required" })
+    z.number().min(0, { message: "Register Fee is required" })
   ),
   duration: z.string().min(1, { message: "Duration is required" }),
   deadline: z.string().min(1, { message: "Deadline is required" }),
@@ -216,7 +217,11 @@ export default function OpeningProgramForm({
           programSlug,
           gen: generation,
           documentType: "thumbnail",
-          filename: "",
+          filename: generateFilename({
+                        type: "thumbnail",
+                        program: programSlug,
+                        generation: String(generation),
+                      }),
         }).unwrap();
         data.thumbnail = thumbnailRes.uri;
       }
@@ -228,7 +233,11 @@ export default function OpeningProgramForm({
           programSlug,
           gen: generation,
           documentType: "poster",
-          filename: "",
+          filename: generateFilename({
+                        type: "poster",
+                        program: programSlug,
+                        generation: String(generation),
+                      }),
         }).unwrap();
         data.posterUrl = posterRes.uri;
       }
@@ -240,7 +249,11 @@ export default function OpeningProgramForm({
           programSlug,
           gen: generation,
           documentType: "qr",
-          filename: "",
+          filename: generateFilename({
+                        type: "qr",
+                        program: programSlug,
+                        generation: String(generation),
+                      }),
         }).unwrap();
         data.qrCodeUrl = qrRes.uri;
       }

@@ -14,38 +14,57 @@ import { toast } from "sonner";
 import { ActivityType } from "@/types/opening-program";
 import { ActivityColumns } from "@/features/opening-program/components/activity/table/activityColumn";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
+import generateFilename from "@/services/generate-filename";
+import Loader from "@/app/loading";
 
 interface Props {
   masterProgram: { uuid: string; slug: string };
   openingProgram: { uuid: string; generation: number };
 }
 
-export default function ActivityAdmin({ masterProgram, openingProgram }: Props) {
-  const { data: activitiesData, isLoading, isFetching, isError } =
-    useGetAllActivityQuery(openingProgram.uuid, { refetchOnMountOrArgChange: true });
+export default function ActivityAdmin({
+  masterProgram,
+  openingProgram,
+}: Props) {
+  const {
+    data: activitiesData,
+    isLoading,
+    isFetching,
+    isError,
+  } = useGetAllActivityQuery(openingProgram.uuid, {
+    refetchOnMountOrArgChange: true,
+  });
 
-  const activities: ActivityType[] = Array.isArray(activitiesData) ? activitiesData : [];
+  const activities: ActivityType[] = Array.isArray(activitiesData)
+    ? activitiesData
+    : [];
   const [localActivities, setLocalActivities] = useState<ActivityType[]>([]);
 
   const [putActivities] = useUpdateActivityMutation();
   const [createDocument] = useCreateDocumentMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [currentActivity, setCurrentActivity] = useState<ActivityType | null>(null);
+  const [currentActivity, setCurrentActivity] = useState<ActivityType | null>(
+    null
+  );
 
   // Initialize localActivities when fetched
-useEffect(() => {
-  // Compare arrays by length or a simple shallow equality
-  if (activities.length !== localActivities.length) {
-    setLocalActivities(activities);
-  }
-}, [activities, localActivities]);
+  useEffect(() => {
+    // Compare arrays by length or a simple shallow equality
+    if (activities.length !== localActivities.length) {
+      setLocalActivities(activities);
+    }
+  }, [activities, localActivities]);
 
+  if (isLoading) return  <Loader/>;
+  if (isError)
+    return <div className="text-destructive">Failed to load activities</div>;
 
-  if (isLoading) return <div>Loading activities...</div>;
-  if (isError) return <div className="text-destructive">Failed to load activities</div>;
-
-  const handleSaveActivity = async (data: ActivityFormValues, file?: File, target?: ActivityType) => {
+  const handleSaveActivity = async (
+    data: ActivityFormValues,
+    file?: File,
+    target?: ActivityType
+  ) => {
     try {
       let imageUrl = data.image;
 
@@ -58,7 +77,11 @@ useEffect(() => {
             programSlug: masterProgram.slug,
             gen: openingProgram.generation,
             documentType: "activity",
-            filename: file.name,
+            filename: generateFilename({
+              type: "activity",
+              program: masterProgram.slug,
+              generation: String(openingProgram.generation),
+            }),
           }).unwrap();
           imageUrl = uploadResult.uri;
           toast.dismiss(toastId);
@@ -73,19 +96,25 @@ useEffect(() => {
       let newActivities: ActivityType[];
       if (target) {
         // Edit: replace and move to top
-        newActivities = [activityData, ...localActivities.filter(a => a !== target)];
+        newActivities = [
+          activityData,
+          ...localActivities.filter((a) => a !== target),
+        ];
       } else {
         // New: add to top
         newActivities = [activityData, ...localActivities];
       }
 
       // Save to backend
-      const payload: ActivityPayload[] = newActivities.map(a => ({
+      const payload: ActivityPayload[] = newActivities.map((a) => ({
         title: a.title,
         description: a.description,
         image: a.image,
       }));
-      await putActivities({ openingProgramUuid: openingProgram.uuid, activities: payload }).unwrap();
+      await putActivities({
+        openingProgramUuid: openingProgram.uuid,
+        activities: payload,
+      }).unwrap();
 
       // Update local state
       setLocalActivities(newActivities);
@@ -98,13 +127,16 @@ useEffect(() => {
 
   const handleDeleteActivity = async (target: ActivityType) => {
     try {
-      const newActivities = localActivities.filter(a => a !== target);
-      const payload: ActivityPayload[] = newActivities.map(a => ({
+      const newActivities = localActivities.filter((a) => a !== target);
+      const payload: ActivityPayload[] = newActivities.map((a) => ({
         title: a.title,
         description: a.description,
         image: a.image,
       }));
-      await putActivities({ openingProgramUuid: openingProgram.uuid, activities: payload }).unwrap();
+      await putActivities({
+        openingProgramUuid: openingProgram.uuid,
+        activities: payload,
+      }).unwrap();
       setLocalActivities(newActivities);
       toast.success(`Activity "${target.title}" deleted!`);
     } catch (err: unknown) {
@@ -138,7 +170,9 @@ useEffect(() => {
           onSubmitActivity={async (data, file) => {
             await handleSaveActivity(data, file, currentActivity || undefined);
           }}
-          trigger={<Button className="font-bold cursor-pointer">Add Activity</Button>}
+          trigger={
+            <Button className="font-bold cursor-pointer">Add Activity</Button>
+          }
         />
       </div>
 

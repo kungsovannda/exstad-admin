@@ -14,15 +14,8 @@ export type MasterProgramType = {
   slug: string;
   subtitle: string;
   description: string;
-  programLevel?: Level;
+  programLevel: Level;
   logoUrl: string;
-  thumbnailUrl: string;
-  price: string;
-  duration: string;
-  scholarship?: number;
-  discount: string;
-  deadline: string;
-  totalslot: number;
   programOverviews: programOverviewType[];
   learningOutcomes: LearningOutcomeType[];
   requirements: RequirementsType[];
@@ -31,27 +24,19 @@ export type MasterProgramType = {
   openingprograms: openingProgramType[]; 
   faq: FaqItem[];
   curricula: CurriculumType[];
-  visibility?: visibility;
-  status: status;
+  visibility: visibility;
   audit: Audit;
 };
 
 export type MasterProgramCreate = {
   title: string;
-  programType?: programType;
-  bgColor?: string;
-  slug?: string;
-  subtitle?: string;
-  description?: string;
-  programLevel?: Level;
+  programType: programType;
+  bgColor: string;
+  slug: string;
+  subtitle: string;
+  description: string;
+  programLevel: Level;
   logoUrl: string;
-  thumbnailUrl?: string;
-  price?: number;
-  duration?: string;
-  scholarship?: number;
-  discount?: string;
-  deadline?: string;
-  totalslot?: number;
   programOverviews?: programOverviewType[];
   learningOutcomes?: LearningOutcomeType[];
   requirements?: RequirementsType[];
@@ -59,8 +44,7 @@ export type MasterProgramCreate = {
   curriculum?: CurriculumType[];
   openingprograms?: openingProgramType[];
   faq?: FaqItem[];
-  visibility?: visibility;
-  status?: status;
+  visibility: visibility;
   // audit: Audit;
 };
 

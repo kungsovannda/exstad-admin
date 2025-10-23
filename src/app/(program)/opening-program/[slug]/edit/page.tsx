@@ -9,27 +9,23 @@ import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { useEffect, useState } from "react";
+import Loader from "@/app/loading";
 
 function OpeningProgramEdit() {
   const params = useParams();
   const router = useRouter();
   const programSlug = params?.slug as string;
 
-  const {
-    data: openingProgram,
-    isLoading,
-    error,
-    refetch, 
-  } = useGetOpeningProgramBySlugQuery(
+  const { data: openingProgram, isLoading, error, refetch, } = useGetOpeningProgramBySlugQuery(
     { slug: programSlug },
     { refetchOnMountOrArgChange: true }
   );
 
   const { data: masterPrograms = [] } = useGetAllMasterProgramsQuery();
   const [updateOpeningProgram] = useUpdateOpeningProgramMutation();
-  const [formKey, setFormKey] = useState(0); // ✅ used to re-render form when data updates
+  const [formKey, setFormKey] = useState(0); //  used to re-render form when data updates
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return  <Loader/>;
   if (error || !openingProgram) return <div>Program not found</div>;
 
   // Map programName from backend to UUID
@@ -61,6 +57,7 @@ function OpeningProgramEdit() {
       ...values,
       slug: values.slug,
       status: values.status ?? "OPEN",
+  
     };
 
     try {

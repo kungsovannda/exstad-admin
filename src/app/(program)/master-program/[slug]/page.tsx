@@ -7,22 +7,25 @@ import {
 } from "@/features/master-program/masterProgramApi";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import Loader from "@/app/loading";
 
 function MasterProgramEdit() {
   const params = useParams();
   const programSlug = params.slug as string;
   const router = useRouter();
 
-  const { data: program, isLoading, error } = useGetMasterProgramBySlugQuery(
+  const { data: program, isLoading, error,refetch } = useGetMasterProgramBySlugQuery(
     { slug: programSlug },
     { refetchOnMountOrArgChange: true }
   );
 
   const [updateMasterProgram, { isLoading: isUpdating }] =
     useUpdateMasterProgramMutation();
+  const [formKey, setFormKey] = useState(0); 
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !program) return <div>Program not found</div>;
+  if (isLoading) return  <Loader/>
+  if (error || !program) return <div>Master Program not found</div>;
 
   const initialValues: MasterProgramFormValues = {
     title: program.title || "",
@@ -30,7 +33,7 @@ function MasterProgramEdit() {
     subtitle: program.subtitle || "",
     description: program.description || "",
     visibility: program.visibility ,
-    programType: program.programType ,
+    programType: program.programType || "SCHOLARSHIP" ,
     programLevel: program.programLevel ,
     logoUrl: program.logoUrl || "",
     bgColor:
@@ -41,6 +44,9 @@ function MasterProgramEdit() {
   const handleSubmit = async (values: MasterProgramFormValues) => {
     const payload = {
       ...values,
+      programType: values.programType || "SCHOLARSHIP",
+      programLevel: values.programLevel || "BASIC",
+      visibility: values.visibility || "PUBLIC",
     };
     try {
       await toast.promise(
@@ -54,6 +60,7 @@ function MasterProgramEdit() {
           error: (err) => `Failed: ${err.message || err}`,
         }
       );
+      await refetch();
       router.push("/master-program");
     } catch (error) {
       console.error("Update failed:", error);
@@ -64,7 +71,7 @@ function MasterProgramEdit() {
 
   return (
     <MasterProgramForm
-      key={program.uuid} 
+      key={formKey} 
       initialValues={initialValues}
       onSubmit={handleSubmit}
       submitLabel={isUpdating ? "Updating..." : "Update"}
@@ -75,7 +82,7 @@ function MasterProgramEdit() {
 export default function Page() {
   return (
     <div className="p-5 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Edit Program</h1>
+      <h1 className="text-2xl font-semibold">Edit Master Program</h1>
       <div className="w-[70%]">
         <MasterProgramEdit />
       </div>

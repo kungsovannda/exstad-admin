@@ -10,6 +10,7 @@ import { SquarePen, Trash } from "lucide-react";
 import { useGetAllProgramOverviewQuery, useUpdateProgramOverviewMutation } from "./programOverviewApi";
 import { programOverviewsPayload, programOverviewType } from "@/types/program";
 import { SectionSkeleton } from "../section-skeleton";
+import ModalDelete from "@/components/modal/ModalDelete";
 
 type Props = { programUuid: string };
 
@@ -130,7 +131,9 @@ export default function ProgramOverviewAdmin({ programUuid }: Props) {
               <Trash
                 size={16}
                 className="text-destructive cursor-pointer"
-                onClick={() => setDeleteTarget(o)}
+                onClick={() => {
+                    setDeleteTarget(o);
+                  }}
               />
               <ProgramOverviewFormModal
                 open={!!editTarget && editTarget.title === o.title && editTarget.description === o.description}
@@ -154,11 +157,12 @@ export default function ProgramOverviewAdmin({ programUuid }: Props) {
       )}
 
       {/* Delete Modal */}
-      <DeleteModal
+      <ModalDelete
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        itemName={deleteTarget?.title || ""}
-        onConfirm={() => {
+        title={deleteTarget ? `Delete ${deleteTarget.title}?` : ""}
+        description={deleteTarget ? `Are you sure you want to delete ${deleteTarget.title}? This action cannot be undone.` : ""}
+        onDelete={() => {
           if (deleteTarget) handleDeleteOverviewLocal(deleteTarget);
           setDeleteTarget(null);
         }}

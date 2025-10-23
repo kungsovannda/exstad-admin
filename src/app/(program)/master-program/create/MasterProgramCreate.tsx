@@ -3,6 +3,7 @@
 import MasterProgramForm, { MasterProgramFormValues } from "./FormField";
 import { useCreateMasterProgramMutation } from "@/features/master-program/masterProgramApi";
 import { generateSlug } from "@/services/generate-slug";
+import type { MasterProgramCreate } from "@/types/program";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -28,9 +29,8 @@ export default function MasterProgramCreate() {
   const [createMasterProgram] = useCreateMasterProgramMutation();
   const [isSlugEdited, setIsSlugEdited] = useState(false);
   const router = useRouter();
-
   const handleSubmit = async (values: MasterProgramFormValues) => {
-    const payload = {
+    const payload: MasterProgramCreate = {
       ...values,
       slug: isSlugEdited ? values.slug : generateSlug(values.title),
       programType: values.programType!,

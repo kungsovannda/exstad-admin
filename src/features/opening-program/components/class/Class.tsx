@@ -27,9 +27,7 @@ export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: 
     isLoading,
     isFetching,
     isError,
-    refetch,
   } = useGetClassesByOpeningProgramQuery(openingProgramTitle, {
-    skip: !openingProgramTitle,
     refetchOnMountOrArgChange: true,
   });
 
@@ -55,7 +53,6 @@ export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: 
       try {
         await deleteClass(classRow.uuid).unwrap();
         toast.success(`Class "${classRow.classCode}" deleted!`);
-        await refetch();
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         toast.error(`Failed to delete class: ${message}`);
@@ -86,7 +83,6 @@ export default function ClassAdmin({ openingProgramTitle, openingProgramUuid }: 
         toast.success(`Class "${data.classCode}" created!`);
       }
 
-      await refetch();
       setOpen(false);
       setEditTarget(null);
     } catch (err: unknown) {

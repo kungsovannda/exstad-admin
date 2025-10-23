@@ -2,7 +2,7 @@
 
 import DefaultStatisticCard from "@/components/statistic-card/DefaultStatisticCard";
 import { State } from "@/types";
-import { UserCheck2, Users } from "lucide-react";
+import { BookCheck, BookLock, BookText, PencilOff, UserCheck2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { openingProgramType } from "@/types/opening-program";
 import { MasterProgramType } from "@/types/program";
@@ -55,27 +55,31 @@ export function OpeningProgramStatisticCard({
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <DefaultStatisticCard
         title="Total Opening Program"
-        icon={Users}
+        icon={BookCheck}
         total={total}
         isLoading={isLoading}
+        description="Total number of all opening programs"
       />
       <DefaultStatisticCard
         title="Draft Program"
-        icon={UserCheck2}
+        icon={BookLock}
         total={closed}
         isLoading={isLoading}
+        description="Opening programs still in draft mode"
       />
       <DefaultStatisticCard
         title="Short Courses"
-        icon={UserCheck2}
+        icon={BookText}
         total={shortCourses}
         isLoading={isLoading}
+        description="Course with short-term skill "
       />
       <DefaultStatisticCard
         title="Scholarship Courses"
-        icon={UserCheck2}
+        icon={BookText}
         total={scholarshipCourses}
         isLoading={isLoading}
+        description="Courses available with scholarships"
       />
     </div>
   );

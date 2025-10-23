@@ -5,7 +5,6 @@ import { MasterActionsCell } from "./action-cell";
 import { buildUniqueOptions } from "@/components/utils/buildUniqueOptions";
 import { Checkbox } from "@/components/ui/checkbox";
 
-
 export const masterProgramColumns = (
   programs: MasterProgramType[]
 ): ColumnDef<MasterProgramType>[] => {
@@ -20,7 +19,7 @@ export const masterProgramColumns = (
   );
 
   return [
-     {
+    {
       id: "select",
       header: ({ table }) => (
         <Checkbox
@@ -74,11 +73,18 @@ export const masterProgramColumns = (
       },
       cell: ({ getValue }) => {
         const programType = getValue<string>();
-        // Capitalize first letter
-        return (
-          programType.charAt(0).toUpperCase() +
-          programType.slice(1).toLowerCase()
-        );
+
+        if (!programType) return "-";
+
+        // Convert "Short_course" -> "Short Course"
+        const formatted = programType
+          .split("_")
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(" ");
+
+        return formatted;
       },
     },
     {
@@ -157,27 +163,27 @@ export const masterProgramColumns = (
         options: visibilityOptions,
       },
       cell: ({ row }) => {
-  const visibility = row.original.visibility;
-  const formattedVisibility = visibility
-    ? visibility.charAt(0).toUpperCase() + visibility.slice(1).toLowerCase()
-    : "Unknown";
+        const visibility = row.original.visibility;
+        const formattedVisibility = visibility
+          ? visibility.charAt(0).toUpperCase() +
+            visibility.slice(1).toLowerCase()
+          : "Unknown";
 
-  const bgClass =
-    visibility === "PUBLIC"
-      ? "bg-[#E6F4EA] text-[#1E7D34]"
-      : visibility === "PRIVATE"
-      ? "bg-[#FDECEC] text-[#B32121]"
-      : "bg-gray-100 text-gray-500"; // fallback style for null/undefined
+        const bgClass =
+          visibility === "PUBLIC"
+            ? "bg-[#E6F4EA] text-[#1E7D34]"
+            : visibility === "PRIVATE"
+            ? "bg-[#FDECEC] text-[#B32121]"
+            : "bg-gray-100 text-gray-500"; // fallback style for null/undefined
 
-  return (
-    <span
-      className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}
-    >
-      {formattedVisibility}
-    </span>
-  );
-},
-
+        return (
+          <span
+            className={`${bgClass} inline-flex items-center rounded-sm px-2 py-1 text-sm`}
+          >
+            {formattedVisibility}
+          </span>
+        );
+      },
     },
     {
       id: "actions",
