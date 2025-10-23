@@ -10,6 +10,7 @@ import ActivityAdmin from "@/features/opening-program/components/activity/Activi
 import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
 import { useGetOpeningProgramBySlugQuery } from "@/features/opening-program/openingProgramApi";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
+import Loader from "@/app/loading";
 
 export default function OpeningProgramSetup() {
   const [tab, setTab] = useState<
@@ -35,9 +36,9 @@ export default function OpeningProgramSetup() {
     return masterPrograms.find((p) => p.title === openingProgram.programName);
   }, [masterPrograms, openingProgram]);
 
-  if (isLoading) return <div>Loading program...</div>;
+  if(isLoading) return <Loader/>
   if (error || !openingProgram)
-    return <div className="text-destructive">Program not found</div>;
+    return <div className="flex items-center justify-center text-muted-foreground h-full w-full">Program not found</div>;
   if (!masterProgram) {
     console.warn(
       "Master program not found for opening program:",

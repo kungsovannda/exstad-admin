@@ -19,6 +19,7 @@ import { ClassCardItem } from "@/features/opening-program/components/scholar-cla
 import { useGetNotScholarUsersQuery } from "@/features/user/userApi";
 import { useGetScholarByClassUuidQuery } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
 import { Package } from "lucide-react";
+import Loader from "@/app/loading";
 
 function slugToProgramName(slug: string) {
   return slug
@@ -44,7 +45,6 @@ export default function ClassListPage() {
       refetchOnMountOrArgChange: true,
     }
   );
-  
 
   const {
     data: classes = [],
@@ -54,7 +54,6 @@ export default function ClassListPage() {
     skip: !programTitle,
     refetchOnMountOrArgChange: true,
   });
-  
 
   const [selectedClassUuid, setSelectedClassUuid] = useState<string | null>(
     null
@@ -66,7 +65,6 @@ export default function ClassListPage() {
       skip: !selectedClassUuid,
       refetchOnMountOrArgChange: true,
     });
-    
 
   const { data: instructors = [] } = useGetNotScholarUsersQuery(undefined, {
     refetchOnMountOrArgChange: true,
@@ -85,18 +83,25 @@ export default function ClassListPage() {
   );
   const totalInstructors = uniqueInstructorUuids.length;
 
-
   const [addInstructor] = useCreateInstructorClassMutation();
-  if (isError){
+  if (isError) {
     return (
-          <div className="flex flex-col space-y-3 justify-center items-center min-h-screen h-fit">
-            <Package size={64} className="text-muted-foreground opacity-30" />
-            <span className="text-muted-foreground text-sm">
-              No Class Found
-            </span>
-          </div>
-        );
+      <div className="flex flex-col space-y-3 justify-center items-center min-h-screen h-fit">
+        <Package size={64} className="text-muted-foreground opacity-30" />
+        <span className="text-muted-foreground text-sm">No Class Found</span>
+      </div>
+    );
   }
+  const loading =
+  isLoading ||
+  !openingProgram?.uuid ||
+  scholars.length === 0 ||
+  instructorClasses.length === 0;
+
+if (loading) {
+  return <Loader/>;
+}
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -181,7 +186,7 @@ export default function ClassListPage() {
         <ClassStatisticCard
           Classes={classes}
           scholarsCount={scholars.length}
-          instructorCount={totalInstructors} 
+          instructorCount={totalInstructors}
           isLoading={isLoading}
         />
 

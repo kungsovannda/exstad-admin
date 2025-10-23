@@ -77,6 +77,7 @@ export function ClassCardItem({
     setSelectedInstructor({ uuid, name });
     setDeleteOpen(true);
   };
+  
 
   return (
     <Card className="bg-card border border-border shadow-sm hover:shadow-md transition rounded-xl">

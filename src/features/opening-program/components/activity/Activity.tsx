@@ -15,6 +15,7 @@ import { ActivityType } from "@/types/opening-program";
 import { ActivityColumns } from "@/features/opening-program/components/activity/table/activityColumn";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 import generateFilename from "@/services/generate-filename";
+import Loader from "@/app/loading";
 
 interface Props {
   masterProgram: { uuid: string; slug: string };
@@ -55,7 +56,7 @@ export default function ActivityAdmin({
     }
   }, [activities, localActivities]);
 
-  if (isLoading) return <div>Loading activities...</div>;
+  if (isLoading) return  <Loader/>;
   if (isError)
     return <div className="text-destructive">Failed to load activities</div>;
 

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { TimelineType } from "@/types/opening-program";
 import { TimelineColumns } from "@/features/opening-program/components/timeline/table/column";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
+import Loader from "@/app/loading";
 
 type Props = { openingProgramUuid: string };
 
@@ -104,7 +105,7 @@ useEffect(() => {
     onDelete: async (timeline) => await handleDeleteTimeline(timeline),
   });
 
-  if (isLoading) return <div>Loading timelines...</div>;
+  if (isLoading) return  <Loader/>;
   if (isError) return <div className="text-destructive">Failed to load timelines</div>;
 
   return (

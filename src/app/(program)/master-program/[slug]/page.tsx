@@ -8,6 +8,7 @@ import {
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import Loader from "@/app/loading";
 
 function MasterProgramEdit() {
   const params = useParams();
@@ -23,8 +24,8 @@ function MasterProgramEdit() {
     useUpdateMasterProgramMutation();
   const [formKey, setFormKey] = useState(0); 
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !program) return <div>Program not found</div>;
+  if (isLoading) return  <Loader/>
+  if (error || !program) return <div>Master Program not found</div>;
 
   const initialValues: MasterProgramFormValues = {
     title: program.title || "",
@@ -81,7 +82,7 @@ function MasterProgramEdit() {
 export default function Page() {
   return (
     <div className="p-5 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Edit Program</h1>
+      <h1 className="text-2xl font-semibold">Edit Master Program</h1>
       <div className="w-[70%]">
         <MasterProgramEdit />
       </div>
