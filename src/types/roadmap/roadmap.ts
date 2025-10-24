@@ -54,6 +54,7 @@ export type HandleConfig = {
 export type WorkNodeData ={
   title: string
   tasks: string[]
+  color: string
   handles: HandleConfig
   onEdit: (id: string) => void
   onDelete: (id: string) => void

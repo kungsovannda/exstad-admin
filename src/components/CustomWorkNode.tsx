@@ -12,19 +12,13 @@ import "@xyflow/react/dist/style.css"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Pencil, Trash2 } from "lucide-react"
-import type { HandleConfig } from "@/types/roadmap/roadmap"
+import type { HandleConfig ,WorkNodeData } from "@/types/roadmap/roadmap"
 
 export default function CustomWorkNode({
   data,
   id,
 }: NodeProps<
-  Node<{
-    title: string
-    tasks: string[]
-    handles: HandleConfig
-    onEdit: (id: string) => void
-    onDelete: (id: string) => void
-  }>
+  Node<WorkNodeData>
 >) {
   const [isHovered, setIsHovered] = useState(false)
 
@@ -65,6 +59,7 @@ export default function CustomWorkNode({
   return (
     <Card
       className="min-w-[280px] max-w-[320px] shadow-lg border-2 hover:shadow-xl transition-shadow"
+      style={{ backgroundColor: data.color || "" }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
