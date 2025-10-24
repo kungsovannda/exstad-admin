@@ -44,13 +44,7 @@ import { toast } from "sonner";
 const nodeTypes = {
   workNode: CustomWorkNode,
 };
-const initialNodes: Node<{
-  title: string;
-  tasks: string[];
-  handles: HandleConfig;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-}>[] = [
+const initialNodes: Node<WorkNodeData>[] = [
   {
     id: "1",
     type: "workNode",
@@ -58,6 +52,7 @@ const initialNodes: Node<{
     data: {
       title: "Planning Phase",
       tasks: ["Define requirements", "Create timeline", "Assign resources"],
+      color: "#f0f9ff",
       handles: {
         top: "target",
         right: "target",
@@ -91,6 +86,7 @@ export default function WorkNodeEditor({
   const [isAddingNode, setIsAddingNode] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editTasks, setEditTasks] = useState("");
+  const [editColor, setEditColor] = useState("")
   const [editHandles, setEditHandles] = useState<HandleConfig>({
     top: "target",
     right: "target",
@@ -112,6 +108,7 @@ const handleEdit = useCallback((nodeId: string) => {
       setEditingNode(nodeId)
       setEditTitle(node.data.title)
       setEditTasks(node.data.tasks.join("\n"))
+      setEditColor(node.data.color || "")
       setEditHandles(node.data.handles)
       setIsEditModalOpen(true)
     }
@@ -134,6 +131,7 @@ const handleEdit = useCallback((nodeId: string) => {
     setEditingNode(null);
     setEditTitle("New Work Node");
     setEditTasks("");
+    setEditColor("")
     setEditHandles({
       top: "target",
       right: "target",
@@ -156,6 +154,7 @@ const handleEdit = useCallback((nodeId: string) => {
           title: editTitle,
           tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
           handles: editHandles,
+          color: editColor,
           onEdit: handleEdit, // attach callbacks here
           onDelete: handleDelete, // attach callbacks here
         },
@@ -172,6 +171,7 @@ const handleEdit = useCallback((nodeId: string) => {
                   ...node.data,
                   title: editTitle,
                   tasks: editTasks.split("\n").filter((t) => t.trim() !== ""),
+                  color: editColor,
                   handles: editHandles,
                 },
               }
@@ -199,18 +199,19 @@ const handleEdit = useCallback((nodeId: string) => {
     const dataToSave: RoadmapPayload = [
       {
         nodes: nodes.map((node) => {
-          const handlesString = positionOrder
-            .map((pos) => node.data.handles[pos])
-            .join(", ");
+const handlesString = positionOrder
+  .map((pos) => node.data.handles[pos])
+  .join(", ");
 
-          return {
-            type: "course",
-            data: {
-              label: `${node.data.title}, ${handlesString}`,
-              description: node.data.tasks.join(", "),
-            },
-            position: node.position,
-          };
+// Include color in label as the last part
+return {
+  type: "course",
+  data: {
+    label: `${node.data.title}, ${handlesString}, ${node.data.color || ""}`,
+    description: node.data.tasks.join(", "),
+  },
+  position: node.position,
+};
         }),
         edges: edges.map((edge) => ({
           id: edge.id,
@@ -284,28 +285,30 @@ const handleEdit = useCallback((nodeId: string) => {
       (node, index) => {
         const parts = node.data.label.split(",").map((p) => p.trim());
         const title = parts[0];
-
         const handles: HandleConfig = {
           top: (parts[1] as HandleType) || "target",
           right: (parts[2] as HandleType) || "target",
           bottom: (parts[3] as HandleType) || "target",
           left: (parts[4] as HandleType) || "target",
         };
+        const color = parts[5] || "";
+
 
         return {
           id: `${index + 1}`,
           type: "workNode",
           position: node.position,
-          data: {
-            title,
-            tasks: node.data.description
-              ? node.data.description.split(", ").filter((t) => t.trim() !== "")
-              : [],
-            handles,
-            // Use **stable callbacks** (no dependency on `nodes`)
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-          },
+data: {
+  title,
+  tasks: node.data.description
+    ? node.data.description.split(", ").filter((t) => t.trim() !== "")
+    : [],
+  handles,
+  color,
+  onEdit: handleEdit,
+  onDelete: handleDelete,
+},
+
         };
       }
     );
@@ -334,6 +337,16 @@ const handleEdit = useCallback((nodeId: string) => {
     setNodes(loadedNodes);
     setEdges(loadedEdges);
   }, [apiData, handleEdit, handleDelete, setEdges, setNodes]);
+    const colorPresets = [
+    { name: "Sky Blue", value: "#3b87ba" },
+    { name: "Rose", value: "#e71352" },
+    { name: "Emerald", value: "#0f910d" },
+    { name: "Amber", value: "#ecb336" },
+    { name: "Purple", value: "#d736ec" },
+    { name: "Cyan", value: "#36ecd7" },
+    { name: "Pink", value: "#ec36c5" },
+    { name: "Lime", value: "#085e0a" },
+  ]
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -364,18 +377,7 @@ const handleEdit = useCallback((nodeId: string) => {
       {/* Toolbar */}
       <div className="bg-background border-b p-4 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Work Node Editor</h1>
-          {isLoading && (
-            <p className="text-sm text-muted-foreground">
-              Loading roadmap data...
-            </p>
-          )}
-          {error && (
-            <p className="text-sm text-red-500">Error loading roadmap data</p>
-          )}
-          {programUuid && !isLoading && !error && apiData && (
-            <p className="text-sm text-muted-foreground">Loaded from API</p>
-          )}
+          <h1 className="text-2xl font-bold">Road Map Editor</h1>
         </div>
         <div className="flex gap-2">
           <Button onClick={addNewNode}>
@@ -419,7 +421,6 @@ const handleEdit = useCallback((nodeId: string) => {
           onEdgeClick={onEdgeClick}
         >
           <Background />
-          <Controls />
         </ReactFlow>
       </div>
 
@@ -454,6 +455,34 @@ const handleEdit = useCallback((nodeId: string) => {
                       placeholder="Enter tasks, one per line"
                       rows={3}
                     />
+                  </div>
+                </div>
+                {/* Color Picker Section */}
+                <div className="space-y-3 border-t pt-4">
+                  <h3 className="text-sm font-semibold">Node Color</h3>
+                  <div className="grid grid-cols-4 gap-2">
+                    {colorPresets.map((preset) => (
+                      <button
+                        key={preset.value}
+                        type="button"
+                        onClick={() => setEditColor(preset.value)}
+                        className={`h-12 rounded-lg border-2 transition-all ${
+                          editColor === preset.value ? "border-primary ring-2 ring-primary/20" : "border-border"
+                        }`}
+                        style={{ backgroundColor: preset.value }}
+                        title={preset.name}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-muted-foreground">Custom:</label>
+                    <input
+                      type="color"
+                      value={editColor}
+                      onChange={(e) => setEditColor(e.target.value)}
+                      className="h-8 w-16 rounded border cursor-pointer"
+                    />
+                    <span className="text-xs text-muted-foreground">{editColor}</span>
                   </div>
                 </div>
 
@@ -521,7 +550,10 @@ const handleEdit = useCallback((nodeId: string) => {
                 <label className="text-sm font-medium">Preview</label>
                 <div className="border rounded-lg p-6 bg-muted/30 flex items-center justify-center min-h-[300px]">
                   <div className="relative">
-                    <Card className="min-w-[280px] max-w-[320px] shadow-lg border-2">
+                    <Card
+                      className="min-w-[280px] max-w-[320px] shadow-lg border-2"
+                      style={{ backgroundColor: editColor }}
+                    >
                       {/* Preview Handles */}
                       {(["top", "right", "bottom", "left"] as const).map(
                         (position) => {

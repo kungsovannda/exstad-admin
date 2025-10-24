@@ -1,13 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-<<<<<<< HEAD
 import React from "react";
 import WorkNodeEditor from "@/components/roadmap";
-=======
 import { useParams } from "next/navigation";
 import { useState } from "react";
->>>>>>> 223859dbc5e5ff4c1021afa5f7503ab4e726e2a9
 
 import CourseRequirementsAdmin from "@/features/master-program/components/course-requirement/CourseRequirement";
 import CurriculumAdmin from "@/features/master-program/components/curriculum/curriculum";
