@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,6 +12,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
+import { Gender } from "@/types/scholar";
+import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -23,51 +25,26 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
-import { Gender } from "@/types/scholar";
-
-const chartData = [
-  { level: "Pre-University", count: 15, fill: "var(--chart-1)" },
-  { level: "Foundation", count: 8, fill: "var(--chart-2)" },
-  {
-    level: "Full Stack Web Development",
-    count: 12,
-    fill: "var(--chart-3)",
-  },
-  { level: "IT Expert", count: 6, fill: "var(--chart-4)" },
-  { level: "IT Professional", count: 9, fill: "var(--chart-5)" },
-];
 
 const chartConfig = {
-  preUniversity: {
-    label: "Pre-University",
-    color: "var(--chart-1)",
-  },
-  foundation: {
-    label: "Foundation",
-    color: "var(--chart-2)",
-  },
-  fullStack: {
-    label: "Full Stack Web Development",
-    color: "var(--chart-3)",
-  },
-  itExpert: {
-    label: "IT Expert",
-    color: "var(--chart-4)",
-  },
-  itProfessional: {
-    label: "IT Professional",
-    color: "var(--chart-5)",
+  scholars: {
+    label: "Scholars",
   },
 } satisfies ChartConfig;
 
-function LevelPieCard() {
+type StatusChartData = {
+  status: string;
+  count: number;
+  fill: string;
+};
+
+function LevelPieCard({ chartData }: { chartData: StatusChartData[] }) {
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
-        <CardTitle>Scholars by Program</CardTitle>
+        <CardTitle>Scholars by Status</CardTitle>
         <CardDescription>
-          Pie chart of total scholars in each program
+          Pie chart of total scholars in each status
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-2">
@@ -85,7 +62,7 @@ function LevelPieCard() {
             <Pie
               data={chartData}
               dataKey="count"
-              nameKey="level"
+              nameKey="status"
               cx="50%"
               cy="50%"
               outerRadius={120}
@@ -94,7 +71,7 @@ function LevelPieCard() {
               strokeWidth={2}
             >
               <LabelList
-                dataKey="level"
+                dataKey="status"
                 className="text-primary"
                 fontSize={12}
                 position="outside"
@@ -120,12 +97,6 @@ function LevelPieCard() {
 }
 
 type GenderChartData = { gender: string; count: number; fill: string };
-
-// const chartDataGender = [
-//   { gender: "Female", count: 6420, fill: "var(--chart-1)" },
-//   { gender: "Male", count: 5890, fill: "var(--chart-2)" },
-//   { gender: "Others", count: 537, fill: "var(--chart-3)" },
-// ];
 
 const chartConfigGender = {
   count: {
@@ -224,6 +195,8 @@ export function GenderDemographicsCard({
 export default function ScholarCharts() {
   const { data: scholars } = useGetAllScholarsQuery();
   const [genderDataChart, setGenderDataChart] = useState<GenderChartData[]>([]);
+  const [statusDataChart, setStatusDataChart] = useState<StatusChartData[]>([]);
+
   useEffect(() => {
     const totalFemale = Array.isArray(scholars)
       ? scholars.filter((s) => s.gender === Gender.FEMALE)
@@ -240,11 +213,39 @@ export default function ScholarCharts() {
       { gender: "Male", count: totalMale.length, fill: "var(--chart-2)" },
       { gender: "Other", count: totalOther, fill: "var(--chart-3)" },
     ]);
+
+    if (Array.isArray(scholars)) {
+      const colors = [
+        "var(--chart-1)",
+        "var(--chart-2)",
+        "var(--chart-3)",
+        "var(--chart-4)",
+        "var(--chart-5)",
+      ];
+
+      // Group scholars by status and count them
+      const statusCounts = scholars.reduce((acc, scholar) => {
+        const status = scholar.status || "Unknown";
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Convert to array format for the chart
+      const statusData = Object.entries(statusCounts).map(
+        ([status, count], index) => ({
+          status,
+          count,
+          fill: colors[index % colors.length],
+        })
+      );
+
+      setStatusDataChart(statusData);
+    }
   }, [scholars]);
 
   return (
     <div className="grid grid-cols-2 gap-5 h-fit">
-      <LevelPieCard />
+      <LevelPieCard chartData={statusDataChart} />
       <GenderDemographicsCard chartDataGender={genderDataChart!} />
     </div>
   );

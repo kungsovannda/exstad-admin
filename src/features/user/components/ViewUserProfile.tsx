@@ -71,13 +71,11 @@ export default function ViewUserProfile({
               </div>
               <div className="w-full flex justify-between">
                 <span className="text-muted-foreground">Username:</span>
-                <p className="font-medium capitalize">
-                  {user.username || "N/A"}
-                </p>
+                <p className="font-medium ">{user.username || "N/A"}</p>
               </div>
               <div className="w-full flex justify-between">
                 <span className="text-muted-foreground">Email:</span>
-                <p className="font-medium capitalize">{user.email || "N/A"}</p>
+                <p className="font-medium ">{user.email || "N/A"}</p>
               </div>
               <div className="w-full flex justify-between">
                 <span className="text-muted-foreground">Role:</span>

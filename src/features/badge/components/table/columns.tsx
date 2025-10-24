@@ -4,6 +4,7 @@ import { Badge } from "@/types/badge";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import VerificationCellAction from "./cell-action";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const verificationColumns: ColumnDef<Badge>[] = [
   {
@@ -35,14 +36,21 @@ export const verificationColumns: ColumnDef<Badge>[] = [
     header: "IMAGE",
     cell: ({ row }) => {
       return (
-        <div className="relative h-16 aspect-square">
-          <Image
-            src={row.getValue("badgeImage")}
-            alt={row.getValue("title")}
-            fill
-            unoptimized
-            className="rounded-lg"
-          />
+        <div className="flex border-1 border-primary/10 rounded-sm justify-center items-center aspect-square h-16">
+          <Avatar className="h-11 w-11">
+            <AvatarImage
+              className="rounded-lg object-cover"
+              src={row.original.badgeImage || "/placeholder.svg"}
+              alt={row.original.title}
+            />
+            <AvatarFallback>
+              {row.original.title
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         </div>
       );
     },

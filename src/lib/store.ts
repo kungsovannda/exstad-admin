@@ -28,6 +28,7 @@ import { enrollmentApi } from "@/features/enrollment/enrollmentApi";
 import { ScholarClassApi } from "@/features/opening-program/components/scholar-class.tsx/scholarClassApi";
 import { InstructorClassApi } from "@/features/opening-program/components/instructor-class/instructorClassApi";
 import { roadmapApi } from "@/features/master-program/components/roadmap/save-roadmap-api";
+import preferenceReducer from "@/features/preference/preferenceSlice";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
@@ -57,12 +58,14 @@ const rootReducer = combineReducers({
   [ScholarClassApi.reducerPath]: ScholarClassApi.reducer,
   [InstructorClassApi.reducerPath]: InstructorClassApi.reducer,
   [roadmapApi.reducerPath]: roadmapApi.reducer,
+  preference: preferenceReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
   blacklist: [currentAddressApi.reducerPath, provinceApi.reducerPath], // optional
+  whitelist: ["preference"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

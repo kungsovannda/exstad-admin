@@ -12,6 +12,7 @@ export type CreateScholar = {
   dob: string;
   university: string;
   province: string;
+  currentAddress: string;
   isPublic: boolean;
   nickname?: string;
   bio?: string;

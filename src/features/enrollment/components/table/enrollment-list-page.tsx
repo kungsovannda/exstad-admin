@@ -59,11 +59,15 @@ export default function EnrollmentListPage({
   );
 
   const paidColumns = useMemo(
-    () => paidEnrollmentColumns(addressOptions),
-    [addressOptions]
+    () => paidEnrollmentColumns(addressOptions, isShortCourse),
+    [addressOptions, isShortCourse]
   );
   const interviewColumns = useMemo(
     () => interviewedEnrollmentColumns(addressOptions),
+    [addressOptions]
+  );
+  const passedColumns = useMemo(
+    () => passedEnrollmentColumns(addressOptions),
     [addressOptions]
   );
 
@@ -155,7 +159,7 @@ export default function EnrollmentListPage({
               <DataTableSkeleton columnCount={passedEnrollmentColumns.length} />
             ) : (
               <PassedEnrollmentTable
-                columns={passedEnrollmentColumns}
+                columns={passedColumns}
                 data={passedEnrollments}
                 totalItems={enrollments.length}
               />

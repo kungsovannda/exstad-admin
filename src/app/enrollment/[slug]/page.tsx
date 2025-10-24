@@ -1,6 +1,14 @@
 "use client";
 import { Heading } from "@/components/Heading";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import OverviewEnrollmentByAddress from "@/features/enrollment/components/overview/OverviewEnrollmentByAddress";
+import OverviewEnrollmentByAge from "@/features/enrollment/components/overview/OverviewEnrollmentByAge";
+import OverviewEnrollmentByUniversity from "@/features/enrollment/components/overview/OverviewEnrollmentByUniversity";
 import EnrollmentChart from "@/features/enrollment/components/statistic/EnrollmentChart";
 import EnrollmentGradeChart from "@/features/enrollment/components/statistic/EnrollmentGradeChart";
 import { EnrollmentStatisticCard } from "@/features/enrollment/components/statistic/EnrollmentStatisticCard";
@@ -10,9 +18,9 @@ import { useGetMasterProgramBySlugQuery } from "@/features/master-program/master
 import { useGetAllOpeningProgramsByProgramSlugQuery } from "@/features/opening-program/openingProgramApi";
 import { openingProgramType } from "@/types/opening-program";
 import { formatTitle } from "@/utils/formatTitle";
+import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 import { Package } from "lucide-react";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function PageEnrollment() {
@@ -66,7 +74,7 @@ export default function PageEnrollment() {
   if (!currentGen) return null;
 
   return (
-    <div className="p-6 space-y-6 min-h-screen h-fit">
+    <div className="p-6 relative space-y-6 min-h-screen h-fit">
       <Heading
         title={`${formatTitle(slug!)} Enrollment`}
         description="Overview of scholar enrollment distribution by program"
@@ -106,10 +114,31 @@ export default function PageEnrollment() {
               isLoading={isLoading}
               data={enrollments ?? []}
             />
-            <EnrollmentChart data={enrollments ?? []} />
+            <Carousel
+              plugins={[WheelGesturesPlugin()]}
+              className="w-full h-[500px]"
+            >
+              <CarouselContent>
+                <CarouselItem>
+                  <EnrollmentChart data={enrollments ?? []} />
+                </CarouselItem>
+                <CarouselItem>
+                  <OverviewEnrollmentByUniversity data={enrollments ?? []} />
+                </CarouselItem>
+                <CarouselItem>
+                  <OverviewEnrollmentByAddress data={enrollments ?? []} />
+                </CarouselItem>
+                <CarouselItem>
+                  <OverviewEnrollmentByAge data={enrollments ?? []} />
+                </CarouselItem>
+              </CarouselContent>
+              {/* <CarouselPrevious />
+              <CarouselNext /> */}
+            </Carousel>
             {program?.programType !== "SHORT_COURSE" && (
               <EnrollmentGradeChart data={enrollments ?? []} />
             )}
+
             <EnrollmentListPage
               isShortCourse={program?.programType === "SHORT_COURSE"}
               uuid={currentGen?.uuid}

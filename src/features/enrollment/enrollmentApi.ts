@@ -109,6 +109,36 @@ export const enrollmentApi = createApi({
       ],
     }),
 
+    // 🎓 MARK enrollment as scholar
+    markIsScholar: builder.mutation<Enrollment, string>({
+      query: (uuid) => ({
+        url: `/enrollments/${uuid}/is-scholar`,
+        method: "PUT",
+      }),
+      // Invalidate the specific enrollment and all lists to refresh data
+      invalidatesTags: (result, error, uuid) => [
+        { type: "Enrollment", id: uuid },
+        { type: "Enrollment", id: "LIST" },
+      ],
+    }),
+
+    // 📝 SET score exam for scholar
+    setScoreExamScholar: builder.mutation<
+      Enrollment,
+      { uuid: string; body: { score: number } }
+    >({
+      query: ({ uuid, body }) => ({
+        url: `/enrollments/${uuid}/score-exam`,
+        method: "PUT",
+        body,
+      }),
+      // Invalidate the specific enrollment and all lists to refresh data
+      invalidatesTags: (result, error, { uuid }) => [
+        { type: "Enrollment", id: uuid },
+        { type: "Enrollment", id: "LIST" },
+      ],
+    }),
+
     // 🧭 GET enrollments by opening program
     getAllEnrollmentsByProgram: builder.query<Enrollment[], string>({
       query: (uuid) => `/enrollments/${uuid}/all`,
@@ -181,6 +211,8 @@ export const {
   useGetAllPassedEnrollmentsQuery,
   useGetEnrollmentByUuidQuery,
   useUpdateEnrollmentMutation,
+  useMarkIsScholarMutation,
+  useSetScoreExamScholarMutation,
   useGetAllEnrollmentsByProgramQuery,
   useGetAllInterviewedByProgramQuery,
   useGetAllAchievedByProgramQuery,

@@ -10,7 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import AssignScholarAchievement from "@/features/scholar-achievement/components/AssignScholarAchievement";
 import { Scholar } from "@/types/scholar";
-import { MoreHorizontal } from "lucide-react";
+import {
+  Badge,
+  CheckCircle2,
+  GraduationCap,
+  MoreHorizontal,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -31,12 +36,14 @@ export default function ScholarCellAction({ data }: { data: Scholar }) {
         <DropdownMenuItem
           onClick={() => router.push(`/statistic/${data.username}`)}
         >
-          View & Update
+          <GraduationCap size={16} className="text-primary-hover" /> View
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setIsAssignBadgeModalOpen(true)}>
+          <CheckCircle2 size={16} className="text-primary-hover" />
           Assign Badge
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setIsAssignAchievementModalOpen(true)}>
+          <Badge size={16} className="text-primary-hover" />
           Assign Achievement
         </DropdownMenuItem>
       </DropdownMenuContent>

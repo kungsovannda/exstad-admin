@@ -9,13 +9,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useGetCurrentAddressesQuery } from "@/features/current-address/currentAddressApi";
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
 import AddScholar from "@/features/scholar/statistic/components/AddScholar";
+import ScholarChartByAge from "@/features/scholar/statistic/components/ScholarChartByAge";
 import ScholarCharts from "@/features/scholar/statistic/components/ScholarCharts";
 import { StatisticCard } from "@/features/scholar/statistic/components/StatisticCard";
 import { ScholarColumns } from "@/features/scholar/statistic/components/table/column";
 import { ScholarTable } from "@/features/scholar/statistic/components/table/data-table";
+import ScholarChartByAddress from "@/features/scholar/statistic/components/table/ScholarChartByAddress";
+import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
 import { useMemo, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 
@@ -33,9 +37,27 @@ export default function StatisticPage() {
     [provinces]
   );
 
+  const { data: currentAddresses } = useGetCurrentAddressesQuery();
+  const addressOptions = useMemo(
+    () =>
+      currentAddresses?.map((p) => ({
+        label: p.englishName ?? "",
+        value: p.englishName ?? "",
+      })) ?? [],
+    [currentAddresses]
+  );
+  const { data: universities } = useGetAllUniversitiesQuery();
+  const universityOptions = useMemo(
+    () =>
+      universities?.map((p) => ({
+        label: p.englishName ?? "",
+        value: p.englishName ?? "",
+      })) ?? [],
+    [universities]
+  );
   const column = useMemo(
-    () => ScholarColumns(provinceOptions),
-    [provinceOptions]
+    () => ScholarColumns(provinceOptions, universityOptions, addressOptions),
+    [provinceOptions, universityOptions, addressOptions]
   );
   return (
     <div className="p-6 space-y-6 min-h-screen h-fit">

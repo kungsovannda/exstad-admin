@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { formatTitle } from "@/utils/formatTitle";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const achievementColumns: ColumnDef<Achievement>[] = [
   {
@@ -38,13 +39,20 @@ export const achievementColumns: ColumnDef<Achievement>[] = [
       const icon = row.original.icon;
       return (
         <div className="flex border-1 border-primary/10 rounded-sm justify-center items-center aspect-square h-16">
-          <Image
-            src={icon}
-            alt="Achievement Icon"
-            width={44}
-            height={44}
-            unoptimized
-          />
+          <Avatar className="h-11 w-11">
+            <AvatarImage
+              className="rounded-lg object-cover"
+              src={icon|| "/placeholder.svg"}
+              alt={row.original.title}
+            />
+            <AvatarFallback>
+              {row.original.title
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         </div>
       );
     },

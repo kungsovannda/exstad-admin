@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Enrollment } from "@/types/enrollment";
+import { dateFormatter } from "@/utils/dateFormatter";
+import { Clock, LucideUser } from "lucide-react";
 
 export default function ViewEnrollmentProfile({
   open,
@@ -52,6 +54,38 @@ export default function ViewEnrollmentProfile({
               {enrollment.englishName}
             </DrawerTitle>
             <p className="text-muted-foreground">{enrollment.email}</p>
+          </div>
+          <Separator />
+
+          <div className="w-full justify-end space-y-2 flex flex-col text-sm text-muted-foreground">
+            <div className="w-full flex justify-between">
+              <div className="flex items-center space-x-1">
+                <LucideUser size={14} />
+                <span>Created By:</span>
+              </div>
+              <p>{enrollment?.audit?.createdBy ?? "N/A"}</p>
+            </div>
+            <div className="w-full flex justify-between">
+              <div className="flex items-center space-x-1">
+                <Clock size={14} />
+                <span>Created At:</span>
+              </div>
+              <p>{dateFormatter(enrollment?.audit?.createdAt)}</p>
+            </div>
+            <div className="w-full flex justify-between">
+              <div className="flex items-center space-x-1">
+                <LucideUser size={14} />
+                <span>Updated By:</span>
+              </div>
+              <p>{enrollment?.audit?.updatedBy ?? "N/A"}</p>
+            </div>
+            <div className="w-full flex justify-between">
+              <div className="flex items-center space-x-1">
+                <Clock size={14} />
+                <span>Updated At:</span>
+              </div>
+              <p>{dateFormatter(enrollment?.audit?.updatedAt)}</p>
+            </div>
           </div>
         </DrawerHeader>
         <Separator />

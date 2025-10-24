@@ -1,3 +1,4 @@
+// PASSED ENROLLMENT CELL ACTION
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,8 +11,9 @@ import { Enrollment, UpdateEnrollment } from "@/types/enrollment/index";
 import { CircleUser, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import ViewEnrollmentProfile from "../../ViewEnrollmentProfile";
-import { toast } from "sonner";
 import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
+import { toast } from "sonner";
+import { HandleToScholar } from "./handle-to-scholar";
 
 export default function PassedEnrollmentCellAction({
   data,
@@ -20,6 +22,8 @@ export default function PassedEnrollmentCellAction({
 }) {
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
   const [updateEnrollment] = useUpdateEnrollmentMutation();
+  const [isToScholarOpen, setIsToScholarOpen] = useState(false);
+
   const handleEnrollmentUpdate = ({
     uuid,
     body,
@@ -39,6 +43,7 @@ export default function PassedEnrollmentCellAction({
       },
     });
   };
+
   return (
     <div className="flex ">
       <Button
@@ -56,7 +61,12 @@ export default function PassedEnrollmentCellAction({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem>Scholar</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setIsToScholarOpen(true)}
+            disabled={data.isScholar}
+          >
+            Mark as Scholar
+          </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onClick={() =>
@@ -75,6 +85,13 @@ export default function PassedEnrollmentCellAction({
           open={isViewProfileOpen}
           onOpenChange={setIsViewProfileOpen}
           enrollment={data}
+        />
+      )}
+      {isToScholarOpen && (
+        <HandleToScholar
+          enrollment={[data]}
+          open={isToScholarOpen}
+          onOpenChange={setIsToScholarOpen}
         />
       )}
     </div>

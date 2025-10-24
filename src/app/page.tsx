@@ -7,11 +7,16 @@ import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterPr
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
 import { ChartBarComparison } from "@/features/program-overview/components/area-chart";
 import { ProgramOverviewStatisticCard } from "@/features/program-overview/components/statistic-card";
+import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
+import ScholarChartByAge from "@/features/scholar/statistic/components/ScholarChartByAge";
+import ScholarChartByAddress from "@/features/scholar/statistic/components/table/ScholarChartByAddress";
 export default function Home() {
   const { data: masterProgram = [], isLoading } = useGetAllMasterProgramsQuery(
     undefined,
     { refetchOnMountOrArgChange: true }
   );
+
+  const { data: scholars } = useGetAllScholarsQuery();
 
   const { data: openingPrograms = [] } = useGetAllOpeningProgramsQuery(
     undefined,
@@ -43,12 +48,11 @@ export default function Home() {
         isLoading={isLoading}
       />
       {/* <div className="grid grid-cols-2 gap-5 h-fit"> */}
-      
+
       <ChartBarComparison />
       <ProgramBarCard data={openingCounts} />
-
-
-      <ComingSoon />
+      <ScholarChartByAge data={Array.isArray(scholars) ? scholars : []} />
+      <ScholarChartByAddress data={Array.isArray(scholars) ? scholars : []} />
     </div>
   );
 }

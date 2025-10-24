@@ -1,6 +1,6 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
+import { VisibilityState, type ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
@@ -11,12 +11,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Printer } from "lucide-react";
+import { Badge, CheckCircle2, ChevronDown, Printer } from "lucide-react";
 import { useState } from "react";
 import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
+import AssignScholarAchievement from "@/features/scholar-achievement/components/AssignScholarAchievement";
 import { Scholar } from "@/types/scholar";
 import { exportToExcel } from "@/services/export-to-excel";
 import ExportToExcelModal from "@/components/ExportToExcelModal";
@@ -37,6 +39,17 @@ export function ScholarTable<TValue>({
     ? Number(searchParams.get("perPage"))
     : 10;
 
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    isAbroad: false,
+    university: false,
+    province: false,
+  });
+
+  const [isAssignBadgeOpen, setIsAssignBadgeOpen] = useState(false);
+  const [isAssignAchievementOpen, setIsAssignAchievementOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportMode, setExportMode] = useState<"selected" | "all">("selected");
+
   const { table } = useDataTable({
     data,
     columns,
@@ -46,46 +59,78 @@ export function ScholarTable<TValue>({
     enableGlobalFilter: true,
     enableColumnFilters: true,
     enableSorting: true,
+    initialState: {
+      columnVisibility: columnVisibility,
+    },
   });
 
-  const [isAssignBadgeOpen, setIsAssignBadgeOpen] = useState(false);
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-
   const handleExport = async (selectedFields: string[]) => {
+    const exportData =
+      exportMode === "all"
+        ? data
+        : table
+            .getSelectedRowModel()
+            .rows.map((row) => row.original as Scholar);
+
     await exportToExcel({
-      data,
+      data: exportData,
       selectedFields,
-      filename: "scholars.xlsx",
+      filename: `scholars-${exportMode}-${
+        new Date().toISOString().split("T")[0]
+      }.xlsx`,
     });
   };
+
+  const openExportModal = (mode: "selected" | "all") => {
+    setExportMode(mode);
+    setIsExportModalOpen(true);
+  };
+
+  const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
 
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
-        <Button
-          size={"sm"}
-          variant={"outline"}
-          disabled={table.getSelectedRowModel().rows.length === 0}
-          onClick={() => setIsExportModalOpen(true)}
-        >
-          <Printer />
-          Export
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              disabled={table.getSelectedRowModel().rows.length === 0}
-              size={"sm"}
-              variant={"outline"}
+            <Button size={"sm"} variant={"outline"}>
+              <Printer />
+              Export
+              <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuLabel>Export Options</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              disabled={!hasSelectedRows}
+              onClick={() => openExportModal("selected")}
             >
+              Export Selected ({table.getSelectedRowModel().rows.length})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openExportModal("all")}>
+              Export All ({data.length})
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button disabled={!hasSelectedRows} size={"sm"} variant={"outline"}>
               Actions
               <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setIsAssignBadgeOpen(true)}>
-              Assign Badge
+              <CheckCircle2 size={16} className="text-primary-hover" /> Assign
+              Badge
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsAssignAchievementOpen(true)}>
+              <Badge size={16} className="text-primary-hover" />
+              Assign Achievement
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -100,9 +145,26 @@ export function ScholarTable<TValue>({
             .rows.map((row) => row.original as Scholar)}
         />
       )}
+
+      {isAssignAchievementOpen && (
+        <AssignScholarAchievement
+          open={isAssignAchievementOpen}
+          onOpenChange={setIsAssignAchievementOpen}
+          scholars={table
+            .getSelectedRowModel()
+            .rows.map((row) => row.original as Scholar)}
+        />
+      )}
+
       {isExportModalOpen && (
         <ExportToExcelModal
-          data={data}
+          data={
+            exportMode === "all"
+              ? data
+              : table
+                  .getSelectedRowModel()
+                  .rows.map((row) => row.original as Scholar)
+          }
           open={isExportModalOpen}
           onOpenChange={setIsExportModalOpen}
           onExport={handleExport}

@@ -50,7 +50,7 @@ function QualificationLevelPieCard({
   }, [chartData]);
 
   return (
-    <Card className="flex h-[500px] flex-col rounded-lg shadow-sm">
+    <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
         <CardTitle>Enrollment by Qualification</CardTitle>
         <CardDescription>
@@ -58,7 +58,7 @@ function QualificationLevelPieCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-2">
-        <ChartContainer config={chartConfig} className="mx-auto h-full w-full">
+        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full">
           <PieChart>
             <ChartTooltip
               content={
@@ -182,7 +182,11 @@ function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
   );
 }
 
-export default function EnrollmentChart({ data }: { data: Enrollment[] }) {
+export default function OverviewEnrollmentChart({
+  data,
+}: {
+  data: Enrollment[];
+}) {
   const qualificationChartData = React.useMemo(() => {
     if (!data || !Array.isArray(data)) {
       return [];
@@ -232,7 +236,7 @@ export default function EnrollmentChart({ data }: { data: Enrollment[] }) {
   }, [data]);
 
   return (
-    <div className="grid grid-cols-2 gap-5 h-full">
+    <div className="grid grid-cols-2 gap-5 h-fit">
       <QualificationLevelPieCard chartData={qualificationChartData} />
       <ShiftPieCard chartData={shiftChartData} />
     </div>

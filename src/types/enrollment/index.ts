@@ -1,3 +1,4 @@
+import { Audit } from "..";
 import { ClassType } from "../opening-program";
 import { Gender } from "../scholar";
 
@@ -23,6 +24,7 @@ export type Enrollment = {
   isInterviewed: boolean;
   isAchieved: boolean;
   isPassed: boolean;
+  audit: Audit;
 };
 
 export type UpdateEnrollment = {
