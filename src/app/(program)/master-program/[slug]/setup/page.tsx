@@ -102,7 +102,7 @@ export default function ProgramSetup() {
       {tab === "curriculum" && <CurriculumAdmin programUuid={programUuid} />}
       {tab === "roadmap" && (
         <div className="border rounded-2xl overflow-hidden">
-          <WorkNodeEditor programUuid={programUuid} />
+          <WorkNodeEditor  programUuid={programUuid} programType="programs" />
         </div>
       )}
       {tab === "faq" && <FaqAdmin programUuid={programUuid} />}

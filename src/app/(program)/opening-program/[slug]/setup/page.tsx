@@ -86,7 +86,7 @@ export default function OpeningProgramSetup() {
 
       {tab === "roadmap" && (
         <div className="border rounded-2xl overflow-hidden">
-          <WorkNodeEditor programUuid={openingProgram.uuid} />
+          <WorkNodeEditor masterProgramUuid={masterProgram.uuid} programUuid={openingProgram.uuid} programType="opening-programs" />
         </div>
       )}
       {tab === "timeline" && (
