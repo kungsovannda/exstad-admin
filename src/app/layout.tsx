@@ -87,7 +87,7 @@ export default async function RootLayout({
                   {/* <Suspense fallback={<Loader />}> */}
                   <LayoutWrapper>
                     {children}
-                    <Toaster />
+                    <Toaster richColors position="top-right" />
                   </LayoutWrapper>
                   {/* </Suspense> */}
                 </ActiveThemeProvider>
