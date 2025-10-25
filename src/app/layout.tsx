@@ -82,16 +82,16 @@ export default async function RootLayout({
               disableTransitionOnChange={false}
               enableColorScheme
             >
-              <ActiveThemeProvider>
-                <StoreProvider>
+              <StoreProvider>
+                <ActiveThemeProvider>
                   {/* <Suspense fallback={<Loader />}> */}
                   <LayoutWrapper>
                     {children}
                     <Toaster />
                   </LayoutWrapper>
                   {/* </Suspense> */}
-                </StoreProvider>
-              </ActiveThemeProvider>
+                </ActiveThemeProvider>
+              </StoreProvider>
             </ThemeProvider>
           </NuqsAdapter>
         </AuthProvider>

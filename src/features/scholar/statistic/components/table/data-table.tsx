@@ -22,6 +22,7 @@ import AssignScholarAchievement from "@/features/scholar-achievement/components/
 import { Scholar } from "@/types/scholar";
 import { exportToExcel } from "@/services/export-to-excel";
 import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useAppSelector } from "@/lib/hooks";
 
 interface ScholarTableProps<TValue> {
   columns: ColumnDef<Scholar, TValue>[];
@@ -39,7 +40,7 @@ export function ScholarTable<TValue>({
     ? Number(searchParams.get("perPage"))
     : 10;
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const [columnVisibility] = useState<VisibilityState>({
     isAbroad: false,
     university: false,
     province: false,
@@ -49,6 +50,7 @@ export function ScholarTable<TValue>({
   const [isAssignAchievementOpen, setIsAssignAchievementOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportMode, setExportMode] = useState<"selected" | "all">("selected");
+  const preference = useAppSelector((state) => state.preference);
 
   const { table } = useDataTable({
     data,
@@ -78,6 +80,7 @@ export function ScholarTable<TValue>({
       filename: `scholars-${exportMode}-${
         new Date().toISOString().split("T")[0]
       }.xlsx`,
+      exportType: preference.export,
     });
   };
 

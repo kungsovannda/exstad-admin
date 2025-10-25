@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppSelector } from "@/lib/hooks";
 import {
   ReactNode,
   createContext,
@@ -33,8 +34,9 @@ export function ActiveThemeProvider({
   children: ReactNode;
   initialTheme?: string;
 }) {
+  const preference = useAppSelector((state) => state.preference);
   const [activeTheme, setActiveTheme] = useState<string>(
-    () => initialTheme || DEFAULT_THEME
+    () => preference.theme?.variant || DEFAULT_THEME
   );
 
   useEffect(() => {

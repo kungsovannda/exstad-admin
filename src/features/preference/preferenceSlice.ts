@@ -3,7 +3,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: Preference = {
   export: {
-    font: "Battambang",
+    header: {
+      font: "Kantumruy Pro",
+      size: 12,
+    },
+    content: {
+      font: "Kantumruy Pro",
+      size: 11,
+    },
   },
 };
 

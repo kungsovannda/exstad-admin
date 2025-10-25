@@ -22,6 +22,7 @@ import { Enrollment } from "@/types/enrollment";
 import { ChevronDown, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAppSelector } from "@/lib/hooks";
 
 interface PaidEnrollmentTableProps<TValue> {
   columns: ColumnDef<Enrollment, TValue>[];
@@ -40,7 +41,8 @@ export function PaidEnrollmentTable<TValue>({
     : 10;
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportMode, setExportMode] = useState<"selected" | "all">("selected");
-  const [isMarkInterviewModalOpen, setIsMarkInterviewModalOpen] = useState(false);
+  const [isMarkInterviewModalOpen, setIsMarkInterviewModalOpen] =
+    useState(false);
   const [isShortCourse, setIsShortCourse] = useState(false);
   const [stateProcess, setStateProcess] = useState<{
     currentProgress: number;
@@ -53,6 +55,7 @@ export function PaidEnrollmentTable<TValue>({
   });
 
   const [updateEnrollment] = useUpdateEnrollmentMutation();
+  const preference = useAppSelector((state) => state.preference);
 
   useEffect(() => {
     setIsShortCourse(searchParams.get("type") === "short-course");
@@ -100,14 +103,20 @@ export function PaidEnrollmentTable<TValue>({
   }
 
   const handleExport = async (selectedFields: string[]) => {
-    const exportData = exportMode === "all" 
-      ? data 
-      : table.getSelectedRowModel().rows.map((row) => row.original as Enrollment);
-    
+    const exportData =
+      exportMode === "all"
+        ? data
+        : table
+            .getSelectedRowModel()
+            .rows.map((row) => row.original as Enrollment);
+
     await exportToExcel({
       data: exportData,
       selectedFields,
-      filename: `paid-enrollments-${exportMode}-${new Date().toISOString().split('T')[0]}.xlsx`,
+      filename: `paid-enrollments-${exportMode}-${
+        new Date().toISOString().split("T")[0]
+      }.xlsx`,
+      exportType: preference.export,
     });
   };
 
@@ -154,7 +163,7 @@ export function PaidEnrollmentTable<TValue>({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
+
         {!isShortCourse && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -177,20 +186,22 @@ export function PaidEnrollmentTable<TValue>({
           </DropdownMenu>
         )}
       </DataTableToolbar>
-      
+
       {isExportModalOpen && (
         <ExportToExcelModal
           data={
             exportMode === "all"
               ? data
-              : table.getSelectedRowModel().rows.map((row) => row.original as Enrollment)
+              : table
+                  .getSelectedRowModel()
+                  .rows.map((row) => row.original as Enrollment)
           }
           open={isExportModalOpen}
           onOpenChange={setIsExportModalOpen}
           onExport={handleExport}
         />
       )}
-      
+
       {isMarkInterviewModalOpen && (
         <ModalProcess
           {...stateProcess}

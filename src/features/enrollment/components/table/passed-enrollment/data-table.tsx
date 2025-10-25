@@ -22,6 +22,7 @@ import { ChevronDown, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { HandleToScholar } from "./handle-to-scholar";
+import { useAppSelector } from "@/lib/hooks";
 
 interface PassedEnrollmentTableProps<TValue> {
   columns: ColumnDef<Enrollment, TValue>[];
@@ -41,6 +42,7 @@ export function PassedEnrollmentTable<TValue>({
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportMode, setExportMode] = useState<"selected" | "all">("selected");
   const [isToScholarOpen, setIsToScholarOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference);
 
   const handleExport = async (selectedFields: string[]) => {
     const exportData =
@@ -56,6 +58,7 @@ export function PassedEnrollmentTable<TValue>({
       filename: `passed-enrollments-${exportMode}-${
         new Date().toISOString().split("T")[0]
       }.xlsx`,
+      exportType: preference.export,
     });
   };
 

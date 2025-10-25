@@ -3,7 +3,16 @@ export type Preference = {
     mode?: string;
     variant?: string;
   };
-  export?: {
+  export: ExportType;
+};
+
+export type ExportType = {
+  header?: {
     font?: string;
+    size?: number;
+  };
+  content?: {
+    font?: string;
+    size?: number;
   };
 };

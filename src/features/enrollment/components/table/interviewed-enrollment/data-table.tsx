@@ -22,6 +22,7 @@ import { Enrollment } from "@/types/enrollment";
 import { ChevronDown, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useAppSelector } from "@/lib/hooks";
 
 interface InterviewedEnrollmentTableProps<TValue> {
   columns: ColumnDef<Enrollment, TValue>[];
@@ -52,6 +53,7 @@ export function InterviewedEnrollmentTable<TValue>({
   });
 
   const [updateEnrollment] = useUpdateEnrollmentMutation();
+  const preference = useAppSelector((state) => state.preference);
 
   async function onMarkPassedHandle() {
     setIsMarkPassedModalOpen(true);
@@ -108,6 +110,7 @@ export function InterviewedEnrollmentTable<TValue>({
       filename: `interviewed-enrollments-${exportMode}-${
         new Date().toISOString().split("T")[0]
       }.xlsx`,
+      exportType: preference.export,
     });
   };
 

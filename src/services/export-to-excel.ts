@@ -1,11 +1,12 @@
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
+import { ExportType } from "@/types/preference";
 
 interface ExportToExcelProps<T> {
   data: T[];
   selectedFields: string[];
   filename: string;
-  font?: string;
+  exportType?: ExportType;
 }
 
 /**
@@ -121,7 +122,7 @@ export async function exportToExcel<T extends Record<string, unknown>>({
   data,
   selectedFields,
   filename,
-  font = "Kantumruy Pro",
+  exportType,
 }: ExportToExcelProps<T>) {
   if (!data || data.length === 0) {
     console.warn("No data to export");
@@ -174,7 +175,10 @@ export async function exportToExcel<T extends Record<string, unknown>>({
 
   // Style the header row - Kantumruy Pro, Bold, 12pt
   const headerRow = worksheet.getRow(1);
-  headerRow.font = { name: font, size: 12 };
+  headerRow.font = {
+    name: exportType?.header?.font,
+    size: exportType?.header?.size,
+  };
   headerRow.height = 20;
   headerRow.alignment = { vertical: "middle", horizontal: "left" };
 
@@ -187,7 +191,10 @@ export async function exportToExcel<T extends Record<string, unknown>>({
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
       // Skip header row
-      row.font = { name: font, size: 11 };
+      row.font = {
+        name: exportType?.content?.font,
+        size: exportType?.content?.size,
+      };
       row.alignment = { vertical: "middle", horizontal: "left" };
     }
   });

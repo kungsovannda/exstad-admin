@@ -110,7 +110,7 @@ export function EnrollmentTable<TValue>({
       filename: `enrollments-${exportMode}-${
         new Date().toISOString().split("T")[0]
       }.xlsx`,
-      font: preference.export?.font,
+      exportType: preference.export,
     });
   };
 
