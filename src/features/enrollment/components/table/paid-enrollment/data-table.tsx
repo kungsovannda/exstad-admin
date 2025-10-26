@@ -23,6 +23,9 @@ import { ChevronDown, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAppSelector } from "@/lib/hooks";
+import { ApplicantLetterRequest } from "@/types/application";
+import { useDownloadApplicantLettersZipMutation } from "@/features/application/applicationApi";
+import { toast } from "sonner";
 
 interface PaidEnrollmentTableProps<TValue> {
   columns: ColumnDef<Enrollment, TValue>[];
@@ -138,6 +141,42 @@ export function PaidEnrollmentTable<TValue>({
 
   const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
 
+  const [downloadZip] = useDownloadApplicantLettersZipMutation();
+  const onGenerateApplicationLetter = async () => {
+    const enrollments = data.sort((a, b) =>
+      a.khmerName.localeCompare(b.khmerName, "km")
+    );
+
+    const payload: ApplicantLetterRequest[] = enrollments.map((e, index) => {
+      const seq = String(index + 1).padStart(3, "0");
+      return {
+        ...e,
+        placeOfBirth: e.currentAddress,
+        issueDate: new Date().toISOString(),
+        major: e.extra.major,
+        national: "ខ្មែរ",
+        year: e.extra.year,
+        number: `FSW-${seq}`,
+        tableNumber: `ISTAD-${seq}`,
+      };
+    });
+    try {
+      toast.loading("Generating...");
+      const blob = await downloadZip(payload).unwrap();
+      toast.success("Generated success please download!");
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "applicant_letters.zip";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Download failed:" + error);
+    }
+  };
+
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
@@ -181,6 +220,9 @@ export function PaidEnrollmentTable<TValue>({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onMarkInterviewHandle}>
                 Mark as Interviewed
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onGenerateApplicationLetter}>
+                Application Letter
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
