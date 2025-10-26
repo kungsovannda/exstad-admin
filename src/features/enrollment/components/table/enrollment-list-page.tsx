@@ -18,9 +18,13 @@ import { PassedEnrollmentTable } from "./passed-enrollment/data-table";
 export default function EnrollmentListPage({
   uuid,
   isShortCourse,
+  codeNumber,
+  codeTable,
 }: {
   uuid: string | undefined;
   isShortCourse: boolean;
+  codeNumber?: string;
+  codeTable?: string;
 }) {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [paidEnrollments, setPaidEnrollments] = useState<Enrollment[]>([]);
@@ -135,6 +139,8 @@ export default function EnrollmentListPage({
               <DataTableSkeleton columnCount={paidEnrollmentColumns.length} />
             ) : (
               <PaidEnrollmentTable
+                codeNumber={codeNumber}
+                codeTable={codeTable}
                 columns={paidColumns}
                 data={paidEnrollments}
                 totalItems={enrollments.length}

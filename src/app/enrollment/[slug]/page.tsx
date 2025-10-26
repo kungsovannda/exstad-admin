@@ -142,6 +142,13 @@ export default function PageEnrollment() {
             <EnrollmentListPage
               isShortCourse={program?.programType === "SHORT_COURSE"}
               uuid={currentGen?.uuid}
+              codeNumber={
+                currentGen.programName
+                  .split(" ")
+                  .map((word) => word.charAt(0).toUpperCase())
+                  .join("") + String(currentGen.generation).padStart(2, "0")
+              }
+              codeTable="ISTAD"
             />
           </TabsContent>
         ))}

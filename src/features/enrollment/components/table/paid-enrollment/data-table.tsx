@@ -31,12 +31,16 @@ interface PaidEnrollmentTableProps<TValue> {
   columns: ColumnDef<Enrollment, TValue>[];
   data: Enrollment[];
   totalItems: number;
+  codeNumber?: string;
+  codeTable?: string;
 }
 
 export function PaidEnrollmentTable<TValue>({
   columns,
   data,
   totalItems,
+  codeNumber,
+  codeTable,
 }: PaidEnrollmentTableProps<TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
@@ -156,14 +160,15 @@ export function PaidEnrollmentTable<TValue>({
         major: e.extra.major,
         national: "ខ្មែរ",
         year: e.extra.year,
-        number: `FSW-${seq}`,
-        tableNumber: `ISTAD-${seq}`,
+        number: `${codeNumber}-${seq}`,
+        tableNumber: `${codeTable}-${seq}`,
       };
     });
+    const toastId = toast.loading("Generating...");
+
     try {
-      toast.loading("Generating...");
       const blob = await downloadZip(payload).unwrap();
-      toast.success("Generated success please download!");
+
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -172,8 +177,10 @@ export function PaidEnrollmentTable<TValue>({
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      toast.success("Generated success please download!", { id: toastId });
     } catch (error) {
-      toast.error("Download failed:" + error);
+      toast.error("Download failed: " + error, { id: toastId });
     }
   };
 
