@@ -44,21 +44,7 @@ const nodeTypes = {
   workNode: CustomWorkNode,
 };
 
-const initialNodes: Node<WorkNodeData>[] = [
-  {
-    id: "1",
-    type: "workNode",
-    position: { x: 250, y: 100 },
-    data: {
-      title: "Planning Phase",
-      tasks: ["Define requirements", "Create timeline", "Assign resources"],
-      color: "",
-      handles: { top: "target", right: "target", bottom: "target", left: "target" },
-      onEdit: () => {},
-      onDelete: () => {},
-    },
-  },
-];
+let initialNodes: Node<WorkNodeData>[] = [];
 
 const initialEdges: Edge[] = [];
 
@@ -121,6 +107,20 @@ export default function WorkNodeEditor({
     { name: "Pink", value: "#ec36c5" },
     { name: "Lime", value: "#085e0a" },
   ];
+const exampleNode : Node<WorkNodeData>[] =  [{
+    id: "1",
+    type: "workNode",
+    position: { x: 250, y: 100 },
+    data: {
+      title: "Title of New Node",
+      tasks: ["Subject 1", "Subject 2", "Subject 3"],
+      color: "",
+      handles: { top: "target", right: "target", bottom: "target", left: "target" },
+      onEdit: () => handleEdit,
+      onDelete: () => handleDelete,
+    },
+  },];
+  initialNodes = exampleNode;
 
   // ----------------- Node callbacks -----------------
   const handleEdit = useCallback(
