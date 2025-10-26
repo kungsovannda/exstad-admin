@@ -91,9 +91,7 @@ export const enrollmentColumns = (
       filterFn: "equals",
       cell: ({ row }) =>
         row.original.isPaid ? (
-          <Badge className="border-transparent bg-green-950 text-secondary-foreground [a&]:hover:bg-secondary/90">
-            Paid
-          </Badge>
+          <Badge className="border-transparent bg-chart-1">Paid</Badge>
         ) : (
           <Badge variant="destructive">Unpaid</Badge>
         ),

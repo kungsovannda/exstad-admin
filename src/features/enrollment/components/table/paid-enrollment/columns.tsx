@@ -121,9 +121,7 @@ export const paidEnrollmentColumns = (
       filterFn: "equals",
       cell: ({ row }) =>
         row.original.isInterviewed ? (
-          <Badge className="border-transparent bg-blue-950 text-secondary-foreground">
-            Interviewed
-          </Badge>
+          <Badge className="border-transparent bg-primary">Interviewed</Badge>
         ) : (
           <Badge variant="outline">Pending</Badge>
         ),
