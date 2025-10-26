@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
 import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useAppSelector } from "@/lib/hooks";
 
 // Flatten all openingprograms from all programs
 // const allOpeningPrograms = programData.flatMap(
@@ -46,12 +47,14 @@ export default function OpeningProgramTable<TValue>({
   });
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference);
 
   const handleExport = async (selectedFields: string[]) => {
     await exportToExcel({
       data,
       selectedFields,
       filename: "opening-program.xlsx",
+      exportType: preference.export,
     });
   };
   return (

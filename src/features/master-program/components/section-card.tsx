@@ -61,7 +61,7 @@ export function MasterProgramStatisticCard({
       />
       <DefaultStatisticCard
         title="Short Courses"
-        icon={BookText }
+        icon={BookText}
         total={shortCourses}
         isLoading={isLoading}
         description="Course with short-term skill "

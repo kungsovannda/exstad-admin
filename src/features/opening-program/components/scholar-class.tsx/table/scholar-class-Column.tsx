@@ -70,12 +70,9 @@ export const ScholarClassColumns = (
       accessorKey: "isPaid",
       header: "Payment Status",
       enableColumnFilter: true,
-      filterFn: "equalsString",
       meta: {
-        variant: "select",
-        placeholder: "Select payment status...",
+        variant: "boolean",
         label: "Payment Status",
-        options: paymentStatusOptions,
       },
       cell: ({ row }) => (
         <UpdatePaidScholarClassAction scholar={row.original} />
@@ -86,19 +83,11 @@ export const ScholarClassColumns = (
       header: "Is Reminded",
       enableColumnFilter: true,
       meta: {
-        variant: "select",
-        placeholder: "Select reminder status...",
+        variant: "boolean",
         label: "Reminded",
-        options: [
-          { label: "Yes", value: "Yes" },
-          { label: "No", value: "No" },
-        ],
+
       },
       cell: ({ row }) => <UpdateRemindScholarAction scholar={row.original} />,
-
-      filterFn: (row, columnId, filterValue) => {
-        return (row.getValue(columnId) ? "Yes" : "No") === filterValue;
-      },
     },
     {
       accessorKey: "completedCourses",

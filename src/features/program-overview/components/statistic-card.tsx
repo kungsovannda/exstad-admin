@@ -2,7 +2,7 @@
 
 import DefaultStatisticCard from "@/components/statistic-card/DefaultStatisticCard";
 import { State } from "@/types";
-import { Users } from "lucide-react";
+import { BookText, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MasterProgramType } from "@/types/program";
 import { openingProgramType } from "@/types/opening-program";
@@ -35,15 +35,17 @@ export function ProgramOverviewStatisticCard({
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <DefaultStatisticCard
         title="Total Master Program"
-        icon={Users}
+        icon={BookText}
         total={totalMasterProgram}
         isLoading={isLoading}
+        description="Total number of all master programs"
       />
       <DefaultStatisticCard
         title="Total Opening Program"
-        icon={Users}
+        icon={BookText}
         total={totalOpeningProgram}
         isLoading={isLoading}
+        description="Total number of all opening programs"
       />
     </div>
   );

@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Resolver } from "react-hook-form";
+import type { FieldErrors, Resolver } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -148,6 +148,15 @@ export default function ClassModal({
       onChange(value);
     };
 
+    const handleInvalid = (errors: FieldErrors<ClassFormValues>) => {
+      const firstErrorField = Object.keys(errors)[0] as keyof ClassFormValues;
+      const fieldError = errors[firstErrorField];
+      if (fieldError && "message" in fieldError && fieldError.message) {
+        toast.error(fieldError.message as string);
+      }
+    };
+    
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
@@ -174,7 +183,7 @@ export default function ClassModal({
 
         <Form {...form}>
           <form
-            onSubmit={handleSubmit(onSubmitForm)}
+            onSubmit={handleSubmit(onSubmitForm,handleInvalid)}
             className="space-y-6 mt-4"
           >
             {/* Row 2: Class Code & Room */}

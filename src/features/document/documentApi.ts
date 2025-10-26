@@ -24,20 +24,24 @@ export const documentApi = createApi({
       invalidatesTags: [{ type: "Document", id: "LIST" }],
     }),
 
-    createLogo: builder.mutation<Document, CreateLogo>({
-      query: (body) => {
-        const formData = new FormData();
-        formData.append("file", body.file);
-        return {
-          url: `/documents/${body.programSlug}/${
-            body.documentType
-          }${body.filename ? `?filename=${body.filename}` : ""}`,
-          method: "POST",
-          body: formData,
-        };
-      },
-      invalidatesTags: [{ type: "Document", id: "LIST" }],
-    }),
+createLogo: builder.mutation<Document, CreateLogo & { gen?: number }>({
+  query: (body) => {
+    const formData = new FormData();
+    formData.append("file", body.file);
+    formData.append("filename", body.filename || "");
+    formData.append("documentType", body.documentType);
+
+    const generationSegment = body.gen !== undefined ? body.gen : "general";
+
+    return {
+      url: `/documents/${body.programSlug}/${generationSegment}/${body.documentType}`,
+      method: "POST",
+      body: formData,
+    };
+  },
+  invalidatesTags: [{ type: "Document", id: "LIST" }],
+}),
+
 
     // Get all documents
     getAllDocuments: builder.query<Document[], void>({

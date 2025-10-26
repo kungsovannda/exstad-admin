@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
 import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useAppSelector } from "@/lib/hooks";
 
 interface ClassTableProps {
   data: ClassType[];
@@ -41,12 +42,14 @@ export default function ClassDataTable({
   });
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference);
 
   const handleExport = async (selectedFields: string[]) => {
     await exportToExcel({
       data,
       selectedFields,
-      filename: "master-program.xlsx",
+      filename: "class.xlsx",
+      exportType: preference.export,
     });
   };
   return (

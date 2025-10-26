@@ -39,19 +39,26 @@ import {
   useCreateLogoMutation,
 } from "@/features/document/documentApi";
 import { LogoUploadField } from "@/features/master-program/components/LogoUrl";
-import type { Resolver } from "react-hook-form";
+import type { FieldErrors, Resolver } from "react-hook-form";
+import { toast } from "sonner";
+import generateFilename from "@/services/generate-filename";
+import { ThumbnailUploadField } from "@/features/master-program/components/ThumbnailUrl";
 
 export const MasterProgramFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  programType:  z.union([z.enum(["SHORT_COURSE", "SCHOLARSHIP"]), z.undefined()])
+  programType: z
+    .union([z.enum(["SHORT_COURSE", "SCHOLARSHIP"]), z.undefined()])
     .refine((val) => val !== undefined, { message: "Status is required" }),
-  programLevel:  z.union([z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]), z.undefined()])
+  programLevel: z
+    .union([z.enum(["BASIC", "INTERMEDIATE", "ADVANCED"]), z.undefined()])
     .refine((val) => val !== undefined, { message: "Status is required" }),
-  visibility:  z.union([z.enum(["PUBLIC", "PRIVATE"]), z.undefined()])
+  visibility: z
+    .union([z.enum(["PUBLIC", "PRIVATE"]), z.undefined()])
     .refine((val) => val !== undefined, { message: "Status is required" }),
   subtitle: z.string().min(1, { message: "Subtitle is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   logoUrl: z.string().min(1, { message: "Logo is required" }),
+  thumbnailUrl: z.string().min(1, { message: "Thumbnail is required" }),
   bgColor: z.string().min(1, { message: "Theme color is required" }),
   slug: z
     .string()
@@ -65,6 +72,7 @@ export type MasterProgramFormValues = z.infer<typeof MasterProgramFormSchema>;
 
 interface ExtendedFormReturn extends UseFormReturn<MasterProgramFormValues> {
   _logoFile?: File;
+ _thumbnailFile?:File;
 }
 
 type Props = {
@@ -80,25 +88,30 @@ export default function MasterProgramForm({
   submitLabel = "Submit",
   onSlugEdited,
 }: Props) {
-    const resolver: Resolver<MasterProgramFormValues> = zodResolver(
-      MasterProgramFormSchema
-    ) as unknown as Resolver<MasterProgramFormValues>;
-  
+  const resolver: Resolver<MasterProgramFormValues> = zodResolver(
+    MasterProgramFormSchema
+  ) as unknown as Resolver<MasterProgramFormValues>;
+
   const form = useForm<MasterProgramFormValues>({
     resolver,
-    defaultValues: initialValues ||{
+    defaultValues: initialValues || {
       title: "",
-      programType: undefined as | "SHORT_COURSE" | "SCHOLARSHIP" |undefined,
-      programLevel: undefined as |"BASIC"| "INTERMEDIATE"| "ADVANCED"|undefined,
-      visibility: undefined as | "PUBLIC" | "PRIVATE" |undefined,
+      programType: undefined as "SHORT_COURSE" | "SCHOLARSHIP" | undefined,
+      programLevel: undefined as
+        | "BASIC"
+        | "INTERMEDIATE"
+        | "ADVANCED"
+        | undefined,
+      visibility: undefined as "PUBLIC" | "PRIVATE" | undefined,
       subtitle: "",
       description: "",
       logoUrl: "",
+      thumbnailUrl:"",
       bgColor: "",
       slug: "",
     },
   }) as ExtendedFormReturn;
-  const [createLogo] = useCreateLogoMutation();
+  const [createDocument] = useCreateDocumentMutation();
   const [inputValue, setInputValue] = useState(form.getValues("bgColor"));
   const [bgColor, setbgColor] = useState(form.getValues("bgColor"));
   const [showDialog, setShowDialog] = useState(false);
@@ -149,14 +162,34 @@ export default function MasterProgramForm({
       }
 
       if (data.logoUrl.startsWith("blob:") && form._logoFile) {
-        const logoRes = await createLogo({
+        const logoRes = await createDocument({
           file: form._logoFile,
-          programSlug,
-          documentType: "logo",
-          filename: "",
+          programSlug:"null",
+          gen:0,
+          documentType:"logo",
+          filename:  generateFilename({
+                        type: "logo",
+                        program: programSlug,
+                        generation: String(""),
+                      }),
         }).unwrap();
         data.logoUrl = logoRes.uri;
       }
+ if (data.thumbnailUrl.startsWith("blob:") && form._thumbnailFile) {
+  const thumbnailRes = await createDocument({
+    file: form._thumbnailFile,
+    programSlug: "null",
+    gen: 0,
+    documentType: "thumbnail",
+    filename: generateFilename({
+      type: "thumbnail",
+      program: programSlug,
+      generation: String(""),
+    }),
+  }).unwrap();
+  data.thumbnailUrl = thumbnailRes.uri;
+}
+
       await onSubmit(data);
     } catch (error) {
       console.error("Upload failed:", error);
@@ -165,11 +198,23 @@ export default function MasterProgramForm({
       setIsUploading(false);
     }
   };
+  const handleInvalid = (errors: FieldErrors<MasterProgramFormValues>) => {
+    const firstErrorField = Object.keys(
+      errors
+    )[0] as keyof MasterProgramFormValues;
+    const fieldError = errors[firstErrorField];
+    if (fieldError && "message" in fieldError && fieldError.message) {
+      toast.error(fieldError.message as string);
+    }
+  };
 
   return (
     <Form {...form}>
       {/* should be handleFormSubmit waiting for api */}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit, handleInvalid)}
+        className="space-y-6 w-full"
+      >
         {/* Title */}
         <FormField
           control={form.control}
@@ -218,7 +263,7 @@ export default function MasterProgramForm({
             <FormItem>
               <FormLabel>Program Type</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value} >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select Program Type" />
                   </SelectTrigger>
@@ -300,7 +345,11 @@ export default function MasterProgramForm({
               <FormItem>
                 <FormLabel>Program Level</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
@@ -322,7 +371,11 @@ export default function MasterProgramForm({
               <FormItem>
                 <FormLabel>Visibility</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
@@ -385,6 +438,28 @@ export default function MasterProgramForm({
             );
           }}
         />
+       <FormField
+  control={form.control}
+  name="thumbnailUrl"
+  render={() => {
+    const slug = form.watch("slug");
+    return (
+      <FormItem>
+        <FormLabel>Thumbnail *</FormLabel>
+        <FormControl>
+          <div className="space-y-4 mt-2">
+            <ThumbnailUploadField
+              form={form}
+              masterProgram={{ slug }}
+            />
+          </div>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
+
         <Button type="submit" className="w-fit" disabled={isUploading}>
           {isUploading ? "Uploading..." : submitLabel}
         </Button>

@@ -16,6 +16,7 @@ export type MasterProgramType = {
   description: string;
   programLevel: Level;
   logoUrl: string;
+  thumbnailUrl:string;
   programOverviews: programOverviewType[];
   learningOutcomes: LearningOutcomeType[];
   requirements: RequirementsType[];
@@ -30,13 +31,14 @@ export type MasterProgramType = {
 
 export type MasterProgramCreate = {
   title: string;
-  programType: programType;
+  programType?: programType;
   bgColor: string;
   slug: string;
   subtitle: string;
   description: string;
-  programLevel: Level;
-  logoUrl: string;
+  programLevel?: Level;
+  logoUrl?: string;
+  thumbnailUrl:string;
   programOverviews?: programOverviewType[];
   learningOutcomes?: LearningOutcomeType[];
   requirements?: RequirementsType[];
@@ -44,7 +46,7 @@ export type MasterProgramCreate = {
   curriculum?: CurriculumType[];
   openingprograms?: openingProgramType[];
   faq?: FaqItem[];
-  visibility: visibility;
+  visibility?: visibility;
   // audit: Audit;
 };
 
@@ -61,6 +63,11 @@ export type programOverviewType = {
 
 export type programOverviewsPayload = Omit<programOverviewType, "id">;
 
+export type technologyType = {
+  image: string;
+  title:string;
+  description:string;
+}
 export type LearningOutcomeType = {
   id: string;
   title: string;

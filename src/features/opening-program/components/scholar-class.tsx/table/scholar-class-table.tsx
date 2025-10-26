@@ -13,6 +13,7 @@ import { useMarkCompletedCourseMutation } from "@/features/scholar/scholarApi";
 import { toast } from "sonner";
 import { exportToExcel } from "@/services/export-to-excel";
 import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useAppSelector } from "@/lib/hooks";
 
 interface ScholarClassDataTableProps {
   data: ScholarClassType[];
@@ -45,12 +46,14 @@ export default function ScholarClassDataTable({
   });
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference);
 
   const handleExport = async (selectedFields: string[]) => {
     await exportToExcel({
       data,
       selectedFields,
-      filename: "master-program.xlsx",
+      filename: "scholar-class.xlsx",
+      exportType: preference.export,
     });
   };
 

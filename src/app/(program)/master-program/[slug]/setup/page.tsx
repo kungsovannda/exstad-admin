@@ -15,6 +15,7 @@ import ProgramOverviewAdmin from "@/features/master-program/components/programOv
 
 import Loader from "@/app/loading";
 import { useGetMasterProgramBySlugQuery } from "@/features/master-program/masterProgramApi";
+import TechnologyAdmin from "@/features/master-program/components/technology/technology";
 
 export default function ProgramSetup() {
   const [tab, setTab] = useState<
@@ -25,6 +26,7 @@ export default function ProgramSetup() {
     | "learning-outcomes"
     | "course-requirements"
     | "faq"
+    | "technology"
   >("highlight");
 
   const params = useParams();
@@ -106,6 +108,13 @@ export default function ProgramSetup() {
         >
           FAQ
         </Button>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "technology" ? "default" : "outline"}
+          onClick={() => setTab("technology")}
+        >
+          Technology
+        </Button>
       </div>
 
       {/* Tab Content */}
@@ -125,6 +134,9 @@ export default function ProgramSetup() {
       )}
       {tab === "program-overview" && (
         <ProgramOverviewAdmin programUuid={programUuid} />
+      )}
+      {tab === "technology" && (
+        <TechnologyAdmin programSlug={programSlug} programUuid={programUuid} />
       )}
     </div>
   );

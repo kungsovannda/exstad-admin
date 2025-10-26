@@ -1,5 +1,5 @@
 export type CreateDocument = {
-  programSlug: string;
+  programSlug?: string;
   gen: number;
   documentType: string;
   filename?: string;
