@@ -18,6 +18,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Loader from "../loading";
+import { useAppSelector } from "@/lib/hooks";
 
 const groups = [
   {
@@ -168,12 +169,16 @@ export default function EnrollmentLayout({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference.sidebar);
+
   return (
     <main className="flex flex-row h-content overflow-y-hidden">
       <SidebarProvider open={open} defaultOpen={open}>
         <div
           onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
+          onMouseLeave={() =>
+            setTimeout(() => setOpen(false), preference?.child?.delay ?? 3000)
+          }
           className="flex h-content "
         >
           <EnrollmentSidebar />

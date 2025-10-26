@@ -10,12 +10,21 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { Map, MapPinHouse, SettingsIcon, University } from "lucide-react";
+import {
+  Map,
+  MapPinHouse,
+  PanelLeftIcon,
+  SettingsIcon,
+  University,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import Loader from "../loading";
+import { useAppSelector } from "@/lib/hooks";
 
 const groups = [
   {
@@ -90,18 +99,22 @@ export default function SettingLayout({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference.sidebar);
+
   return (
     <main className="flex flex-row h-content overflow-y-hidden">
       <SidebarProvider open={open} defaultOpen={open}>
         <div
           onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
-          className="flex"
+          onMouseLeave={() =>
+            setTimeout(() => setOpen(!open), preference?.child?.delay ?? 3000)
+          }
+          className="flex h-content"
         >
           <SettingSidebar />
         </div>
         <ScrollArea className="h-content w-full overflow-x-hidden">
-          <main className="p-6 mb-10 h-fit">
+          <main className="p-6 h-fit">
             <Suspense fallback={<Loader />}>{children}</Suspense>
           </main>
         </ScrollArea>

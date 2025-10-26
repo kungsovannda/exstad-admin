@@ -10,17 +10,69 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import {
-  CreateScholar,
-  ScholarCredentialInformation,
-  ScholarGeneralInformation,
-  toGender,
-} from "@/types/scholar";
+import { CreateScholar, toGender } from "@/types/scholar";
 import { useState } from "react";
 import CreateCredentialInformation from "./CreateCredentialInformation";
 import CreateGeneralInformation from "./CreateGeneralInformation";
 import { useCreateScholarMutation } from "../../scholarApi";
 import { toast } from "sonner";
+import { useCreateDocumentMutation } from "@/features/document/documentApi";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+
+export const scholarFormSchema = z
+  .object({
+    // General Information
+    englishName: z
+      .string({ error: "English name is required" })
+      .min(5, { message: "English name must be at least 5 characters." })
+      .max(100, { message: "English name must be at most 100 characters." }),
+    khmerName: z
+      .string({ error: "Khmer name is required" })
+      .min(5, { message: "Khmer name must be at least 5 characters." })
+      .max(100, { message: "Khmer name must be at most 100 characters." }),
+    gender: z.string({ error: "Please select a gender" }),
+    dob: z.date({ error: "Date of birth is required" }),
+    phoneNumber: z.string({ error: "Phone number is required" }),
+    phoneFamilyNumber: z.string({ error: "Family phone number is required" }),
+    university: z.string({ error: "Please select a university" }),
+    province: z.string({ error: "Please select a province" }),
+    currentAddress: z.string({ error: "Please select a current address" }),
+    isPublic: z.boolean().optional(),
+    avatar: z.instanceof(File).optional(),
+
+    // Credential Information
+    username: z.string({ error: "Username is required" }).min(1, {
+      message: "Username must be at least 1 character",
+    }),
+    email: z.string({ error: "Email is required" }).email({
+      message: "Please enter a valid email address",
+    }),
+    password: z
+      .string({ error: "Password is required" })
+      .min(8, { message: "Password must be at least 8 characters length" })
+      .regex(
+        passwordRegex,
+        "At least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
+    cfPassword: z
+      .string({ error: "Confirm password is required" })
+      .min(8, { message: "Password must be at least 8 characters length" })
+      .regex(
+        passwordRegex,
+        "At least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
+  })
+  .refine((data) => data.password === data.cfPassword, {
+    message: "Passwords do not match",
+    path: ["cfPassword"],
+  });
+
+export type ScholarFormValues = z.infer<typeof scholarFormSchema>;
 
 export default function AddScholar({
   open,
@@ -31,37 +83,86 @@ export default function AddScholar({
 }) {
   const [info, setInfo] = useState("general");
   const [isOpen, setIsOpen] = useState(open);
-  const [generalData, setGeneralData] =
-    useState<ScholarGeneralInformation | null>(null);
-  const [credentialData, setCredentialData] = useState<
-    Partial<ScholarCredentialInformation>
-  >({});
 
   const [createScholar] = useCreateScholarMutation();
+  const [createDocument] = useCreateDocumentMutation();
 
-  const handleNext = (data: ScholarGeneralInformation) => {
-    setGeneralData(data);
-    setInfo("credential");
+  const form = useForm<ScholarFormValues>({
+    resolver: zodResolver(scholarFormSchema),
+    defaultValues: {
+      dob: new Date(),
+      isPublic: true,
+    },
+    mode: "onChange",
+    reValidateMode: "onChange",
+    criteriaMode: "all",
+  });
+
+  const handleNext = async () => {
+    // Validate general information fields
+    const generalFields: (keyof ScholarFormValues)[] = [
+      "englishName",
+      "khmerName",
+      "gender",
+      "dob",
+      "phoneNumber",
+      "phoneFamilyNumber",
+      "university",
+      "province",
+      "currentAddress",
+    ];
+
+    const isValid = await form.trigger(generalFields);
+
+    if (isValid) {
+      setInfo("credential");
+    }
   };
 
-  const handleSubmit = (data: ScholarCredentialInformation) => {
-    setCredentialData(data);
-    if (!generalData) return;
+  const handleSubmit = async (values: ScholarFormValues) => {
+    if (values.cfPassword !== values.password) {
+      toast.error("Password did not match!");
+      return;
+    }
+
+    let avatarUri;
+    if (values.avatar) {
+      toast.loading("Uploading avatar...");
+      try {
+        const document = await createDocument({
+          file: values.avatar,
+          documentType: "avatar",
+          gen: 0,
+          programSlug: "null",
+        }).unwrap();
+        avatarUri = document.uri;
+        toast.dismiss();
+      } catch (error) {
+        toast.dismiss();
+        toast.error("Failed to upload avatar");
+        return;
+      }
+    }
+
+    const { avatar, dob, ...otherValues } = values;
+
     const scholar: CreateScholar = {
-      ...data,
-      ...generalData,
-      gender: toGender(generalData.gender.toLowerCase()),
-      isPublic: generalData.isPublic ?? true,
+      ...otherValues,
+      avatar: avatarUri,
+      dob: dob.toISOString(),
+      gender: toGender(values.gender.toLowerCase()),
+      isPublic: values.isPublic ?? true,
     };
-    console.log(scholar);
+
     toast.promise(createScholar(scholar).unwrap(), {
       loading: "Creating...",
       success: () => {
         setIsOpen(false);
+        onOpenChange(false);
+        form.reset();
         return "Scholar created successfully!";
       },
       error: (error) => {
-        setIsOpen(false);
         return `Failed to create scholar: ${error.message}`;
       },
     });
@@ -74,7 +175,7 @@ export default function AddScholar({
           <DrawerTitle>
             <ul className="flex justify-center items-center space-x-4">
               <li
-                className={`flex justify-center  items-center space-x-2 ${
+                className={`flex justify-center items-center space-x-2 ${
                   info === "general"
                     ? "text-primary border-primary"
                     : "text-secondary border-secondary"
@@ -90,7 +191,7 @@ export default function AddScholar({
                 <Separator orientation="horizontal" />
               </li>
               <li
-                className={`flex justify-center  items-center space-x-2 ${
+                className={`flex justify-center items-center space-x-2 ${
                   info === "credential"
                     ? "text-primary border-primary"
                     : "text-secondary border-inherit"
@@ -110,17 +211,10 @@ export default function AddScholar({
           <div className="pb-10 overflow-hidden">
             <Tabs value={info} onValueChange={setInfo} defaultValue={info}>
               <TabsContent value="general">
-                <CreateGeneralInformation
-                  data={generalData ?? undefined}
-                  handleOnSubmit={handleNext}
-                />
+                <CreateGeneralInformation form={form} />
               </TabsContent>
               <TabsContent value="credential">
-                <CreateCredentialInformation
-                  handleOnChange={setCredentialData}
-                  data={credentialData ?? undefined}
-                  handleSubmit={handleSubmit}
-                />
+                <CreateCredentialInformation form={form} />
               </TabsContent>
             </Tabs>
             <DrawerFooter className="mx-auto flex flex-row justify-end items-start w-full px-0 max-w-3xl">
@@ -129,8 +223,8 @@ export default function AddScholar({
               </DrawerClose>
               <Button
                 className={info === "general" ? "" : "hidden"}
-                form="scholar-general-information-form"
-                type="submit"
+                onClick={handleNext}
+                type="button"
               >
                 Next
               </Button>
@@ -138,13 +232,14 @@ export default function AddScholar({
                 onClick={() => setInfo("general")}
                 className={info === "general" ? "hidden" : ""}
                 variant={"outline"}
+                type="button"
               >
                 Previous
               </Button>
               <Button
                 className={info === "general" ? "hidden" : ""}
-                form="scholar-credential-form"
-                type="submit"
+                onClick={form.handleSubmit(handleSubmit)}
+                type="button"
               >
                 Submit
               </Button>

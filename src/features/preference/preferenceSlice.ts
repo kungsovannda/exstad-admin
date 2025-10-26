@@ -2,6 +2,19 @@ import { Preference } from "@/types/preference";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: Preference = {
+  sidebar: {
+    parent: {
+      defaultOpen: true,
+    },
+    child: {
+      delay: 3000,
+    },
+  },
+  toast: {
+    expand: false,
+    duration: 3000,
+    position: "top-right",
+  },
   export: {
     header: {
       font: "Kantumruy Pro",

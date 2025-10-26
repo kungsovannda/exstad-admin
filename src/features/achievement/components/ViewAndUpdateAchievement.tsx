@@ -28,20 +28,20 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateDocumentMutation } from "@/features/document/documentApi";
-import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
-import { CreateAchievement } from "@/types/achievement";
+import { Achievement, UpdateAchievement } from "@/types/achievement";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useCreateAchievementMutation } from "../achievementApi";
+import { useUpdateAchievementMutation } from "../achievementApi";
+import { dateFormatter } from "@/utils/dateFormatter";
 
 const formSchema = z.object({
   title: z.string().min(1),
-  openingProgramUuid: z.string(),
   achievementType: z.string(),
+  program: z.string().readonly(),
   tag: z.string().min(1),
   link: z.string().min(1),
   video: z.string().min(1),
@@ -49,51 +49,63 @@ const formSchema = z.object({
   description: z.string(),
 });
 
-export default function CreateAchievementModal({
+export default function ViewAndUpdateAchievement({
   open,
   onOpenChange,
+  achievement,
 }: {
   open: boolean;
   onOpenChange: (status: boolean) => void;
+  achievement: Achievement;
 }) {
   const [files, setFiles] = useState<File[] | null>(null);
-  const { data: openingPrograms } = useGetAllOpeningProgramsQuery();
-
-  const [createAchievement] = useCreateAchievementMutation();
+  const [updateAchievement] = useUpdateAchievementMutation();
   const [createDocument] = useCreateDocumentMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      achievementType: achievement.achievementType,
+      description: achievement.description,
+      link: achievement.link,
+      tag: achievement.tag,
+      title: achievement.title,
+      video: achievement.video,
+      program: achievement.program,
+    },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      if (!files || files.length === 0) {
-        toast.error("Please upload an icon");
-        return;
-      }
-      toast.loading("Uploading...");
-      const document = await createDocument({
-        file: files[0],
-        documentType: "achievement",
-        gen: 0,
-        programSlug: "null",
-      }).unwrap();
-      toast.dismiss();
-
-      const payload: CreateAchievement = {
+      const payload: UpdateAchievement = {
         ...values,
-        icon: document.uri,
+        icon: undefined,
       };
-      toast.promise(createAchievement(payload).unwrap(), {
-        loading: "Creating...",
-        success: () => {
-          return "Achievement created successfully!";
-        },
-        error: (error) => {
-          return `Failed to create achievement: ${error.message}`;
-        },
-      });
+
+      if (files) {
+        toast.loading("Uploading...");
+        const document = await createDocument({
+          file: files[0],
+          documentType: "achievement",
+          gen: 0,
+          programSlug: "null",
+        }).unwrap();
+        payload.icon = document.uri;
+        toast.dismiss();
+      }
+
+      toast.promise(
+        updateAchievement({ uuid: achievement.uuid, body: payload }).unwrap(),
+        {
+          loading: "Updating...",
+          success: () => {
+            return "Achievement updated successfully!";
+          },
+          error: (error) => {
+            return `Failed to update achievement: ${error.message}`;
+          },
+        }
+      );
       onOpenChange(false);
     } catch (error) {
       console.error("Form submission error", error);
@@ -105,25 +117,22 @@ export default function CreateAchievementModal({
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          form.reset();
-          setFiles(null);
-        }
+        if (!isOpen) form.reset();
         onOpenChange(isOpen);
       }}
     >
       <DialogContent className="w-full max-w-sm sm:max-w-3xl md:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Create Achievement</DialogTitle>
+          <DialogTitle>Update Achievement</DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new achievement. Click create when
-            you are done.
+            Make changes to your achievement here. Click update when you are
+            done
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form
-            id="create-achievement-form"
+            id="update-achievement-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full grid grid-cols-1 md:grid-cols-2 gap-6"
           >
@@ -145,33 +154,18 @@ export default function CreateAchievementModal({
 
               <FormField
                 control={form.control}
-                name="openingProgramUuid"
+                name="program"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Program</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Full Stack Web Development" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {!openingPrograms || openingPrograms.length === 0 ? (
-                          <div className="text-sm w-full text-center text-muted-foreground h-8 flex items-center justify-center">
-                            No opening program found
-                          </div>
-                        ) : (
-                          openingPrograms?.map((p) => (
-                            <SelectItem key={p.uuid} value={p.uuid}>
-                              {p.title}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input
+                        disabled
+                        placeholder="EXSTAD"
+                        type="text"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -274,19 +268,16 @@ export default function CreateAchievementModal({
                               src={
                                 files && files[0]
                                   ? URL.createObjectURL(files[0])
-                                  : "/placeholder.svg"
+                                  : achievement.icon || "/placeholder.svg"
                               }
-                              alt="Achievement Logo"
+                              alt={achievement.title}
                             />
                             <AvatarFallback className="rounded-full text-3xl">
-                              {form.watch("title")
-                                ? form
-                                    .watch("title")
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .toUpperCase()
-                                : "ACH"}
+                              {achievement.title
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
 
@@ -333,6 +324,16 @@ export default function CreateAchievementModal({
                   </FormItem>
                 )}
               />
+              <div>
+                <div className="text-[12px] text-muted-foreground">
+                  Created by: {achievement?.audit.createdBy} at{" "}
+                  {dateFormatter(achievement?.audit.createdAt)}
+                </div>
+                <div className="text-[12px] text-muted-foreground">
+                  Updated by: {achievement?.audit.updatedBy || "N/A"} at{" "}
+                  {dateFormatter(achievement?.audit.updatedAt)}
+                </div>
+              </div>
             </div>
           </form>
         </Form>
@@ -341,8 +342,8 @@ export default function CreateAchievementModal({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button form="create-achievement-form" type="submit">
-            Create Achievement
+          <Button form="update-achievement-form" type="submit">
+            Update Achievement
           </Button>
         </DialogFooter>
       </DialogContent>

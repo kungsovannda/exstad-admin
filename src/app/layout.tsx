@@ -6,12 +6,11 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Kantumruy_Pro } from "next/font/google";
 import { cookies } from "next/headers";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { Toaster } from "sonner";
 import AuthProvider from "../components/layout/AuthProvider";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
 import "./globals.css";
-import "./theme.css";
 import { SessionWatcher } from "./SessionWatcher";
+import "./theme.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -85,10 +84,7 @@ export default async function RootLayout({
               <StoreProvider>
                 <ActiveThemeProvider>
                   {/* <Suspense fallback={<Loader />}> */}
-                  <LayoutWrapper>
-                    {children}
-                    <Toaster richColors position="top-right" />
-                  </LayoutWrapper>
+                  <LayoutWrapper>{children}</LayoutWrapper>
                   {/* </Suspense> */}
                 </ActiveThemeProvider>
               </StoreProvider>

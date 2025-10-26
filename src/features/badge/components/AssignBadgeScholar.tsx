@@ -29,8 +29,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateScholarBadgeMutation } from "@/features/scholar-badge/scholarBadgeApi";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Calendar } from "../ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -40,8 +44,8 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { Progress } from "../ui/progress";
+} from "@/components/ui/alert-dialog";
+import { Progress } from "@/components/ui/progress";
 import { useState } from "react";
 const schema = z.object({
   badge: z.string(),

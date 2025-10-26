@@ -1,5 +1,5 @@
 "use client";
-import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
+import { AssignBadgeScholar } from "@/features/badge/components/AssignBadgeScholar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

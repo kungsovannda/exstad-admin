@@ -9,85 +9,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { ScholarCredentialInformation } from "@/types/scholar";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-
-const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
-
-const formSchema = z
-  .object({
-    username: z.string({ error: "Username is required" }).min(1, {
-      message: "Username must be at least 1 character",
-    }),
-    email: z.string({ error: "Email is required" }).email({
-      message: "Please enter a valid email address",
-    }),
-    password: z
-      .string({ error: "Password is required" })
-      .min(8, { message: "Password must be at least 8 characters length" })
-      .regex(
-        passwordRegex,
-        "At least one uppercase letter, one lowercase letter, one number, and one special character"
-      ),
-    cfPassword: z
-      .string({ error: "Confirm password is required" })
-      .min(8, { message: "Password must be at least 8 characters length" })
-      .regex(
-        passwordRegex,
-        "At least one uppercase letter, one lowercase letter, one number, and one special character"
-      ),
-  })
-  .refine((data) => data.password === data.cfPassword, {
-    message: "Passwords do not match",
-    path: ["cfPassword"],
-  });
+import { UseFormReturn } from "react-hook-form";
+import { ScholarFormValues } from "./AddScholar";
 
 export default function CreateCredentialInformation({
-  data,
-  handleSubmit,
-  handleOnChange,
+  form,
 }: {
-  data?: Partial<ScholarCredentialInformation>;
-  handleSubmit: (data: ScholarCredentialInformation) => void;
-  handleOnChange: (data: Partial<ScholarCredentialInformation>) => void;
+  form: UseFormReturn<ScholarFormValues>;
 }) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: data ?? {
-      username: "",
-      email: "",
-      password: "",
-      cfPassword: "",
-    },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (values.cfPassword !== values.password) {
-      toast.error("Password did not match!");
-      return;
-    }
-    handleSubmit({ ...values });
-  }
-
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      handleOnChange(values);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, handleOnChange]);
-
   return (
     <Form {...form}>
-      <form
-        id="scholar-credential-form"
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 max-w-3xl mx-auto py-10"
-      >
+      <div className="space-y-8 max-w-3xl mx-auto py-10">
         <FormField
           control={form.control}
           name="username"
@@ -97,7 +29,6 @@ export default function CreateCredentialInformation({
               <FormControl>
                 <Input placeholder="kungsovannda" type="text" {...field} />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -116,7 +47,6 @@ export default function CreateCredentialInformation({
                   {...field}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -131,7 +61,6 @@ export default function CreateCredentialInformation({
               <FormControl>
                 <PasswordInput placeholder="********" {...field} />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -146,12 +75,11 @@ export default function CreateCredentialInformation({
               <FormControl>
                 <PasswordInput placeholder="********" {...field} />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
         />
-      </form>
+      </div>
     </Form>
   );
 }

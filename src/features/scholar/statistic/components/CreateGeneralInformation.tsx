@@ -1,4 +1,5 @@
 "use client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,12 +11,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  FileInput,
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "@/components/ui/file-upload";
 import {
   Form,
   FormControl,
@@ -44,74 +39,18 @@ import { useGetCurrentAddressesQuery } from "@/features/current-address/currentA
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
 import { cn } from "@/lib/utils";
-import { ScholarGeneralInformation } from "@/types/scholar";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, CloudUpload } from "lucide-react";
-import Image from "next/image";
+import { Calendar as CalendarIcon, Pencil } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-
-const formSchema = z.object({
-  englishName: z
-    .string({ error: "English name is required" })
-    .min(5, { message: "English name must be at least 5 characters." })
-    .max(100, { message: "English name must be at most 100 characters." }),
-
-  khmerName: z
-    .string({ error: "Khmer name is required" })
-    .min(5, { message: "Khmer name must be at least 5 characters." })
-    .max(100, { message: "Khmer name must be at most 100 characters." }),
-
-  gender: z.string({ error: "Please select a gender" }),
-
-  dob: z.date({ error: "Date of birth is required" }),
-
-  phoneNumber: z.string({ error: "Phone number is required" }),
-  phoneFamilyNumber: z.string({ error: "Family phone number is required" }),
-  university: z.string({ error: "Please select a university" }),
-  province: z.string({ error: "Please select a province" }),
-  currentAddress: z.string({ error: "Please select a current address" }),
-  isPublic: z.boolean().optional(),
-  avatar: z.string().optional(),
-});
+import { UseFormReturn } from "react-hook-form";
+import { ScholarFormValues } from "./AddScholar";
 
 export default function CreateGeneralInformation({
-  data,
-  handleOnSubmit,
+  form,
 }: {
-  data?: ScholarGeneralInformation;
-  handleOnSubmit: (data: ScholarGeneralInformation) => void;
+  form: UseFormReturn<ScholarFormValues>;
 }) {
   const [files, setFiles] = useState<File[] | null>(null);
-
-  const dropZoneConfig = {
-    maxFiles: 5,
-    maxSize: 1024 * 1024 * 4,
-    multiple: false,
-  };
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: data
-      ? {
-          ...data,
-          dob: data.dob ? new Date(data.dob) : new Date(),
-        }
-      : {
-          dob: new Date(),
-        },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const { dob, ...otherValues } = values;
-    const scholarInfo: ScholarGeneralInformation = {
-      dob: dob.toISOString(),
-      ...otherValues,
-    };
-    handleOnSubmit(scholarInfo);
-  }
 
   const { data: universities } = useGetAllUniversitiesQuery();
   const { data: provinces } = useGetAllProvincesQuery();
@@ -119,11 +58,70 @@ export default function CreateGeneralInformation({
 
   return (
     <Form {...form}>
-      <form
-        id="scholar-general-information-form"
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 max-w-3xl mx-auto h-fit"
-      >
+      <div className="space-y-8 max-w-3xl mx-auto h-fit">
+        <FormField
+          control={form.control}
+          name="avatar"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Avatar</FormLabel>
+              <FormControl>
+                <div className="flex justify-center items-center p-5 border rounded-lg">
+                  <div className="relative inline-block">
+                    <Avatar className="h-48 w-48">
+                      <AvatarImage
+                        className="rounded-full object-cover"
+                        src={
+                          files && files[0]
+                            ? URL.createObjectURL(files[0])
+                            : field.value
+                            ? URL.createObjectURL(field.value)
+                            : "/placeholder.svg"
+                        }
+                        alt="Avatar Preview"
+                      />
+                      <AvatarFallback className="rounded-full text-3xl">
+                        {!files && !field.value
+                          ? form.watch("englishName")
+                            ? form
+                                .watch("englishName")
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()
+                            : "AV"
+                          : ""}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <label
+                      htmlFor="fileInput"
+                      className="absolute bottom-2 left-2 h-10 w-10 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors shadow-lg border-2 border-background"
+                    >
+                      <Pencil className="h-4 w-4 text-primary-foreground" />
+                    </label>
+
+                    <input
+                      id="fileInput"
+                      type="file"
+                      accept="image/svg+xml,image/png,image/jpeg,image/gif"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setFiles([file]);
+                          field.onChange(file);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="grid grid-cols-12 gap-4 h-full">
           <div className="col-span-6">
             <FormField
@@ -135,7 +133,6 @@ export default function CreateGeneralInformation({
                   <FormControl>
                     <Input placeholder="Kung Sovannda" type="text" {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -150,9 +147,8 @@ export default function CreateGeneralInformation({
                 <FormItem>
                   <FormLabel>Khmer Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="គង់ សុវណ្ណដា" type="" {...field} />
+                    <Input placeholder="គង់ សុវណ្ណដា" type="text" {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -183,7 +179,6 @@ export default function CreateGeneralInformation({
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -203,7 +198,7 @@ export default function CreateGeneralInformation({
                         <Button
                           variant={"outline"}
                           className={cn(
-                            " pl-3 text-left font-normal",
+                            "pl-3 text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -226,7 +221,6 @@ export default function CreateGeneralInformation({
                       />
                     </PopoverContent>
                   </Popover>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -450,64 +444,7 @@ export default function CreateGeneralInformation({
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={() => (
-            <FormItem>
-              <FormLabel>Avatar</FormLabel>
-              <FormControl>
-                <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
-                  dropzoneOptions={dropZoneConfig}
-                  className="relative bg-background rounded-lg p-2"
-                >
-                  <FileInput
-                    id="fileInput"
-                    className="outline-dashed outline-1 outline-slate-500"
-                  >
-                    <div className="flex items-center justify-center flex-col p-8 w-full ">
-                      <CloudUpload className="text-gray-500 w-10 h-10" />
-                      <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="font-semibold">Click to upload</span>
-                        &nbsp; or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        SVG, PNG, JPG or GIF
-                      </p>
-                    </div>
-                  </FileInput>
-                  <FileUploaderContent>
-                    {files &&
-                      files.length > 0 &&
-                      files.map((file, i) => (
-                        <FileUploaderItem
-                          className="h-16 overflow-hidden flex items-start justify-start"
-                          key={i}
-                          index={i}
-                        >
-                          <figure className="h-16 aspect-square rounded-sm overflow-hidden object-center">
-                            <Image
-                              className="rounded-sm"
-                              width={64}
-                              height={64}
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                            />
-                          </figure>
-                          <span>{file.name}</span>
-                        </FileUploaderItem>
-                      ))}
-                  </FileUploaderContent>
-                </FileUploader>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </form>
+      </div>
     </Form>
   );
 }

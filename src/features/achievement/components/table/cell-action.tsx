@@ -8,9 +8,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Achievement } from "@/types/achievement";
 import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import ViewAndUpdateAchievement from "../ViewAndUpdateAchievement";
 
 export default function AchievementCellAction({ data }: { data: Achievement }) {
-  console.log(data);
+  const [isViewOpen, setIsViewOpen] = useState(false);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -20,9 +22,19 @@ export default function AchievementCellAction({ data }: { data: Achievement }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem>View & Update</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setIsViewOpen(true)}>
+          View & Update
+        </DropdownMenuItem>
         <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
       </DropdownMenuContent>
+
+      {isViewOpen && (
+        <ViewAndUpdateAchievement
+          open={isViewOpen}
+          onOpenChange={setIsViewOpen}
+          achievement={data}
+        />
+      )}
     </DropdownMenu>
   );
 }

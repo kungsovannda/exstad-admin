@@ -1,6 +1,6 @@
 "use client";
 import ModalDelete from "@/components/modal/ModalDelete";
-import { ViewAndUpdateBadge } from "@/components/scholar/ViewAndUpdateBadge";
+import { ViewAndUpdateBadge } from "../ViewAndUpdateBadge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

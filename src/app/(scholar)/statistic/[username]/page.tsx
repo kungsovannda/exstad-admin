@@ -1,6 +1,5 @@
 "use client";
 import { Heading } from "@/components/Heading";
-import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
 import {
   Accordion,
   AccordionContent,
@@ -86,7 +85,6 @@ export default function ScholarDetails() {
     { skip: !scholar?.uuid }
   );
 
-  const [isAssignBadgeModalOpen, setIsAssignBadgeModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -102,7 +100,6 @@ export default function ScholarDetails() {
     },
   });
 
-  // Reset form when scholar data loads
   useEffect(() => {
     if (scholar) {
       form.reset({
@@ -165,34 +162,67 @@ export default function ScholarDetails() {
             <Badge variant={"secondary"}>{scholar?.gender}</Badge>
           </div>
 
-          <div className="w-full h-full justify-end space-y-2 flex flex-col text-sm text-muted-foreground">
-            <div className="w-full flex justify-between">
-              <div className="flex items-center space-x-1">
-                <User size={14} />
-                <span>Created By:</span>
+          <div className="w-full h-full justify-between space-y-2 flex flex-col text-sm text-muted-foreground">
+            <div className="space-y-3">
+              <div className="space-y-2 text-sm">
+                <div className="w-full flex justify-between">
+                  <span className="text-muted-foreground">English Name:</span>
+                  <p className="font-medium">{scholar?.englishName || "N/A"}</p>
+                </div>
+                <div className="w-full flex justify-between">
+                  <span className="text-muted-foreground">Khmer Name:</span>
+                  <p className="font-medium">{scholar?.khmerName || "N/A"}</p>
+                </div>
+                <div className="w-full flex justify-between">
+                  <span className="text-muted-foreground">Gender:</span>
+                  <p className="font-medium capitalize">
+                    {scholar?.gender || "N/A"}
+                  </p>
+                </div>
+                <div className="w-full flex justify-between">
+                  <span className="text-muted-foreground">Date of Birth:</span>
+                  <p className="font-medium">{scholar?.dob || "N/A"}</p>
+                </div>
+                <div className="w-full flex justify-between">
+                  <span className="text-muted-foreground">Username:</span>
+                  <p className="font-medium ">{scholar?.username || "N/A"}</p>
+                </div>
+                <div className="w-full flex justify-between">
+                  <span className="text-muted-foreground">Email:</span>
+                  <p className="font-medium ">{scholar?.email || "N/A"}</p>
+                </div>
               </div>
-              <p>{scholar?.audit.createdBy ?? "N/A"}</p>
             </div>
-            <div className="w-full flex justify-between">
-              <div className="flex items-center space-x-1">
-                <Clock size={14} />
-                <span>Created At:</span>
+            <Separator />
+            <div className="flex flex-col text-sm space-y-2">
+              <div className="w-full flex justify-between">
+                <div className="flex items-center space-x-1 ">
+                  <User size={14} />
+                  <span>Created By:</span>
+                </div>
+                <p>{scholar?.audit.createdBy ?? "N/A"}</p>
               </div>
-              <p>{dateFormatter(scholar?.audit.createdAt)}</p>
-            </div>
-            <div className="w-full flex justify-between">
-              <div className="flex items-center space-x-1">
-                <User size={14} />
-                <span>Updated By:</span>
+              <div className="w-full flex justify-between">
+                <div className="flex items-center space-x-1">
+                  <Clock size={14} />
+                  <span>Created At:</span>
+                </div>
+                <p>{dateFormatter(scholar?.audit.createdAt)}</p>
               </div>
-              <p>{scholar?.audit.updatedBy ?? "N/A"}</p>
-            </div>
-            <div className="w-full flex justify-between">
-              <div className="flex items-center space-x-1">
-                <Clock size={14} />
-                <span>Updated At:</span>
+              <div className="w-full flex justify-between">
+                <div className="flex items-center space-x-1">
+                  <User size={14} />
+                  <span>Updated By:</span>
+                </div>
+                <p>{scholar?.audit.updatedBy ?? "N/A"}</p>
               </div>
-              <p>{dateFormatter(scholar?.audit.updatedAt)}</p>
+              <div className="w-full flex justify-between">
+                <div className="flex items-center space-x-1">
+                  <Clock size={14} />
+                  <span>Updated At:</span>
+                </div>
+                <p>{dateFormatter(scholar?.audit.updatedAt)}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -579,13 +609,6 @@ export default function ScholarDetails() {
           </div>
         </ScrollArea>
       </main>
-      {isAssignBadgeModalOpen && (
-        <AssignBadgeScholar
-          open={isAssignBadgeModalOpen}
-          onOpenChange={setIsAssignBadgeModalOpen}
-          scholars={[scholar!]}
-        />
-      )}
     </div>
   );
 }

@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge, CheckCircle2, ChevronDown, Printer } from "lucide-react";
 import { useState } from "react";
-import { AssignBadgeScholar } from "@/components/scholar/AssignBadgeScholar";
+import { AssignBadgeScholar } from "@/features/badge/components/AssignBadgeScholar";
 import AssignScholarAchievement from "@/features/scholar-achievement/components/AssignScholarAchievement";
 import { Scholar } from "@/types/scholar";
 import { exportToExcel } from "@/services/export-to-excel";

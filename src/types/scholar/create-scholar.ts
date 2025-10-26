@@ -32,7 +32,7 @@ export type ScholarGeneralInformation = {
   province: string;
   currentAddress: string;
   isPublic?: boolean;
-  avatar?: string;
+  avatar?: File;
 };
 
 export type ScholarCredentialInformation = {

@@ -31,11 +31,11 @@ export type CreateAchievement = {
 };
 
 export type UpdateAchievement = {
-  title: string;
-  description: string;
-  icon: string;
-  achievementType: string;
-  tag: string;
-  video: string;
-  link: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  achievementType?: string;
+  tag?: string;
+  video?: string;
+  link?: string;
 };
