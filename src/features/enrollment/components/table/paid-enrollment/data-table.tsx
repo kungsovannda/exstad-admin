@@ -147,7 +147,11 @@ export function PaidEnrollmentTable<TValue>({
 
   const [downloadZip] = useDownloadApplicantLettersZipMutation();
   const onGenerateApplicationLetter = async () => {
-    const enrollments = data.sort((a, b) =>
+    const selectedEnrollment = table
+      .getSelectedRowModel()
+      .rows.map((r) => r.original);
+
+    const enrollments = selectedEnrollment.sort((a, b) =>
       a.khmerName.localeCompare(b.khmerName, "km")
     );
 
