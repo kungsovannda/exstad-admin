@@ -74,6 +74,16 @@ export const certificateApi = createApi({
       }),
     }),
 
+    getCertificateByScholar: builder.query<
+      CertificateResponse[],
+      { scholarUuid: string }
+    >({
+      query: ({ scholarUuid }) => ({
+        url: `/certificates/scholars/${scholarUuid}`,
+        method: "GET",
+      }),
+    }),
+
     verifyCertificate: builder.mutation<
       CertificateResponse,
       { file: File; programSlug: string; certificateUuid: string }
@@ -92,7 +102,7 @@ export const certificateApi = createApi({
 
     getCertificateByOpeningProgram: builder.query<
       CertificateResponse[],
-      string 
+      string
     >({
       query: (openingProgramUuid) => ({
         url: `/certificates/${openingProgramUuid}`,
@@ -106,6 +116,7 @@ export const {
   useGenerateCertificateMutation,
   useGenerateMultipleCertificatesMutation,
   useGetCertificateByScholarAndOpeningProgramQuery,
+  useGetCertificateByScholarQuery,
   useVerifyCertificateMutation,
   useGetCertificateByOpeningProgramQuery,
 } = certificateApi;

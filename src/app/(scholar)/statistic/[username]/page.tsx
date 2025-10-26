@@ -21,12 +21,15 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -38,6 +41,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import AchievementCard from "@/features/achievement/components/AchievementCard";
 import BadgeCard from "@/features/badge/components/BadgeCard";
+import { useGetCertificateByScholarQuery } from "@/features/certificate/certificateApi";
+import CertificateCard from "@/features/certificate/components/CertificateCard";
 import { useGetCurrentAddressesQuery } from "@/features/current-address/currentAddressApi";
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllScholarAchievementsQuery } from "@/features/scholar-achievement/scholarAchievementApi";
@@ -45,26 +50,54 @@ import {
   useGetScholarByUsernameQuery,
   useUpdateScholarMutation,
 } from "@/features/scholar/scholarApi";
+import CompletedCourseCard from "@/features/scholar/statistic/components/CompletedCourseCard";
 import ScholarCareerSetUpComponent from "@/features/scholar/statistic/components/ScholarCareerSetUpComponent";
 import ScholarSpecialistSetUpComponent from "@/features/scholar/statistic/components/ScholarSpecialistSetUpComponent";
+import { UpdateProfileScholar } from "@/features/scholar/statistic/components/UpdateProfileScholar";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
+import { UpdateScholar } from "@/types/scholar";
+import { toScholarStatus } from "@/types/scholar/scholar-status";
 import { dateFormatter } from "@/utils/dateFormatter";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Clock, User } from "lucide-react";
+import { Clock, Pencil, User } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+const STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "ACTIVE" },
+  { value: "SUSPENDED", label: "SUSPENDED" },
+  { value: "GRADUATED", label: "GRADUATED" },
+  { value: "DROPPED", label: "DROPPED" },
+];
+
+const getStatusBorderClass = (status: string) => {
+  switch (status) {
+    case "ACTIVE":
+      return " border-green-500 ring-green-500/20";
+    case "GRADUATED":
+      return "border-blue-500 ring-blue-500/20";
+    case "SUSPENDED":
+      return "border-yellow-500 ring-yellow-500/20";
+    case "DROPPED":
+      return "border-red-500 ring-red-500/20";
+    default:
+      return "border-2 border-blue-300 animate-pulse";
+  }
+};
+
 const formSchema = z.object({
-  khmerName: z.string().min(1, "Khmer name is required"),
-  englishName: z.string().min(1, "English name is required"),
+  status: z.string().optional(),
   bio: z.string().optional(),
   quote: z.string().optional(),
   university: z.string().optional(),
   currentAddress: z.string().optional(),
   province: z.string().optional(),
+  isPublic: z.boolean().optional(),
+  nickname: z.string().optional(),
+  phoneFamilyNumber: z.string().optional(),
 });
 
 export default function ScholarDetails() {
@@ -84,29 +117,28 @@ export default function ScholarDetails() {
     { scholarUuid: scholar?.uuid ?? "" },
     { skip: !scholar?.uuid }
   );
+  const { data: certificates } = useGetCertificateByScholarQuery(
+    { scholarUuid: scholar?.uuid ?? "" },
+    { skip: !scholar?.uuid }
+  );
 
   const [isEditable, setIsEditable] = useState(false);
+  const [isUpdateProfileOpen, setIsUpdateProfileOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      khmerName: "",
-      englishName: "",
-      bio: "",
-      quote: "",
-      university: "",
-      currentAddress: "",
-      province: "",
-    },
+    defaultValues: {},
   });
 
   useEffect(() => {
     if (scholar) {
       form.reset({
-        khmerName: scholar.khmerName || "",
-        englishName: scholar.englishName || "",
         bio: scholar.bio || "",
         quote: scholar.quote || "",
+        isPublic: scholar.isPublic,
+        nickname: scholar.nickname || "",
+        phoneFamilyNumber: scholar.phoneFamilyNumber || "",
+        status: scholar.status || "",
         university: scholar.university || "",
         currentAddress: scholar.currentAddress || "",
         province: scholar.province || "",
@@ -117,10 +149,26 @@ export default function ScholarDetails() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!scholar?.uuid) return;
 
+    const dirtyFields = form.formState.dirtyFields;
+    const payload: Record<string, unknown> = {};
+
+    Object.keys(dirtyFields).forEach((key) => {
+      const fieldKey = key as keyof typeof values;
+      const value = values[fieldKey];
+
+      if (value !== undefined && value !== null && value !== "") {
+        if (fieldKey === "status") {
+          payload.status = toScholarStatus(value as string);
+        } else {
+          payload[fieldKey] = value;
+        }
+      }
+    });
+
     toast.promise(
       updateScholar({
         uuid: scholar.uuid,
-        body: values,
+        body: payload as Partial<UpdateScholar>,
       }).unwrap(),
       {
         loading: "Updating scholar...",
@@ -140,19 +188,25 @@ export default function ScholarDetails() {
       <main className="grid grid-cols-[0.3fr_0.7fr] gap-4">
         {/* Left Content */}
         <div className="h-content max-h-content border-r-1 flex flex-col space-y-3 justify-start items-center pr-6 pb-6 pt-6">
-          <Avatar className="rounded-lg border-1 w-2/3 h-fit aspect-square">
+          <Avatar className="rounded-full overflow-visible relative border-1 w-2/3 h-fit aspect-square">
             <AvatarImage
-              className="rounded-lg h-full w-full object-cover"
+              className="rounded-full h-full w-full object-cover"
               src={scholar?.avatar || "/placeholder.svg"}
               alt={`Avatar of ${scholar?.englishName}`}
             />
-            <AvatarFallback className="text-3xl">
+            <AvatarFallback className="text-3xl border-none">
               {scholar?.englishName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
                 .toUpperCase()}
             </AvatarFallback>
+            <label
+              onClick={() => setIsUpdateProfileOpen(true)}
+              className="absolute bottom-2 left-2 h-10 w-10 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors shadow-lg border-2 border-background"
+            >
+              <Pencil className="h-4 w-4 text-primary-foreground" />
+            </label>
           </Avatar>
           <div className="text-center flex flex-col space-y-1 items-center justify-center">
             <div className="text-2xl">
@@ -190,6 +244,12 @@ export default function ScholarDetails() {
                 <div className="w-full flex justify-between">
                   <span className="text-muted-foreground">Email:</span>
                   <p className="font-medium ">{scholar?.email || "N/A"}</p>
+                </div>
+                <div className="w-full flex justify-between">
+                  <span className="text-muted-foreground">Phone:</span>
+                  <p className="font-medium ">
+                    {scholar?.phoneNumber || "N/A"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -257,67 +317,88 @@ export default function ScholarDetails() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-5"
               >
-                <div className="flex w-full space-x-2.5">
-                  <FormField
-                    control={form.control}
-                    name="englishName"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel>English Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled
-                            readOnly={!isEditable}
-                            className="text-muted-foreground"
-                            {...field}
-                          />
-                        </FormControl>
+                <FormField
+                  control={form.control}
+                  name="status"
+                  disabled={!isEditable}
+                  render={({ field }) => (
+                    <FormItem
+                      className={`flex items-center justify-between space-x-4 p-4 rounded-lg transition-colors duration-200 border-2 ${getStatusBorderClass(
+                        field.value ?? ""
+                      )}`}
+                    >
+                      <div className="flex-1 space-y-1">
+                        <FormLabel className="text-sm font-medium">
+                          Scholar Status
+                        </FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Current status in the scholarship program (e.g.,
+                          Active, Graduated).
+                        </p>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="khmerName"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel>Khmer Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled
-                            readOnly={!isEditable}
-                            className="text-muted-foreground"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <Input
-                    disabled
-                    className="text-muted-foreground"
-                    value={scholar?.username || ""}
-                  />
-                </FormItem>
-
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    disabled
-                    className="text-muted-foreground"
-                    value={scholar?.email || ""}
-                  />
-                </FormItem>
+                      </div>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={!isEditable}
+                      >
+                        <SelectTrigger className="h-11 w-[150px]">
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {STATUS_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
+                  name="nickname"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Nickname</FormLabel>
+                      <FormControl>
+                        <Input
+                          readOnly={!isEditable}
+                          className={!isEditable ? "text-muted-foreground" : ""}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phoneFamilyNumber"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col items-start">
+                      <FormLabel>Family Phone Number</FormLabel>
+                      <FormControl className="w-full">
+                        <PhoneInput
+                          readOnly={!isEditable}
+                          className={!isEditable ? "text-muted-foreground" : ""}
+                          placeholder="Placeholder"
+                          {...field}
+                          defaultCountry="KH"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* bio field: Kept, as it's in the schema. */}
+                <FormField
+                  control={form.control}
                   name="bio"
-                  disabled={!isEditable}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Bio</FormLabel>
@@ -329,10 +410,10 @@ export default function ScholarDetails() {
                   )}
                 />
 
+                {/* quote field: Kept, as it's in the schema. */}
                 <FormField
                   control={form.control}
                   name="quote"
-                  disabled={!isEditable}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Quote</FormLabel>
@@ -344,6 +425,7 @@ export default function ScholarDetails() {
                   )}
                 />
 
+                {/* university field: Kept, as it's in the schema. */}
                 <FormField
                   control={form.control}
                   name="university"
@@ -375,6 +457,7 @@ export default function ScholarDetails() {
                                   {universities
                                     ?.filter((x) => x.englishName)
                                     .map((option) => (
+                                      // Changed CommandItem to wrap SelectItem content
                                       <CommandItem
                                         key={option.uuid}
                                         value={option.englishName}
@@ -383,9 +466,7 @@ export default function ScholarDetails() {
                                         }
                                         className="cursor-pointer"
                                       >
-                                        <SelectItem value={option.englishName}>
-                                          {option.englishName}
-                                        </SelectItem>
+                                        {option.englishName}
                                       </CommandItem>
                                     ))}
                                 </CommandGroup>
@@ -399,6 +480,7 @@ export default function ScholarDetails() {
                   )}
                 />
 
+                {/* currentAddress field: Kept, as it's in the schema. */}
                 <FormField
                   control={form.control}
                   name="currentAddress"
@@ -428,6 +510,7 @@ export default function ScholarDetails() {
                                   {currentAddresses
                                     ?.filter((x) => x.englishName)
                                     .map((option) => (
+                                      // Changed CommandItem to wrap SelectItem content
                                       <CommandItem
                                         key={option.uuid}
                                         value={option.englishName}
@@ -436,9 +519,7 @@ export default function ScholarDetails() {
                                         }
                                         className="cursor-pointer"
                                       >
-                                        <SelectItem value={option.englishName}>
-                                          {option.englishName}
-                                        </SelectItem>
+                                        {option.englishName}
                                       </CommandItem>
                                     ))}
                                 </CommandGroup>
@@ -452,6 +533,7 @@ export default function ScholarDetails() {
                   )}
                 />
 
+                {/* province field: Kept, as it's in the schema. */}
                 <FormField
                   control={form.control}
                   name="province"
@@ -481,6 +563,7 @@ export default function ScholarDetails() {
                                   {provinces
                                     ?.filter((x) => x.englishName)
                                     .map((option) => (
+                                      // Changed CommandItem to wrap SelectItem content
                                       <CommandItem
                                         key={option.uuid}
                                         value={option.englishName}
@@ -489,9 +572,7 @@ export default function ScholarDetails() {
                                         }
                                         className="cursor-pointer"
                                       >
-                                        <SelectItem value={option.englishName}>
-                                          {option.englishName}
-                                        </SelectItem>
+                                        {option.englishName}
                                       </CommandItem>
                                     ))}
                                 </CommandGroup>
@@ -505,6 +586,31 @@ export default function ScholarDetails() {
                   )}
                 />
 
+                {/* New: isPublic checkbox (Added, as it's in the schema) */}
+                <FormField
+                  control={form.control}
+                  name="isPublic"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          disabled={!isEditable}
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-2 leading-none">
+                        <FormLabel>Public</FormLabel>
+                        <FormDescription>
+                          This is the visibility of scholars profile
+                        </FormDescription>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Buttons: Kept the submission buttons and logic. */}
                 <div
                   hidden={!isEditable || !form.formState.isDirty}
                   className="flex gap-2 justify-end items-center"
@@ -523,6 +629,8 @@ export default function ScholarDetails() {
                 </div>
               </form>
             </Form>
+
+            <Separator />
 
             <ScholarCareerSetUpComponent scholar={scholar ?? null} />
             <ScholarSpecialistSetUpComponent scholar={scholar ?? null} />
@@ -543,11 +651,85 @@ export default function ScholarDetails() {
                 <AccordionTrigger>
                   <div className="flex items-center">
                     <h2 className="text-xl font-semibold">
+                      Scholar Completed Courses{" "}
+                      <Badge
+                        className="text-sm h-full aspect-square rounded-full"
+                        variant={"outline"}
+                      >{`${scholar?.completedCourses?.length ?? 0}`}</Badge>
+                    </h2>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {!scholar?.completedCourses ||
+                  scholar?.completedCourses.length === 0 ? (
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      No completed course found
+                    </div>
+                  ) : (
+                    <div className="w-full overflow-x-auto overflow-y-hidden pb-2">
+                      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                        {scholar.completedCourses.map((a) => (
+                          <CompletedCourseCard
+                            key={a.uuid}
+                            completedCourse={a}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <Accordion
+              className="px-5 space-y-4 rounded-sm border"
+              type="single"
+              collapsible
+            >
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <div className="flex items-center">
+                    <h2 className="text-xl font-semibold">
+                      Scholar Certificates{" "}
+                      <Badge
+                        className="text-sm h-full aspect-square rounded-full"
+                        variant={"outline"}
+                      >{`${scholar?.completedCourses?.length ?? 0}`}</Badge>
+                    </h2>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {!certificates || certificates.length === 0 ? (
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      No certificate found
+                    </div>
+                  ) : (
+                    <div className="w-full overflow-x-auto overflow-y-hidden pb-2">
+                      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                        {certificates.map((a) => (
+                          <CertificateCard key={a.uuid} certificate={a} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <Accordion
+              className="px-5 space-y-4 rounded-sm border"
+              type="single"
+              collapsible
+            >
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <div className="flex items-center">
+                    <h2 className="text-xl font-semibold">
                       Scholar Achievements{" "}
                       <Badge
                         className="text-sm h-full aspect-square rounded-full"
                         variant={"outline"}
-                      >{`${achievements?.length}`}</Badge>
+                      >{`${achievements?.length ?? 0}`}</Badge>
                     </h2>
                   </div>
                 </AccordionTrigger>
@@ -585,7 +767,7 @@ export default function ScholarDetails() {
                       <Badge
                         className="text-sm h-full aspect-square rounded-full"
                         variant={"outline"}
-                      >{`${scholar?.badges?.length}`}</Badge>
+                      >{`${scholar?.badges?.length ?? 0}`}</Badge>
                     </h2>
                   </div>
                 </AccordionTrigger>
@@ -609,6 +791,13 @@ export default function ScholarDetails() {
           </div>
         </ScrollArea>
       </main>
+      {isUpdateProfileOpen && (
+        <UpdateProfileScholar
+          open={isUpdateProfileOpen}
+          onOpenChange={setIsUpdateProfileOpen}
+          scholar={scholar ?? null}
+        />
+      )}
     </div>
   );
 }

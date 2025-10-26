@@ -3,6 +3,7 @@ import { BadgeForScholar } from "../badge";
 import { Gender, ScholarStatus } from ".";
 import { ScholarSpecialist } from ".";
 import { ScholarCareer } from ".";
+import { ScholarCompletedCourseType } from ".";
 
 export type Scholar = {
   uuid: string;
@@ -21,6 +22,7 @@ export type Scholar = {
   bio: string;
   avatar: string;
   phoneFamilyNumber: string;
+  phoneNumber: string;
   isPublic: boolean;
   isAbroad: boolean;
   isEmployed: boolean;
@@ -29,5 +31,5 @@ export type Scholar = {
   quote: string;
   audit: Audit;
   badges: BadgeForScholar[];
-  completedCourses: string;
+  completedCourses: ScholarCompletedCourseType[];
 };

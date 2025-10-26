@@ -1,14 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { User } from "@/types/user";
 import { dateFormatter } from "@/utils/dateFormatter";
@@ -21,8 +18,9 @@ export default function ViewUserProfile({
 }: {
   open: boolean;
   onOpenChange: (status: boolean) => void;
-  user: User;
+  user: User | null;
 }) {
+  if (!user) return;
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="h-screen flex flex-col max-w-2xl ml-auto">

@@ -19,11 +19,58 @@ import {
   SidebarMenuSkeleton,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useGetUserByEmailQuery } from "@/features/user/userApi";
 import { signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { toRole, User } from "@/types/user";
+import { toGender } from "@/types/scholar";
+import ViewUserProfile from "@/features/user/components/ViewUserProfile";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data: session } = useSession();
+  const [user, setUser] = useState<User>();
+  const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+
+  const { data: userDb } = useGetUserByEmailQuery(session?.user.email ?? "", {
+    skip: !session,
+  });
+
+  const userKc = {
+    username: session?.user.username || "",
+    email: session?.user.email || "",
+    avatar: "",
+  };
+
+  useEffect(() => {
+    setUser({
+      uuid: userDb?.uuid ?? "N/A",
+      audit: userDb?.audit ?? {
+        createdAt: "N/A",
+        createdBy: "N/A",
+        updatedAt: "N/A",
+        updatedBy: "N/A",
+      },
+      dob: userDb?.dob ?? "N/A",
+      email: userKc.email,
+      username: userKc?.username ?? userDb?.username ?? "N/A",
+      englishName: userDb?.englishName ?? userKc?.username,
+      gender: userDb?.gender ?? toGender("Others"),
+      khmerName: userDb?.khmerName ?? "N/A",
+      role: userDb?.role ?? toRole("Admin"),
+    });
+  }, [
+    userDb?.uuid,
+    userDb?.audit,
+    userKc?.username,
+    userDb?.dob,
+    userDb?.username,
+    userDb?.gender,
+    userDb?.khmerName,
+    userDb?.role,
+    userKc.email,
+    userDb?.englishName,
+  ]);
 
   if (!session) {
     return (
@@ -35,12 +82,6 @@ export function NavUser() {
     );
   }
 
-  const user = {
-    name: session?.user.username || "",
-    email: session?.user.email || "",
-    avatar: "",
-  };
-
   return (
     <SidebarMenu>
       <SidebarMenuItem className="z-60">
@@ -51,14 +92,16 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user?.avatar} alt={user?.englishName} />
                 <AvatarFallback className="rounded-lg">
-                  {user.name.slice(0, 2).toUpperCase()}
+                  {user?.englishName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">
+                  {user?.englishName}
+                </span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -72,20 +115,22 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={user?.avatar} alt={user?.englishName} />
                   <AvatarFallback className="rounded-lg">
-                    {user.name.slice(0, 2).toUpperCase()}
+                    {user?.englishName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">
+                    {user?.englishName}
+                  </span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsViewProfileOpen(true)}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
@@ -98,6 +143,13 @@ export function NavUser() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+      {isViewProfileOpen && (
+        <ViewUserProfile
+          open={isViewProfileOpen}
+          onOpenChange={setIsViewProfileOpen}
+          user={user ?? null}
+        />
+      )}
     </SidebarMenu>
   );
 }
