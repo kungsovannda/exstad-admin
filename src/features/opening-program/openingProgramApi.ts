@@ -115,6 +115,17 @@ export const openingProgramApi = createApi({
         { type: "OpeningProgram", id: "LIST" },
       ],
     }),
+    softdeleteOpeningProgram: builder.mutation<void, string>({
+      query: (uuid) => ({
+        url: `/opening-programs/${uuid}/soft-delete`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "OpeningProgram", id: uuid },
+        { type: "OpeningProgram", id: "LIST" },
+      ],
+    }),
+
     setUpTemplate: builder.mutation<
       SetUpTemplateResponse,
       { uuid: string; template: string }
@@ -156,5 +167,6 @@ export const {
   useCreateOpeningProgramMutation,
   useUpdateOpeningProgramMutation,
   useDeleteOpeningProgramMutation,
+  useSoftdeleteOpeningProgramMutation,
   useSetUpTemplateMutation,
 } = openingProgramApi;

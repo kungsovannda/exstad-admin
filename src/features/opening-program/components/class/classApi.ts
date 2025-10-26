@@ -84,6 +84,17 @@ export const classApi = createApi({
       ],
     }),
 
+    softDeleteClass: builder.mutation<void, string>({
+      query: (uuid) => ({
+        url: `/classes/${uuid}/delete`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "Class", id: uuid },
+        { type: "Class", id: "LIST" },
+      ],
+    }),
+
     getClassByCode: builder.query<ClassType, string>({
   query: (classCode) => `/classes/code/${classCode}`,
   transformResponse: (response: ClassType) => response,
@@ -101,6 +112,7 @@ export const {
   useGetClassByUuidQuery,
   useCreateClassMutation,
   useUpdateClassMutation,
+  useSoftDeleteClassMutation,
   useDeleteClassMutation,
   useGetClassByCodeQuery,
 } = classApi;

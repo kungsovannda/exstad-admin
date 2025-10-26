@@ -13,7 +13,7 @@ import { FileInput, MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-r
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useDeleteOpeningProgramMutation } from "../../openingProgramApi";
+import { useDeleteOpeningProgramMutation, useSoftdeleteOpeningProgramMutation } from "../../openingProgramApi";
 import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ActionsCellProps {
@@ -25,8 +25,7 @@ export function OpeningActionsCell({ openingprogram }: ActionsCellProps) {
   const router = useRouter();
   // const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteOpeningProgram] = useDeleteOpeningProgramMutation();
-  
+  const [deleteOpeningProgram] = useSoftdeleteOpeningProgramMutation();
     const handleDelete = async () =>  {
       try{
         await deleteOpeningProgram(openingprogram.uuid).unwrap();

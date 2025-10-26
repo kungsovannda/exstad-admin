@@ -52,7 +52,7 @@ const initialNodes: Node<WorkNodeData>[] = [
     data: {
       title: "Planning Phase",
       tasks: ["Define requirements", "Create timeline", "Assign resources"],
-      color: "#f0f9ff",
+      color: "",
       handles: { top: "target", right: "target", bottom: "target", left: "target" },
       onEdit: () => {},
       onDelete: () => {},
