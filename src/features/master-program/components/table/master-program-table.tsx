@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
 import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useAppSelector } from "@/lib/hooks";
 
 interface MasterProgramTableProps {
   data: MasterProgramType[];
@@ -41,12 +42,13 @@ export default function MasterProgramTable({
   });
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-
+  const preference = useAppSelector((state) => state.preference);
   const handleExport = async (selectedFields: string[]) => {
     await exportToExcel({
       data,
       selectedFields,
       filename: "master-program.xlsx",
+      exportType: preference.export,
     });
   };
   return (

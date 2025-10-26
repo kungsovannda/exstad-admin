@@ -29,6 +29,7 @@ import { ScholarClassApi } from "@/features/opening-program/components/scholar-c
 import { InstructorClassApi } from "@/features/opening-program/components/instructor-class/instructorClassApi";
 import { roadmapApi } from "@/features/master-program/components/roadmap/save-roadmap-api";
 import preferenceReducer from "@/features/preference/preferenceSlice";
+import { technologyApi } from "@/features/master-program/components/technology/technologyApi";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
@@ -58,6 +59,7 @@ const rootReducer = combineReducers({
   [ScholarClassApi.reducerPath]: ScholarClassApi.reducer,
   [InstructorClassApi.reducerPath]: InstructorClassApi.reducer,
   [roadmapApi.reducerPath]: roadmapApi.reducer,
+  [technologyApi.reducerPath]: technologyApi.reducer,
   preference: preferenceReducer,
 });
 
@@ -101,7 +103,8 @@ export const makeStore = () => {
         enrollmentApi.middleware,
         ScholarClassApi.middleware,
         InstructorClassApi.middleware,
-        roadmapApi.middleware
+        roadmapApi.middleware,
+        technologyApi.middleware,
       ),
   });
 

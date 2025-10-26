@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { exportToExcel } from "@/services/export-to-excel";
 import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useAppSelector } from "@/lib/hooks";
 
 interface DefaultTableDndProps<TData> {
   columns: ColumnDef<TData>[];
@@ -49,6 +50,7 @@ interface DefaultTableDndProps<TData> {
   isPagination?: boolean;
   enableExport?: boolean; // ✅ new prop
   exportFilename?: string; // ✅ new prop
+  exportType?:boolean;
 }
 
 function SortableRow({
@@ -86,6 +88,7 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
   const [search, setSearch] = useState("");
   const [dragData, setDragData] = useState(data);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference);
 
   useEffect(() => {
     setDragData(data);
@@ -130,6 +133,7 @@ export function DefaultTableDnd<TData extends Record<string, unknown>>({
       data,
       selectedFields,
       filename: exportFilename,
+      exportType: preference.export,
     });
   };
 

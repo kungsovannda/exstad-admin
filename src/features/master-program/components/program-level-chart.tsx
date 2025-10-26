@@ -26,9 +26,9 @@ interface LevelPieCardProps {
  
 export default function LevelPieCard({ levelCounts }: LevelPieCardProps) {
   const chartData = [
-    { level: "Beginner", count: levelCounts.basic, fill: "var(--chart-basic)" },
-    { level: "Intermediate", count: levelCounts.intermediate, fill: "var(--chart-intermediate)" },
-    { level: "Advanced", count: levelCounts.advanced, fill: "var(--chart-advanced)" },
+    { level: "Beginner", count: levelCounts.basic, fill: "var(--chart-1)" },
+    { level: "Intermediate", count: levelCounts.intermediate, fill: "var(--chart-2)" },
+    { level: "Advanced", count: levelCounts.advanced, fill: "var(--chart-3)" },
   ];
 
   const chartConfig = {

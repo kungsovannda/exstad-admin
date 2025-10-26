@@ -1,18 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { ScholarClassType } from "@/types/opening-program";
-import { ScholarClassColumns } from "./scholar-class-Column";
-import { useSearchParams } from "next/navigation";
-import { useDataTable } from "@/hooks/use-data-table";
+import ExportToExcelModal from "@/components/ExportToExcelModal";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Printer } from "lucide-react";
 import { useMarkCompletedCourseMutation } from "@/features/scholar/scholarApi";
-import { toast } from "sonner";
+import { useDataTable } from "@/hooks/use-data-table";
+import { useAppSelector } from "@/lib/hooks";
 import { exportToExcel } from "@/services/export-to-excel";
-import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { ScholarClassType } from "@/types/opening-program";
+import { CheckCircle, Printer } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { ScholarClassColumns } from "./scholar-class-Column";
 
 interface ScholarClassDataTableProps {
   data: ScholarClassType[];
@@ -31,7 +32,9 @@ export default function ScholarClassDataTable({
 }: ScholarClassDataTableProps) {
   const [markCompletedCourse, { isLoading }] = useMarkCompletedCourseMutation();
   const searchParams = useSearchParams();
-  const perPage = searchParams.get("perPage") ? Number(searchParams.get("perPage")) : 10;
+  const perPage = searchParams.get("perPage")
+    ? Number(searchParams.get("perPage"))
+    : 10;
 
   const { table } = useDataTable({
     data,
@@ -45,12 +48,14 @@ export default function ScholarClassDataTable({
   });
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const preference = useAppSelector((state) => state.preference);
 
   const handleExport = async (selectedFields: string[]) => {
     await exportToExcel({
       data,
       selectedFields,
-      filename: "master-program.xlsx",
+      filename: "scholar-class.xlsx",
+      exportType: preference.export,
     });
   };
 
@@ -63,14 +68,14 @@ export default function ScholarClassDataTable({
 
     for (const row of selectedRows) {
       const scholar = row.original.scholar;
-      const completedCourses = Array.isArray(scholar.completedCourses)
-        ? scholar.completedCourses
-        : scholar.completedCourses
-        ? [scholar.completedCourses]
-        : [];
+      const completedCourses = scholar.completedCourses ?? [];
 
       // ✅ Skip if already completed
-      if (completedCourses.includes(openingProgramUuid!)) {
+      if (
+        completedCourses.find((d) => d.uuid === openingProgramUuid)
+          ? true
+          : false
+      ) {
         skipped.push(scholar.englishName || scholar.username);
         continue;
       }
@@ -93,9 +98,7 @@ export default function ScholarClassDataTable({
     }
 
     if (skipped.length > 0) {
-      toast.warning(
-        `Skipped already completed: ${skipped.join(", ")}`
-      );
+      toast.warning(`Skipped already completed: ${skipped.join(", ")}`);
     }
   };
 

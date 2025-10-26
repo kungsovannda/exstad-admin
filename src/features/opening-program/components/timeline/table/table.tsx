@@ -24,6 +24,7 @@ export default function TimelineTable({
       onReorder={onReorder} // 🔑 pass callback
       enableExport
       exportFilename="timeline.xlsx"
+      exportType
     />
   );
 }

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import type { Resolver } from "react-hook-form";
+import type { FieldErrors, Resolver } from "react-hook-form";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
@@ -31,6 +31,7 @@ import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUpload
 import { generateSlug } from "@/services/generate-slug";
 import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
 import generateFilename from "@/services/generate-filename";
+import { toast } from "sonner";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -267,11 +268,18 @@ export default function OpeningProgramForm({
       setIsUploading(false);
     }
   };
+  const handleInvalid = (errors: FieldErrors<OpeningProgramFormValue>) => {
+    const firstErrorField = Object.keys(errors)[0] as keyof OpeningProgramFormValue;
+    const fieldError = errors[firstErrorField];
+      if (fieldError && "message" in fieldError && fieldError.message) {
+      toast.error(fieldError.message as string);
+    }
+  };
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleFormSubmit)}
+        onSubmit={form.handleSubmit(handleFormSubmit,handleInvalid)}
         className="space-y-8 grid w-full items-center"
       >
         {/* Program Type */}

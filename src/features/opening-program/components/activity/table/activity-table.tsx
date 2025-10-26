@@ -10,6 +10,7 @@ import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import ExportToExcelModal from "@/components/ExportToExcelModal";
+import { useAppSelector } from "@/lib/hooks";
 
 interface ActivityTableProps {
   data:ActivityType[];
@@ -34,12 +35,14 @@ export default function ActivityTable({data,totalItems,columns}:ActivityTablePro
     });
   
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const preference = useAppSelector((state) => state.preference);
   
     const handleExport = async (selectedFields: string[]) => {
       await exportToExcel({
         data,
         selectedFields,
         filename: "master-program.xlsx",
+        exportType: preference.export,
       });
     };
   return (

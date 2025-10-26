@@ -12,7 +12,7 @@ export const ScholarClassColumns = (
   actions?: {
     onEdit?: (sc: ScholarClassType) => void;
     onDelete?: (sc: ScholarClassType) => void;
-    openingProgramUuid?: string; 
+    openingProgramUuid?: string;
   }
 ): ColumnDef<ScholarClassType>[] => {
   const roomOptions = buildUniqueOptions(scholarClasses, (sc) => sc.room);
@@ -70,12 +70,9 @@ export const ScholarClassColumns = (
       accessorKey: "isPaid",
       header: "Payment Status",
       enableColumnFilter: true,
-      filterFn: "equalsString",
       meta: {
-        variant: "select",
-        placeholder: "Select payment status...",
+        variant: "boolean",
         label: "Payment Status",
-        options: paymentStatusOptions,
       },
       cell: ({ row }) => (
         <UpdatePaidScholarClassAction scholar={row.original} />
@@ -86,44 +83,35 @@ export const ScholarClassColumns = (
       header: "Is Reminded",
       enableColumnFilter: true,
       meta: {
-        variant: "select",
-        placeholder: "Select reminder status...",
+        variant: "boolean",
         label: "Reminded",
-        options: [
-          { label: "Yes", value: "Yes" },
-          { label: "No", value: "No" },
-        ],
       },
       cell: ({ row }) => <UpdateRemindScholarAction scholar={row.original} />,
-
-      filterFn: (row, columnId, filterValue) => {
-        return (row.getValue(columnId) ? "Yes" : "No") === filterValue;
-      },
     },
     {
       accessorKey: "completedCourses",
       header: "Completed Course",
       enableColumnFilter: true,
-      meta:{
-        variant:"select",
-        placeholder:"Select complete course...",
-        label:"Complete Course",
-        options:[
-          {label:"Completed",value:"Completed"},
-          {label:"Not Completed",value:"Not Completed"}
-        ]
+      meta: {
+        variant: "select",
+        placeholder: "Select complete course...",
+        label: "Complete Course",
+        options: [
+          { label: "Completed", value: "Completed" },
+          { label: "Not Completed", value: "Not Completed" },
+        ],
       },
       cell: ({ row }) => {
-         const scholar = row.original.scholar;
-    const programUuid = actions?.openingProgramUuid;
-    if (!programUuid) return null;
+        const scholar = row.original.scholar;
+        const programUuid = actions?.openingProgramUuid;
+        if (!programUuid) return null;
 
-    return (
-      <UpdateCompleteScholarClassAction
-        scholar={scholar}
-        openingProgramUuid={programUuid}
-      />
-    );
+        return (
+          <UpdateCompleteScholarClassAction
+            scholar={scholar}
+            openingProgramUuid={programUuid}
+          />
+        );
       },
       enableSorting: true,
     },

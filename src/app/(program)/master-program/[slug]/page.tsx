@@ -36,6 +36,7 @@ function MasterProgramEdit() {
     programType: program.programType || "SCHOLARSHIP" ,
     programLevel: program.programLevel ,
     logoUrl: program.logoUrl || "",
+    thumbnailUrl:program.thumbnailUrl || "",
     bgColor:
       program.bgColor ||
       "linear-gradient(90deg, rgba(96,165,250,1) 0%, rgba(168,85,247,1) 100%)",
