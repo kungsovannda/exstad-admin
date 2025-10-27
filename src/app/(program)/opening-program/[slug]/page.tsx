@@ -103,8 +103,8 @@ if (!openingProgram?.uuid) return <Loader />;
 if (isLoading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="p-6">
+      <div className="space-y-6">
         <div className="flex justify-between items-center gap-10">
           <Heading title="Class" description="Class Management" />
         </div>

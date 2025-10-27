@@ -28,7 +28,7 @@ export default function ProgramSetup() {
     | "course-requirements"
     | "faq"
     | "technology"
-  >("highlight");
+  >("roadmap");
 
   const params = useParams();
   const programSlug = params.slug as string;

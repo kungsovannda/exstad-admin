@@ -32,7 +32,7 @@ export const userApi = createApi({
 
     // GET all Instructor 
     getAllInstructors: builder.query<User[], void>({
-      query: () => "/users",
+      query: () => "/instructor-classes/instructors",
       transformResponse: (response: { users?: User[] }) => response.users ?? [],
       providesTags: (result) =>
         result?.length
