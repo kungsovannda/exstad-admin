@@ -78,6 +78,16 @@ export const masterprogramApi = createApi({
         { type: "MasterProgram", id: "LIST" },
       ],
     }),
+    softDeleteMasterProgram: builder.mutation<void, string>({
+      query: (uuid) => ({
+        url: `/programs/${uuid}/delete`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, uuid) => [
+        { type: "MasterProgram", id: uuid },
+        { type: "MasterProgram", id: "LIST" },
+      ],
+    }),
 
     getMasterProgramByOpeningProgramUuid: builder.query<
       MasterProgramType,
@@ -98,5 +108,6 @@ export const {
   useCreateMasterProgramMutation,
   useUpdateMasterProgramMutation,
   useDeleteMasterProgramMutation,
+  useSoftDeleteMasterProgramMutation,
   useGetMasterProgramByOpeningProgramUuidQuery,
 } = masterprogramApi;

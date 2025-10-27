@@ -163,7 +163,6 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
             const techData = await handleUploadTechnology(data, file);
             handleSaveTechLocal(techData);
             setIsCreateOpen(false);
-            toast.success(`Technology "${data.title}" added!`);
           }}
           trigger={
             <Button className="flex items-center gap-2.5">
@@ -226,7 +225,6 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
                     const techData = await handleUploadTechnology(data, file);
                     handleSaveTechLocal(techData, editTarget);
                     setEditTarget(null);
-                    toast.success(`Technology "${data.title}" updated!`);
                   }
                 }}
                 trigger={
