@@ -16,6 +16,7 @@ import ProgramOverviewAdmin from "@/features/master-program/components/programOv
 import Loader from "@/app/loading";
 import { useGetMasterProgramBySlugQuery } from "@/features/master-program/masterProgramApi";
 import TechnologyAdmin from "@/features/master-program/components/technology/technology";
+import { formatTitle } from "@/utils/formatTitle";
 
 export default function ProgramSetup() {
   const [tab, setTab] = useState<
@@ -54,7 +55,7 @@ export default function ProgramSetup() {
   return (
     <div className="p-5">
       <h1 className="text-2xl font-semibold mb-4">
-        Master Program Setup - {programSlug}
+        Master Program Setup - {formatTitle(programSlug)}
       </h1>
 
       {/* Tabs */}

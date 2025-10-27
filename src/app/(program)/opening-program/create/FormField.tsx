@@ -595,7 +595,7 @@ export default function OpeningProgramForm({
 
             return (
               <FormItem>
-                <FormLabel>Thumbnail *</FormLabel>
+                <FormLabel>Cover *</FormLabel>
                 <FormControl>
                   <div className="space-y-4 mt-2">
                     <ThumbnailUploadField
@@ -623,7 +623,7 @@ export default function OpeningProgramForm({
 
             return (
               <FormItem>
-                <FormLabel>Poster *</FormLabel>
+                <FormLabel>Poster or Thumbnail*</FormLabel>
                 <FormControl>
                   <div className="space-y-4 mt-2">
                     <PosterUploadField

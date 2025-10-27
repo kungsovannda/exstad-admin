@@ -21,6 +21,19 @@ getAllInstructorClasses: builder.query<InstructorClassType[], void>({
       : [{ type: "InstructorClass", id: "LIST" }],
 }),
 
+getAllInstructor: builder.query<InstructorClassType[], void>({
+  query: () => "/instructor-classes/instructors",
+  transformResponse: (response: { "instructors": InstructorClassType[] }) =>
+    response["instructors"] ?? [],
+  providesTags: (result) =>
+    result?.length
+      ? [
+          ...result.map(({ uuid }) => ({ type: "InstructorClass" as const, id: uuid })),
+          { type: "InstructorClass", id: "LIST" },
+        ]
+      : [{ type: "InstructorClass", id: "LIST" }],
+}),
+
 
     // GET all instructor by class UUID
     getAllInstructorByClassUuid: builder.query<InstructorType[], string>({
@@ -34,6 +47,7 @@ getAllInstructorClasses: builder.query<InstructorClassType[], void>({
             ]
           : [{ type: "InstructorClass", id: "LIST" }],
     }),
+
   getAllInstructorClassesByClassUuid: builder.query<InstructorClassType[], string>({
     query: (classUuid) => `/instructor-classes/by-class-uuid/${classUuid}`,
     transformResponse: (response: { "instructors-classes": InstructorClassType[] }) =>
