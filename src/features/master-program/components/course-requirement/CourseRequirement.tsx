@@ -35,7 +35,7 @@ export default function CourseRequirementsAdmin({ programUuid }: Props) {
   >([]);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([String(0)]);
   const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(
     null
   );
