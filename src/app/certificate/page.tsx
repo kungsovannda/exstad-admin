@@ -32,6 +32,7 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetAllOpeningProgramsQuery } from "@/features/opening-program/openingProgramApi";
+import { LoadingOverlay } from "@/features/badge/components/loading/LoadingOverlay";
 
 export default function Certificate() {
   const {
@@ -68,7 +69,7 @@ export default function Certificate() {
       }));
   }, [openingPrograms]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><LoadingOverlay /></div>;
   if (isError) return <div>Error loading programs</div>;
 
   return (
