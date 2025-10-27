@@ -40,7 +40,7 @@ export default function LearningOutcomesAdmin({ programUuid }: Props) {
   const [localOutcomes, setLocalOutcomes] = useState<LearningOutcomeType[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([String(0)]);
   const [editingOutcomeIndex, setEditingOutcomeIndex] = useState<number | null>(
     null
   );

@@ -60,19 +60,20 @@ export default function ProgramSetup() {
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit cursor-pointer">
-        <Button
+        
+         <Button
           className="cursor-pointer"
-          variant={tab === "highlight" ? "default" : "outline"}
-          onClick={() => setTab("highlight")}
+          variant={tab === "roadmap" ? "default" : "outline"}
+          onClick={() => setTab("roadmap")}
         >
-          Highlight
+          Roadmap
         </Button>
         <Button
           className="cursor-pointer"
-          variant={tab === "program-overview" ? "default" : "outline"}
-          onClick={() => setTab("program-overview")}
+          variant={tab === "technology" ? "default" : "outline"}
+          onClick={() => setTab("technology")}
         >
-          Program Overview
+          Technology
         </Button>
         <Button
           className="cursor-pointer"
@@ -95,26 +96,28 @@ export default function ProgramSetup() {
         >
           Curriculum
         </Button>
-        <Button
-          className="cursor-pointer"
-          variant={tab === "roadmap" ? "default" : "outline"}
-          onClick={() => setTab("roadmap")}
-        >
-          Roadmap
-        </Button>
-        <Button
+         <Button
           className="cursor-pointer"
           variant={tab === "faq" ? "default" : "outline"}
           onClick={() => setTab("faq")}
         >
           FAQ
         </Button>
+       
+       
         <Button
           className="cursor-pointer"
-          variant={tab === "technology" ? "default" : "outline"}
-          onClick={() => setTab("technology")}
+          variant={tab === "highlight" ? "default" : "outline"}
+          onClick={() => setTab("highlight")}
         >
-          Technology
+          Highlight
+        </Button>
+        <Button
+          className="cursor-pointer"
+          variant={tab === "program-overview" ? "default" : "outline"}
+          onClick={() => setTab("program-overview")}
+        >
+          Program Overview
         </Button>
       </div>
 
