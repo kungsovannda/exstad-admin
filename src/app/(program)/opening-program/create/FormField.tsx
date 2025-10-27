@@ -32,6 +32,9 @@ import { generateSlug } from "@/services/generate-slug";
 import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
 import generateFilename from "@/services/generate-filename";
 import { toast } from "sonner";
+import { fa } from "zod/v4/locales";
+import QRCodeGeneratorModal from "@/components/qr-code.generator";
+import { QrCode, Upload } from "lucide-react";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -140,7 +143,7 @@ export default function OpeningProgramForm({
         | "PENDING"
         | undefined,
       qrCodeUrl: "",
-      registerFee:0,
+      registerFee: 0,
     },
   }) as ExtendedFormReturn;
 
@@ -219,10 +222,10 @@ export default function OpeningProgramForm({
           gen: generation,
           documentType: "thumbnail",
           filename: generateFilename({
-                        type: "thumbnail",
-                        program: programSlug,
-                        generation: String(generation),
-                      }),
+            type: "thumbnail",
+            program: programSlug,
+            generation: String(generation),
+          }),
         }).unwrap();
         data.thumbnail = thumbnailRes.uri;
       }
@@ -235,10 +238,10 @@ export default function OpeningProgramForm({
           gen: generation,
           documentType: "poster",
           filename: generateFilename({
-                        type: "poster",
-                        program: programSlug,
-                        generation: String(generation),
-                      }),
+            type: "poster",
+            program: programSlug,
+            generation: String(generation),
+          }),
         }).unwrap();
         data.posterUrl = posterRes.uri;
       }
@@ -251,10 +254,10 @@ export default function OpeningProgramForm({
           gen: generation,
           documentType: "qr",
           filename: generateFilename({
-                        type: "qr",
-                        program: programSlug,
-                        generation: String(generation),
-                      }),
+            type: "qr",
+            program: programSlug,
+            generation: String(generation),
+          }),
         }).unwrap();
         data.qrCodeUrl = qrRes.uri;
       }
@@ -269,9 +272,11 @@ export default function OpeningProgramForm({
     }
   };
   const handleInvalid = (errors: FieldErrors<OpeningProgramFormValue>) => {
-    const firstErrorField = Object.keys(errors)[0] as keyof OpeningProgramFormValue;
+    const firstErrorField = Object.keys(
+      errors
+    )[0] as keyof OpeningProgramFormValue;
     const fieldError = errors[firstErrorField];
-      if (fieldError && "message" in fieldError && fieldError.message) {
+    if (fieldError && "message" in fieldError && fieldError.message) {
       toast.error(fieldError.message as string);
     }
   };
@@ -279,7 +284,7 @@ export default function OpeningProgramForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleFormSubmit,handleInvalid)}
+        onSubmit={form.handleSubmit(handleFormSubmit, handleInvalid)}
         className="space-y-8 grid w-full items-center"
       >
         {/* Program Type */}
@@ -652,6 +657,7 @@ export default function OpeningProgramForm({
             return (
               <FormItem>
                 <FormLabel>QR Code *</FormLabel>
+
                 <FormControl>
                   <QrCodeUploadField
                     form={form}
