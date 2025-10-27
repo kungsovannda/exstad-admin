@@ -214,9 +214,20 @@ export default function CreateGeneralInformation({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value}
+                        selected={
+                          field.value
+                            ? new Date(field.value + "T12:00:00")
+                            : undefined
+                        }
                         captionLayout="dropdown"
-                        onSelect={field.onChange}
+                        onSelect={(date) => {
+                          if (date) {
+                            const isoDate = format(date, "yyyy-MM-dd");
+                            field.onChange(isoDate);
+                          } else {
+                            field.onChange(undefined);
+                          }
+                        }}
                         initialFocus
                       />
                     </PopoverContent>
