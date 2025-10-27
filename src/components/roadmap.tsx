@@ -523,12 +523,12 @@ const exampleNode : Node<WorkNodeData>[] =  [{
       </div>
     </div>
     <DialogFooter className="gap-2">
+      <Button variant="outline" onClick={() => setIsEditEdgeModalOpen(false)}>Cancel</Button>
       <Button variant="destructive" onClick={deleteEditingEdge}>
         <Trash2 className="h-4 w-4 mr-2" />
         Delete Connection
       </Button>
       <Button onClick={saveEditedEdge}>Save Changes</Button>
-      <Button variant="outline" onClick={() => setIsEditEdgeModalOpen(false)}>Cancel</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
