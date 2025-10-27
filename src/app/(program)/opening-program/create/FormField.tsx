@@ -28,13 +28,10 @@ import { useCreateDocumentMutation } from "@/features/document/documentApi";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
 import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
-import { generateSlug } from "@/services/generate-slug";
-import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
 import generateFilename from "@/services/generate-filename";
+import { generateSlug } from "@/services/generate-slug";
 import { toast } from "sonner";
-import { fa } from "zod/v4/locales";
-import QRCodeGeneratorModal from "@/components/qr-code.generator";
-import { QrCode, Upload } from "lucide-react";
+import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -663,6 +660,7 @@ export default function OpeningProgramForm({
                     form={form}
                     masterProgram={selectedProgram}
                     openingProgram={{ generation }}
+                    initslug={form.watch("slug")}
                   />
                 </FormControl>
                 <FormMessage />

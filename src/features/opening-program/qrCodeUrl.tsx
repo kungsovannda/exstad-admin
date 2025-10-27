@@ -15,7 +15,7 @@ import { MasterProgramType } from "@/types/program";
 import { openingProgramType } from "@/types/opening-program";
 import { UseFormReturn } from "react-hook-form";
 import { OpeningProgramFormValue } from "@/app/(program)/opening-program/create/FormField";
-import QRCodeGeneratorModal from "@/components/qr-code.generator";
+import QRCodeGeneratorModal from "@/components/qr-code-generator";
 
 interface QrForm extends UseFormReturn<OpeningProgramFormValue> {
   _qrCodeFile?: File;
@@ -26,11 +26,13 @@ export function QrCodeUploadField({
   masterProgram,
   openingProgram,
   onPreviewChange,
+  initslug = "slug",
 }: {
   form: QrForm;
   masterProgram: MasterProgramType | undefined;
   openingProgram: Partial<openingProgramType>;
   onPreviewChange?: (url: string | null) => void;
+  initslug?: string;
 }) {
   const [files, setFiles] = useState<File[] | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -149,6 +151,7 @@ export function QrCodeUploadField({
             open={isGenerateQrOpen}
             onOpenChange={setIsGenerateQrOpen}
             onFileGenerated={handleGenerateQr}
+            initialText={`${process.env.NEXT_PUBLIC_FRONTEND_URL_OPENING}/${openingProgram.slug}`}
           />
         </FormItem>
       )}

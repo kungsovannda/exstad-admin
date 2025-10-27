@@ -131,7 +131,7 @@ export default function QRCodeGeneratorModal({
           data: watchedValues.text,
           margin: 10,
           qrOptions: {
-            typeNumber: 0,
+            typeNumber: undefined, // Changed from 0 to undefined for auto-detection
             mode: "Byte" as const,
             errorCorrectionLevel: "H" as const,
           },
@@ -254,7 +254,7 @@ export default function QRCodeGeneratorModal({
         data: watchedValues.text,
         margin: 10,
         qrOptions: {
-          typeNumber: 0,
+          typeNumber: undefined, // Changed from 0 to undefined for auto-detection
           mode: "Byte" as const,
           errorCorrectionLevel: "H" as const,
         },
