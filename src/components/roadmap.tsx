@@ -184,7 +184,7 @@ export default function WorkNodeEditor({
 
     if (isAddingNode) {
       const newNode: Node<WorkNodeData> = {
-        id: `${Date.now()}`,
+        id: `${nodes.length + 1}`,
         type: "workNode",
         position: {
           x: Math.random() * 400 + 100,
