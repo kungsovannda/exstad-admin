@@ -98,6 +98,7 @@ export default function WorkNodeEditor({
   const positionOrder: (keyof HandleConfig)[] = ["top", "right", "bottom", "left"];
 
   const colorPresets = [
+    { name: "defaultColor", value: "" },
     { name: "Sky Blue", value: "#3b87ba" },
     { name: "Rose", value: "#e71352" },
     { name: "Emerald", value: "#0f910d" },
