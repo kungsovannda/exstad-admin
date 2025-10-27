@@ -430,9 +430,6 @@ export default function WorkNodeEditor({
       {/* ReactFlow Canvas */}
       <div className="flex-1">
         <ReactFlow
-          zoomOnDoubleClick={true}
-          zoomOnScroll={true}
-          zoomOnPinch={true}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
