@@ -22,6 +22,7 @@ import {
   useMarkIsAbroadMutation,
   useUnMarkIsAbroadMutation,
 } from "../../scholarApi";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   isAbroad: z.boolean(),
@@ -48,6 +49,19 @@ export default function ScholarSpecialistSetUpComponent({
       about: scholar?.specialist?.[0].about ?? "",
     },
   });
+
+  useEffect(() => {
+    if (scholar) {
+      form.reset({
+        isAbroad: scholar?.isAbroad ?? false,
+        country: scholar?.specialist?.[0].country ?? "",
+        universityName: scholar?.specialist?.[0].universityName ?? "",
+        degreeType: scholar?.specialist?.[0].degreeType ?? "",
+        specialist: scholar?.specialist?.[0].specialist ?? "",
+        about: scholar?.specialist?.[0].about ?? "",
+      });
+    }
+  }, [scholar, form]);
 
   const [assignSpecialist] = useAssignSpecialistsMutation();
   const [markAbroad] = useMarkIsAbroadMutation();

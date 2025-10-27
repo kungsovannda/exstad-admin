@@ -2,6 +2,7 @@
 import { Heading } from "@/components/Heading";
 import {
   Carousel,
+  CarouselApi,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
@@ -10,6 +11,7 @@ import OverviewEnrollmentByAddress from "@/features/enrollment/components/overvi
 import OverviewEnrollmentByAge from "@/features/enrollment/components/overview/OverviewEnrollmentByAge";
 import OverviewEnrollmentByUniversity from "@/features/enrollment/components/overview/OverviewEnrollmentByUniversity";
 import EnrollmentChart from "@/features/enrollment/components/statistic/EnrollmentChart";
+import EnrollmentChartYearAndClass from "@/features/enrollment/components/statistic/EnrollmentChartYearAndClass";
 import EnrollmentGradeChart from "@/features/enrollment/components/statistic/EnrollmentGradeChart";
 import { EnrollmentStatisticCard } from "@/features/enrollment/components/statistic/EnrollmentStatisticCard";
 import EnrollmentListPage from "@/features/enrollment/components/table/enrollment-list-page";
@@ -45,7 +47,22 @@ export default function PageEnrollment() {
     }
   );
   const router = useRouter();
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
 
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
   useEffect(() => {
     if (!data) return;
     const sortedPrograms = data.toSorted((a, b) => b.generation - a.generation);
@@ -114,27 +131,47 @@ export default function PageEnrollment() {
               isLoading={isLoading}
               data={enrollments ?? []}
             />
-            <Carousel
-              plugins={[WheelGesturesPlugin()]}
-              className="w-full h-[500px]"
-            >
-              <CarouselContent>
-                <CarouselItem>
-                  <EnrollmentChart data={enrollments ?? []} />
-                </CarouselItem>
-                <CarouselItem>
-                  <OverviewEnrollmentByUniversity data={enrollments ?? []} />
-                </CarouselItem>
-                <CarouselItem>
-                  <OverviewEnrollmentByAddress data={enrollments ?? []} />
-                </CarouselItem>
-                <CarouselItem>
-                  <OverviewEnrollmentByAge data={enrollments ?? []} />
-                </CarouselItem>
-              </CarouselContent>
-              {/* <CarouselPrevious />
-              <CarouselNext /> */}
-            </Carousel>
+            <div className="w-full">
+              <Carousel
+                plugins={[WheelGesturesPlugin()]}
+                className="w-full"
+                setApi={setApi}
+              >
+                <CarouselContent>
+                  <CarouselItem>
+                    <EnrollmentChart data={enrollments ?? []} />
+                  </CarouselItem>
+                  <CarouselItem>
+                    <EnrollmentChartYearAndClass data={enrollments ?? []} />
+                  </CarouselItem>
+                  <CarouselItem>
+                    <OverviewEnrollmentByUniversity data={enrollments ?? []} />
+                  </CarouselItem>
+                  <CarouselItem>
+                    <OverviewEnrollmentByAddress data={enrollments ?? []} />
+                  </CarouselItem>
+                  <CarouselItem>
+                    <OverviewEnrollmentByAge data={enrollments ?? []} />
+                  </CarouselItem>
+                </CarouselContent>
+              </Carousel>
+
+              {/* Dot Indicators */}
+              <div className="flex justify-center gap-2 mt-4">
+                {Array.from({ length: count }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => api?.scrollTo(index)}
+                    className={`h-2 rounded-full transition-all ${
+                      index === current
+                        ? "w-8 bg-primary"
+                        : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
             {program?.programType !== "SHORT_COURSE" && (
               <EnrollmentGradeChart data={enrollments ?? []} />
             )}

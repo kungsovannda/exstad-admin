@@ -22,7 +22,7 @@ import {
   useMarkIsEmployedMutation,
   useUnMarkIsEmployedMutation,
 } from "../../scholarApi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   isEmployed: z.boolean(),
@@ -49,6 +49,19 @@ export default function ScholarCareerSetUpComponent({
       interest: scholar?.careers?.[0].interest ?? "",
     },
   });
+
+  useEffect(() => {
+    if (scholar) {
+      form.reset({
+        isEmployed: scholar?.isEmployed ?? false,
+        company: scholar?.careers?.[0].company ?? "",
+        companyType: scholar?.careers?.[0].companyType ?? "",
+        position: scholar?.careers?.[0].position ?? "",
+        salary: scholar?.careers?.[0].salary ?? 0,
+        interest: scholar?.careers?.[0].interest ?? "",
+      });
+    }
+  }, [scholar, form]);
 
   const [assignCareer] = useAssignCareersMutation();
   const [markEmployed] = useMarkIsEmployedMutation();
