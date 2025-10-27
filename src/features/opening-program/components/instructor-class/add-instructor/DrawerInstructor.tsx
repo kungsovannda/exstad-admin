@@ -14,6 +14,7 @@ import {  useGetNotScholarUsersQuery } from "@/features/user/userApi";
 import { addInstructorClassColumns } from "./table/column";
 import AddInstructorClassTable from "./table/data-table";
 import { User } from "@/types/user";
+import { useGetAllInstructorQuery } from "../instructorClassApi";
 
 type DrawerInstructorsProps = {
   open: boolean;
@@ -35,7 +36,7 @@ export default function DrawerInstructors({
   onAddInstructor,
   onAddMultipleInstructors,
 }: DrawerInstructorsProps) {
-  const { data: instructors = [], isLoading } = useGetNotScholarUsersQuery(undefined,{refetchOnMountOrArgChange:true});
+  const { data: instructors = [], isLoading } = useGetAllInstructorQuery(undefined,{refetchOnMountOrArgChange:true});
   const [selectedRows, setSelectedRows] = useState<User[]>([]);
 
   const columns = addInstructorClassColumns(

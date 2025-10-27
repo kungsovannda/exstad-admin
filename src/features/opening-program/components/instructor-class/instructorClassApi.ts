@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "@/services/base-query";
 import { InstructorClassCreate, InstructorClassType, InstructorClassUpdate, InstructorType } from "@/types/opening-program";
+import { User } from "@/types/user";
 export const InstructorClassApi = createApi({
   reducerPath: "instructorClassApi",
   baseQuery: baseQuery(),
@@ -21,9 +22,9 @@ getAllInstructorClasses: builder.query<InstructorClassType[], void>({
       : [{ type: "InstructorClass", id: "LIST" }],
 }),
 
-getAllInstructor: builder.query<InstructorClassType[], void>({
+getAllInstructor: builder.query<User[], void>({
   query: () => "/instructor-classes/instructors",
-  transformResponse: (response: { "instructors": InstructorClassType[] }) =>
+  transformResponse: (response: { "instructors": User[] }) =>
     response["instructors"] ?? [],
   providesTags: (result) =>
     result?.length
@@ -33,6 +34,7 @@ getAllInstructor: builder.query<InstructorClassType[], void>({
         ]
       : [{ type: "InstructorClass", id: "LIST" }],
 }),
+
 
 
     // GET all instructor by class UUID
@@ -127,6 +129,7 @@ getAllInstructor: builder.query<InstructorClassType[], void>({
 export const {
   useGetAllInstructorClassesQuery,
   useGetAllInstructorByClassUuidQuery,
+  useGetAllInstructorQuery,
   useGetAllInstructorClassesByClassUuidQuery,
   useGetScholarClassesByClassUuidQuery,
   useCreateInstructorClassMutation,

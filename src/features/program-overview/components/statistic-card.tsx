@@ -68,14 +68,14 @@ export function ProgramOverviewStatisticCard({
         icon={Code2}
         total={totalMasterProgram}
         isLoading={isLoading}
-        description="Total number of all master programs"
+        description="All master programs"
       />
       <DefaultStatisticCard
         title="Opening"
         icon={BookText}
         total={totalOpeningProgram}
         isLoading={isLoading}
-        description="Total number of all opening programs"
+        description="All opening programs"
       />
       <DefaultStatisticCard
         title="Enrollments"
