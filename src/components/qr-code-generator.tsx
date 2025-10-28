@@ -35,6 +35,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import type QRCodeStyling from "qr-code-styling";
+import { Options } from "qr-code-styling";
 
 type DotType =
   | "rounded"
@@ -124,14 +125,14 @@ export default function QRCodeGeneratorModal({
         const QRCodeStylingModule = await import("qr-code-styling");
         const QRCodeStyling = QRCodeStylingModule.default;
 
-        const options = {
+        const options: Partial<Options> = {
           width: 300,
           height: 300,
           type: "canvas" as const,
           data: watchedValues.text,
           margin: 10,
           qrOptions: {
-            typeNumber: undefined, // Changed from 0 to undefined for auto-detection
+            typeNumber: 0,
             mode: "Byte" as const,
             errorCorrectionLevel: "H" as const,
           },
@@ -247,14 +248,14 @@ export default function QRCodeGeneratorModal({
       const downloadWidth = 2000; // High resolution for downloads
 
       const tempQR = qrCode.current;
-      const currentOptions = {
+      const currentOptions: Partial<Options> = {
         width: downloadWidth,
         height: downloadWidth,
         type: "canvas" as const,
         data: watchedValues.text,
         margin: 10,
         qrOptions: {
-          typeNumber: undefined, // Changed from 0 to undefined for auto-detection
+          typeNumber: 0,
           mode: "Byte" as const,
           errorCorrectionLevel: "H" as const,
         },
@@ -332,7 +333,6 @@ export default function QRCodeGeneratorModal({
             return;
           }
 
-          // Create a File object from the blob
           const file = new File([blob], "qrcode.png", { type: "image/png" });
 
           toast.dismiss();
