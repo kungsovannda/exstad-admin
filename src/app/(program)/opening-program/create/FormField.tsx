@@ -582,6 +582,32 @@ export default function OpeningProgramForm({
             </FormItem>
           )}
         />
+           <FormField
+          control={form.control}
+          name="curriculumPdfUri"
+          render={() => {
+            const selectedProgram = masterPrograms.find(
+              (p) => p.uuid === form.watch("programUuid")
+            );
+            const generation = form.watch("generation");
+
+            return (
+              <FormItem>
+                <FormLabel>Curriculum PDF URL</FormLabel>
+                <FormControl>
+                  <div className="space-y-4 mt-2">
+                    <ThumbnailUploadField
+                      form={form}
+                      masterProgram={selectedProgram}
+                      openingProgram={{ generation }}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
 
         {/* Thumbnail */}
         <FormField

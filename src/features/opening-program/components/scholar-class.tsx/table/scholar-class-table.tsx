@@ -70,7 +70,6 @@ export default function ScholarClassDataTable({
       const scholar = row.original.scholar;
       const completedCourses = scholar.completedCourses ?? [];
 
-      // ✅ Skip if already completed
       if (
         completedCourses.find((d) => d.uuid === openingProgramUuid)
           ? true

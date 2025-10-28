@@ -23,17 +23,24 @@ import { ChevronDown, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAppSelector } from "@/lib/hooks";
+import { ApplicantLetterRequest } from "@/types/application";
+import { useDownloadApplicantLettersZipMutation } from "@/features/application/applicationApi";
+import { toast } from "sonner";
 
 interface PaidEnrollmentTableProps<TValue> {
   columns: ColumnDef<Enrollment, TValue>[];
   data: Enrollment[];
   totalItems: number;
+  codeNumber?: string;
+  codeTable?: string;
 }
 
 export function PaidEnrollmentTable<TValue>({
   columns,
   data,
   totalItems,
+  codeNumber,
+  codeTable,
 }: PaidEnrollmentTableProps<TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
@@ -138,6 +145,49 @@ export function PaidEnrollmentTable<TValue>({
 
   const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
 
+  const [downloadZip] = useDownloadApplicantLettersZipMutation();
+  const onGenerateApplicationLetter = async () => {
+    const selectedEnrollment = table
+      .getSelectedRowModel()
+      .rows.map((r) => r.original);
+
+    const enrollments = selectedEnrollment.sort((a, b) =>
+      a.khmerName.localeCompare(b.khmerName, "km")
+    );
+
+    const payload: ApplicantLetterRequest[] = enrollments.map((e, index) => {
+      const seq = String(index + 1).padStart(3, "0");
+      return {
+        ...e,
+        placeOfBirth: e.currentAddress,
+        issueDate: new Date().toISOString(),
+        major: e.extra.major,
+        national: "ខ្មែរ",
+        year: e.extra.year,
+        number: `${codeNumber}-${seq}`,
+        tableNumber: `${codeTable}-${seq}`,
+      };
+    });
+    const toastId = toast.loading("Generating...");
+
+    try {
+      const blob = await downloadZip(payload).unwrap();
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "applicant_letters.zip";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Generated success please download!", { id: toastId });
+    } catch (error) {
+      toast.error("Download failed: " + error, { id: toastId });
+    }
+  };
+
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
@@ -181,6 +231,9 @@ export function PaidEnrollmentTable<TValue>({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onMarkInterviewHandle}>
                 Mark as Interviewed
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onGenerateApplicationLetter}>
+                Application Letter
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
