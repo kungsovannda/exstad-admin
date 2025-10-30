@@ -4,7 +4,10 @@ import { type ColumnDef } from "@tanstack/react-table";
 
 import ExportToExcelModal from "@/components/ExportToExcelModal";
 import ModalProcess from "@/components/modal/ModalProcess";
-import { generateQRCodeFile } from "@/components/qr-code-generator";
+import {
+  generateQRCodeBase64,
+  generateQRCodeFile,
+} from "@/components/qr-code-generator";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { Button } from "@/components/ui/button";
@@ -199,13 +202,12 @@ export function PaidEnrollmentTable<TValue>({
   };
 
   const [sendEmail] = useCreateEmailMessageMutation();
-  const [createDocument] = useCreateDocumentMutation();
 
   const onSendLetterHandle = () => {
     const enrollments = table.getSelectedRowModel().rows.map((r) => r.original);
 
     enrollments.forEach(async (enrollment) => {
-      const qrFile = await generateQRCodeFile({
+      const qrFile = await generateQRCodeBase64({
         text: `https://admin.exstad.tech/enrollment/${program?.slug}/check-in?id=${enrollment.uuid}`,
         size: 2000,
         dotsColor: "#4F46E5",
@@ -216,18 +218,6 @@ export function PaidEnrollmentTable<TValue>({
         logoMargin: 15,
       });
 
-      const document = await createDocument({
-        documentType: "qr",
-        file: qrFile,
-        gen: openingProgram?.generation ?? 0,
-        programSlug: program?.slug ?? "null",
-        filename: `check_in_${enrollment.englishName}_${enrollment.uuid}_${
-          new Date().toISOString().split("T")[0]
-        }_${Date.now()}`
-          .toLowerCase()
-          .replaceAll(" ", "_"),
-      }).unwrap();
-
       toast.promise(
         sendEmail({
           name: enrollment.englishName,
@@ -236,7 +226,7 @@ export function PaidEnrollmentTable<TValue>({
           message: "Below are your admission details.",
           toEmail: enrollment.email,
           admissionLetterUrl: enrollment.applicantLetter,
-          qrCodeFile: document.uri,
+          qrCodeFile: qrFile,
           examDetails: {
             date: "2025-01-15",
             time: "10:00 AM",

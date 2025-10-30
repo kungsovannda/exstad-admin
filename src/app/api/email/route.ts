@@ -46,6 +46,17 @@ export async function POST(
       cid: string;
     }> = [];
 
+    if (qrCodeFile) {
+      if (qrCodeFile.startsWith("data:image")) {
+        attachments.push({
+          filename: "admission-qr-code.png",
+          content: qrCodeFile.split("base64,")[1],
+          encoding: "base64",
+          cid: "qrcode@admission",
+        });
+      }
+    }
+
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: toEmail,
@@ -113,7 +124,7 @@ export async function POST(
               <div class="qr-section">
                 <h3>QR Code for Entry</h3>
                 <p>Please present this QR code at the exam venue for verification:</p>
-                <img src="${qrCodeFile}" alt="Admission QR Code" style="max-width: 250px; margin: 15px 0;"/>
+                <img src="cid:qrcode@admission" alt="Admission QR Code" style="max-width: 250px; margin: 15px 0;"/>
                 <p><small>Save this QR code or show this email at the entrance</small></p>
               </div>
               `
