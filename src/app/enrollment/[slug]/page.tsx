@@ -186,6 +186,8 @@ export default function PageEnrollment() {
                   .join("") + String(currentGen.generation).padStart(2, "0")
               }
               codeTable="ISTAD"
+              openingProgram={currentGen}
+              program={program}
             />
           </TabsContent>
         ))}

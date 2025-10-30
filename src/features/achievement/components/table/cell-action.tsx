@@ -10,9 +10,11 @@ import { Achievement } from "@/types/achievement";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import ViewAndUpdateAchievement from "../ViewAndUpdateAchievement";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function AchievementCellAction({ data }: { data: Achievement }) {
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const { hasRole } = useAuth();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,7 +27,9 @@ export default function AchievementCellAction({ data }: { data: Achievement }) {
         <DropdownMenuItem onClick={() => setIsViewOpen(true)}>
           View & Update
         </DropdownMenuItem>
-        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        {hasRole("ADMIN") && (
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        )}
       </DropdownMenuContent>
 
       {isViewOpen && (

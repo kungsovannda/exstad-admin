@@ -4,6 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 
 import ExportToExcelModal from "@/components/ExportToExcelModal";
 import ModalProcess from "@/components/modal/ModalProcess";
+import { generateQRCodeFile } from "@/components/qr-code-generator";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { Button } from "@/components/ui/button";
@@ -15,17 +16,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useDownloadApplicantLettersZipMutation } from "@/features/application/applicationApi";
+import { useCreateDocumentMutation } from "@/features/document/documentApi";
+import { useCreateEmailMessageMutation } from "@/features/email/emailApi";
 import { useUpdateEnrollmentMutation } from "@/features/enrollment/enrollmentApi";
 import { useDataTable } from "@/hooks/use-data-table";
+import { useAppSelector } from "@/lib/hooks";
 import { exportToExcel } from "@/services/export-to-excel";
+import { ApplicantLetterRequest } from "@/types/application";
 import { Enrollment } from "@/types/enrollment";
 import { ChevronDown, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import { useAppSelector } from "@/lib/hooks";
-import { ApplicantLetterRequest } from "@/types/application";
-import { useDownloadApplicantLettersZipMutation } from "@/features/application/applicationApi";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { openingProgramType } from "@/types/opening-program";
+import { MasterProgramType } from "@/types/program";
 
 interface PaidEnrollmentTableProps<TValue> {
   columns: ColumnDef<Enrollment, TValue>[];
@@ -33,6 +38,8 @@ interface PaidEnrollmentTableProps<TValue> {
   totalItems: number;
   codeNumber?: string;
   codeTable?: string;
+  openingProgram?: openingProgramType;
+  program?: MasterProgramType;
 }
 
 export function PaidEnrollmentTable<TValue>({
@@ -41,6 +48,8 @@ export function PaidEnrollmentTable<TValue>({
   totalItems,
   codeNumber,
   codeTable,
+  openingProgram,
+  program,
 }: PaidEnrollmentTableProps<TValue>) {
   const searchParams = useSearchParams();
   const perPage = searchParams.get("perPage")
@@ -159,7 +168,8 @@ export function PaidEnrollmentTable<TValue>({
       const seq = String(index + 1).padStart(3, "0");
       return {
         ...e,
-        placeOfBirth: e.currentAddress,
+        enrollmentUuid: e.uuid,
+        placeOfBirth: e.province,
         issueDate: new Date().toISOString(),
         major: e.extra.major,
         national: "ខ្មែរ",
@@ -186,6 +196,60 @@ export function PaidEnrollmentTable<TValue>({
     } catch (error) {
       toast.error("Download failed: " + error, { id: toastId });
     }
+  };
+
+  const [sendEmail] = useCreateEmailMessageMutation();
+  const [createDocument] = useCreateDocumentMutation();
+
+  const onSendLetterHandle = () => {
+    const enrollments = table.getSelectedRowModel().rows.map((r) => r.original);
+
+    enrollments.forEach(async (enrollment) => {
+      const qrFile = await generateQRCodeFile({
+        text: `https://admin.exstad.tech/enrollment/${program?.slug}/check-in?id=${enrollment.uuid}`,
+        size: 2000,
+        dotsColor: "#4F46E5",
+        backgroundColor: "#ffffff",
+        dotsType: "rounded",
+        logoUrl: "https://www.exstad.tech/image/logo/exSTAD-01.png",
+        logoSize: 0.3,
+        logoMargin: 15,
+      });
+
+      const document = await createDocument({
+        documentType: "qr",
+        file: qrFile,
+        gen: openingProgram?.generation ?? 0,
+        programSlug: program?.slug ?? "null",
+        filename: `check_in_${enrollment.englishName}_${enrollment.uuid}_${
+          new Date().toISOString().split("T")[0]
+        }`
+          .toLowerCase()
+          .replaceAll(" ", "_"),
+      }).unwrap();
+
+      toast.promise(
+        sendEmail({
+          name: enrollment.englishName,
+          email: enrollment.email,
+          subject: "Admission Letter from EXSTAD",
+          message: "Below are your admission details.",
+          toEmail: enrollment.email,
+          admissionLetterUrl: enrollment.applicantLetter,
+          qrCodeFile: document.uri,
+          examDetails: {
+            date: "2025-01-15",
+            time: "10:00 AM",
+            location: "Phnom Penh Exam Center",
+          },
+        }).unwrap(),
+        {
+          loading: `Sending email to ${enrollment.email}...`,
+          success: `Email sent to ${enrollment.email}!`,
+          error: `Failed to send email to ${enrollment.email}.`,
+        }
+      );
+    });
   };
 
   return (
@@ -234,6 +298,9 @@ export function PaidEnrollmentTable<TValue>({
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onGenerateApplicationLetter}>
                 Application Letter
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onSendLetterHandle}>
+                Send Letter
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

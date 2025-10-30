@@ -14,17 +14,23 @@ import { paidEnrollmentColumns } from "./paid-enrollment/columns";
 import { PaidEnrollmentTable } from "./paid-enrollment/data-table";
 import { passedEnrollmentColumns } from "./passed-enrollment/columns";
 import { PassedEnrollmentTable } from "./passed-enrollment/data-table";
+import { openingProgramType } from "@/types/opening-program";
+import { MasterProgramType } from "@/types/program";
 
 export default function EnrollmentListPage({
   uuid,
   isShortCourse,
   codeNumber,
   codeTable,
+  openingProgram,
+  program,
 }: {
   uuid: string | undefined;
   isShortCourse: boolean;
   codeNumber?: string;
   codeTable?: string;
+  openingProgram?: openingProgramType;
+  program?: MasterProgramType;
 }) {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [paidEnrollments, setPaidEnrollments] = useState<Enrollment[]>([]);
@@ -144,6 +150,8 @@ export default function EnrollmentListPage({
                 columns={paidColumns}
                 data={paidEnrollments}
                 totalItems={enrollments.length}
+                openingProgram={openingProgram}
+                program={program}
               />
             )}
           </TabsContent>

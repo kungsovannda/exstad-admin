@@ -46,7 +46,7 @@ export function ProgramOverviewStatisticCard({
     const totalFemale = scholars.filter((d) => d.gender === "Female");
     setTotalScholar({
       total: scholars.length,
-      female: scholars.length,
+      female: totalFemale.length,
       male: scholars.length - totalFemale.length,
     });
   }, [scholars]);

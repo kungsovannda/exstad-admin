@@ -7,12 +7,14 @@ import { CreateUniversity } from "@/features/university/components/CreateUnivers
 import { universityColumns } from "@/features/university/components/table/column";
 import { UniversityTable } from "@/features/university/components/table/data-table";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
+import { useAuth } from "@/hooks/use-auth";
 import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 
 export default function UniversityPage() {
   const { data, isLoading } = useGetAllUniversitiesQuery();
-  console.log(data)
+  const { hasRole } = useAuth();
+  console.log(data);
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
 
   return (
@@ -23,12 +25,14 @@ export default function UniversityPage() {
             title="University"
             description="Manage universities (Server side table functionalities.)"
           />
-          <Button
-            onClick={() => setIsModalCreateOpen(true)}
-            className={"text-xs md:text-sm"}
-          >
-            <IconPlus className="mr-2 h-4 w-4" /> Add New
-          </Button>
+          {hasRole(["INSTRUCTOR1", "ADMIN"]) && (
+            <Button
+              onClick={() => setIsModalCreateOpen(true)}
+              className={"text-xs md:text-sm"}
+            >
+              <IconPlus className="mr-2 h-4 w-4" /> Add New
+            </Button>
+          )}
         </div>
         <Separator />
         {isLoading ? (

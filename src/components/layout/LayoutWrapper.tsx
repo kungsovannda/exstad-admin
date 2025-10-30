@@ -18,7 +18,7 @@ export default function LayoutWrapper({
   const preference = useAppSelector((state) => state.preference);
   return (
     <>
-      {noLayout.includes(pathname) ? (
+      {noLayout.includes(pathname) || pathname.includes("/check-in") ? (
         children
       ) : (
         <SidebarProvider defaultOpen={preference.sidebar?.parent?.defaultOpen}>

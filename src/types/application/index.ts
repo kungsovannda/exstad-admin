@@ -14,4 +14,7 @@ export type ApplicantLetterRequest = {
   issueDate: string;
   number: string;
   tableNumber: string;
+  enrollmentUuid: string;
+  programSlug?: string;
+  generation?: number;
 };

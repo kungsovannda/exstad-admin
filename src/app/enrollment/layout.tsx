@@ -171,6 +171,11 @@ export default function EnrollmentLayout({
   const [open, setOpen] = useState(false);
   const preference = useAppSelector((state) => state.preference.sidebar);
 
+  const pathname = usePathname();
+  if (pathname.includes("/check-in")) {
+    return <>{children}</>;
+  }
+
   return (
     <main className="flex flex-row h-content overflow-y-hidden">
       <SidebarProvider open={open} defaultOpen={open}>

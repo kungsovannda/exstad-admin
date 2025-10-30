@@ -1,9 +1,10 @@
 import { ActiveThemeProvider } from "@/components/active-theme";
 import ThemeProvider from "@/components/layout/theme-toggle/ThemeProvider";
+import { fontVariables } from "@/lib/font";
 import StoreProvider from "@/lib/providers";
 import { cn } from "@/lib/utils";
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter, Kantumruy_Pro } from "next/font/google";
+import { Inter, Kantumruy_Pro } from "next/font/google";
 import { cookies } from "next/headers";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import AuthProvider from "../components/layout/AuthProvider";
@@ -11,7 +12,6 @@ import LayoutWrapper from "../components/layout/LayoutWrapper";
 import "./globals.css";
 import { SessionWatcher } from "./SessionWatcher";
 import "./theme.css";
-import { fontVariables } from "@/lib/font";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -74,24 +74,24 @@ export default async function RootLayout({
         )}
       >
         <AuthProvider>
-          <SessionWatcher />
-          <NuqsAdapter>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange={false}
-              enableColorScheme
-            >
-              <StoreProvider>
+          <StoreProvider>
+            <SessionWatcher />
+            <NuqsAdapter>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange={false}
+                enableColorScheme
+              >
                 <ActiveThemeProvider>
                   {/* <Suspense fallback={<Loader />}> */}
                   <LayoutWrapper>{children}</LayoutWrapper>
                   {/* </Suspense> */}
                 </ActiveThemeProvider>
-              </StoreProvider>
-            </ThemeProvider>
-          </NuqsAdapter>
+              </ThemeProvider>
+            </NuqsAdapter>
+          </StoreProvider>
         </AuthProvider>
       </body>
     </html>

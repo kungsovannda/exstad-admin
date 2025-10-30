@@ -25,12 +25,15 @@ import { useEffect, useState } from "react";
 import { toRole, User } from "@/types/user";
 import { toGender } from "@/types/scholar";
 import ViewUserProfile from "@/features/user/components/ViewUserProfile";
+import { useAppDispatch } from "@/lib/hooks";
+import { removeUser } from "@/features/user/userSlice";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data: session } = useSession();
   const [user, setUser] = useState<User>();
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const dispatch = useAppDispatch();
 
   const { data: userDb } = useGetUserByEmailQuery(session?.user.email ?? "", {
     skip: !session,
@@ -136,7 +139,13 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={() => signOut()}>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                dispatch(removeUser());
+                signOut();
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

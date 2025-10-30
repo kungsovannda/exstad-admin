@@ -13,6 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useSoftDeleteCurrentAddressMutation } from "../../currentAddressApi";
 import { ViewCurrentAddress } from "../ViewCurrentAddress";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function CurrentAddressCellAction({
   data,
@@ -22,6 +23,7 @@ export default function CurrentAddressCellAction({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [deleteCurrentAddress] = useSoftDeleteCurrentAddressMutation();
+  const { hasRole } = useAuth();
 
   const onDelete = () => {
     if (!data) return;
@@ -49,12 +51,14 @@ export default function CurrentAddressCellAction({
         <DropdownMenuItem onClick={() => setIsViewOpen(true)}>
           View Details
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setIsDeleteOpen(true)}
-          variant="destructive"
-        >
-          Delete
-        </DropdownMenuItem>
+        {hasRole("ADMIN") && (
+          <DropdownMenuItem
+            onClick={() => setIsDeleteOpen(true)}
+            variant="destructive"
+          >
+            Delete
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
       {isViewOpen && (
         <ViewCurrentAddress

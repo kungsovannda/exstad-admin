@@ -34,7 +34,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import type QRCodeStyling from "qr-code-styling";
+import QRCodeStyling from "qr-code-styling";
 import { Options } from "qr-code-styling";
 
 type DotType =
@@ -243,9 +243,8 @@ export default function QRCodeGeneratorModal({
 
   const downloadQR = (extension: FileExtension) => {
     if (qrCode.current) {
-      // For high quality download, regenerate at higher resolution
       const originalWidth = 300;
-      const downloadWidth = 2000; // High resolution for downloads
+      const downloadWidth = 2000;
 
       const tempQR = qrCode.current;
       const currentOptions: Partial<Options> = {
@@ -296,7 +295,6 @@ export default function QRCodeGeneratorModal({
         image: logoUrl || undefined,
       };
 
-      // Create temporary high-res QR code for download
       import("qr-code-styling").then((QRCodeStylingModule) => {
         const QRCodeStyling = QRCodeStylingModule.default;
         const highResQR = new QRCodeStyling(currentOptions);
@@ -315,7 +313,6 @@ export default function QRCodeGeneratorModal({
 
       toast.loading("Generating QR code file...");
 
-      // Get the canvas element from the QR code
       const canvas = qrCodeRef.current?.querySelector("canvas");
 
       if (!canvas) {
@@ -324,7 +321,6 @@ export default function QRCodeGeneratorModal({
         return;
       }
 
-      // Convert canvas to blob
       canvas.toBlob(
         async (blob) => {
           if (!blob) {
@@ -338,12 +334,10 @@ export default function QRCodeGeneratorModal({
           toast.dismiss();
           toast.success("QR code generated successfully!");
 
-          // Console log for debugging
           console.log("QR Code File:", file);
           console.log("File size:", file.size, "bytes");
           console.log("File type:", file.type);
 
-          // If callback provided, pass file to parent component
           if (onFileGenerated) {
             onFileGenerated(file);
           }
@@ -884,4 +878,252 @@ export default function QRCodeGeneratorModal({
       </DialogContent>
     </Dialog>
   );
+}
+
+interface GenerateQROptions {
+  text: string;
+  size?: number;
+  dotsColor?: string;
+  backgroundColor?: string;
+  dotsType?:
+    | "rounded"
+    | "dots"
+    | "classy"
+    | "classy-rounded"
+    | "square"
+    | "extra-rounded";
+  cornerSquareType?: "dot" | "square" | "extra-rounded";
+  cornerDotType?: "dot" | "square";
+  logoUrl?: string;
+  logoSize?: number;
+  logoMargin?: number;
+}
+
+// // Generate QR code as File
+export async function generateQRCodeFile(
+  options: GenerateQROptions
+): Promise<File> {
+  const {
+    text,
+    size = 2000,
+    dotsColor = "#000000",
+    backgroundColor = "#ffffff",
+    dotsType = "rounded",
+    cornerSquareType = "extra-rounded",
+    cornerDotType = "dot",
+    logoUrl,
+    logoSize = 0.4,
+    logoMargin = 10,
+  } = options;
+
+  return new Promise((resolve, reject) => {
+    try {
+      const qrConfig: Partial<Options> = {
+        width: size,
+        height: size,
+        type: "canvas",
+        data: text,
+        margin: 10,
+        qrOptions: {
+          typeNumber: 0,
+          mode: "Byte",
+          errorCorrectionLevel: "H",
+        },
+        dotsOptions: {
+          color: dotsColor,
+          type: dotsType,
+        },
+        backgroundOptions: {
+          color: backgroundColor,
+        },
+        cornersSquareOptions: {
+          color: dotsColor,
+          type: cornerSquareType,
+        },
+        cornersDotOptions: {
+          color: dotsColor,
+          type: cornerDotType,
+        },
+      };
+
+      // Only add image options if logoUrl exists
+      if (logoUrl) {
+        qrConfig.imageOptions = {
+          crossOrigin: "anonymous",
+          margin: logoMargin,
+          imageSize: logoSize,
+          hideBackgroundDots: true,
+        };
+        qrConfig.image = logoUrl;
+      }
+
+      const qrCode = new QRCodeStyling(qrConfig);
+
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "absolute";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.top = "-9999px";
+      document.body.appendChild(tempContainer);
+
+      qrCode.append(tempContainer);
+
+      // Increase timeout, especially for logos
+      const renderDelay = logoUrl ? 2000 : 1000;
+
+      setTimeout(() => {
+        try {
+          const canvas = tempContainer.querySelector(
+            "canvas"
+          ) as HTMLCanvasElement;
+
+          if (!canvas) {
+            document.body.removeChild(tempContainer);
+            reject(new Error("Failed to generate QR code canvas"));
+            return;
+          }
+
+          // Verify canvas has content before converting
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            const hasContent = imageData.data.some(
+              (pixel) => pixel !== 255 && pixel !== 0
+            );
+
+            if (!hasContent) {
+              console.warn("Canvas appears empty, waiting longer...");
+              // Try again after additional delay
+              setTimeout(() => {
+                canvas.toBlob(
+                  (blob) => {
+                    document.body.removeChild(tempContainer);
+
+                    if (!blob) {
+                      reject(new Error("Failed to generate QR code blob"));
+                      return;
+                    }
+
+                    const file = new File([blob], "qrcode.png", {
+                      type: "image/png",
+                    });
+                    console.log(
+                      "✅ QR Code generated (retry):",
+                      file.size,
+                      "bytes"
+                    );
+                    resolve(file);
+                  },
+                  "image/png",
+                  1.0
+                );
+              }, 1000);
+              return;
+            }
+          }
+
+          canvas.toBlob(
+            (blob) => {
+              document.body.removeChild(tempContainer);
+
+              if (!blob) {
+                reject(new Error("Failed to generate QR code blob"));
+                return;
+              }
+
+              const file = new File([blob], "qrcode.png", {
+                type: "image/png",
+              });
+              console.log("✅ QR Code generated:", file.size, "bytes");
+              resolve(file);
+            },
+            "image/png",
+            1.0
+          );
+        } catch (err) {
+          if (document.body.contains(tempContainer)) {
+            document.body.removeChild(tempContainer);
+          }
+          reject(err);
+        }
+      }, renderDelay);
+    } catch (error) {
+      document.querySelectorAll('[style*="-9999px"]').forEach((el) => {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      });
+      reject(error);
+    }
+  });
+}
+
+// Helper function to convert File to base64
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      console.log("📄 Base64 length:", base64.length);
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Generate QR code as base64 string (for email)
+export async function generateQRCodeBase64(
+  options: GenerateQROptions
+): Promise<string> {
+  const file = await generateQRCodeFile(options);
+  const base64 = await fileToBase64(file);
+
+  // Validate the base64 string
+  if (base64.length < 1000) {
+    throw new Error("Generated QR code appears to be empty or invalid");
+  }
+
+  return base64;
+}
+
+// types/qrCode.ts (or add to your existing types file
+
+export interface QRCodeConfig {
+  width: number;
+  height: number;
+  type: "canvas" | "svg";
+  data: string;
+  margin: number;
+  qrOptions: {
+    typeNumber: number;
+    mode: "Byte";
+    errorCorrectionLevel: "L" | "M" | "Q" | "H";
+  };
+  dotsOptions: {
+    color: string;
+    type: DotType;
+  };
+  backgroundOptions: {
+    color: string;
+  };
+  cornersSquareOptions: {
+    color: string;
+    type: CornerSquareType;
+  };
+  cornersDotOptions: {
+    color: string;
+    type: CornerDotType;
+  };
+  imageOptions?: {
+    crossOrigin: "anonymous";
+    margin: number;
+    imageSize: number;
+    hideBackgroundDots?: boolean;
+  };
+  image?: string;
 }

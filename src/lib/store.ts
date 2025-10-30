@@ -29,8 +29,10 @@ import { ScholarClassApi } from "@/features/opening-program/components/scholar-c
 import { InstructorClassApi } from "@/features/opening-program/components/instructor-class/instructorClassApi";
 import { roadmapApi } from "@/features/master-program/components/roadmap/save-roadmap-api";
 import preferenceReducer from "@/features/preference/preferenceSlice";
+import userReducer from "@/features/user/userSlice";
 import { technologyApi } from "@/features/master-program/components/technology/technologyApi";
 import { applicantLetterApi } from "@/features/application/applicationApi";
+import { emailApi } from "@/features/email/emailApi";
 
 const rootReducer = combineReducers({
   [currentAddressApi.reducerPath]: currentAddressApi.reducer,
@@ -62,14 +64,16 @@ const rootReducer = combineReducers({
   [roadmapApi.reducerPath]: roadmapApi.reducer,
   [technologyApi.reducerPath]: technologyApi.reducer,
   [applicantLetterApi.reducerPath]: applicantLetterApi.reducer,
+  [emailApi.reducerPath]: emailApi.reducer,
   preference: preferenceReducer,
+  userReducer: userReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
   blacklist: [currentAddressApi.reducerPath, provinceApi.reducerPath], // optional
-  whitelist: ["preference"],
+  whitelist: ["preference", "user"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -107,7 +111,8 @@ export const makeStore = () => {
         InstructorClassApi.middleware,
         roadmapApi.middleware,
         technologyApi.middleware,
-        applicantLetterApi.middleware
+        applicantLetterApi.middleware,
+        emailApi.middleware
       ),
   });
 
