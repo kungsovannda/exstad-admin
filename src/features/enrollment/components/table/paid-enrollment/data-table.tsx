@@ -223,7 +223,7 @@ export function PaidEnrollmentTable<TValue>({
         programSlug: program?.slug ?? "null",
         filename: `check_in_${enrollment.englishName}_${enrollment.uuid}_${
           new Date().toISOString().split("T")[0]
-        }`
+        }_${Date.now()}`
           .toLowerCase()
           .replaceAll(" ", "_"),
       }).unwrap();
