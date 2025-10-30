@@ -35,15 +35,16 @@ export const ActivityColumns = (
       enableResizing: false,
       size: 30,
     },
+    {
+      id: "order",
+      header: "#",
+      cell: ({ row, table }) => table.getRowModel().rows.indexOf(row) + 1,
+      size: 50,
+    },
     { 
       accessorKey: "title", 
       header: "Title" ,
       enableColumnFilter:true,
-      meta: {
-        variant:"text",
-        placeholder:"Search activity...",
-        label:"Activity "
-      }
     },
     {
       accessorKey: "description",

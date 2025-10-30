@@ -69,7 +69,7 @@ export function MasterProgramStatisticCard({
       <DefaultStatisticCard
         title="Scholarship Courses"
         icon={BookText  }
-        total={shortCourses}
+        total={scholarshipCourses}
         isLoading={isLoading}
         description="Courses available with scholarships"
       />

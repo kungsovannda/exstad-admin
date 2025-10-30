@@ -23,6 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { MasterProgramPieChart } from "@/features/master-program/components/program-type-chart";
 
 
 export default function MasterProgramPage() {
@@ -45,6 +46,16 @@ export default function MasterProgramPage() {
     },
     { basic: 0, intermediate: 0, advanced: 0 }
   );
+
+  // const typeCounts = masterProgram.reduce(
+  //   (acc,program) => {
+  //     const type = program.?.toLocaleLowerCase();
+  //     if(type === "public") acc.public +=1;
+  //     else if (type === "private") acc.private +=1;
+  //     return acc;
+  //   } ,
+  //   {public:}
+  // )
 
   const openingCounts = masterProgram.map((mp) => {
     const count = openingPrograms.filter(
@@ -76,8 +87,9 @@ export default function MasterProgramPage() {
       />
       <div className="grid grid-cols-2 gap-5 h-fit">
         <LevelPieCard levelCounts={levelCounts} />
-        <ProgramBarCard data={openingCounts} />
+        <MasterProgramPieChart MasterProgram={masterProgram}  />
       </div>
+        <ProgramBarCard data={openingCounts} />
       <Card className="flex flex-col space-y-4 rounded-lg shadow-sm">
         <CardHeader className="items-center pb-2">
           <CardTitle>Master Program Overview</CardTitle>

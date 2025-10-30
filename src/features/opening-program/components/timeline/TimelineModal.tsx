@@ -32,14 +32,38 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-
+import { cn } from "@/lib/utils";
 // -----------------
 // Validation schema
 // -----------------
 const timelineSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  startDate: z.string().min(1, "Start Date is required"),
-  endDate: z.string().min(1, "End Date is required"),
+  startDate: z
+    .date()
+    .min(1, "Start Date is required")
+    .refine(
+      (date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for comparison
+        return date >= today;
+      },
+      {
+        message: "Deadline must be today or a future date",
+      }
+    ),
+  endDate: z
+    .date()
+    .min(1, "End Date is required")
+    .refine(
+      (date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for comparison
+        return date >= today;
+      },
+      {
+        message: "Deadline must be today or a future date",
+      }
+    ),
 });
 
 export type TimelineFormValues = z.infer<typeof timelineSchema>;
@@ -67,18 +91,22 @@ export default function TimelineFormModal({
 
   const form = useForm<TimelineFormValues>({
     resolver: zodResolver(timelineSchema),
-    defaultValues: initialData || { title: "", startDate: "", endDate: "" },
+    defaultValues: initialData || {
+      title: "",
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   });
 
   const { handleSubmit, reset, clearErrors, control } = form;
-    const [openDate, setOpenDate] = useState(false); // ✅ control popover visibility
+  const [openDate, setOpenDate] = useState(false); // ✅ control popover visibility
 
   useEffect(() => {
     if (!open) return;
     reset({
       title: initialData?.title || "",
-      startDate: initialData?.startDate || "",
-      endDate: initialData?.endDate || "",
+      startDate: initialData?.startDate || new Date(),
+      endDate: initialData?.endDate || new Date(),
     });
     clearErrors();
   }, [open]);
@@ -108,10 +136,7 @@ export default function TimelineFormModal({
 
   // 🔹 Date change handler (closes popover after select)
   const handleDateChange =
-    (
-      fieldName: keyof TimelineFormValues,
-      onChange: (value: string) => void
-    ) =>
+    (fieldName: keyof TimelineFormValues, onChange: (value: string) => void) =>
     (date: Date | undefined) => {
       if (!date) return;
       const formatted = date.toISOString().split("T")[0];
@@ -171,91 +196,79 @@ export default function TimelineFormModal({
             />
 
             {/* Start Date */}
-{/* Start Date */}
-<FormField
-  control={control}
-  name="startDate"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Start Date</FormLabel>
-      <Popover
-        open={openPopover.startDate}
-        onOpenChange={(isOpen) =>
-          setOpenPopover((prev) => ({
-            ...prev,
-            startDate: isOpen,
-          }))
-        }
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={`w-full justify-between text-left ${
-              !field.value ? "text-muted-foreground" : ""
-            }`}
-          >
-            <span>
-              {field.value
-                ? format(new Date(field.value), "PPP")
-                : "Select start date"}
-            </span>
-            <CalendarIcon className="h-4 w-4 opacity-70" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
-          <Calendar
-            mode="single"
-            selected={field.value ? new Date(field.value) : undefined}
-            onSelect={handleDateChange("startDate", field.onChange)}
-            captionLayout="dropdown"
-            className="rounded-md border"
-          />
-        </PopoverContent>
-      </Popover>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
-
-            {/* End Date */}
+            {/* Start Date */}
             <FormField
-              control={control}
-              name="endDate"
+              control={form.control}
+              name="startDate"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date</FormLabel>
-                  <Popover
-                    open={openPopover.endDate}
-                    onOpenChange={(isOpen) =>
-                      setOpenPopover((prev) => ({
-                        ...prev,
-                        endDate: isOpen,
-                      }))
-                    }
-                  >
+                <FormItem className="flex flex-col">
+                  <FormLabel>Start Date</FormLabel>
+                  <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between text-left"
-                      >
-                        <span>
-                          {field.value
-                            ? format(new Date(field.value), "PPP")
-                            : "Select end date"}
-                        </span>
-                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                      </Button>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                        onSelect={handleDateChange("endDate", field.onChange)}
+                        selected={field.value}
                         captionLayout="dropdown"
-                        className="rounded-md border"
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* End Date */}
+            <FormField
+              control={form.control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Start Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        captionLayout="dropdown"
+                        onSelect={field.onChange}
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>

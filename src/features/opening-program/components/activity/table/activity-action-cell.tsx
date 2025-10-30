@@ -29,12 +29,14 @@ export function ActivityActionsCell({ activities, onEdit, onDelete }: ActivityAc
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+          <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer"
+          onPointerDown={(e) => e.stopPropagation()}>
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end"
+        onPointerDown={(e) => e.stopPropagation()}>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit?.(activities)}><SquarePen size={16} className="text-primary-hover "/>Edit</DropdownMenuItem>

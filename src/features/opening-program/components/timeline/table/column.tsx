@@ -14,12 +14,14 @@ import { format } from "date-fns";
 import { TimelineActionsCell } from "./action-cell";
 import { TimelineType } from "@/types/opening-program";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // -----------------
 // DateCell component
 // -----------------
 interface DateCellProps {
-  value?: string; // ✅ now string (from backend)
+  value?: string | Date; // ✅ supports both string ("YYYY-MM-DD") and Date
   onChange: (date: string) => void;
   placeholder?: string;
 }
@@ -27,9 +29,15 @@ interface DateCellProps {
 export function DateCell({
   value,
   onChange,
-  placeholder = "Select",
+  placeholder = "Select date",
 }: DateCellProps) {
-  const parsedDate = value ? new Date(value) : undefined;
+  // ✅ Safely handle both string and Date values
+  const parsedDate =
+    value instanceof Date
+      ? value
+      : value && !isNaN(Date.parse(value))
+      ? new Date(value)
+      : undefined;
 
   return (
     <Popover>
@@ -37,28 +45,43 @@ export function DateCell({
         <Button
           variant="outline"
           size="sm"
-          className="w-fit justify-between text-left"
-          onPointerDown={(e) => e.stopPropagation()}
+          className={cn(
+            "w-fit justify-between text-left font-normal",
+            !parsedDate && "text-muted-foreground"
+          )}
+          onPointerDown={(e) => e.stopPropagation()} // prevent row click
         >
           {parsedDate ? format(parsedDate, "PPP") : placeholder}
-          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
         className="w-auto p-0"
-        onPointerDown={(e) => e.stopPropagation()}
+        align="start"
+        onPointerDown={(e) => e.stopPropagation()} // prevent closing issue
       >
-        <Calendar
-          mode="single"
-          selected={parsedDate}
-          onSelect={(date) =>
-            date && onChange(date.toISOString().split("T")[0])
-          }
-          // ✅ save back as string "YYYY-MM-DD"
-          required={false}
-          captionLayout="dropdown"
-          className="rounded-md border"
-        />
+       
+<Calendar
+  mode="single"
+  captionLayout="dropdown"
+  selected={parsedDate}
+  onSelect={(date) => {
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // remove time portion
+
+      if (date < today) {
+        toast.error("Date must be today or in the future"); 
+        return; // prevent selecting past date
+      }
+
+      const formatted = format(date, "yyyy-MM-dd");
+      onChange(formatted);
+    }
+  }}
+  initialFocus
+  className="rounded-md border"
+/>
       </PopoverContent>
     </Popover>
   );
