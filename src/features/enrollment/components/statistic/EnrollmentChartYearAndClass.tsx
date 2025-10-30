@@ -17,7 +17,7 @@ import React from "react";
 import { LabelList, Pie, PieChart } from "recharts";
 
 type ChartDataItem = {
-  level: string;
+  year: string;
   count: number;
   fill: string;
 };
@@ -32,17 +32,13 @@ const chartColors = [
   "var(--chart-7)",
 ];
 
-function QualificationLevelPieCard({
-  chartData,
-}: {
-  chartData: ChartDataItem[];
-}) {
+function YearPieCard({ chartData }: { chartData: ChartDataItem[] }) {
   const chartConfig: ChartConfig = React.useMemo(() => {
     const config: ChartConfig = {};
     chartData.forEach((item, index) => {
-      const key = item.level.toLowerCase().replace(/\s+/g, "");
+      const key = item.year.toLowerCase().replace(/\s+/g, "");
       config[key] = {
-        label: item.level,
+        label: item.year,
         color: chartColors[index % chartColors.length],
       };
     });
@@ -52,10 +48,8 @@ function QualificationLevelPieCard({
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
-        <CardTitle>Enrollment by Qualification</CardTitle>
-        <CardDescription>
-          Distribution of scholars across qualification levels
-        </CardDescription>
+        <CardTitle>Enrollment by Year</CardTitle>
+        <CardDescription>Distribution of scholars across years</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-2">
         <ChartContainer config={chartConfig} className="mx-auto h-fit w-full">
@@ -72,7 +66,7 @@ function QualificationLevelPieCard({
             <Pie
               data={chartData}
               dataKey="count"
-              nameKey="level"
+              nameKey="year"
               cx="50%"
               cy="50%"
               outerRadius={120}
@@ -81,7 +75,7 @@ function QualificationLevelPieCard({
               strokeWidth={2}
             >
               <LabelList
-                dataKey="level"
+                dataKey="year"
                 className="text-primary"
                 fontSize={12}
                 position="outside"
@@ -106,13 +100,13 @@ function QualificationLevelPieCard({
   );
 }
 
-function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
+function ClassCodePieCard({ chartData }: { chartData: ChartDataItem[] }) {
   const chartConfig: ChartConfig = React.useMemo(() => {
     const config: ChartConfig = {};
     chartData.forEach((item, index) => {
-      const key = item.level.toLowerCase().replace(/\s+/g, "");
+      const key = item.year.toLowerCase().replace(/\s+/g, "");
       config[key] = {
-        label: item.level,
+        label: item.year,
         color: chartColors[index % chartColors.length],
       };
     });
@@ -122,9 +116,9 @@ function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
   return (
     <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
-        <CardTitle>Enrollments by Class Shift</CardTitle>
+        <CardTitle>Enrollments by Class Code</CardTitle>
         <CardDescription>
-          Distribution of scholars based on class shifts
+          Distribution of scholars based on class codes
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-2">
@@ -142,7 +136,7 @@ function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
             <Pie
               data={chartData}
               dataKey="count"
-              nameKey="level"
+              nameKey="year"
               cx="50%"
               cy="50%"
               outerRadius={120}
@@ -151,7 +145,7 @@ function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
               strokeWidth={2}
             >
               <LabelList
-                dataKey="level"
+                dataKey="year"
                 className="text-primary"
                 fontSize={12}
                 position="outside"
@@ -174,7 +168,7 @@ function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: item.fill }}
             ></div>
-            <span className="text-xs">{item.level}</span>
+            <span className="text-xs">{item.year}</span>
           </div>
         ))}
       </CardFooter>
@@ -182,49 +176,52 @@ function ShiftPieCard({ chartData }: { chartData: ChartDataItem[] }) {
   );
 }
 
-export default function EnrollmentChart({ data }: { data: Enrollment[] }) {
-  const qualificationChartData = React.useMemo(() => {
+export default function EnrollmentChartYearAndClass({
+  data,
+}: {
+  data: Enrollment[];
+}) {
+  const yearChartData = React.useMemo(() => {
     if (!data || !Array.isArray(data)) {
       return [];
     }
 
-    const qualificationCounts: Record<string, number> = {};
+    const yearCounts: Record<string, number> = {};
 
     data.forEach((enrollment: Enrollment) => {
-      const qualification = enrollment.educationQualification?.trim();
-      if (qualification) {
-        qualificationCounts[qualification] =
-          (qualificationCounts[qualification] || 0) + 1;
+      const year = enrollment.extra.year?.trim();
+      if (year) {
+        yearCounts[year] = (yearCounts[year] || 0) + 1;
       }
     });
 
-    return Object.entries(qualificationCounts)
-      .map(([level, count], index) => ({
-        level,
+    return Object.entries(yearCounts)
+      .map(([year, count], index) => ({
+        year,
         count,
         fill: chartColors[index % chartColors.length],
       }))
       .sort((a, b) => b.count - a.count);
   }, [data]);
 
-  // Process class shift data
-  const shiftChartData = React.useMemo(() => {
+  // Process class code data
+  const classCodeChartData = React.useMemo(() => {
     if (!data || !Array.isArray(data)) {
       return [];
     }
 
-    const shiftCounts: Record<string, number> = {};
+    const classCodeCounts: Record<string, number> = {};
 
     data.forEach((enrollment: Enrollment) => {
-      const shift = enrollment._class?.shift?.trim();
-      if (shift) {
-        shiftCounts[shift] = (shiftCounts[shift] || 0) + 1;
+      const classCode = enrollment._class?.classCode?.trim();
+      if (classCode) {
+        classCodeCounts[classCode] = (classCodeCounts[classCode] || 0) + 1;
       }
     });
 
-    return Object.entries(shiftCounts)
-      .map(([level, count], index) => ({
-        level,
+    return Object.entries(classCodeCounts)
+      .map(([year, count], index) => ({
+        year,
         count,
         fill: chartColors[index % chartColors.length],
       }))
@@ -233,8 +230,8 @@ export default function EnrollmentChart({ data }: { data: Enrollment[] }) {
 
   return (
     <div className="grid grid-cols-2 gap-5 h-full">
-      <QualificationLevelPieCard chartData={qualificationChartData} />
-      <ShiftPieCard chartData={shiftChartData} />
+      <YearPieCard chartData={yearChartData} />
+      <ClassCodePieCard chartData={classCodeChartData} />
     </div>
   );
 }

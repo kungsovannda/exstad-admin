@@ -67,6 +67,7 @@ export type technologyType = {
   image: string;
   title:string;
   description:string;
+  _clientId: string; 
 }
 export type LearningOutcomeType = {
   id: string;

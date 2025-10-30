@@ -69,12 +69,13 @@ export type ActivityType = {
   title: string;
   description: string;
   image: string;
+  _clientId: string;
 };
 
 export type TimelineType = {
   title: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   _clientId: string; // 🔑 local unique id
 };
 

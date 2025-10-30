@@ -60,8 +60,7 @@ export default function ProgramSetup() {
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6 bg-accent p-2 rounded-[10px] w-fit cursor-pointer">
-        
-         <Button
+        <Button
           className="cursor-pointer"
           variant={tab === "roadmap" ? "default" : "outline"}
           onClick={() => setTab("roadmap")}
@@ -96,15 +95,14 @@ export default function ProgramSetup() {
         >
           Curriculum
         </Button>
-         <Button
+        <Button
           className="cursor-pointer"
           variant={tab === "faq" ? "default" : "outline"}
           onClick={() => setTab("faq")}
         >
           FAQ
         </Button>
-       
-       
+
         <Button
           className="cursor-pointer"
           variant={tab === "highlight" ? "default" : "outline"}

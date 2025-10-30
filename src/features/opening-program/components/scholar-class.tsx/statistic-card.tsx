@@ -16,7 +16,7 @@ export function StatisticCard({
   isLoading = false,
 }: StatisticCardProps) {
   const [total, setTotal] = useState<State>({ total: 0, male: 0, female: 0 });
-  const [paid, setPaid] = useState<State>({ total: 0, male: 0, female: 0 });
+  const [paid, setPaid] = useState<State>({ total: 0, });
   const [reminded, setReminded] = useState<State>({ total:0,male:0,female:0});
 
   useEffect(() => {

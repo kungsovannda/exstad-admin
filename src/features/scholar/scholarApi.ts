@@ -274,7 +274,7 @@ export const scholarApi = createApi({
     }),
     // Mark a course as completed for a scholar
     removeCompletedCourse: builder.mutation<
-      Scholar, 
+      Scholar,
       { scholarUuid: string; openingProgramUuid: string }
     >({
       query: ({ scholarUuid, openingProgramUuid }) => ({
@@ -283,8 +283,7 @@ export const scholarApi = createApi({
       }),
       invalidatesTags: (result, error, { scholarUuid }) => [
         { type: "Scholar", id: scholarUuid },
-        { type: "Scholar", id: "LIST" }, 
-        
+        { type: "Scholar", id: "LIST" },
       ],
     }),
 

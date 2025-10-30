@@ -3,7 +3,7 @@ import ThemeProvider from "@/components/layout/theme-toggle/ThemeProvider";
 import StoreProvider from "@/lib/providers";
 import { cn } from "@/lib/utils";
 import type { Metadata, Viewport } from "next";
-import { Inter, Kantumruy_Pro } from "next/font/google";
+import { Geist_Mono, Inter, Kantumruy_Pro } from "next/font/google";
 import { cookies } from "next/headers";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import AuthProvider from "../components/layout/AuthProvider";
@@ -11,6 +11,7 @@ import LayoutWrapper from "../components/layout/LayoutWrapper";
 import "./globals.css";
 import { SessionWatcher } from "./SessionWatcher";
 import "./theme.css";
+import { fontVariables } from "@/lib/font";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -68,7 +69,8 @@ export default async function RootLayout({
           "bg-background font-sans antialiased",
           activeThemeValue ? `theme-${activeThemeValue}` : "",
           isScaled ? "theme-scaled" : "",
-          `${inter.variable} ${koh.variable}`
+          `${inter.variable} ${koh.variable}`,
+          fontVariables
         )}
       >
         <AuthProvider>

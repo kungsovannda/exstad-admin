@@ -41,8 +41,9 @@ function OpeningProgramEdit() {
     price: openingProgram.price || 0,
     totalSlot: openingProgram.totalSlot || 0,
     duration: openingProgram.duration || "",
-    deadline: openingProgram.deadline || "",
-    thumbnail: openingProgram.thumbnail || "",
+  deadline: openingProgram.deadline
+    ? new Date(openingProgram.deadline) 
+    : new Date(),    thumbnail: openingProgram.thumbnail || "",
     posterUrl: openingProgram.posterUrl || "",
     slug: openingProgram.slug || "",
     status: openingProgram.status || "DRAFT",
@@ -57,7 +58,8 @@ function OpeningProgramEdit() {
       ...values,
       slug: values.slug,
       status: values.status ?? "OPEN",
-  
+      deadline: values.deadline.toISOString(), // ✅ convert Date -> string
+
     };
 
     try {

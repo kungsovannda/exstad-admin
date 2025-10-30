@@ -6,8 +6,8 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 export type TimelinePayload = {
     title:string;
-    startDate:string;
-    endDate:string;
+    startDate:Date;
+    endDate:Date;
 };
 
 export const TimelineApi = createApi({

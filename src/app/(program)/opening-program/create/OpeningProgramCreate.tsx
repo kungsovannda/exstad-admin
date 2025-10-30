@@ -34,10 +34,10 @@ export default function OpeningProgramCreate() {
           ? values.posterUrl
           : "https://example.com/thumbnails/fsd.png";
 
-      const qrCodeUrl = 
+      const qrCodeUrl =
         values.qrCodeUrl && values.qrCodeUrl.startsWith("http")
           ? values.qrCodeUrl
-          : "https://example.com/thumbnails/fsd.png"
+          : "https://example.com/thumbnails/fsd.png";
 
       const curriculumPdfUri = values.curriculumPdfUri || "";
 
@@ -57,7 +57,10 @@ export default function OpeningProgramCreate() {
         telegramGroup: values.telegramGroup || "",
         status: values.status!,
         qrCodeUrl: qrCodeUrl,
-        deadline: values.deadline,
+        deadline:
+          values.deadline instanceof Date
+            ? values.deadline.toISOString().split("T")[0]
+            : values.deadline,
         registerFee,
       };
 
@@ -66,9 +69,9 @@ export default function OpeningProgramCreate() {
       await toast.promise(createOpeningProgram(payload).unwrap(), {
         loading: "Creating...",
         success: () => {
-        router.push("/opening-program");
-      return "Created successfully!";
-    },
+          router.push("/opening-program");
+          return "Created successfully!";
+        },
         error: (err) => `Failed: ${err.message || err}`,
       });
     } catch (err: unknown) {
@@ -77,5 +80,11 @@ export default function OpeningProgramCreate() {
     }
   };
 
-  return <OpeningProgramForm onSubmit={handleSubmit} submitLabel="Create" onSlugEdited={() => setIsSlugEdited(true)} />;
+  return (
+    <OpeningProgramForm
+      onSubmit={handleSubmit}
+      submitLabel="Create"
+      onSlugEdited={() => setIsSlugEdited(true)}
+    />
+  );
 }

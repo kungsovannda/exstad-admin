@@ -31,9 +31,16 @@ export const universityColumns: ColumnDef<University>[] = [
       const a = rowA.original.shortName;
       const b = rowB.original.shortName;
 
+      // If both are ISTAD, they're equal
+      if (a === "ISTAD" && b === "ISTAD") return 0;
+
+      // If 'a' is ISTAD, it should come before 'b' (return negative)
       if (a === "ISTAD") return -1;
+
+      // If 'b' is ISTAD, it should come before 'a' (return positive)
       if (b === "ISTAD") return 1;
 
+      // For all other cases, sort alphabetically
       return a.localeCompare(b);
     },
   },
