@@ -745,6 +745,7 @@ export default function ScholarDetails() {
                           <AchievementCard
                             key={a.uuid}
                             achievement={a.achievement}
+                            scholarUuid={scholar?.uuid ?? ""}
                           />
                         ))}
                       </div>

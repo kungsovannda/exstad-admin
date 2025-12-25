@@ -47,10 +47,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { useState } from "react";
+import { toast } from "sonner";
 const schema = z.object({
   badge: z.string(),
   completionDate: z.date(),
 });
+
+const IsScholarBadgeAssigned = (scholar: Scholar, badgeUuid: string) => {
+  return scholar.badges
+    ? scholar.badges.some((a) => a.badge.uuid === badgeUuid)
+    : false;
+};
 
 export function AssignBadgeScholar({
   open,
@@ -85,15 +92,20 @@ export function AssignBadgeScholar({
     let failure = 0;
 
     for (let i = 0; i < scholars.length; i++) {
-      try {
-        await assignBadgeScholar({
-          scholarUuid: scholars[i].uuid,
-          badgeUuid: values.badge,
-          completionDate: values.completionDate.toISOString(),
-        }).unwrap();
-        success++;
-      } catch {
+      if (IsScholarBadgeAssigned(scholars[i], values.badge)) {
+        toast.warning(`Badge already assigned to ${scholars[i].englishName}`);
         failure++;
+      } else {
+        try {
+          await assignBadgeScholar({
+            scholarUuid: scholars[i].uuid,
+            badgeUuid: values.badge,
+            completionDate: values.completionDate.toISOString(),
+          }).unwrap();
+          success++;
+        } catch {
+          failure++;
+        }
       }
       setSuccessCount(success);
       setFailureCount(failure);
