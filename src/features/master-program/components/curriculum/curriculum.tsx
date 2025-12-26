@@ -43,7 +43,7 @@ export default function CurriculumAdmin({ programUuid, openingProgramUuid }: Pro
   // ======================
   const [localCurriculums, setLocalCurriculums] = useState<CurriculumType[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([String(0)]);
   const [editingCurriculumIndex, setEditingCurriculumIndex] = useState<number | null>(null);
   const [editingSection, setEditingSection] = useState<{ curriculumIndex: number; index: number } | null>(null);
   const [addingSectionCurriculumIndex, setAddingSectionCurriculumIndex] = useState<number | null>(null);

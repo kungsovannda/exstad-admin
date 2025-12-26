@@ -15,15 +15,36 @@ import {
   CheckCircle2,
   GraduationCap,
   MoreHorizontal,
+  Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import ModalDelete from "@/components/modal/ModalDelete";
+import { useSoftDeleteScholarMutation } from "@/features/scholar/scholarApi";
+import { toast } from "sonner";
 
 export default function ScholarCellAction({ data }: { data: Scholar }) {
   const router = useRouter();
+  const { hasRole } = useAuth();
   const [isAssignBadgeModalOpen, setIsAssignBadgeModalOpen] = useState(false);
   const [isAssignAchievementModalOpen, setIsAssignAchievementModalOpen] =
     useState(false);
+  const [isDeleteModalShow, setIsDeleteModalShow] = useState(false);
+  const [deleteScholar] = useSoftDeleteScholarMutation();
+  const handleOnDelete = () => {
+    if (!data) return;
+    toast.promise(deleteScholar(data.username).unwrap(), {
+      loading: "Deleting...",
+      success: () => {
+        return `${data.englishName} has been deleted`;
+      },
+      error: () => {
+        return `Cannot delete ${data.englishName}`;
+      },
+    });
+    setIsDeleteModalShow(false);
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -46,6 +67,15 @@ export default function ScholarCellAction({ data }: { data: Scholar }) {
           <Badge size={16} className="text-primary-hover" />
           Assign Achievement
         </DropdownMenuItem>
+        {hasRole("ADMIN") && (
+          <DropdownMenuItem
+            onClick={() => setIsDeleteModalShow(true)}
+            variant="destructive"
+          >
+            <Trash2 size={16} />
+            Delete
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
       {isAssignBadgeModalOpen && (
         <AssignBadgeScholar
@@ -59,6 +89,15 @@ export default function ScholarCellAction({ data }: { data: Scholar }) {
           open={isAssignAchievementModalOpen}
           onOpenChange={setIsAssignAchievementModalOpen}
           scholars={[data]}
+        />
+      )}
+      {isDeleteModalShow && (
+        <ModalDelete
+          open={isDeleteModalShow}
+          onOpenChange={setIsDeleteModalShow}
+          title="Delete Scholar"
+          onDelete={handleOnDelete}
+          description={`Are you sure you want to delete ${data.englishName}? This action cannot be undone.`}
         />
       )}
     </DropdownMenu>

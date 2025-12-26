@@ -105,12 +105,12 @@ export function UpdateProfileScholar({
         className="sm:max-w-[425px]"
       >
         <DialogHeader>
-          <DialogTitle>Update avatar</DialogTitle>
+          <DialogTitle>Update Scholar Profile</DialogTitle>
           <DialogDescription>Choose the avatar to update</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
-            id="update-badge-form"
+            id="update-profile-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4"
           >
@@ -171,7 +171,7 @@ export function UpdateProfileScholar({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button form="update-badge-form" type="submit">
+          <Button form="update-profile-form" type="submit">
             Save Changes
           </Button>
         </DialogFooter>

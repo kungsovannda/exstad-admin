@@ -25,6 +25,7 @@ export type Enrollment = {
   isAchieved: boolean;
   isPassed: boolean;
   audit: Audit;
+  applicantLetter: string;
 };
 
 export type UpdateEnrollment = {

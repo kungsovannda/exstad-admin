@@ -11,62 +11,30 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import ExportToExcelModal from "@/components/ExportToExcelModal";
 import { useAppSelector } from "@/lib/hooks";
+import { DefaultTableDnd } from "@/components/table/default-table-dnd";
 
 interface ActivityTableProps {
   data:ActivityType[];
   totalItems:number;
   columns:ReturnType<typeof ActivityColumns>;
 }
-export default function ActivityTable({data,totalItems,columns}:ActivityTableProps) {
-   const searchParams = useSearchParams();
-    const perPage = searchParams.get("perPage")
-      ? Number(searchParams.get("perPage"))
-      : 10;
-  
-    const { table } = useDataTable({
-      data,
-      columns,
-      pageCount: Math.ceil(totalItems / perPage),
-      shallow: true,
-      debounceMs: 200,
-      enableGlobalFilter: true,
-      enableColumnFilters: true,
-      enableSorting: true,
-    });
-  
-    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-    const preference = useAppSelector((state) => state.preference);
-  
-    const handleExport = async (selectedFields: string[]) => {
-      await exportToExcel({
-        data,
-        selectedFields,
-        filename: "master-program.xlsx",
-        exportType: preference.export,
-      });
-    };
+export default function ActivityTable
+({
+  data,
+  totalItems,
+  columns,
+  onReorder
+}:ActivityTableProps & {onReorder? : (newData: ActivityType[]) => void}) {
   return (
-     <DataTable table={table}>
-      <DataTableToolbar table={table}>
-        <Button
-          size={"sm"}
-          variant={"outline"}
-          disabled={table.getSelectedRowModel().rows.length === 0}
-          onClick={() => setIsExportModalOpen(true)}
-        >
-          <Printer />
-          Export
-        </Button>
-      </DataTableToolbar>
-
-      {isExportModalOpen && (
-        <ExportToExcelModal
+     <DefaultTableDnd
           data={data}
-          open={isExportModalOpen}
-          onOpenChange={setIsExportModalOpen}
-          onExport={handleExport}
+          totalItems={totalItems}
+          columns={columns}
+          getRowId={(row) => String(row._clientId)}
+          onReorder={onReorder} 
+          enableExport
+          exportFilename="acitivity.xlsx"
+          exportType
         />
-      )}
-    </DataTable>
   );
 }

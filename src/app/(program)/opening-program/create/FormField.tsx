@@ -28,10 +28,20 @@ import { useCreateDocumentMutation } from "@/features/document/documentApi";
 import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
 import { QrCodeUploadField } from "@/features/opening-program/qrCodeUrl";
 import { ThumbnailUploadField } from "@/features/opening-program/ThumbnailUploadField";
-import { generateSlug } from "@/services/generate-slug";
-import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
 import generateFilename from "@/services/generate-filename";
+import { generateSlug } from "@/services/generate-slug";
 import { toast } from "sonner";
+import { PosterUploadField } from "../../../../features/opening-program/PosterUrl";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarIcon, Pencil } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 // ------------------- SCHEMA -------------------
 export const openingProgramformSchema = z.object({
@@ -60,8 +70,15 @@ export const openingProgramformSchema = z.object({
     z.number().min(0, { message: "Register Fee is required" })
   ),
   duration: z.string().min(1, { message: "Duration is required" }),
-  deadline: z.string().min(1, { message: "Deadline is required" }),
-  curriculumPdfUri: z.string().optional(),
+ deadline: z
+    .date({ error: "Deadline is required" })
+    .refine((date) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time for comparison
+      return date >= today;
+    }, {
+      message: "Deadline must be today or a future date",
+    }),  curriculumPdfUri: z.string().optional(),
   thumbnail: z.string().min(1, { message: "Thumbnail is required" }),
   posterUrl: z.string().min(1, { message: "Poster is required" }),
   slug: z
@@ -115,34 +132,29 @@ export default function OpeningProgramForm({
   const resolver: Resolver<OpeningProgramFormValue> = zodResolver(
     openingProgramformSchema
   ) as unknown as Resolver<OpeningProgramFormValue>;
+const form = useForm<OpeningProgramFormValue>({
+  resolver,
+  defaultValues: initialValues || {
+    programUuid: "",
+    originalFee: 0,
+    scholarship: 0,
+    price: 0,
+    generation: 0,
+    title: "",
+    telegramGroup: "",
+    totalSlot: 0,
+    duration: "",
+    deadline: new Date(),
+    curriculumPdfUri: "",
+    thumbnail: "",
+    posterUrl: "",
+    slug: "",
+    status: undefined,
+    qrCodeUrl: "",
+    registerFee: 0,
+  },
+}) as unknown as ExtendedFormReturn;
 
-  const form = useForm<OpeningProgramFormValue>({
-    resolver,
-    defaultValues: initialValues || {
-      programUuid: "",
-      originalFee: 0,
-      scholarship: 0,
-      price: 0,
-      generation: 0,
-      title: "",
-      telegramGroup: "",
-      totalSlot: 0,
-      duration: "",
-      deadline: "",
-      curriculumPdfUri: "",
-      thumbnail: "",
-      posterUrl: "",
-      slug: "",
-      status: undefined as
-        | "OPEN"
-        | "CLOSED"
-        | "ACHIEVED"
-        | "PENDING"
-        | undefined,
-      qrCodeUrl: "",
-      registerFee:0,
-    },
-  }) as ExtendedFormReturn;
 
   const { watch, setValue, reset } = form;
   const originalFee = watch("originalFee") || 0;
@@ -219,10 +231,10 @@ export default function OpeningProgramForm({
           gen: generation,
           documentType: "thumbnail",
           filename: generateFilename({
-                        type: "thumbnail",
-                        program: programSlug,
-                        generation: String(generation),
-                      }),
+            type: "thumbnail",
+            program: programSlug,
+            generation: String(generation),
+          }),
         }).unwrap();
         data.thumbnail = thumbnailRes.uri;
       }
@@ -235,10 +247,10 @@ export default function OpeningProgramForm({
           gen: generation,
           documentType: "poster",
           filename: generateFilename({
-                        type: "poster",
-                        program: programSlug,
-                        generation: String(generation),
-                      }),
+            type: "poster",
+            program: programSlug,
+            generation: String(generation),
+          }),
         }).unwrap();
         data.posterUrl = posterRes.uri;
       }
@@ -251,10 +263,10 @@ export default function OpeningProgramForm({
           gen: generation,
           documentType: "qr",
           filename: generateFilename({
-                        type: "qr",
-                        program: programSlug,
-                        generation: String(generation),
-                      }),
+            type: "qr",
+            program: programSlug,
+            generation: String(generation),
+          }),
         }).unwrap();
         data.qrCodeUrl = qrRes.uri;
       }
@@ -269,9 +281,11 @@ export default function OpeningProgramForm({
     }
   };
   const handleInvalid = (errors: FieldErrors<OpeningProgramFormValue>) => {
-    const firstErrorField = Object.keys(errors)[0] as keyof OpeningProgramFormValue;
+    const firstErrorField = Object.keys(
+      errors
+    )[0] as keyof OpeningProgramFormValue;
     const fieldError = errors[firstErrorField];
-      if (fieldError && "message" in fieldError && fieldError.message) {
+    if (fieldError && "message" in fieldError && fieldError.message) {
       toast.error(fieldError.message as string);
     }
   };
@@ -279,7 +293,7 @@ export default function OpeningProgramForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleFormSubmit,handleInvalid)}
+        onSubmit={form.handleSubmit(handleFormSubmit, handleInvalid)}
         className="space-y-8 grid w-full items-center"
       >
         {/* Program Type */}
@@ -551,36 +565,74 @@ export default function OpeningProgramForm({
             </FormItem>
           )}
         />
+       
         <FormField
-          control={form.control}
-          name="deadline"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Deadline</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. 18 AUG" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              control={form.control}
+              name="deadline"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Deadline</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        captionLayout="dropdown"
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
         {/* Curriculum PDF */}
-        <FormField
+       
+           <FormField
           control={form.control}
           name="curriculumPdfUri"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Curriculum PDF URL</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="https://example.com/curriculum.pdf"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={() => {
+            const selectedProgram = masterPrograms.find(
+              (p) => p.uuid === form.watch("programUuid")
+            );
+            const generation = form.watch("generation");
+
+            return (
+              <FormItem>
+                <FormLabel>Curriculum PDF URL</FormLabel>
+                <FormControl>
+                  <div className="space-y-4 mt-2">
+                    <ThumbnailUploadField
+                      form={form}
+                      masterProgram={selectedProgram}
+                      openingProgram={{ generation }}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
 
         {/* Thumbnail */}
@@ -595,7 +647,7 @@ export default function OpeningProgramForm({
 
             return (
               <FormItem>
-                <FormLabel>Thumbnail *</FormLabel>
+                <FormLabel>Cover *</FormLabel>
                 <FormControl>
                   <div className="space-y-4 mt-2">
                     <ThumbnailUploadField
@@ -623,7 +675,7 @@ export default function OpeningProgramForm({
 
             return (
               <FormItem>
-                <FormLabel>Poster *</FormLabel>
+                <FormLabel>Poster or Thumbnail*</FormLabel>
                 <FormControl>
                   <div className="space-y-4 mt-2">
                     <PosterUploadField
@@ -652,11 +704,13 @@ export default function OpeningProgramForm({
             return (
               <FormItem>
                 <FormLabel>QR Code *</FormLabel>
+
                 <FormControl>
                   <QrCodeUploadField
                     form={form}
                     masterProgram={selectedProgram}
                     openingProgram={{ generation }}
+                    initslug={form.watch("slug")}
                   />
                 </FormControl>
                 <FormMessage />

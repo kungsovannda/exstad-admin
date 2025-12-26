@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "@/services/base-query";
 import { InstructorClassCreate, InstructorClassType, InstructorClassUpdate, InstructorType } from "@/types/opening-program";
+import { User } from "@/types/user";
 export const InstructorClassApi = createApi({
   reducerPath: "instructorClassApi",
   baseQuery: baseQuery(),
@@ -21,6 +22,20 @@ getAllInstructorClasses: builder.query<InstructorClassType[], void>({
       : [{ type: "InstructorClass", id: "LIST" }],
 }),
 
+getAllInstructor: builder.query<User[], void>({
+  query: () => "/instructor-classes/instructors",
+  transformResponse: (response: { "instructors": User[] }) =>
+    response["instructors"] ?? [],
+  providesTags: (result) =>
+    result?.length
+      ? [
+          ...result.map(({ uuid }) => ({ type: "InstructorClass" as const, id: uuid })),
+          { type: "InstructorClass", id: "LIST" },
+        ]
+      : [{ type: "InstructorClass", id: "LIST" }],
+}),
+
+
 
     // GET all instructor by class UUID
     getAllInstructorByClassUuid: builder.query<InstructorType[], string>({
@@ -34,6 +49,7 @@ getAllInstructorClasses: builder.query<InstructorClassType[], void>({
             ]
           : [{ type: "InstructorClass", id: "LIST" }],
     }),
+
   getAllInstructorClassesByClassUuid: builder.query<InstructorClassType[], string>({
     query: (classUuid) => `/instructor-classes/by-class-uuid/${classUuid}`,
     transformResponse: (response: { "instructors-classes": InstructorClassType[] }) =>
@@ -113,6 +129,7 @@ getAllInstructorClasses: builder.query<InstructorClassType[], void>({
 export const {
   useGetAllInstructorClassesQuery,
   useGetAllInstructorByClassUuidQuery,
+  useGetAllInstructorQuery,
   useGetAllInstructorClassesByClassUuidQuery,
   useGetScholarClassesByClassUuidQuery,
   useCreateInstructorClassMutation,

@@ -13,11 +13,13 @@ import { ViewAndUpdateUniversity } from "../ViewAndUpdateUniversity";
 import ModalDelete from "@/components/modal/ModalDelete";
 import { useDeleteUniversityMutation } from "../../universityApi";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function UniversityCellAction({ data }: { data: University }) {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteUniversity] = useDeleteUniversityMutation();
+  const { hasRole } = useAuth();
 
   const onDelete = () => {
     if (!data) return;
@@ -46,12 +48,14 @@ export default function UniversityCellAction({ data }: { data: University }) {
         <DropdownMenuItem onClick={() => setIsViewOpen(true)}>
           View & Update
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setIsDeleteOpen(true)}
-          variant="destructive"
-        >
-          Delete university
-        </DropdownMenuItem>
+        {hasRole("ADMIN") && (
+          <DropdownMenuItem
+            onClick={() => setIsDeleteOpen(true)}
+            variant="destructive"
+          >
+            Delete university
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
       {isViewOpen && (
         <ViewAndUpdateUniversity

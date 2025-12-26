@@ -30,9 +30,9 @@ export const userApi = createApi({
       providesTags: [{ type: "User", id: "LIST" }],
     }),
 
-    // GET all Instructor 
+    // GET all Instructor
     getAllInstructors: builder.query<User[], void>({
-      query: () => "/users",
+      query: () => "/instructor-classes/instructors",
       transformResponse: (response: { users?: User[] }) => response.users ?? [],
       providesTags: (result) =>
         result?.length
@@ -60,7 +60,6 @@ export const userApi = createApi({
       providesTags: (result, error, email) => [{ type: "User", id: email }],
     }),
 
-    // 🙋‍♂️ GET current user (me)
     getCurrentUser: builder.query<User, void>({
       query: () => "/users/me",
       transformResponse: (response: User) => response,
@@ -77,6 +76,14 @@ export const userApi = createApi({
       transformResponse: (response: User) => response,
       invalidatesTags: [{ type: "User", id: "LIST" }],
     }),
+    disableUser: builder.mutation<User, string>({
+      query: (username) => ({
+        url: `/users/${username}/disable`,
+        method: "PUT",
+      }),
+      transformResponse: (response: User) => response,
+      invalidatesTags: [{ type: "User", id: "LIST" }],
+    }),
   }),
 });
 
@@ -88,4 +95,5 @@ export const {
   useGetUserByEmailQuery,
   useGetCurrentUserQuery,
   useCreateUserMutation,
+  useDisableUserMutation,
 } = userApi;

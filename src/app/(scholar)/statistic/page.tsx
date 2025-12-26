@@ -13,19 +13,19 @@ import { useGetCurrentAddressesQuery } from "@/features/current-address/currentA
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
 import { useGetAllScholarsQuery } from "@/features/scholar/scholarApi";
 import AddScholar from "@/features/scholar/statistic/components/AddScholar";
-import ScholarChartByAge from "@/features/scholar/statistic/components/ScholarChartByAge";
 import ScholarCharts from "@/features/scholar/statistic/components/ScholarCharts";
 import { StatisticCard } from "@/features/scholar/statistic/components/StatisticCard";
 import { ScholarColumns } from "@/features/scholar/statistic/components/table/column";
 import { ScholarTable } from "@/features/scholar/statistic/components/table/data-table";
-import ScholarChartByAddress from "@/features/scholar/statistic/components/table/ScholarChartByAddress";
 import { useGetAllUniversitiesQuery } from "@/features/university/universityApi";
+import { useAuth } from "@/hooks/use-auth";
 import { useMemo, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 
 export default function StatisticPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { data, isLoading } = useGetAllScholarsQuery();
+  const { hasRole } = useAuth();
 
   const { data: provinces } = useGetAllProvincesQuery();
   const provinceOptions = useMemo(
@@ -66,16 +66,18 @@ export default function StatisticPage() {
           title="Scholar Management"
           description="View statistic and manage scholars"
         />
-        <Button
-          onClick={() => {
-            setIsCreateOpen(true);
-          }}
-          variant="outline"
-          className="flex items-center gap-2.5"
-        >
-          <FiPlus />
-          <span>Add Scholar</span>
-        </Button>
+        {hasRole(["INSTRUCTOR1", "ADMIN"]) && (
+          <Button
+            onClick={() => {
+              setIsCreateOpen(true);
+            }}
+            variant="outline"
+            className="flex items-center gap-2.5"
+          >
+            <FiPlus />
+            <span>Add Scholar</span>
+          </Button>
+        )}
       </div>
       <StatisticCard />
       <ScholarCharts />

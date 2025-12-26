@@ -50,7 +50,7 @@ function QualificationLevelPieCard({
   }, [chartData]);
 
   return (
-    <Card className="flex h-[500px] flex-col rounded-lg shadow-sm">
+    <Card className="flex flex-col rounded-lg shadow-sm">
       <CardHeader className="items-center pb-2">
         <CardTitle>Enrollment by Qualification</CardTitle>
         <CardDescription>
@@ -58,7 +58,7 @@ function QualificationLevelPieCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-2">
-        <ChartContainer config={chartConfig} className="mx-auto h-full w-full">
+        <ChartContainer config={chartConfig} className="mx-auto h-fit w-full">
           <PieChart>
             <ChartTooltip
               content={

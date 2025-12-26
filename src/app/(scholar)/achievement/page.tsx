@@ -7,12 +7,30 @@ import { useGetAllAchievementsQuery } from "@/features/achievement/achievementAp
 import CreateAchievementModal from "@/features/achievement/components/CreateAchievementModal";
 import { achievementColumns } from "@/features/achievement/components/table/columns";
 import { AchievementTable } from "@/features/achievement/components/table/data-table";
+import { useGetAllMasterProgramsQuery } from "@/features/master-program/masterProgramApi";
+import { useAuth } from "@/hooks/use-auth";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function AchievementPage() {
   const [isCrateShow, setIsCreateShow] = useState(false);
   const { data: achievements, isLoading } = useGetAllAchievementsQuery();
+  const { data: openingPrograms } = useGetAllMasterProgramsQuery();
+  const { hasRole } = useAuth();
+
+  const programOptions = useMemo(
+    () =>
+      openingPrograms?.map((p) => ({
+        label: p.title ?? "",
+        value: p.title ?? "",
+      })) ?? [],
+    [openingPrograms]
+  );
+  const column = useMemo(
+    () => achievementColumns(programOptions),
+    [programOptions]
+  );
+
   return (
     <div className="p-6 flex flex-1 flex-col space-y-4">
       <div className="flex items-center justify-between">
@@ -20,10 +38,12 @@ export default function AchievementPage() {
           title="Achievement Management"
           description="This is where you can see all achievements, create and modify them"
         />
-        <Button onClick={() => setIsCreateShow(true)} variant="outline">
-          <Plus />
-          Create Achievement
-        </Button>
+        {hasRole(["INSTRUCTOR1", "ADMIN"]) && (
+          <Button onClick={() => setIsCreateShow(true)} variant="outline">
+            <Plus />
+            Create Achievement
+          </Button>
+        )}
       </div>
       <Separator />
       {isLoading ? (
@@ -31,7 +51,7 @@ export default function AchievementPage() {
       ) : (
         <AchievementTable
           data={Array.isArray(achievements) ? achievements : []}
-          columns={achievementColumns}
+          columns={column}
           totalItems={Array.isArray(achievements) ? achievements.length : 0}
         />
       )}

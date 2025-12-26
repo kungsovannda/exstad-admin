@@ -13,7 +13,7 @@ export default function TimelineTable({
   data,
   totalItems,
   columns,
-  onReorder, // 🔑 new prop
+  onReorder, 
 }: TimelineTableProps & { onReorder?: (newData: TimelineType[]) => void }) {
   return (
     <DefaultTableDnd
@@ -21,7 +21,7 @@ export default function TimelineTable({
       totalItems={totalItems}
       columns={columns}
       getRowId={(row) => String(row._clientId)}
-      onReorder={onReorder} // 🔑 pass callback
+      onReorder={onReorder} 
       enableExport
       exportFilename="timeline.xlsx"
       exportType

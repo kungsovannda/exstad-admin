@@ -39,11 +39,27 @@ import { Scholar } from "@/types/scholar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
-import { useCreateScholarAchievementMutation } from "../scholarAchievementApi";
+import {
+  useCreateScholarAchievementMutation,
+  useGetAllScholarAchievementsQuery,
+} from "../scholarAchievementApi";
 const schema = z.object({
   achievement: z.string(),
 });
+
+const IsScholarAchievementAssigned = (
+  scholar: Scholar,
+  achievementUuid: string
+) => {
+  const { data: achievements } = useGetAllScholarAchievementsQuery({
+    scholarUuid: scholar.uuid,
+  });
+  return achievements
+    ? achievements.some((a) => a.achievement.uuid === achievementUuid)
+    : false;
+};
 
 export default function AssignScholarAchievement({
   open,
@@ -85,26 +101,34 @@ export default function AssignScholarAchievement({
     let failure = 0;
 
     for (let i = 0; i < scholars.length; i++) {
-      try {
-        await assignAchievement({
-          scholarUuid: scholars[i].uuid,
-          body: {
-            achievementUuid: values.achievement,
-          },
-        }).unwrap();
-        success++;
-      } catch {
+      if (IsScholarAchievementAssigned(scholars[i], values.achievement)) {
+        toast.warning(
+          `Achievement already assigned to ${scholars[i].englishName}`
+        );
         failure++;
+      } else {
+        try {
+          await assignAchievement({
+            scholarUuid: scholars[i].uuid,
+            body: {
+              achievementUuid: values.achievement,
+            },
+          }).unwrap();
+          success++;
+        } catch {
+          failure++;
+        }
       }
       setStateProcess({
-        currentProgress: Math.round(((i + 1) / scholars.length) * 100), // ✅ Fixed
-        successCount: success, // ✅ Fixed
-        failureCount: failure, // ✅ Fixed
+        currentProgress: Math.round(((i + 1) / scholars.length) * 100),
+        successCount: success,
+        failureCount: failure,
       });
     }
     if (success + failure === scholars.length) {
       setTimeout(() => {
         setShowProgressDialog(false);
+        onOpenChange(false);
       }, 3000);
     }
   }

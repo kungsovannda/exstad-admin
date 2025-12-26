@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -32,14 +32,38 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-
+import { cn } from "@/lib/utils";
 // -----------------
 // Validation schema
 // -----------------
 const timelineSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  startDate: z.string().min(1, "Start Date is required"),
-  endDate: z.string().min(1, "End Date is required"),
+  startDate: z
+    .date()
+    .min(1, "Start Date is required")
+    .refine(
+      (date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for comparison
+        return date >= today;
+      },
+      {
+        message: "Deadline must be today or a future date",
+      }
+    ),
+  endDate: z
+    .date()
+    .min(1, "End Date is required")
+    .refine(
+      (date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for comparison
+        return date >= today;
+      },
+      {
+        message: "Deadline must be today or a future date",
+      }
+    ),
 });
 
 export type TimelineFormValues = z.infer<typeof timelineSchema>;
@@ -65,37 +89,35 @@ export default function TimelineFormModal({
     );
   }
 
-  // -----------------
-  // UseForm with onChange validation
-  // -----------------
   const form = useForm<TimelineFormValues>({
     resolver: zodResolver(timelineSchema),
-    defaultValues: initialData || { title: "", startDate: "", endDate: "" },
-    mode: "onSubmit", // <-- validate while typing/selecting
-    reValidateMode: "onSubmit",
+    defaultValues: initialData || {
+      title: "",
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   });
 
-  const {
-    handleSubmit,
-    reset,
-    clearErrors,
-    trigger: validateForm,
-    control,
-  } = form;
+  const { handleSubmit, reset, clearErrors, control } = form;
+  const [openDate, setOpenDate] = useState(false); // ✅ control popover visibility
 
   useEffect(() => {
-    if (!open) return; // only reset when modal opens
+    if (!open) return;
     reset({
       title: initialData?.title || "",
-      startDate: initialData?.startDate || "",
-      endDate: initialData?.endDate || "",
+      startDate: initialData?.startDate || new Date(),
+      endDate: initialData?.endDate || new Date(),
     });
     clearErrors();
   }, [open]);
 
-  // -----------------
-  // Submit handler
-  // -----------------
+  // 🔹 Control popover visibility
+  const [openPopover, setOpenPopover] = useState<{
+    startDate: boolean;
+    endDate: boolean;
+  }>({ startDate: false, endDate: false });
+
+  // 🔹 Submit handler
   const onSubmitForm = async (data: TimelineFormValues) => {
     try {
       await onSubmitTimeline?.(data);
@@ -112,26 +134,17 @@ export default function TimelineFormModal({
     }
   };
 
-  // -----------------
-  // Field change helpers
-  // -----------------
-  const handleFieldChange =
-    (
-      fieldName: keyof TimelineFormValues,
-      onChange: (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      ) => void
-    ) =>
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      clearErrors(fieldName);
-      onChange(event);
-    };
-
+  // 🔹 Date change handler (closes popover after select)
   const handleDateChange =
     (fieldName: keyof TimelineFormValues, onChange: (value: string) => void) =>
     (date: Date | undefined) => {
+      if (!date) return;
+      const formatted = date.toISOString().split("T")[0];
+      onChange(formatted);
       clearErrors(fieldName);
-      onChange(date?.toISOString().split("T")[0] || "");
+
+      // ✅ Auto-close popover
+      setOpenPopover((prev) => ({ ...prev, [fieldName]: false }));
     };
 
   return (
@@ -144,9 +157,8 @@ export default function TimelineFormModal({
           event.preventDefault();
           const values = form.getValues();
           const hasEmpty = Object.values(values).some(
-            (v) => v === "" || v === undefined || v === null
+            (v) => !v || v === "" || v === undefined
           );
-
           if (hasEmpty) {
             form.trigger();
             toast.error("Please fill all required fields before leaving.");
@@ -172,7 +184,10 @@ export default function TimelineFormModal({
                     <Input
                       {...field}
                       placeholder="Enter timeline title..."
-                      onChange={handleFieldChange("title", field.onChange)}
+                      onChange={(e) => {
+                        clearErrors("title");
+                        field.onChange(e);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -181,35 +196,39 @@ export default function TimelineFormModal({
             />
 
             {/* Start Date */}
+            {/* Start Date */}
             <FormField
-              control={control}
+              control={form.control}
               name="startDate"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Start Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between text-left"
-                      >
-                        <span>
-                          {field.value
-                            ? format(new Date(field.value), "PPP")
-                            : "Select start date"}
-                        </span>
-                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                      </Button>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                        onSelect={handleDateChange("startDate", field.onChange)}
+                        selected={field.value}
                         captionLayout="dropdown"
-                        className="rounded-md border"
+                        onSelect={field.onChange}
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
@@ -217,37 +236,39 @@ export default function TimelineFormModal({
                 </FormItem>
               )}
             />
-
             {/* End Date */}
             <FormField
-              control={control}
+              control={form.control}
               name="endDate"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date</FormLabel>
+                <FormItem className="flex flex-col">
+                  <FormLabel>Start Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between text-left"
-                      >
-                        <span>
-                          {field.value
-                            ? format(new Date(field.value), "PPP")
-                            : "Select end date"}
-                        </span>
-                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                      </Button>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                        onSelect={handleDateChange("endDate", field.onChange)}
+                        selected={field.value}
                         captionLayout="dropdown"
-                        className="rounded-md border"
+                        onSelect={field.onChange}
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>

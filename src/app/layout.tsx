@@ -1,5 +1,6 @@
 import { ActiveThemeProvider } from "@/components/active-theme";
 import ThemeProvider from "@/components/layout/theme-toggle/ThemeProvider";
+import { fontVariables } from "@/lib/font";
 import StoreProvider from "@/lib/providers";
 import { cn } from "@/lib/utils";
 import type { Metadata, Viewport } from "next";
@@ -68,28 +69,29 @@ export default async function RootLayout({
           "bg-background font-sans antialiased",
           activeThemeValue ? `theme-${activeThemeValue}` : "",
           isScaled ? "theme-scaled" : "",
-          `${inter.variable} ${koh.variable}`
+          `${inter.variable} ${koh.variable}`,
+          fontVariables
         )}
       >
         <AuthProvider>
-          <SessionWatcher />
-          <NuqsAdapter>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange={false}
-              enableColorScheme
-            >
-              <StoreProvider>
+          <StoreProvider>
+            <SessionWatcher />
+            <NuqsAdapter>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange={false}
+                enableColorScheme
+              >
                 <ActiveThemeProvider>
                   {/* <Suspense fallback={<Loader />}> */}
                   <LayoutWrapper>{children}</LayoutWrapper>
                   {/* </Suspense> */}
                 </ActiveThemeProvider>
-              </StoreProvider>
-            </ThemeProvider>
-          </NuqsAdapter>
+              </ThemeProvider>
+            </NuqsAdapter>
+          </StoreProvider>
         </AuthProvider>
       </body>
     </html>

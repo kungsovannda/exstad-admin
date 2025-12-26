@@ -445,7 +445,7 @@ export default function MasterProgramForm({
     const slug = form.watch("slug");
     return (
       <FormItem>
-        <FormLabel>Thumbnail *</FormLabel>
+        <FormLabel>Cover   *</FormLabel>
         <FormControl>
           <div className="space-y-4 mt-2">
             <ThumbnailUploadField

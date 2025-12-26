@@ -1,6 +1,5 @@
 "use client";
 import ModalDelete from "@/components/modal/ModalDelete";
-import { ViewAndUpdateBadge } from "../ViewAndUpdateBadge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,15 +8,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/types/badge";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import { useDeleteBadgeMutation } from "../../badgeApi";
 import { toast } from "sonner";
+import { useDeleteBadgeMutation } from "../../badgeApi";
+import { ViewAndUpdateBadge } from "../ViewAndUpdateBadge";
 
 export default function VerificationCellAction({ data }: { data: Badge }) {
   const [isDeleteModalShow, setIsDeleteModalShow] = useState(false);
   const [deleteBadge] = useDeleteBadgeMutation();
+  const { hasRole } = useAuth();
   const [isViewAndUpdateModalShow, setIsViewAndUpdateModalShow] =
     useState(false);
   const onDelete = () => {
@@ -44,12 +46,14 @@ export default function VerificationCellAction({ data }: { data: Badge }) {
         <DropdownMenuItem onClick={() => setIsViewAndUpdateModalShow(true)}>
           View & Update
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setIsDeleteModalShow(true)}
-          variant="destructive"
-        >
-          Delete
-        </DropdownMenuItem>
+        {hasRole("ADMIN") && (
+          <DropdownMenuItem
+            onClick={() => setIsDeleteModalShow(true)}
+            variant="destructive"
+          >
+            Delete
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
       {isDeleteModalShow && (
         <ModalDelete

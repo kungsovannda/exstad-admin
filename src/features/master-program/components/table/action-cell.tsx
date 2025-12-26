@@ -13,9 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Settings2, SquarePen, Trash } from "lucide-react";
 import { toast } from "sonner";
-import DeleteModal from "@/features/master-program/components/delete-modal-component";
 import { MasterProgramType } from "@/types/program";
-import { useDeleteMasterProgramMutation } from "../../masterProgramApi";
+import {  useSoftDeleteMasterProgramMutation } from "../../masterProgramApi";
 import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ActionsCellProps {
@@ -25,7 +24,7 @@ interface ActionsCellProps {
 export function MasterActionsCell({ program }: ActionsCellProps) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteMasterProgram] = useDeleteMasterProgramMutation();
+  const [deleteMasterProgram] = useSoftDeleteMasterProgramMutation();
 
   const handleDelete = async () => {
     try {

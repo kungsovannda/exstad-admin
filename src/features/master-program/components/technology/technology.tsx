@@ -5,7 +5,7 @@ import { FiPlus } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import TechnologyFormModal, { TechnologyFormValues } from "./technologyModa";
 import { toast } from "sonner";
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen, Trash, GripVertical } from "lucide-react";
 import { SectionSkeleton } from "../section-skeleton";
 import ModalDelete from "@/components/modal/ModalDelete";
 import {
@@ -21,11 +21,7 @@ import generateFilename from "@/services/generate-filename";
 type Props = { programUuid: string; programSlug: string };
 
 export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
-  const {
-    data: technologyRaw,
-    isLoading,
-    isError,
-  } = useGetAllTechnologyQuery(programUuid, {
+  const { data: technologyRaw, isLoading, isError } = useGetAllTechnologyQuery(programUuid, {
     refetchOnMountOrArgChange: true,
   });
 
@@ -36,6 +32,10 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<technologyType | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<technologyType | null>(null);
+
+  // Drag & Drop state
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Sync server -> local
   useEffect(() => {
@@ -57,50 +57,40 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
   );
 
   if (isLoading) return <SectionSkeleton count={4} />;
-  if (isError)
-    return <div className="text-destructive">Failed to load technologies</div>;
+  if (isError) return <div className="text-destructive">Failed to load technologies</div>;
 
-  // Add or edit local technology
-  const handleSaveTechLocal = (
-    data: TechnologyFormValues,
-    target?: technologyType
-  ) => {
+  // ======================
+  // CRUD Handlers
+  // ======================
+  const handleSaveTechLocal = (data: TechnologyFormValues, target?: technologyType) => {
     setLocalTechs((prev) => {
       const safe = Array.isArray(prev) ? prev : [];
       const newTechs = target
         ? safe.map((t) =>
-            t.title === target.title && t.description === target.description
+            t._clientId === target._clientId &&
+            t.title === target.title &&
+            t.description === target.description
               ? { ...t, ...data }
               : t
           )
-        : [...safe, { ...data }];
+        : [...safe, { ...data, _clientId: crypto.randomUUID() }]; // assign _clientId for new
       return newTechs;
     });
     setHasChanges(true);
   };
 
-  // Delete local technology
   const handleDeleteTechLocal = (target: technologyType) => {
-    setLocalTechs((prev) => {
-      const safe = Array.isArray(prev) ? prev : [];
-      return safe.filter(
-        (t) =>
-          !(t.title === target.title && t.description === target.description)
-      );
-    });
+    setLocalTechs((prev) =>
+      (prev || []).filter((t) => t._clientId !== target._clientId)
+    );
     setHasChanges(true);
     toast.info(`Technology "${target.title}" deleted!`);
   };
 
-  // Save all to backend
   const handleSaveAll = async () => {
     try {
       const payload: TechnologyPayload[] = (localTechs ?? []).map(
-        ({ title, description, image }) => ({
-          title,
-          description,
-          image,
-        })
+        ({ title, description, image }) => ({ title, description, image })
       );
       await updateTechnology({ programUuid, technology: payload }).unwrap();
       toast.success("All technologies saved!");
@@ -111,28 +101,23 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
     }
   };
 
-  // Upload logic for Technology
-  const handleUploadTechnology = async (
-    data: TechnologyFormValues,
-    file?: File
-  ) => {
+  const handleUploadTechnology = async (data: TechnologyFormValues, file?: File) => {
     try {
       let imageUrl = data.image;
 
-      // Upload file if exists
       if (file) {
         const toastId = toast.loading("Uploading technology image...");
         try {
           const uploadResult = await createDocument({
             file,
-            programSlug: programSlug ,
+            programSlug,
             gen: 0,
             documentType: "logo",
-            filename:  generateFilename({
-                        type: "technology",
-                        program: programSlug,
-                        generation: String(""),
-                      }),
+            filename: generateFilename({
+              type: "technology",
+              program: programSlug,
+              generation: "",
+            }),
           }).unwrap();
           imageUrl = uploadResult.uri;
           toast.dismiss(toastId);
@@ -150,6 +135,42 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
     }
   };
 
+  // ======================
+  // Drag & Drop Handlers
+  // ======================
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== index) setDragOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const updated = [...localTechs];
+    const [movedItem] = updated.splice(draggedIndex, 1);
+    updated.splice(index, 0, movedItem);
+
+    setLocalTechs(updated);
+    setHasChanges(true);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    toast.success("Technology reordered!");
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  // ======================
+  // JSX
+  // ======================
   return (
     <div className="flex flex-col gap-5 w-full">
       {/* Header */}
@@ -163,7 +184,6 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
             const techData = await handleUploadTechnology(data, file);
             handleSaveTechLocal(techData);
             setIsCreateOpen(false);
-            toast.success(`Technology "${data.title}" added!`);
           }}
           trigger={
             <Button className="flex items-center gap-2.5">
@@ -178,70 +198,73 @@ export default function TechnologyAdmin({ programUuid, programSlug }: Props) {
 
       {/* Technology List */}
       {techsWithUid.length === 0 ? (
-        <div className="text-muted-foreground">
-          No technologies yet. Add one to get started!
-        </div>
+        <div className="text-muted-foreground">No technologies yet. Add one to get started!</div>
       ) : (
-        techsWithUid.map((t) => (
-          <div
-            key={t.uid}
-            className="flex justify-between items-center bg-accent rounded-sm p-4"
-          >
-            <div className="flex items-start gap-4">
-              {t.image && (
-                <Image
-                  unoptimized
-                  width={48}
-                  height={48}
-                  src={t.image}
-                  alt={t.title}
-                  className="w-12 h-12 rounded-sm flex-shrink-0"
+        techsWithUid.map((t, index) => {
+          const isDragging = draggedIndex === index;
+          const isDropTarget = dragOverIndex === index && draggedIndex !== index;
+
+          return (
+            <div
+              key={t.uid}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
+              className={`flex justify-between items-center bg-accent rounded-sm p-4 transition-all cursor-move
+                ${isDragging ? "opacity-40 scale-95" : ""}
+                ${isDropTarget ? "border-2 border-primary scale-[1.02] shadow-lg" : "border-2 border-transparent"}
+              `}
+            >
+              <div className="flex items-start gap-4">
+                {t.image && (
+                  <Image
+                    unoptimized
+                    width={48}
+                    height={48}
+                    src={t.image}
+                    alt={t.title}
+                    className="w-12 h-12 rounded-sm flex-shrink-0"
+                  />
+                )}
+                <div>
+                  <h3 className="text-xs md:text-base text-[16px] font-semibold text-foreground">{t.title}</h3>
+                  <h3 className="text-xs text-muted-foreground">{t.description}</h3>
+                </div>
+              </div>
+              <div className="flex gap-2 items-center">
+                <Trash
+                  size={16}
+                  className="text-destructive cursor-pointer"
+                  onClick={() => setDeleteTarget(t)}
                 />
-              )}
-              <div>
-                <h3 className="text-xs md:text-base text-[16px] font-semibold text-foreground">
-                  {t.title}
-                </h3>
-                <h3 className="text-xs text-muted-foreground">
-                  {t.description}
-                </h3>
+                <TechnologyFormModal
+                  open={!!editTarget && editTarget._clientId === t._clientId}
+                  onOpenChange={(open) => !open && setEditTarget(null)}
+                  initialData={editTarget || undefined}
+                  onSubmitTechnology={async (data, file) => {
+                    if (editTarget) {
+                      const techData = await handleUploadTechnology(data, file);
+                      handleSaveTechLocal(techData, editTarget);
+                      setEditTarget(null);
+                    }
+                  }}
+                  trigger={
+                    <SquarePen
+                      size={16}
+                      className="text-primary-hover cursor-pointer"
+                      onClick={() => setEditTarget(t)}
+                    />
+                  }
+                  masterProgram={{ uuid: programUuid, slug: programSlug }}
+                  openingProgram={{ uuid: programUuid, generation: 1 }}
+                />
+                <GripVertical className="text-gray-400" size={16} />
               </div>
             </div>
-            <div className="flex gap-2 items-center">
-              <Trash
-                size={16}
-                className="text-destructive cursor-pointer"
-                onClick={() => setDeleteTarget(t)}
-              />
-              <TechnologyFormModal
-                open={
-                  !!editTarget &&
-                  editTarget.title === t.title &&
-                  editTarget.description === t.description
-                }
-                onOpenChange={(open) => !open && setEditTarget(null)}
-                initialData={editTarget || undefined}
-                onSubmitTechnology={async (data, file) => {
-                  if (editTarget) {
-                    const techData = await handleUploadTechnology(data, file);
-                    handleSaveTechLocal(techData, editTarget);
-                    setEditTarget(null);
-                    toast.success(`Technology "${data.title}" updated!`);
-                  }
-                }}
-                trigger={
-                  <SquarePen
-                    size={16}
-                    className="text-primary-hover cursor-pointer"
-                    onClick={() => setEditTarget(t)}
-                  />
-                }
-                masterProgram={{ uuid: programUuid, slug: programSlug }}
-                openingProgram={{ uuid: programUuid, generation: 1 }}
-              />
-            </div>
-          </div>
-        ))
+          );
+        })
       )}
 
       {/* Delete Modal */}

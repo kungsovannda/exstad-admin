@@ -694,7 +694,7 @@ export default function ScholarDetails() {
                       <Badge
                         className="text-sm h-full aspect-square rounded-full"
                         variant={"outline"}
-                      >{`${scholar?.completedCourses?.length ?? 0}`}</Badge>
+                      >{`${certificates?.length ?? 0}`}</Badge>
                     </h2>
                   </div>
                 </AccordionTrigger>
@@ -745,6 +745,7 @@ export default function ScholarDetails() {
                           <AchievementCard
                             key={a.uuid}
                             achievement={a.achievement}
+                            scholarUuid={scholar?.uuid ?? ""}
                           />
                         ))}
                       </div>

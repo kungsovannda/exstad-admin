@@ -27,7 +27,7 @@ export default function FaqAdmin({ programUuid }: Props) {
 
   const [localFaqs, setLocalFaqs] = useState<FaqItem[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([String(0)]);
   const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(
     null
   );

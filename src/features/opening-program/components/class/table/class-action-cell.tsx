@@ -15,7 +15,7 @@ import { useState } from "react";
 import ClassModal, { ClassFormValues } from "@/features/opening-program/components/class/ClassModal";
 import { toast } from "sonner";
 import DeleteModal from "@/features/master-program/components/delete-modal-component";
-import { useDeleteClassMutation, useUpdateClassMutation } from "../classApi";
+import { useDeleteClassMutation, useSoftDeleteClassMutation, useUpdateClassMutation } from "../classApi";
 import ModalDelete from "@/components/modal/ModalDelete";
 
 interface ClassActionsCellProps {
@@ -27,7 +27,7 @@ interface ClassActionsCellProps {
 export function ClassActionsCell({ classes,onEdit,onDelete }: ClassActionsCellProps) {
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteClass] = useDeleteClassMutation();
+  const [deleteClass] = useSoftDeleteClassMutation();
   const [updateClass] = useUpdateClassMutation();
 
   // DELETE

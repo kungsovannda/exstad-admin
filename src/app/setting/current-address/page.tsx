@@ -8,6 +8,7 @@ import { currentAddressColumn } from "@/features/current-address/components/tabl
 import { CurrentAddressTable } from "@/features/current-address/components/table/data-table";
 import { useGetCurrentAddressesQuery } from "@/features/current-address/currentAddressApi";
 import { useGetAllProvincesQuery } from "@/features/province/provinceApi";
+import { useAuth } from "@/hooks/use-auth";
 import { IconPlus } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 
@@ -15,6 +16,7 @@ export default function CurrentAddressPage() {
   const { data, isLoading } = useGetCurrentAddressesQuery();
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
   const { data: provinces } = useGetAllProvincesQuery();
+  const { hasRole } = useAuth();
   const provinceOptions = useMemo(
     () =>
       provinces?.map((p) => ({
@@ -35,12 +37,14 @@ export default function CurrentAddressPage() {
           title="Current Addresses"
           description="This where you can modify or create current address"
         />
-        <Button
-          onClick={() => setIsModalCreateOpen(true)}
-          className={"text-xs md:text-sm"}
-        >
-          <IconPlus className="mr-2 h-4 w-4" /> Add New
-        </Button>
+        {hasRole(["INSTRUCTOR1", "ADMIN"]) && (
+          <Button
+            onClick={() => setIsModalCreateOpen(true)}
+            className={"text-xs md:text-sm"}
+          >
+            <IconPlus className="mr-2 h-4 w-4" /> Add New
+          </Button>
+        )}
       </div>
       <Separator />
       {isLoading ? (

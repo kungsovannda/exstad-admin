@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CreateScholar, toGender } from "@/types/scholar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateCredentialInformation from "./CreateCredentialInformation";
 import CreateGeneralInformation from "./CreateGeneralInformation";
 import { useCreateScholarMutation } from "../../scholarApi";
@@ -36,7 +36,9 @@ export const scholarFormSchema = z
       .min(5, { message: "Khmer name must be at least 5 characters." })
       .max(100, { message: "Khmer name must be at most 100 characters." }),
     gender: z.string({ error: "Please select a gender" }),
-    dob: z.date({ error: "Date of birth is required" }),
+    dob: z
+      .date({ error: "Date of birth is required" })
+      .max(new Date(), { error: "Date of birth must be in the past" }),
     phoneNumber: z.string({ error: "Phone number is required" }),
     phoneFamilyNumber: z.string({ error: "Family phone number is required" }),
     university: z.string({ error: "Please select a university" }),
@@ -84,7 +86,7 @@ export default function AddScholar({
   const [info, setInfo] = useState("general");
   const [isOpen, setIsOpen] = useState(open);
 
-  const [createScholar] = useCreateScholarMutation();
+  const [createScholar, { isError, error }] = useCreateScholarMutation();
   const [createDocument] = useCreateDocumentMutation();
 
   const form = useForm<ScholarFormValues>({
@@ -163,7 +165,10 @@ export default function AddScholar({
         return "Scholar created successfully!";
       },
       error: (error) => {
-        return `Failed to create scholar: ${error.message}`;
+        const errorMessage =
+          error?.error?.description || "Failed to create scholar";
+        console.log("Error message:", errorMessage);
+        return errorMessage;
       },
     });
   };
